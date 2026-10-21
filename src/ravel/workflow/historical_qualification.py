@@ -926,8 +926,19 @@ def validate_historical(contract, output_dir, *, timeout_seconds=CHILD_SECONDS, 
     except BaseException as error:
         # No worker-issued PGID signal. Outer/anchor owns bounded cleanup even after this worker exits.
         cleanup_pending = child is not None and child.poll() is None
-        save(out / "refusal.json", {"status": "refused", "class": "historical_runtime_or_custody_admission",
-                                   "error_type": type(error).__name__, "error": str(error), "traceback": traceback.format_exc(),
+        # A refusal is a check this gate raised (ValueError or TimeoutError); any other exception is a crash and
+        # is a typed failure, never a refusal. Both block admission of a leftover receipt (``refusal.json``).
+        refused = isinstance(error, (ValueError, TimeoutError))
+        trace = traceback.format_exc()
+        trace_file = out / "failure-traceback.txt"
+        if not refused:
+            trace_file.write_text(trace, encoding="utf-8")
+        save(out / "refusal.json", {"status": "refused" if refused else "failed",
+                                   "class": ("historical_runtime_or_custody_admission" if refused
+                                             else "historical_runtime_crash"),
+                                   "failure_class": None if refused else type(error).__name__,
+                                   "traceback_ref": None if refused else str(trace_file),
+                                   "error_type": type(error).__name__, "error": str(error), "traceback": trace,
                                    "child_pid": attempted, "child_observed_returncode": child.poll() if child is not None else None, "returned_validation_receipt": result_pin, "admitted": False, "outer_cleanup_pending":cleanup_pending,
                                    "elapsed_seconds": time.monotonic() - started,
                                    "scientific_calls": 0, "started_fits": 0})

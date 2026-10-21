@@ -219,6 +219,7 @@ def _prior_receipt(root, spec, state, node, saved, subject, index, contents):
     receipt={'schema_version':1,'kind':'agent_model_receipt','node_id':node['id'],'role':node['role'],
         'subject_sha256':subject,'exact_subject_presented':True,'presented_subject_sha256s':sorted(presented),
         'context_manifest_sha256':node['packet']['manifest_sha256'],'request_id':transport['request_id'],
+        'deferred_content_read':False,
         'receipt_sha256':state['nodes'][node['id']]['result']['sha256'],'host_sha256':saved['host_sha256'],
         'transport':transport,'isolation':isolation,'execution_observation':observation,'public_value':result['value'],
         'public_value_sha256':g.digest(result['value']),'context_transport_separated':bool(isolation.get('fresh_request') and isolation.get('parent_transcript_supplied') is False and node['packet']),
@@ -229,6 +230,7 @@ def _prior_receipt(root, spec, state, node, saved, subject, index, contents):
     if mode=='transport_attested_cli':
         observation='transport_attested_cli' if receipt['attestation']=='transport_attested' else 'unestablished'
         receipt['execution_observation']=observation
+    g._require_declared_instructions(root, isolation)
     if observation=='unestablished' or not receipt['context_transport_separated']:
         raise ValueError('nonvoting request has no fresh separated observed transport')
     return receipt

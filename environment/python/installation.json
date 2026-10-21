@@ -13,8 +13,8 @@
       "size": 4678
     },
     "requirements-full.txt": {
-      "sha256": "f9abeb25275cd160c502526fd0007cb5a27ba965160a3d324c806952c36c6bb3",
-      "size": 1008
+      "sha256": "7e27c7079bf1539188e5607f0ea6d2ddb4945af70664a58101256b399851a90a",
+      "size": 1149
     }
   },
   "canonical": "pyproject.toml",
@@ -40,8 +40,12 @@
     "jsonpatch==1.33",
     "iminuit==2.32.0",
     "spey==0.2.6",
+    "cabinetry==0.6.0",
     "onnx==1.23.0",
     "onnxruntime==1.30.0",
+    "tokenizers==0.22.1",
+    "huggingface-hub==1.33.0",
+    "hf-xet==1.7.0",
     "jax[cpu]==0.4.35",
     "jaxlib==0.4.35",
     "hepdata-cli==0.3.1",
@@ -65,7 +69,9 @@
     "langgraph-checkpoint-sqlite==3.1.1",
     "langgraph-checkpoint==4.2.0",
     "langchain-core==1.6.7",
-    "pydantic==2.14.0"
+    "pydantic==2.14.0",
+    "snakemake==9.27.0",
+    "snakemake-executor-plugin-cluster-generic==1.0.9"
   ],
   "helper": "scripts/setup/python_installation.py",
   "host_requirements": "requirements-full.txt",
@@ -89,6 +95,10 @@
     "awkward": {
       "environment": "host",
       "provider": "awkward"
+    },
+    "cabinetry": {
+      "environment": "host",
+      "provider": "cabinetry"
     },
     "camb": {
       "environment": "host",
@@ -306,6 +316,10 @@
       "environment": "sfitter",
       "provider": "tables"
     },
+    "tokenizers": {
+      "environment": "host",
+      "provider": "tokenizers"
+    },
     "tomli": {
       "environment": "legacy",
       "provider": "Python 3.10 historical backport; current host uses stdlib tomllib"
@@ -435,8 +449,12 @@
     "jsonpatch==1.33",
     "iminuit==2.32.0",
     "spey==0.2.6",
+    "cabinetry==0.6.0",
     "onnx==1.23.0",
     "onnxruntime==1.30.0",
+    "tokenizers==0.22.1",
+    "huggingface-hub==1.33.0",
+    "hf-xet==1.7.0",
     "jax[cpu]==0.4.35",
     "jaxlib==0.4.35",
     "hepdata-cli==0.3.1",
@@ -456,7 +474,9 @@
     "langgraph-checkpoint-sqlite==3.1.1",
     "langgraph-checkpoint==4.2.0",
     "langchain-core==1.6.7",
-    "pydantic==2.14.0"
+    "pydantic==2.14.0",
+    "snakemake==9.27.0",
+    "snakemake-executor-plugin-cluster-generic==1.0.9"
   ],
   "build_requirements": [
     "hatchling==1.27.0"

@@ -97,7 +97,7 @@ An optional `symbolic_provider` has exactly:
 
 The other provider kind is `wolfram-sarah`. Missing declared kernel or application
 metadata is a capability observation, while present files must match their pins.
-The provider package source must be bound. `last_attempt` may pin a historical
+The provider package source must be bound. `last_attempt` can pin a historical
 completion record; it never proves current availability, compatibility or
 licence status. Every result keeps `runtime_qualified` and
 `license_rights_qualified` false. Actual provider readiness and symbolic
@@ -167,7 +167,7 @@ exactly `schema_version: 1`, `id` and `models`. `proposal.json` is one current
 model record. Each record contains exactly `id`, `name`, `kind` (`proposal` or
 `prior`), `conventions`, `fields`, `interactions`, `kinetic_terms`, `topologies`,
 `processes`, `outcomes`, `ufo` and `node_ids`. Prior annotations need located
-evidence in the supplied knowledge index. A new proposal may cite an exploratory
+evidence in the supplied knowledge index. A new proposal can cite an exploratory
 hypothesis node; that remains a hypothesis. The typed JSON files themselves are
 committed inputs, and the returned assertion kinds remain visible.
 

@@ -1,0 +1,365 @@
+--- a/src/ravel/controller/step/graph.py
++++ b/src/ravel/controller/step/graph.py
+@@ -408,35 +408,36 @@
+-def _copy_inputs(run_dir, folder, rows, *, role):
++def _copy_inputs(run_dir, folder, rows, *, role, write=True):
+     """Screen the complete batch before copying exact, digest-pinned input bytes."""
+     from ravel.workflow import review_projection
+     planned, rels = [], []
+     for index, row in enumerate(rows):
+         original_rel = row['artifact'].rsplit(':', 1)[-1]
+         source_rel = row['artifact'] if row['kind'] == 'run-input' else row['custody']['destination']
+         name = Path(original_rel).name
+         target = folder / 'artifacts' / f'{index:03d}' / name
+         planned.append((row, original_rel, source_rel, target, name))
+         # Custody may rename an artifact; neither its original identity nor its
+         # source/copy destination may erase a forbidden input class.
+         rels.extend([original_rel, source_rel, target.as_posix()])
+     _, removed = review_projection.screen_inputs(run_dir, role, rels)
+     if removed:
+         raise StepHold('forbidden_input', 'the role forbids one or more input paths',
+                        evidence={'removed': removed})
+     pending = []
+     for row, original_rel, source_rel, target, name in planned:
+         raw = (run_dir / source_rel).read_bytes()
+         if hashlib.sha256(raw).hexdigest() != row['sha256']:
+             raise StepHold('input_changed', f"{row['artifact']} changed after it was verified")
+         _, removed = review_projection.withheld_fields(role, original_rel, raw)
+         if removed:
+             raise StepHold('forbidden_input', 'the role forbids fields in the pinned input',
+                            evidence={'path': original_rel, 'removed': removed})
+         pending.append((target, raw, row['sha256'], name))
+     pins = []
+     for index, (target, raw, sha256, name) in enumerate(pending):
+-        _write_once(run_dir / target, raw)
++        if write:
++            _write_once(run_dir / target, raw)
+         pins.append({'pin': {'path': target.as_posix(), 'sha256': sha256},
+                      'as': f'inputs/artifacts/{index:03d}/{name}'})
+     return pins
+ 
+ 
+@@ -581,68 +582,91 @@
+ def _worker_preflight(state, store, ctx, run_dir, acting, card, found, run_inputs, evaluations):
+     from ravel.workflow import agent_worker, transport_registry as tr
+     from ravel.workflow.transports import cli_worker
+     seat = _seat(state)
+     attempt = _attempt(state)
+     problems = cards.ownership_errors(card, acting, found)
+     if problems:
+         raise StepHold(problems[0]['code'], 'the step binds a quantity its role does not own or consume',
+                        evidence={'errors': problems})
+     evaluations['CF07'] = {'status': 'satisfied', 'evidence': {'owns': card['ownership']['owns']}}
+     evaluations[f"ROLE-{card['id']}-ownership"] = {'status': 'satisfied', 'evidence': {'owns': card['ownership']['owns']}}
+     prefs, kept, dropped = seats.preferences(ctx, card)
+     selection = seats.select(card, prefs, store=store)
+     document = tr.load(selection['transport_id'])
+     blind = card['id'] in agent_worker.blind_roles()
+     card_blind = not blind and (card.get('requires') or {}).get('blind') is True
+     belt = cli_worker.toolbelt_for(card, document, blind,
+                                    blind_actions=agent_worker.blind_actions(card) if card_blind else None)
+     problems = cards.exec_errors(card, belt)
+     if problems:
+         raise StepHold('exec_tool_present', 'a controller worker never receives an exec tool')
+     for row in ('I03', 'I04', 'T01', 'T02', 'T09', 'CF11', f"ROLE-{card['id']}-dispatch", f"ROLE-{card['id']}-requires",
+                 f"ROLE-{card['id']}-tools", f"ROLE-{card['id']}-model"):
+         evaluations[row] = {'status': 'satisfied', 'evidence': {'transport': selection['transport_id'],
+                                                                'dropped': dropped, 'toolbelt': belt['manifest_sha256']}}
+     for index, operation in enumerate(card.get('operations') or ()):
+         evaluations[f"ROLE-{card['id']}-operations-{index}"] = {
+             'status': 'satisfied', 'evidence': {'operation': operation, 'toolbelt': belt['manifest_sha256']}}
+     budgets, applied = cards.worker_budgets(card, acting)
+     evaluations['CF02'] = evaluations[f"ROLE-{card['id']}-stop"] = {'status': 'satisfied', 'evidence': applied}
+     outputs = cards.declared_outputs(card, acting)
+     packet_info = state['packet']
+     folder = Path(packet_info['path']).parent
+     rows = ([{'artifact': r['artifact'], 'sha256': r['sha256'], 'kind': r.get('kind'), 'custody': r} for r in found]
+             + [{'artifact': r['artifact'], 'sha256': r['sha256'], 'kind': 'run-input'} for r in run_inputs]
+             + [{'artifact': r['artifact'], 'sha256': r['sha256'], 'kind': 'run-input'}
+                for r in (packet_info.get('inputs') or ()) if r.get('kind') == 'consult-record'])
++    input_ids = [row['artifact'] for row in rows]
++    projected = ((card.get('requires') or {}).get('blind') is True
++                 or card['sees']['profile'] != 'workspace')
++    copies = _copy_inputs(run_dir, folder, rows, role=card['id'], write=not projected)
+     pins = [{'pin': {'path': packet_info['path'], 'sha256': packet_info['file_sha256']},
+-             'as': 'inputs/' + cli_worker.CONTROLLER_PACKET}] + _copy_inputs(run_dir, folder, rows, role=card['id'])
++             'as': 'inputs/' + cli_worker.CONTROLLER_PACKET}]
++    review_packet = None
++    if projected:
++        from ravel.workflow import review_projection
++        parameters = acting.get('parameters') or {}
++        subject_sha256 = ((seat or {}).get('subject') or {}).get('sha256') or parameters.get(
++            'subject_plan_sha256') or parameters.get('subject_sha256') or digest(sorted(input_ids))
++        point_id = (f"controller:{state['step']['id']}:{seat['role']}:{seat['n']}"
++                    if seat is not None and seat['purpose'] == 'review'
++                    else f"controller:{acting['id']}:{attempt}")
++        subjects = [row['artifact'] if row['kind'] == 'run-input' else row['custody']['destination']
++                    for row in rows]
++        review_packet = review_projection.project(run_dir, card, key=f"{acting['id']}:{attempt}",
++            item={'role': card['id'], 'point_id': point_id, 'subject_sha256': subject_sha256}, subjects=subjects)
++    else:
++        pins.extend(copies)
+     review = None
+     if seat is not None and seat['purpose'] == 'review':
+         review = {'point_id': f"controller:{state['step']['id']}:{seat['role']}:{seat['n']}",
+                   'scope': f"controller-step:{state['step']['id']}", 'subject_sha256': seat['subject']['sha256']}
++    elif projected and acting.get('kind') == 'review':
++        review = {'point_id': point_id, 'scope': f"controller-step:{state['step']['id']}",
++                  'subject_sha256': subject_sha256}
+     worker = seats.worker_spec(node_id=_node_id(state), attempt=attempt, card=card,
+                                card_sha256=state['card']['sha256'], transports=kept, inputs=pins,
+                                outputs=cards.worker_outputs(outputs), budgets=budgets,
+                                map_id='controller:' + state['step']['id'], review=review)
+     agent_worker._validate(worker)
+     pending = []
+     if seat is None:
+         for trigger in cards.consult_triggers(card, acting, _facts(store, acting, ctx)):
+             if not _consult_done(store, acting['id'], attempt, trigger['when'] + ':' + trigger['role']):
+                 pending.append(trigger)
+     _authorize(store, ctx, acting, state['reservation']['amounts'])
+     # The admitted tool set; the dispatcher probes the materialized worker against it before the start.
+     admitted = {'manifest_sha256': belt['manifest_sha256'], 'tools': sorted(t['name'] for t in belt['tools'])}
+     key = digest({'node': worker['node_id'], 'attempt': attempt})
+     # The dispatch record is written when the worker is about to start, after every required consult.
+     if not pending and not any(r.get('key') == key for r in records(store, DISPATCH)):
+         store.append(DISPATCH, {'schema_version': 1, 'key': key, 'step_id': state['step']['id'], 'seat': _seat_key(state),
+                                 'node_id': worker['node_id'], 'attempt': attempt, 'spec_sha256': digest(worker),
+                                 'selection': deepcopy(selection), 'dropped': dropped, 'card_sha256': state['card']['sha256'],
+                                 'packet_sha256': packet_info['sha256'], 'budgets': applied,
+                                 'toolbelt_manifest_sha256': belt['manifest_sha256'], 'admitted_tools': admitted['tools']})
+     return {'spec': worker, 'spec_sha256': digest(worker), 'selection': selection, 'outputs': outputs,
+-            'applied': applied, 'consults_pending': pending, 'dispatch_key': key, 'toolbelt': admitted}
++            'applied': applied, 'consults_pending': pending, 'dispatch_key': key, 'toolbelt': admitted,
++            'review_packet': review_packet, 'inputs': input_ids}
+ 
+ 
+@@ -784,7 +808,8 @@
+ def _dispatch_node():
+     return nodes.agent('controller.step.worker', rundir=lambda s: _run_dir(s),
+                        spec=lambda s: s['preflight']['spec'],
++                       packet=lambda s: s['preflight'].get('review_packet'),
+                        segment=lambda s: {'worker': _node_id(s), 'attempt': _attempt(s)},
+                        to_state=_worker_summary, controller=_controller_facts, failure_as_data=True)
+ 
+ 
+@@ -1232,7 +1257,8 @@
+         node_id = state['preflight']['spec']['node_id']
+         receipt = agent_worker.load_receipt(run_dir, node_id, _attempt(state))
+         subject = digest(sorted(state['preflight'].get('inputs') or []))
+-        subject = (state['acting'].get('parameters') or {}).get('subject_plan_sha256') or subject
++        parameters = state['acting'].get('parameters') or {}
++        subject = parameters.get('subject_plan_sha256') or parameters.get('subject_sha256') or subject
+         own = _decision(run_dir, broker.digest(receipt), receipt, subject)
+         own['verdict'] = (state.get('validation') or {}).get('verdict')
+     verdicts = [r['verdict'] for r in seat_rows]
+--- a/src/ravel/workflow/agent_worker.py
++++ b/src/ravel/workflow/agent_worker.py
+@@ -303,198 +303,206 @@
+ def _controller_packet(spec, item, controller):
+     """True for the controller's own instruction packet of a controller seat: its first input, the bytes
+     its launch facts name."""
+     pin=item.get('pin') if type(item) is dict else None
+     return (controller is not None and spec['final_record_schema']==CONTROLLER_SCHEMA and spec['inputs']
+             and item is spec['inputs'][0] and item.get('as')==CONTROLLER_PACKET_AS and type(pin) is dict
+             and pin.get('sha256')==controller.get('packet_sha256'))
+ 
+ 
+ def _screen_blind_inputs(run, spec, card, *, first=True, controller=None):
+     """Refuse a raw input the blind role's card does not let it see.
+ 
+     A role whose card declares ``requires.blind`` receives its own code-computed review item
+     packet and the run files its card's projection carries; anything else, a producer result
+     included, never reaches its workspace. This holds for every dispatch of the role. On the
+     first materialization the item packet must also be the one the review graph computes now
+     for that item; a re-attach finds the copy already in custody and verifies its bytes. A
+     controller seat's instruction packet, which the controller built and pins in its launch
+     facts, is a code-computed packet too; every other input of the seat is screened as before.
+     """
+     from . import review_projection
+     if spec['work_order'] is not None:
+         # A work order is free text to a worker. The only one a blind role receives is the
+         # sealed order of its own production node, which code built from the approved plan.
+         from . import production_executor
+         try:
+             order=read_json(_pin(run,spec['work_order']))
+             sealed=order==production_executor.load_order(run,spec['node_id']) and order.get('role')==spec['role']['id']
+         except (OSError,ValueError,KeyError,TypeError):sealed=False
+         if not sealed:
+             raise ValueError(f"a blind role receives a work order only as the sealed order of its own production "
+                              f"node; refused {spec['work_order'].get('path')}")
+     for item in spec['inputs']:
+         pin=item.get('pin') if type(item) is dict else None
+         rel=pin.get('path') if type(pin) is dict else None
+         if type(rel) is not str:raise ValueError('input copy requires pin and as')
+         if _controller_packet(spec,item,controller):
+             continue
+         if rel.startswith(review_projection.ITEM_PACKETS):
+             try:document=read_json(_pin(run,pin))
+             except (OSError,ValueError):document=None
+             own=(type(document) is dict and document.get('kind')=='review-item-packet'
+                  and document.get('role')==spec['role']['id']
+                  and document.get('point_id')==spec['parent'].get('review_point_id'))
+             reason=None if own else 'another_review_packet'
+             if own and first:
+                 from .graphs import review
+                 try:computed=review.authentic_packet(run,rel,document)
+                 except (OSError,ValueError,KeyError,TypeError):computed=False
+                 if not computed:reason='packet_not_code_computed'
+         else:
+             reason=review_projection.raw_input_class(run,card,rel)
+         if reason is not None:
+             raise ValueError(f"a blind role receives only code-computed packets and the inputs its card admits; "
+                              f"refused {rel} ({reason})")
+ 
+ 
+ def _packet_binding(packet):
+     if packet is None:return None
+     if type(packet) is not dict or set(packet)!={'path','manifest_sha256'} or type(packet['path']) is not str:
+         raise ValueError('role packet binding requires path and manifest_sha256')
+     return {'path':str(broker.ordinary(packet['path'])),'manifest_sha256':packet['manifest_sha256']}
+ 
+ 
+ def _copy_packet(ws, packet, role):
+     """Copy a verified role packet (manifest and indexed artifacts) into ``inputs/packet/``.
+ 
+     The packet is the reviewed role's code-computed projection; nothing else of the
+     producer reaches a blind worker's workspace.
+     """
+     from .review_context import _PacketIndex
+     index=_PacketIndex(packet['path'],packet['manifest_sha256'])
+     if index.manifest.get('role')!=role:raise ValueError('role packet belongs to a different role')
+     copies=[]
+     folder=ws/'inputs/packet/artifacts';folder.mkdir(parents=True)
+     raw=(Path(packet['path'])/'manifest.json').read_bytes()
+     if hashlib.sha256(raw).hexdigest()!=index.manifest_file_sha256:raise ValueError('role packet manifest changed')
+     (ws/'inputs/packet/manifest.json').write_bytes(raw)
+     for entry in index.entries.values():
+         dest=ws/'inputs/packet'/entry['path'];dest.write_bytes(index.read(entry))
+         copies.append(dest)
+     index.finish()
+     copies.append(ws/'inputs/packet/manifest.json')
+     rows=[]
+     for dest in copies:
+         dest.chmod(0o400);rows.append({'path':dest.relative_to(ws).as_posix(),'sha256':broker.sha(dest)})
+     return rows
+ 
+ 
+ def _effect_binding(effect):
+     """``{identity_sha256, epoch, downstream}``: the ledger effect this worker closes.
+ 
+     ``downstream`` is the absolute path where the supervisor writes the downstream
+     document that the effect ledger's ``worker_receipt`` validator reads.
+     """
+     if effect is None:return None
+     if (type(effect) is not dict or set(effect)!={'identity_sha256','epoch','downstream'}
+             or type(effect['identity_sha256']) is not str or len(effect['identity_sha256'])!=64
+             or type(effect['epoch']) is not dict or type(effect['epoch'].get('cancellation')) is not int
+             or type(effect['downstream']) is not str or not Path(effect['downstream']).is_absolute()):
+         raise ValueError('effect binding requires identity_sha256, epoch.cancellation and an absolute downstream path')
+     return deepcopy(effect)
+ 
+ 
+ def materialize(rundir: Path, spec: dict, *, graph=None, framework_step=None, packet=None, protected=(), effect=None,
+                 controller=None):
+     """Create the workspace and custody record once; a blind role receives only its packet.
+ 
+     ``protected`` names further roots (a graph root's state, checkpoints, events and
+     effect store) that the denial probe must show unreadable. ``effect`` binds the
+     receipt to the effect-ledger reservation it closes; a reattach keeps the first one.
+     ``controller`` carries a controller seat's launch facts. A refusal of a first
+     materialization precedes every process, so it is a ``MaterializeRefused``: nothing was
+     dispatched. A refused re-attach keeps its plain error: an earlier start may be running.
+     """
+     try:
+         first=not _record_path(broker.ordinary(rundir),spec['node_id'],spec['attempt']).exists()
+     except (KeyError, TypeError, ValueError):
+         first=True
+     try:
+         return _materialize(rundir,spec,graph=graph,framework_step=framework_step,packet=packet,protected=protected,
+                             effect=effect,controller=controller)
+     except MaterializeRefused:
+         raise
+     except ValueError as exc:
+         if not first:
+             raise
+         raise MaterializeRefused(str(exc)) from exc
+ 
+ 
+ def _materialize(rundir, spec, *, graph, framework_step, packet, protected, effect, controller):
+     spec=_validate(spec);run=broker.ordinary(rundir);packet=_packet_binding(packet);effect=_effect_binding(effect)
+     protected=sorted({str(broker.ordinary(p)) for p in protected})
+     blind=spec['role']['id'] in blind_roles()
+-    if blind and (packet is None or spec['inputs'] or spec['work_order'] is not None):
+-        raise ValueError('a blind role receives only its code-computed role packet; raw inputs and work orders are refused')
++    controller_input = (len(spec['inputs']) == 1
++                        and _controller_packet(spec, spec['inputs'][0], controller))
++    if blind and (packet is None or (spec['inputs'] and not controller_input) or spec['work_order'] is not None):
++        raise ValueError('a blind role receives only its code-computed role packet and authenticated controller '
++                         'instruction packet; extra raw inputs and work orders are refused')
++    if packet is not None and controller is not None and (not controller_input or spec['work_order'] is not None):
++        raise ValueError('a projected controller seat receives exactly its authenticated instruction packet; '
++                         'extra raw inputs and work orders are refused')
+     card=None if blind else _blind_card(spec)
++    if controller is not None and (blind or card is not None) and packet is None:
++        raise ValueError('a blind controller seat requires its code-computed role packet')
+     ws=workspace(run,spec['node_id'],spec['attempt']);record_path=_record_path(run,spec['node_id'],spec['attempt'])
+     if card is not None:_screen_blind_inputs(run,spec,card,first=not record_path.exists(),controller=controller)
+     with file_lock(record_path.with_suffix('.lock')):
+         if record_path.exists():
+             record=read_json(record_path)
+             if (record['spec'] != spec or graph is not None and record['graph'] != graph
+                     or packet is not None and record.get('packet') != packet
+                     or protected and record.get('protected') != protected):
+                 raise ValueError('worker identity reused with changed specification')
+             for pin in record['input_copies']:
+                 if broker.sha(broker.confined(ws,pin['path'])) != pin['sha256']:
+                     raise ValueError('materialized input changed')
+             # An earlier materialization does not carry the order requirement forward: the attempt is
+             # dispatched again only under its plan node's sealed order as that order is now.
+             _require_sealed_order(run,spec,_pinned_order(run,spec))
+             return ws
+         # The order is validated here, at dispatch and before anything is created: an order the
+         # worker's broker would refuse is never accepted first and rejected after the supervisor started.
+         order=read_json(_pin(run,spec['work_order'])) if spec['work_order'] else None
+         if order is not None:
+             if order.get('kind') != 'work-order' or order.get('node_id') != spec['node_id']:
+                 raise ValueError('work order belongs to a different node')
+             if order.get('role', spec['role']['id']) != spec['role']['id']:
+                 raise ValueError('work order belongs to a different role')
+         _require_sealed_order(run,spec,order)
+         # Only the trusted dispatcher can create these directories and control files.
+         ws.mkdir(parents=True,exist_ok=False)
+         for folder in ('inputs','outputs','scratch','calls'):(ws/folder).mkdir()
+         inputs=_copy_packet(ws,packet,spec['role']['id']) if packet is not None else []
+         try:
+             from . import review_projection
+             from .knowledge_broker import filter_inputs
+             for item in filter_inputs(run, ws, spec):
+                 if type(item) is not dict or set(item) != {'pin','as'}:
+                     raise ValueError('input copy requires pin and as')
+                 source=_pin(run,item['pin']);dest=broker.confined(ws,item['as'])
+                 if Path(item['as']).parts[0] != 'inputs' or Path(item['as']).parts[:2]==('inputs','packet'):
+                     raise ValueError('input copy restricted to inputs/, outside the role packet')
+                 raw=source.read_bytes()
+                 if hashlib.sha256(raw).hexdigest() != item['pin']['sha256']:raise ValueError('input changed during copy')
+                 if card is not None and not item['pin']['path'].startswith(review_projection.ITEM_PACKETS):
+                     # A blind role's raw JSON input is carried as its card's projection carries it.
+                     raw=review_projection.withheld_fields(card,item['pin']['path'],raw)[0]
+                 dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+                 dest.chmod(0o400);inputs.append({'path':item['as'],'sha256':broker.sha(dest)})
+             # Work orders are handed in by the dispatcher; artifact contents do not construct one.
+             if order is not None:
+                 atomic_json(ws/'inputs/work-order.json',order)
+                 inputs.append({'path':'inputs/work-order.json','sha256':broker.sha(ws/'inputs/work-order.json')})
+             record={'spec':spec,'input_copies':inputs,'packet':packet,'protected':protected,'blind':blind,
+                     'card_blind':card is not None,'effect':effect,'actor':None,
+                     # One blind flag for the whole dispatch: the actions a blind worker may be launched with.
+                     'blind_actions':['read','write'] if blind else blind_actions(card) if card is not None else None,
+                     'run_tree_before':_protected(run,spec,packet),'graph':deepcopy(graph),
+                     'framework_step':framework_step,'started_utc':broker.utc(),'started_epoch':time.time(),
+                     'launch':None,'receipt':None,'execution':None}
+             atomic_json(record_path,record)
+         except Exception:
+             # Preserve refused partial materialization for inspection; it grants no credit.
+             raise
+     return ws

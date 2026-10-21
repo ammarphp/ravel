@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "judgment-policy",
+  "bounds": {
+    "frame_rounds": 2,
+    "plan_rounds": 2,
+    "plan_review_rounds": 2,
+    "replans": 3,
+    "kill_rounds": 1,
+    "final_review_rounds": 1,
+    "step_attempts": 2,
+    "max_waves": 64
+  },
+  "operator_bounds": {
+    "replans": "replans",
+    "plan_review_rounds": "review_rounds"
+  },
+  "roles": {
+    "planner": "coordinator",
+    "critic": "plan-critic",
+    "attacker": "physics-critic",
+    "final_review_trigger": "delivery:parent",
+    "decision": "coordinator"
+  },
+  "subgraphs": ["research.loop", "rdj.case", "review.points", "manuscript.build", "ml.study", "literature.scout",
+                "intake.plan", "consult.case"],
+  "step_kinds": ["acquire", "operate", "author", "derive", "compare", "review", "synthesize", "ask", "decide",
+                 "subgraph", "route"],
+  "rungs": ["dry", "smoke", "pilot", "full", "scan"],
+  "instruction_sources": {
+    "frame": ["docs/workflow/checklists/judgment-protocols.md", "docs/workflow/README.md"],
+    "decompose": ["docs/workflow/checklists/judgment-protocols.md", "docs/workflow/README.md"],
+    "review": ["docs/workflow/checklists/judgment-protocols.md"],
+    "attack": ["docs/workflow/checklists/judgment-protocols.md", "docs/workflow/checklists/verification-panel.md"],
+    "decide": ["docs/workflow/checklists/judgment-protocols.md"]
+  },
+  "outputs": {
+    "frame": {"path": "outputs/question-frame.json", "kind": "question-frame"},
+    "plan": {"path": "outputs/judgment-plan.json", "kind": "judgment-plan"},
+    "attacks": {"path": "outputs/judgment-attacks.json", "kind": "judgment-attacks"},
+    "record": {"path": "outputs/judgment-record.json", "kind": "judgment-record"},
+    "review": {"path": "outputs/review.json", "kind": "review-findings"},
+    "answer": {"path": "outputs/answer.json", "kind": "operator-answer"}
+  },
+  "ask": {
+    "authority_kind": "r3_action",
+    "poll_seconds": 30
+  }
+}

@@ -76,6 +76,16 @@ class CustodyError(ValueError):
     """A custody ledger is absent where required, or its chain does not verify."""
 
 
+def controller_approval(rundir, action, required, factors, gate='approve_plan'):
+    """Consumer bridge for the controller's observed exact-action case, never a custody receipt.
+
+    Legacy runs retain their receipt rules. Approval calls this after its plan
+    mapping passes above R2; final_task always uses its own exact-action seat.
+    """
+    from ravel.controller.authority.rdj import evaluate
+    return evaluate(rundir, action, required, factors, gate)
+
+
 def _digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
                                      allow_nan=False).encode()).hexdigest()
@@ -527,13 +537,22 @@ def _span(rundir, source, path, start, end, text):
     return digest, row
 
 
-def record_human_approval(rundir, *, case_id, source, path, start, end, text):
-    """Record a human approval of one case. Called by the CHECK-IN response path only.
+def record_human_approval(rundir, *, case_id, source, path, start, end, text, attestation=None, authority=None):
+    """Record a human approval of one case; fail closed without verified controller evidence.
 
     The approving text is recorded user text (CHECK-IN 1 response or user steering,
     never the original prompt), recorded after the case's proposal commit, and the
     quoted span names the case id or the first 12 characters of the action digest.
-    The record carries ``decision: approve``; only such records count as approvals.
+    An approval is recorded (``decision: approve``) only with one of:
+
+    - ``attestation``: a controller capture (``approval_capture``) of exactly this run,
+      case, committed action digest and approving text, verified against the capture ledger;
+    - ``authority``: the id of a controller authority-service record in this run's
+      controller store whose verified current disposition approves exactly this case and
+      action (``case_authority``).
+
+    Otherwise ``ValueError`` is raised and nothing is recorded: caller text alone never
+    becomes an approval. Unattested response text is retained by the response path.
     """
     if source not in APPROVAL_SOURCES:
         raise ValueError("a human approval quotes a CHECK-IN response or user steering, never the prompt")
@@ -544,9 +563,61 @@ def record_human_approval(rundir, *, case_id, source, path, start, end, text):
     digest, row = _span(rundir, source, path, start, end, text)
     if row["ns"] <= commit["ns"]:
         raise ValueError("the approving text was recorded before the case was committed")
-    return append(rundir, "approvals", {"decision": "approve", "case_id": case_id, "action_digest": data["digest"],
-                                        "source": source, "path": path, "sha256": digest, "start": start,
-                                        "end": end, "text": text})
+    if (attestation is None) == (authority is None):
+        raise ValueError("a human approval needs exactly one controller capture or authority-service record; "
+                         "caller text alone is not an approval")
+    record = {"decision": "approve", "case_id": case_id, "action_digest": data["digest"],
+              "source": source, "path": path, "sha256": digest, "start": start,
+              "end": end, "text": text}
+    if attestation is not None:
+        from . import approval_capture
+        approval_capture.verify(attestation, purpose="case_approval",
+                                binding=approval_capture.case_binding(rundir, case_id, data["digest"], digest))
+        record["attestation"] = attestation
+    else:
+        record["authority"] = case_authority(rundir, case_id, data["digest"], authority)
+    return append(rundir, "approvals", record)
+
+
+HUMAN_AUTHORITY_LABELS = ("operator_command", "physicist_terminal_response")
+
+
+def case_authority_pins(rundir, case_id, action_digest):
+    """The view pins a controller authority record binds when it approves one RDJ case action."""
+    return {"rdj_run_dir": str(Path(rundir).resolve()), "rdj_case_id": case_id, "rdj_action_digest": action_digest}
+
+
+def case_authority(rundir, case_id, action_digest, record_id):
+    """Verify, through the run's controller store, an authority record approving exactly this case.
+
+    The record is read from the store by id (never from a caller document) and must be a
+    current, verified ``r3_action`` approval bound to this run, case and action digest,
+    decided by an operator command or the physicist's answer to a controller-issued
+    challenge. Raises ``ValueError`` otherwise; returns the reference recorded with the approval.
+    """
+    if type(record_id) is not str or not record_id:
+        raise ValueError("an authority-service approval names its controller record id")
+    from ravel.controller.store import RunStore, controller_owned
+    from ravel.controller.authority import common, service
+    owner = controller_owned(Path(rundir))
+    if owner is None:
+        raise ValueError("this run has no controller store; its authority records cannot approve this case")
+    store = RunStore(owner)
+    problems = store.check_binding(rundir) or store.verify()
+    if problems:
+        raise ValueError("the run's controller store is not bound and intact: " + "; ".join(problems)[:500])
+    pins = case_authority_pins(rundir, case_id, action_digest)
+    try:
+        found = service.verify(store, record_id, kind="r3_action", subject=pins)
+    except common.AuthorityRefused as exc:
+        raise ValueError(f"controller authority {record_id!r} does not approve this case: {exc}") from None
+    if (type(found) is not dict or found.get("id") != record_id or found.get("kind") != "r3_action"
+            or found.get("decision") != "approve" or found.get("authorizes_effects") is not True
+            or found.get("label") not in HUMAN_AUTHORITY_LABELS
+            or any(((found.get("subject") or {}).get("pins") or {}).get(k) != v for k, v in pins.items())):
+        raise ValueError(f"controller authority {record_id!r} is not an operator or physicist approval of this "
+                         "exact case and action")
+    return {"store_run_id": owner, "record_id": record_id, "kind": "r3_action", "label": found["label"]}
 
 
 def record_reopen(rundir, *, action_digest, source, path, start, end, text):

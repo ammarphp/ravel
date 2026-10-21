@@ -36,7 +36,7 @@ Physical levels are `particle`, `reconstructed`, `truth` and `non-event`. The
 input and requested target are separate. Truth events used for a reconstructed
 exclusion still require response evidence. `scope` is a nonempty explicit JSON
 object, for example model/era/mass/lifetime/energy/domain conventions. It is bound
-in checks. Free prose cannot widen the admitted claim or action.
+in checks. Free prose must not widen the admitted claim or action.
 
 Purposes are `routine-evaluation`, `reference-reproduction`,
 `measurement-comparison`, `exclusion`, `projection` and `method-study`.
@@ -52,7 +52,7 @@ Measurement comparison, exclusion and projection also require `uncertainty`,
 
 These are prerequisites, not a claim that any named statistical/physical family
 has been implemented. A response receipt is attributed supplied evidence. A
-missing experimental response must remain missing. A valid report can retain a
+missing measurement response must remain missing. A valid report can retain a
 partial executable calculation while the requested scientific conclusion remains
 blocked.
 
@@ -70,7 +70,7 @@ stream, rather than accepting a nominal result as a PDF/scale variation.
 An unbinned scalar or region can use `bin: null`. Finite bin geometry is
 `{"axes": [{"name": "mjj", "unit": "GeV", "lower": 1000, "upper": 1200}]}`.
 Axes are unique, finite and strictly increasing. Differential output requires
-explicit geometry. Unbounded bins or an unsupported volume convention need a
+explicit geometry. Unbounded bins or a volume convention outside the declared geometry contract need a
 separately implemented transport contract.
 
 A numerical check is
@@ -108,9 +108,9 @@ These thresholds are supplied scientific criteria. They are neither inferred
 confidence intervals nor a test of reference extraction or detector calibration.
 
 This complete output denominator matters for routine-specific dependencies. A routine
-may return successfully and fill an inclusive histogram while skipping the
+can return successfully and fill an inclusive histogram while skipping the
 requested classifier selection after a model-load failure. Exit status and the
-presence of one histogram cannot establish the requested computation.
+the requested computation requires its full declared output population.
 
 ## Observed source-build receipt
 
@@ -174,7 +174,7 @@ closure to avoid a self-referential digest. The
 assessor reads `agent_graph.model_receipt` and verifies the completed fresh
 critic/verifier's current subject, packet, request, result and observed host
 bindings. It requires the exact full-subject bytes in the presented packet;
-a projection carrying only their original source hash cannot substitute for
+a projection carrying only their original source hash must not substitute for
 that presentation. It never starts a model call. Loopback controls and unestablished
 transports remain unknown.
 

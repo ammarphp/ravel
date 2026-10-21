@@ -167,6 +167,10 @@ def verify_obligations_pin(rundir):
 def adopt(rundir: Path, node_id: str, attempt: int) -> dict:
     _node(node_id, attempt)
     root = Path(rundir).absolute()
+    from .agent_worker import controller_run
+    if controller_run(root):
+        # A controller-owned run adopts only inside its governed step, from the store's custody records.
+        raise ValueError('work-order fidelity: a controller-owned run adopts outputs only inside its governed step')
     workspace = root / 'agent-work' / node_id / str(attempt)
     order_path = root / 'inputs/work-orders' / (node_id + '.json')
     obligations_path = root / 'inputs/work-obligations.json'

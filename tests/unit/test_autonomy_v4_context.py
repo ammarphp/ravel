@@ -37,3 +37,10 @@ def test_inherited_governing_header_controls(tmp_path,message,allowed):
     else:
         with pytest.raises(ValueError):request(tmp_path,message)
         assert not (tmp_path/'delegation.json').exists()
+
+
+def test_a_run_whose_only_task_document_is_its_spec_is_read_from_that_spec(tmp_path):
+    (tmp_path / 'inputs').mkdir()
+    (tmp_path / 'inputs/science.json').write_text('{"schema_version": 1, "question": "Fictional unplanned spec"}')
+    root, document = autonomy.observed_run_document(tmp_path)
+    assert root == tmp_path.resolve() and document == {'schema_version': 1, 'question': 'Fictional unplanned spec'}

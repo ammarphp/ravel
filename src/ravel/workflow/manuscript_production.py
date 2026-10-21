@@ -174,23 +174,24 @@ class _OriginView:
         self.head=_pin(self.root/'head.json')
         root,self.current=cycle._load(self.root)
         head=integrity._json(integrity._raw(self.head,self.root,{}))
-        if cycle._read(head,self.root)!=self.current:
+        if cycle._read(head,self.root)!=cycle._read(cycle._pin(self.root/'history'/f"{self.current['revision']:04d}.json"),self.root):
             raise ValueError('historical origin changed campaign head during capture')
         count=self.current['revision']
-        if type(count) is not int or not 0<=count<cycle.MAX_REVISIONS:
+        if type(count) is not int or count<0:
             raise ValueError('historical origin requires finite ordinary campaign history')
         parent=cycle._parent_goal(self.current)
         self.parent_pins=[] if parent is None else deepcopy(parent['input_pins'])
         for pin in self.parent_pins:integrity._dependency(pin,self.current['base_dir'],{})
-        self.pins=[];self.records=[]
+        from . import research_history
+        self.pins=[]
+        self.records=list(research_history.states(self.root,cycle._read(head,self.root)))
         for index in range(count+1):
             pin=_pin(self.root/'history'/f'{index:04d}.json')
             record=integrity._json(integrity._raw(pin,self.root,{}))
             content=deepcopy(record);checksum=content.pop('sha256')
-            if (record['revision']!=index or checksum!=ce.digest(content)
-                    or record['parent_sha256']!=(None if index==0 else self.records[-1]['sha256'])):
+            if record['revision']!=index or checksum!=ce.digest(content):
                 raise ValueError('historical origin campaign ancestry differs')
-            self.pins.append(pin);self.records.append(record)
+            self.pins.append(pin)
         if self.records[-1]!=self.current:
             raise ValueError('historical origin is not the authenticated current chain')
         self.cutoff=count

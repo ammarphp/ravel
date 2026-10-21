@@ -24,7 +24,7 @@ from ravel.workflow import graph_environment  # noqa: E402,F401  (strict msgpack
 from ravel.workflow import (agent_graph, effect_ledger, graph_substrate as gs,  # noqa: E402
                             hypothesis_board as board, research_board as rb, research_cycle as cycle,
                             research_orchestrator as orch, research_protocol as protocol, review_context,
-                            route_prompt, task_completion)
+                            route_prompt, task_completion, research_evaluation)
 
 from test_agent_graph import external_response  # noqa: E402
 from test_langgraph_research_orchestration import ScriptedResearchHost  # noqa: E402
@@ -56,15 +56,20 @@ def role_models():
     return roles, {'judgment': [{k: EXTERNAL[k] for k in ('model', 'reasoning_effort')}]}
 
 
-# A stage at R2 or above needs a critic from a model family distinct from its proposer. On stubs the
-# family of the external model is unreadable, and the research loop holds a stage whose roles need different models
-# until research_protocol.prepare_stage dispatches each role on its own model (research-protocol handoff).
-FAMILY_BLOCKERS = ('distinct_family_from', 'unknown-family', 'stage_awaits_prepare_stage_role_models')
+# Any model family serves any stage role; the family of an R2+ critic is a label, never a refusal.
+# The research loop holds a stage whose roles need different models until research_protocol.prepare_stage
+# dispatches each role on its own model (research-protocol handoff).
+ROLE_MODEL_BLOCKERS = ('stage_awaits_prepare_stage_role_models',)
+
+
+def receipts(root, status=None):
+    """The run's effect-ledger receipts, optionally of one status."""
+    return [r for r in effect_ledger.receipts(root) if status is None or r['status'] == status]
 
 
 def blocker(exc):
     """The named handoff a stub run waits for, or None when ``exc`` is an ordinary failure."""
-    if any(marker in str(exc) for marker in FAMILY_BLOCKERS):
+    if any(marker in str(exc) for marker in ROLE_MODEL_BLOCKERS):
         return 'awaits the prepare_stage(role_models) handoff: ' + str(exc)[:600]
     return None
 
@@ -91,7 +96,8 @@ def deliver(graph_root, log, models=None):
         public.update(verdict='accept', findings=['Synthetic transport control only.'], attributed_claim_ids=[])
         model = ((models or {}).get(role) or EXTERNAL)['model']
         response = external_response(pending, Path(graph_root).parent / (role + '-response.json'), value=public,
-                                     actor_id='synthetic-' + role, observed_model=model)
+                                     actor_id='synthetic-' + role, invocation_id='synthetic-' + pending['request_id'],
+                                     observed_model=model)
         agent_graph.deliver_external(graph_root, role, response)
         log.append({'graph': str(graph_root), 'stage': public['stage'], 'role': role})
 
@@ -311,6 +317,9 @@ def prepare(base, q, *, turns=LOOP_TURNS):
         run.artifacts[name] = write(run.root, 'artifacts/' + name + '.json', synthetic[name])
     run.settings = {k: v for k, v in {**runtime, **EXTERNAL}.items() if k != 'roles'}
     run_stage(run, 'limitation_census', base / 'setup-census')
+    from test_research_full_cycle_ideas import actual_ideas
+    synthetic['ideas'] = actual_ideas(run.root, synthetic['ideas'], run.root/'idea-dispatches')
+    run.artifacts['ideas'] = write(run.root, 'artifacts/ideas.json', synthetic['ideas'])
     preregister(run)
     return run
 
@@ -482,6 +491,7 @@ def observe_selection(run, monkeypatch):
     _attempt(rundir, {'metric': 1, 'p': .001, 'decision': 'better'})
     state['experiments'].append(confirm)
     state = cycle._commit(root, state, 'fixture_confirmation_prepared')
+    research_evaluation.prepare_dispatch_action(root, 'confirm')
     protocol.record_confirmation_dispatch(root, state, 'confirm')
     cycle.observe(root, 'confirm')
     return receipt, protocol.produce_selection_report(root)
@@ -533,12 +543,17 @@ def build(base, name, monkeypatch):
        ``run.engine`` says so; the revealed season is then imported into the campaign register;
     4. ``validate`` .. ``integrity`` on an observed selection and confirmation.
 
-    A stage that a stub cannot complete because its R2+ critic needs a distinct, readable model
-    family leaves ``run.blocked`` naming that handoff instead of failing the build.
+    A stage that a stub cannot complete because its roles need different models (the prepare_stage
+    role_models handoff) leaves ``run.blocked`` naming that handoff instead of failing the build.
     """
     from open_question_grader import declaration
     from test_research_cycle import write as pin
+    from ravel.physics import ml_exposure
     q = question(name)
+    # The exposure ledger is one per machine by design; the synthetic siblings share populations, so
+    # each sibling gets its own ledger, as separate machines would.
+    ledger = Path(base).parent / 'ml-exposure'
+    monkeypatch.setattr(ml_exposure, 'root', lambda: ledger)
     with inert_decision_provider(), goal_bound_stage_specs():
         run = prepare(base, q)
         run.grading = pin(base / 'grading-declaration.json', declaration(q))
@@ -548,7 +563,7 @@ def build(base, name, monkeypatch):
             drive(run)
             if run.outcome.get('phase') == 'hold':
                 status = json.dumps(run.outcome.get('status'), sort_keys=True)
-                assert any(marker in status for marker in FAMILY_BLOCKERS), status
+                assert any(marker in status for marker in ROLE_MODEL_BLOCKERS), status
                 run.blocked = 'awaits the prepare_stage(role_models) handoff: research.loop holds ' + status
                 return run
         try:

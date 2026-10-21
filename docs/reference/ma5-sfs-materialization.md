@@ -30,8 +30,7 @@ interpreter, replaces only its analysis stubs by the supplied source/header,
 and writes Main with the `analysis.saf` name used by the existing MA5 analysis
 consumer. The normal MA5 launcher performs configuration and library-build
 work during startup, so this phase directly composes its writer APIs and bars
-implicit subprocess, compiler, installer and event dispatch. It does not
-implement alternate SFS formulas or fabricate the missing headers.
+implicit subprocess, compiler, installer and event dispatch. The supplied original SFS formulas and headers remain source inputs.
 
 The complete output census must include nonempty `new_smearer_reco.h/.cpp`,
 `sigmas.h`, `reco.h`, `new_tagger.h/.cpp` and `efficiencies.h`, the exact supplied

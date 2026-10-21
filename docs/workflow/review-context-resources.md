@@ -24,11 +24,11 @@ Its Host request `arguments` accepts that same optional closed field. Public
 `ravel judgment prepare-role` and `advance`, and `ravel review-context create`,
 expose `--max-index-artifacts 20000 --max-index-bytes 536870912`. Omit these flags to
 retain the existing defaults. Existing role, cycle, source, policy and freshness
-checks still run. Exact retained SOURCE inputs may be empty at generated IDs above
+checks still run. Exact retained SOURCE inputs can be empty at generated IDs above
 `a9999`; empty controls or unbound source copies remain refused.
 
 The Host retains its existing 2,000,000-byte request default and quarter-request
-initial text budget. Deferred artifacts and omissions have complete digest-bound
+initial text budget. On-demand artifacts and omissions have complete digest-bound
 catalogues and explicit paging actions. Artifact pages remain at most 64 KiB and
 authenticate the selected complete copy. Index pages authenticate every copied
 artifact and retain a complete-index digest, while returning at most 64 KiB of rows.
@@ -39,10 +39,10 @@ For multiple selected content reads, use one ordinary `read_artifacts` call. It
 reconstructs the complete role projection and checks current original source bytes
 once within an ending-checked session. Its existing defaults remain 10,000 selected
 IDs, 64 MiB returned content, 256 MiB source projection and 512 MiB session-managed
-I/O. An explicit larger observation may declare up to 20,000 selected IDs, 256 MiB
+I/O. An explicit larger observation can declare up to 20,000 selected IDs, 256 MiB
 returned content, 512 MiB source projection and 4 GiB session-managed I/O. A 64 MiB
 individual-copy maximum is unchanged. The requested-content bound remains separate
-from the complete index/authentication bound; reading all copies may require more
+from the complete index/authentication bound; reading all copies can require more
 than one content batch. Every new call starts a fresh observation, with no persistent
 cache. Direct proof/runtime-helper I/O is not included in session accounting; the
 receipt reports that cost as unknown, so an external deadline remains necessary.

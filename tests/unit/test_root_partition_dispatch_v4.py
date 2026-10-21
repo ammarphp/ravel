@@ -117,7 +117,14 @@ def test_actual_canonical_registration_and_legacy_worker_ownership(tmp_path,monk
     science.approve(spelling,'Synthetic engineering admission, not physics review',scripted=True)
     if route=='stale':
         cycle.revise_premise(owner,'pairing','Changed premise before direct worker.',basis=[],reason='Software source control')
-    result=cycle.run_experiment(owner,'branch') if route=='campaign' else science.run(spelling)
+    before_execution=science.execution.load_execution(rd)
+    if route=='campaign':
+        result=cycle.run_experiment(owner,'branch')
+    else:
+        # A current bound child cannot dispatch directly before its campaign
+        # reserves the actual exposure. Refusal precedes worker execution.
+        with pytest.raises(ValueError,match='research dispatch must reserve exposure'):
+            science.run(spelling)
     master=partitions.read_master(prepared['master'],source);_,state=partitions.owner_state(master)
     assert cycle._usage(state)['native_attempts']==2
     if route=='campaign':
@@ -125,8 +132,8 @@ def test_actual_canonical_registration_and_legacy_worker_ownership(tmp_path,monk
         assert len(partitions.master_claims(master,state))==1
         assert partitions.master_claims(master,state)[0]['rundir']==str(rd)
     else:
-        assert result!=0 and partitions.master_claims(master,state)==[]
-        assert science.execution.load_execution(rd)['stages']['science']['status']=='failed'
+        assert partitions.master_claims(master,state)==[]
+        assert science.execution.load_execution(rd)==before_execution
         assert not (rd/'outputs/attempt-1/root-stream/native/native-result.json').exists()
     assert not (existing/'branch').exists()
 
@@ -152,10 +159,12 @@ def test_legacy_symlink_owner_cannot_become_standalone(tmp_path,monkeypatch):
         _,state=cycle._load(owner)
         next(e for e in state['experiments'] if e['id']=='branch')['rundir']=str(alias)
         cycle._commit(owner,state,'synthetic_unsafe_legacy_alias')
-    assert science.run(rd)!=0
+    before = science.execution.load_execution(rd)
+    with pytest.raises(ValueError, match='reserve exposure|symlink'):
+        science.run(rd)
     master=partitions.read_master(prepared['master'],source);_,state=partitions.owner_state(master)
     assert partitions.master_claims(master,state)==[]
-    assert science.execution.load_execution(rd)['stages']['science']['status']=='failed'
+    assert science.execution.load_execution(rd) == before
 
 
 def test_duplicate_canonical_owners_refuse_before_standalone_classification(tmp_path,monkeypatch):

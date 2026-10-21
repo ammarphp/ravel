@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "kind": "route-spec",
+  "id": "inspect",
+  "version": 1,
+  "title": "Inspection and read-only questions",
+  "description": "Read-only steps with no scientific effect: a worker reads and answers in a document. Admits no scientific deliverables, so a scientific request never takes this route.",
+  "match": {
+    "row": 9,
+    "order": 1,
+    "when": {"any": [{"field": "intake_kind", "eq": "inspect"}, {"field": "supplied_kinds", "contains_any": ["controller-run"]}]}
+  },
+  "admits_scientific_deliverables": false,
+  "steps": [
+    {
+      "id": "n01-answer",
+      "kind": "synthesize",
+      "title": "Read-only answer",
+      "role": "investigation-worker",
+      "rung": "none",
+      "outputs": [{"path": "outputs/answer.md", "kind": "document", "required": true}],
+      "budget": {"wall_seconds": 1800, "broker_calls": 100, "tokens": 200000}
+    }
+  ],
+  "deliverables": [
+    {"match": {"any": true}, "step": "n01-answer", "output": "outputs/answer.md"}
+  ],
+  "instruction_sources": ["docs/cli.md", "docs/workflow/run-directory.md"]
+}

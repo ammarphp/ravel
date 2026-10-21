@@ -4,13 +4,13 @@ These adapters preserve the distinction between a weighted quantity, its
 uncertainty and a statistical model. Quantity transport calculates grouped
 moments from supplied event contributions. Measurement inference evaluates a
 supplied Gaussian model with an explicit covariance and SM prediction. Neither
-operation establishes detector fidelity or reproduction of an experimental
+operation establishes detector fidelity or reproduction of an measurement
 analysis.
 
 Use the [scientific-study workflow](../workflow/reference/scientific-studies.md)
 for approval, supervised execution and retained input identities. The Python
-interfaces below are calculation primitives; calling them directly does not
-create approval or execution receipts.
+interfaces below are calculation primitives. Approval and execution receipts
+come from the scientific-study lifecycle.
 
 ## Installation
 
@@ -104,7 +104,7 @@ The contract has exactly the fields shown above. Unknown fields are rejected.
 | `representation` | `"integrated"` or `"differential"` |
 | `normalization` | One of the explicit alternatives below |
 
-Bins may form an irregular arrangement of disjoint rectangular cells in any
+Bins can form an irregular arrangement of disjoint rectangular cells in any
 number of dimensions. Every width must be positive. Bins include their lower
 edges and exclude their upper edges. A fill on the largest upper edge or in a
 gap contributes to flow. The adapter rejects overlapping rectangles rather than
@@ -115,7 +115,7 @@ Every record has exactly `event_id`, `group_id`, `shard_id`, `weights` and
 `fills`. IDs are nonempty strings. Each `event_id` is globally unique across the
 calculation and any later merge; it identifies a subevent/contribution record.
 Correlated subevents use a common `group_id`. Different groups are assumed
-independent. A group cannot span shards. Each fill is a coordinate array with
+independent. A group must not span shards. Each fill is a coordinate array with
 one finite number per axis. An empty `fills` list retains an event that made no
 histogram entry. Do not omit rejected events from an inclusive denominator.
 
@@ -192,7 +192,7 @@ right = calculate(checked_contract, right_records, finalize=False)
 combined = merge([left, right])
 ```
 
-`records` may be an iterable. `merge` adds raw moments before normalization; it
+`records` can be an iterable. `merge` adds raw moments before normalization; it
 does not average separately normalized histograms. Contracts, including fixed
 scales, must match. Event IDs, group IDs and shard IDs must be disjoint across
 inputs. Splitting a correlated group across shards loses cross-shard products
@@ -208,7 +208,7 @@ unbounded streaming histogram service.
 ## A complete supplied measurement
 
 Save this as `measurement.json`. All numerical values describe a synthetic
-Gaussian control in pb, not event counts or an ATLAS/CMS likelihood.
+Gaussian control in pb, not event counts or an measurement likelihood.
 
 ```json
 {
@@ -242,7 +242,7 @@ The expectation is `SM + mu × signal`, with a covariance fixed for every `mu`.
 There is no implicit luminosity multiplication, bin-width conversion, SM
 subtraction or counting-model approximation. Supply vectors in the requested
 representation and units already. Each vector and covariance has its own
-`bin_ids`; order may differ because alignment uses exact identifiers. Missing,
+`bin_ids`; order can differ because alignment uses exact identifiers. Missing,
 extra or repeated IDs fail. Unit strings must match exactly. A covariance unit
 is the literal `(<quantity unit>)^2`, for example `(pb)^2`.
 
@@ -273,17 +273,17 @@ The adapter writes `outputs/measurement/measurement.json`; the common result is
 also in `outputs/result.json`. For this control, the SM chi-square is `15/35`
 with two degrees of freedom. The tested model at `mu=1` has chi-square `21/35`.
 These goodness-of-fit p-values are not CLs exclusions or discovery claims.
-The reported unconstrained signal-strength estimate may be negative.
+The reported unconstrained signal-strength estimate can be negative.
 
 ### Covariance and overlap declarations
 
 The input has exactly the fields in the example, plus an optional
 `theory_covariance`. The two covariance policies are:
 
-- `experimental_only`: use the experimental covariance. Supplying a theory
+- `experimental_only`: use the measurement covariance. Supplying a theory
   covariance under this policy is an error, not a silent omission.
 - `independent_theory_sum`: require `theory_covariance` with the same
-  `bin_ids`, `matrix`, `unit` schema, then add it to the experimental covariance.
+  `bin_ids`, `matrix`, `unit` schema, then add it to the measurement covariance.
   The declaration asserts independence and a theory covariance fixed with
   signal strength. Parameter-dependent theory uncertainty requires another model.
 
@@ -312,7 +312,7 @@ ridge term or unrecorded bin removal repairs a failed covariance.
 ```
 
 `bin_groups` follows the order of `quantity.bins`, with one group per bin. The
-independence policy rejects any nonzero experimental or theory covariance
+independence policy rejects any nonzero measurement or theory covariance
 between different groups. Overlapping measurements need a supplied joint model;
 different histogram names do not establish independence. Evidence text records
 the declaration but does not independently verify its scientific justification.
@@ -363,7 +363,7 @@ shape deformation, not a second unit-normalized signal distribution added to
 the first. The adapter projects into the orthogonal stochastic subspace and
 records the projection. The example has one degree of freedom and SM
 chi-square one. Additional constraints must be independent and justified;
-absolute measurements may also declare exact constraints where appropriate.
+absolute measurements can also declare exact constraints where appropriate.
 No undeclared covariance null direction is silently discarded.
 
 A normalized shape generated by `(SM + mu × new physics)` followed by a
@@ -458,9 +458,7 @@ result = run(task, base_dir, output_dir)
 implemented checks passed. `physics_validated` remains false. Source provenance,
 detector response, unfolding/model dependence, the Gaussian approximation,
 theory coverage, overlap evidence and any published-reference comparison need
-separate scientific validation. The adapter does not provide toy-calibrated
-coverage, arbitrary nuisance profiling, parameter-dependent covariance or
-nonlinear EFT coupling inference. A YODA histogram's marginal errors alone do
+separate scientific validation. The numerical result retains the supplied Gaussian covariance and linear response model. A YODA histogram's marginal errors alone do
 not supply the missing measurement covariance or likelihood.
 
 For broader input and execution boundaries, see

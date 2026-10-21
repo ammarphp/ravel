@@ -12,6 +12,11 @@ stage output and pinned. A pinned file that changed is refused by name.
 Both studies are ordinary science studies of the `external-workflow` mode: planning,
 approval, the method decision, the lease and the receipts are the existing ones.
 This module approves nothing and starts Snakemake only inside the science worker.
+
+A local site runs the approved workflow locally, as above. A batch site, recorded at
+adoption with its pinned scheduler profile, runs the same approved workflow through that
+profile; every job submission is admitted by the controller's launch capability, and the
+inspection's dry runs stay local parses.
 """
 import argparse
 import ast
@@ -33,6 +38,7 @@ from . import wms_runtime
 from .state_io import atomic_json, read_json
 
 MODE = 'external-workflow'
+SITE_SCHEDULERS = ('htcondor',)
 RECORD = 'adoption.json'
 INSPECTION = 'inspection.json'
 RECEIPT = 'receipt.json'
@@ -342,10 +348,12 @@ def check_pins(record):
 
 
 # ----------------------------------------------------------------- commands
-def _base(record):
+def _base(record, *, site=False):
     # `none` switches off the default and workflow profiles: a profile is an unpinned source of options.
+    # Only the run of a batch site uses its profile, which the adoption pinned.
+    profile = record['site']['profile']['path'] if site and record.get('site') else 'none'
     return [*record['snakemake'], '--snakefile', record['snakefile']['path'], '--directory', record['workdir'],
-            '--profile', 'none', '--workflow-profile', 'none']
+            '--profile', profile, '--workflow-profile', 'none']
 
 
 def _targets(record):
@@ -362,7 +370,43 @@ def inspection_commands(record):
 
 
 def run_command(record):
-    return [*_base(record), '--cores', str(record['cores']), *_targets(record)]
+    jobs = ['--jobs', str(record['site']['jobs'])] if record.get('site') else []
+    return [*_base(record, site=True), '--cores', str(record['cores']), *jobs, *_targets(record)]
+
+
+
+def _site(site):
+    """The batch site of an adoption: its scheduler, job ceiling and pinned profile directory."""
+    from . import wms_site
+    _require(type(site) is dict and set(site) == {'scheduler', 'profile_dir', 'jobs'},
+             'a batch site names exactly scheduler, profile_dir and jobs')
+    _require(site['scheduler'] in SITE_SCHEDULERS,
+             f"batch site scheduler {site['scheduler']!r} is not supported; supported: {', '.join(SITE_SCHEDULERS)}")
+    _require(type(site['jobs']) is int and site['jobs'] >= 1, 'batch site jobs must be a positive integer')
+    folder = Path(site['profile_dir']).expanduser()
+    _require(folder.is_absolute(), 'batch site profile_dir must be an absolute directory')
+    return {'scheduler': site['scheduler'], 'jobs': site['jobs'], 'profile': wms_site.profile_pin(folder)}
+
+
+def _site_admission(record):
+    """A batch-site run starts only with its pinned profile bytes and under a controller launch capability."""
+    from . import wms_site
+    site = record.get('site')
+    if not site:
+        return
+    _require(wms_site.profile_pin(site['profile']['path']) == site['profile'],
+             'pinned site profile changed; restore its original bytes')
+    profile = read_json(Path(site['profile']['path']) / 'profile.json')
+    if (profile.get('options') or {}).get('submission') == 'broker':
+        # A brokered profile: the confined run never holds the capability; the controller's
+        # submission broker, named by its channel, admits each job.
+        from .wms_broker_client import BROKER_ENV
+        _require(bool(os.environ.get(BROKER_ENV)), 'a brokered batch-site workflow run starts only with the '
+                 'controller submission broker channel; nothing was started')
+        return
+    from ravel.controller.routes.study.site import active_launch
+    _require(active_launch(), 'a batch-site workflow run submits only under its controller launch capability; '
+             'nothing was started')
 
 
 def _call(record, argv, folder, name, outputs=()):
@@ -612,14 +656,90 @@ def _inspection(task, base):
     return path, read_json(path)
 
 
+# inspect and run are the two studies of a reviewed adoption; inspect-run is one governed study whose
+# approved run first inspects (dry runs only) and starts only when the inspection passes and, for a
+# batch site, schedules exactly the approved job count as one fan-out.
+OPERATIONS_TASK = ('inspect', 'run', 'inspect-run')
+REQUEST_KEYS = frozenset({'schema_version', 'operation', 'snakefile', 'targets', 'cores'})
+REQUEST_OPTIONAL = frozenset({'outputs', 'site', 'output_contract'})
+
+
+def _validate_output_contract(contract, outputs=None):
+    from ravel.validation.validate_request_plan import signatures
+    kinds = {row['kind'] for signature in signatures().values() for row in signature['produces']}
+    _require(type(contract) is dict and bool(contract), 'output_contract must be a nonempty mapping')
+    _require(all(type(path) is str and path and not path.startswith('-') and '\n' not in path
+                 and not os.path.isabs(path) and '..' not in Path(path).parts for path in contract),
+             'output_contract paths must be plain paths inside the working directory')
+    _require(all(type(kind) is str and kind in kinds for kind in contract.values()),
+             'output_contract kinds must be registered operation output artifact kinds')
+    if outputs is not None:
+        _require(set(contract) == set(outputs), 'output_contract paths must exactly match explicit outputs')
+
+
+def _contract_field(record):
+    return {'output_contract': dict(record['output_contract'])} if 'output_contract' in record else {}
+
+
+def declared_output_kinds(task):
+    """Explicit semantic declarations only; no inference from names or suffixes."""
+    if 'output_contract' not in task:
+        return []
+    _validate_output_contract(task['output_contract'])
+    return sorted(set(task['output_contract'].values()))
+
+
+def is_request(task):
+    """A request form names the supplied Snakefile; the governed preparation adopts, inspects and plans it."""
+    return type(task) is dict and 'snakefile' in task
+
+
+def _validate_request(task):
+    _require(task.get('schema_version') == 1 and task.get('operation') == 'run',
+             'an external-workflow request names schema_version 1 and the operation run')
+    _require(REQUEST_KEYS <= set(task) and not (set(task) - REQUEST_KEYS - REQUEST_OPTIONAL),
+             'an external-workflow request requires exactly ' + ', '.join(sorted(REQUEST_KEYS))
+             + ' and optionally ' + ', '.join(sorted(REQUEST_OPTIONAL)))
+    snakefile = task['snakefile']
+    _require(type(snakefile) is str and snakefile and not os.path.isabs(snakefile)
+             and '..' not in Path(snakefile).parts and not snakefile.startswith('-'),
+             'the request snakefile is a plain relative path of a supplied input')
+    _plain(task['targets'], 'target')
+    _require(type(task['cores']) is int and task['cores'] >= 1, 'cores must be a positive integer')
+    if task.get('outputs') is not None:
+        outputs = _plain(task['outputs'], 'output')
+        _require(outputs and all(not os.path.isabs(name) and '..' not in Path(name).parts for name in outputs),
+                 'declared outputs are paths inside the working directory')
+    if 'output_contract' in task:
+        _require(task.get('outputs') is not None, 'output_contract requires explicit outputs')
+        _validate_output_contract(task['output_contract'], task['outputs'])
+    site = task.get('site')
+    if site is not None:
+        _require(type(site) is dict and set(site) == {'scheduler', 'jobs'}, 'a request site names exactly scheduler and jobs')
+        _require(site['scheduler'] in SITE_SCHEDULERS,
+                 f"batch site scheduler {site['scheduler']!r} is not supported; supported: {', '.join(SITE_SCHEDULERS)}")
+        _require(type(site['jobs']) is int and site['jobs'] >= 1, 'batch site jobs must be a positive integer')
+
+
 def validate(task):
-    _require(type(task) is dict and task.get('schema_version') == 1 and task.get('operation') in ('inspect', 'run'),
-             'an external-workflow task names schema_version 1 and the operation inspect or run')
-    names = {'schema_version', 'operation', 'adoption', 'files', 'unpinned_references', 'rules'} | (
-        {'commands'} if task['operation'] == 'inspect' else {'command', 'inspection', 'roster'})
-    _require(set(task) == names, 'an external-workflow task requires exactly ' + ', '.join(sorted(names)))
+    if is_request(task):
+        return _validate_request(task)
+    _require(type(task) is dict and task.get('schema_version') == 1 and task.get('operation') in OPERATIONS_TASK,
+             'an external-workflow task names schema_version 1 and the operation inspect or run '
+             '(or, for a governed study, inspect-run)')
+    names = {'schema_version', 'operation', 'adoption', 'files', 'unpinned_references', 'rules'} | {
+        'inspect': {'commands'}, 'run': {'command', 'inspection', 'roster'},
+        'inspect-run': {'commands', 'command', 'jobs'}}[task['operation']]
+    _require(set(task) in (names, names | {'output_contract'}),
+             'an external-workflow task requires exactly ' + ', '.join(sorted(names))
+             + ' and optionally output_contract')
+    if 'output_contract' in task:
+        _validate_output_contract(task['output_contract'])
     for name in ('adoption', *(('inspection',) if task['operation'] == 'run' else ())):
         _require(type(task[name]) is str and task[name].strip(), f'{name} must be a path')
+    if task['operation'] == 'inspect-run':
+        _require(task['jobs'] is None or (type(task['jobs']) is int and task['jobs'] >= 1),
+                 'an inspect-run task names its approved batch job count, or null for a local run')
 
 
 def _shown_files(record):
@@ -628,16 +748,30 @@ def _shown_files(record):
 
 def inputs(task, base):
     """Every pinned file, the adoption record and, for a run, the inspection it was approved on."""
+    if is_request(task):
+        snakefile = Path(base) / task['snakefile']
+        _require(snakefile.is_file() and not snakefile.is_symlink(), f'request snakefile {snakefile} is not an ordinary file')
+        return [snakefile]
     path, record = _record(task, base)
     check_pins(record)
+    _require(('output_contract' in task) == ('output_contract' in record)
+             and task.get('output_contract') == record.get('output_contract'),
+             'the task shows a different output_contract from the adoption record')
+    if 'output_contract' in record:
+        _validate_output_contract(record['output_contract'], record['outputs'])
     _require(task['files'] == _shown_files(record), 'the task shows different pinned files from the adoption record')
     _require(task['unpinned_references'] == record['unpinned_references'],
              'the task shows different unpinned references from the adoption record')
     _require(task['rules'] == record['rules'], 'the task shows different rules from the adoption record')
     files = [path, *(Path(row['path']) for row in record['files'])]
-    if task['operation'] == 'inspect':
+    if task['operation'] in ('inspect', 'inspect-run'):
         _require(task['commands'] == inspection_commands(record), 'the task shows different inspection commands '
                  'from the adoption record')
+        if task['operation'] == 'inspect-run':
+            _require(task['command'] == run_command(record),
+                     'the task shows a different run command from the adoption record')
+            _require(task['jobs'] == ((record.get('site') or {}).get('jobs')),
+                     'the task shows a different batch job count from the adoption site')
         return files
     inspection_path, inspection = _inspection(task, base)
     _require(inspection.get('status') == 'passed', f'inspection {inspection_path} did not pass')
@@ -722,6 +856,7 @@ def _run(path, record, inspection, folder):
     # Every file the workflow writes stays inside the working directory. The outputs that the adoption
     # names say what is delivered; they do not narrow this check.
     outputs = sorted({*(record['outputs'] or ()), *(row['output_file'] for row in inspection['summary'])})
+    _site_admission(record)
     # The same dry run as the inspection, now: a job or command that the approved roster does not show refuses the launch.
     code, text, preflight = _call(record, inspection_commands(record)['jobs'], folder, 'preflight', outputs)
     _require(code == 0, f'the dry run before launch exited {code}; its output is in {folder}. Snakemake was not started')
@@ -733,26 +868,70 @@ def _run(path, record, inspection, folder):
              + '; '.join(f"{job['rule']} ({job['shell']})" for job in extra)
              + '. Snakemake was not started; adopt the workflow again so that the new jobs are inspected and approved')
     argv = run_command(record)
+    _site_admission(record)
+    batch = bool(record.get('site'))
+    if batch:
+        # A batch site: every job is submitted at once through the launch broker and the
+        # workflow manager returns; the controller observes the jobs and delivers the outputs.
+        targets = _targets(record)
+        argv = [*argv[:len(argv) - len(targets)], *IMMEDIATE, *targets]
     start = _utc()
-    code, _, streams = _call(record, argv, folder, 'snakemake', outputs)
+    code, text, streams = _call(record, argv, folder, 'snakemake', outputs)
     end = _utc()
     changed = changed_files(record)
-    bound, absent, required = _deliver(record, inspection['summary'], folder)
     problems = ([f'Snakemake exited {code}'] if code != 0 else []) + [f'{name} {why} during the run' for name, why in changed]
-    if required:
-        problems += [f"declared output {row['path']} is {row['reason']}" for row in absent]
-    mismatched = [row['output'] for row in bound if row['delivered'] and row['source']['sha256'] != row['delivered']['sha256']]
-    problems += [f'output {name} changed while it was copied' for name in mismatched]
     receipt = {'schema_version': 1, 'kind': 'workflow-run-receipt', 'adoption': _pin(path), 'pins': record['files'],
                'pins_unchanged_after_run': not changed, 'inspection': inspection['adoption'],
                'snakemake': {'argv': record['snakemake'], 'version': version}, 'argv': argv, 'cores': record['cores'],
                'targets': record['targets'], 'workdir': record['workdir'], 'start_utc': start, 'end_utc': end,
-               'exit_code': code, 'outputs': bound, 'absent_outputs': absent, 'outputs_declared_by': 'adoption' if required else 'workflow',
-               'log': streams, 'preflight_log': preflight,
-               'status': 'failed' if problems else 'passed', 'problems': problems,
+               'exit_code': code, 'log': streams, 'preflight_log': preflight,
                'records': 'delivery only', 'scientific_acceptance_inferred': False}
+    if batch:
+        # The workflow manager reports each submission on its log stream.
+        log_text = ''.join((folder / f'snakemake.{stream}.txt').read_text(errors='replace')
+                           for stream in ('stdout', 'stderr') if (folder / f'snakemake.{stream}.txt').is_file())
+        submitted = parse_submissions(log_text)
+        expected = [job for job in inspection['roster']['jobs'] if job.get('shell')]
+        if len(submitted) != len(expected):
+            problems.append(f'{len(submitted)} job(s) were submitted; the approved roster has {len(expected)} batch job(s)')
+        receipt.update(submission={'mode': 'immediate', 'site': record['site'], 'jobs': submitted},
+                       outputs=[], absent_outputs=[], outputs_declared_by='adoption' if record['outputs'] is not None else 'workflow',
+                       delivery='deferred: the controller observes the submitted jobs and delivers the outputs it adopts')
+    else:
+        bound, absent, required = _deliver(record, inspection['summary'], folder)
+        if required:
+            problems += [f"declared output {row['path']} is {row['reason']}" for row in absent]
+        mismatched = [row['output'] for row in bound if row['delivered'] and row['source']['sha256'] != row['delivered']['sha256']]
+        problems += [f'output {name} changed while it was copied' for name in mismatched]
+        receipt.update(outputs=bound, absent_outputs=absent, outputs_declared_by='adoption' if required else 'workflow')
+    receipt.update(status='failed' if problems else 'passed', problems=problems)
     _write_new(folder / RECEIPT, receipt)
     return receipt
+
+
+IMMEDIATE = ('--immediate-submit', '--notemp')
+_SUBMITTED = re.compile(r"Submitted job (\d+) with external jobid '([^']*)'")
+
+
+def parse_submissions(text):
+    """The jobs the workflow manager reports as submitted: its job id and the scheduler's."""
+    return [{'jobid': int(match.group(1)), 'job': match.group(2)} for match in _SUBMITTED.finditer(text)]
+
+
+def batch_jobs(inspection):
+    """The roster jobs a batch site submits (every job with a shell command) and their rules."""
+    jobs = [job for job in inspection['roster']['jobs'] if job.get('shell')]
+    return jobs, sorted({job['rule'] for job in jobs})
+
+
+def require_fanout(inspection):
+    """Immediate submission is bounded to a fan-out: no batch job may consume another batch job's output."""
+    jobs, _ = batch_jobs(inspection)
+    produced = {name for job in jobs for name in job.get('output') or ()}
+    dependent = [job['rule'] for job in jobs if set(job.get('input') or ()) & produced]
+    _require(not dependent, 'a batch site runs the approved roster as one immediate fan-out; these jobs consume another '
+             'batch job\'s output and would need a dependency-aware submission: ' + ', '.join(sorted(set(dependent))))
+    return jobs
 
 
 def _approved(task, destination):
@@ -789,6 +968,11 @@ def run(task, base, destination):
             document = _inspect(path, record, folder)
             delivered = {'inspection': _pin(folder / INSPECTION), 'rules': len(document.get('roster', {}).get('rules', [])),
                          'jobs': len(document.get('roster', {}).get('jobs', []))}
+        elif task['operation'] == 'inspect-run':
+            document, inspection = _inspect_run(path, record, task, folder)
+            delivered = {'inspection': _pin(folder / 'inspection' / INSPECTION), 'receipt': _pin(folder / RECEIPT),
+                         'exit_code': document['exit_code'], 'outputs': len(document['outputs']),
+                         'submitted': len((document.get('submission') or {}).get('jobs') or ())}
         else:
             document = _run(path, record, _inspection(task, base)[1], folder)
             delivered = {'receipt': _pin(folder / RECEIPT), 'exit_code': document['exit_code'],
@@ -797,6 +981,26 @@ def run(task, base, destination):
         _CUSTODY.reset(token)
     return {'status': document['status'], 'physics_validated': False, 'operation': task['operation'], 'scope': SCOPE,
             'limitations': LIMITATIONS, 'problems': document['problems'], 'pins': record['files'], **delivered}
+
+
+def _inspect_run(path, record, task, folder):
+    """The governed study: inspect with dry runs, then run only on a passed inspection within the approved bound.
+
+    The inspection is the same four dry runs as an inspection study, written beside the run's own records;
+    it runs no job. A batch site starts only when the dry run schedules exactly the approved job count
+    as one fan-out, so every submission the controller admits belongs to the inspected roster.
+    """
+    inspected = folder / 'inspection'
+    inspected.mkdir()
+    inspection = _inspect(path, record, inspected)
+    _require(inspection['status'] == 'passed', 'the inspection before the run did not pass: '
+             + '; '.join(inspection['problems']) + '. Nothing was submitted or run')
+    _require(inspection['roster']['jobs'], 'the inspection found no job to run for the requested targets')
+    if task['jobs'] is not None:
+        jobs = require_fanout(inspection)
+        _require(len(jobs) == task['jobs'], f"the inspection schedules {len(jobs)} batch job(s); the approved plan "
+                 f"bounds this run to {task['jobs']}. Nothing was submitted")
+    return _run(path, record, inspection, folder), inspection
 
 
 # ----------------------------------------------------------------- planning (no parse, no launch)
@@ -820,7 +1024,7 @@ def _plain(values, label):
 
 
 def adopt(snakefile, workdir, rundir, study, *, targets=(), cores=1, outputs=None, pins=(), snakemake=None, roots=(),
-          members=(), interpreter=None):
+          members=(), interpreter=None, site=None, output_contract=None):
     """Pin an external Snakefile and plan its inspection. The Snakefile is not parsed.
 
     `rundir` is a new folder that receives adoption.json and the inspection study in
@@ -830,6 +1034,8 @@ def adopt(snakefile, workdir, rundir, study, *, targets=(), cores=1, outputs=Non
     computes; `pins` names other files, which are pinned and never loaded as includes.
     `interpreter` names the Python interpreter of the Snakemake console entry; without
     it the entry's own first line names one, and an entry that names none is refused.
+    `site` ({'scheduler': 'htcondor', 'profile_dir': <absolute dir>, 'jobs': N}) names a
+    batch site: the run uses that pinned profile with at most N jobs; without it the run is local.
     """
     from . import science
     source = _regular(snakefile, 'Snakefile')
@@ -847,7 +1053,11 @@ def adopt(snakefile, workdir, rundir, study, *, targets=(), cores=1, outputs=Non
         outside = _outside(work, outputs)
         _require(not outside, 'declared output ' + ', '.join(outside) + ' is outside the working directory: '
                  'a link on its path leads elsewhere')
+    if output_contract is not None:
+        _require(outputs is not None, 'output_contract requires explicit outputs')
+        _validate_output_contract(output_contract, outputs)
     roots = [str(_folder(root)) for root in roots]
+    site = _site(site) if site is not None else None
     if snakemake is not None:
         # A named executable is used or refused; it never falls back to another one.
         argv = [shutil.which(str(snakemake))]
@@ -874,17 +1084,22 @@ def adopt(snakefile, workdir, rundir, study, *, targets=(), cores=1, outputs=Non
                   'snakemake': argv, 'interpreter': bound,
                   'targets': targets, 'cores': cores, 'outputs': outputs, 'roots': roots, **closure,
                   'adopted_utc': _utc(), 'snakefile_parsed': False, 'execution_authorized': False}
+        if output_contract is not None:
+            record['output_contract'] = dict(output_contract)
+        if site is not None:
+            record['site'] = site
         _write_new(root / RECORD, record)
         _write_new(root / 'study.json', study)
         task = {'schema_version': 1, 'operation': 'inspect', 'adoption': RECORD, 'files': _shown_files(record),
                 'unpinned_references': record['unpinned_references'], 'rules': record['rules'],
-                'commands': inspection_commands(record)}
+                'commands': inspection_commands(record), **_contract_field(record)}
         _write_new(root / 'inspect.science.json', _specification(study, task))
         science.plan(root / 'inspect', root / 'inspect.science.json')
     except BaseException:
         shutil.rmtree(root)  # nothing was parsed or run; a failed adoption leaves no folder behind
         raise
     return {'adoption': _pin(root / RECORD), 'inspection_study': str(root / 'inspect'), 'files': record['files'],
+            **_contract_field(record),
             'rules_declared': record['rules'], 'unpinned_references': record['unpinned_references'],
             'commands': task['commands'], 'snakefile_parsed': False, 'execution_authorized': False,
             'next': f"review {root / 'inspect' / 'CHECKIN1.md'}, then `ravel approve --rundir {root / 'inspect'}` "
@@ -917,10 +1132,8 @@ def _produced(root, path):
              + '; '.join(errors or ['it lies in another attempt']))
 
 
-def plan_run(rundir):
-    """Plan the run study from a passed inspection; its CHECK-IN 1 carries the roster."""
-    from . import science
-    root, record = _adoption(rundir)
+def _passed_inspection(root, record):
+    """The passed inspection of this adoption, written by its successful supervised attempt."""
     check_pins(record)
     path = latest_inspection(root)
     _require(path is not None, f"no inspection yet: approve and run the inspection study {root / 'inspect'} first")
@@ -929,10 +1142,22 @@ def plan_run(rundir):
     _require(inspection.get('status') == 'passed', f"inspection {path} did not pass: {'; '.join(inspection.get('problems', []))}")
     _require(inspection['adoption'] == _pin(root / RECORD), f'inspection {path} was made for a different adoption record')
     _require(inspection['roster']['jobs'], 'the inspection found no job to run for the requested targets')
-    task = {'schema_version': 1, 'operation': 'run', 'adoption': RECORD, 'files': _shown_files(record),
+    return path, inspection
+
+
+def _run_task(root, record, path, inspection):
+    return {'schema_version': 1, 'operation': 'run', 'adoption': RECORD, 'files': _shown_files(record),
             'unpinned_references': record['unpinned_references'], 'rules': record['rules'],
             'inspection': path.relative_to(root).as_posix(), 'command': run_command(record),
-            'roster': inspection['roster']}
+            'roster': inspection['roster'], **_contract_field(record)}
+
+
+def plan_run(rundir):
+    """Plan the run study from a passed inspection; its CHECK-IN 1 carries the roster."""
+    from . import science
+    root, record = _adoption(rundir)
+    path, inspection = _passed_inspection(root, record)
+    task = _run_task(root, record, path, inspection)
     _require(not (root / 'run').exists(), f"the run study {root / 'run'} is already planned; adopt again for a new run")
     spec = root / 'run.science.json'
     atomic_json(spec, _specification(read_json(root / 'study.json'), task))
@@ -941,6 +1166,133 @@ def plan_run(rundir):
             'unpinned_references': record['unpinned_references'], 'execution_authorized': False,
             'next': f"review {root / 'run' / 'CHECKIN1.md'} and inputs/checkin1.json, then "
                     f"`ravel approve --rundir {root / 'run'}` and `ravel run --rundir {root / 'run'}`"}
+
+
+# ----------------------------------------------------------------- governed preparation (controller route)
+def _machine_decision(rundir, required_output, evidence, max_seconds):
+    """The scripted method decision of a governed external-workflow study: run the supplied workflow once, bounded.
+
+    The workflow is third-party code the request supplies; reading it does not produce its outputs and
+    no retained result of it exists in this run. The decision is machine-authored and labelled so.
+    """
+    import hashlib
+    from . import method_selection
+    record = {
+        'schema_version': 1,
+        'request_digest': hashlib.sha256(required_output.encode('utf8')).hexdigest(),
+        'obligation_ids': ['supplied-workflow-output'], 'required_output': required_output,
+        'sufficiency': {'kind': 'qualitative', 'value': None, 'unit': None, 'source_text': required_output},
+        'validity_domain': 'The supplied workflow as written, its pinned files and the dry-run inspection its run makes first',
+        'allowed_approximations': [], 'family': 'open_research',
+        'selected': {'method': 'small_prospective_experiment', 'rung': 2, 'operation': MODE},
+        'alternatives': [
+            {'method': 'source_assessment', 'rung': 0, 'status': 'insufficient',
+             'reason': 'Reading the supplied workflow does not produce the outputs it defines.', 'evidence': list(evidence)},
+            {'method': 'analytic_discriminator_or_reuse', 'rung': 1, 'status': 'insufficient',
+             'reason': 'No retained output of this workflow exists in the run to reuse.', 'evidence': list(evidence)}],
+        'explicit_request': {'requested': False, 'quote': None},
+        'cost_forecast': {'status': 'uncalibrated', **{field: None for field in method_selection.RESOURCE_FIELDS},
+            'basis': 'The study ceiling bounds one supervised attempt; the workflow\'s own cost is uncalibrated.',
+            'bounded_pilot': {'max_wall_hours': max_seconds / 3600, 'evidence': list(evidence)}},
+        'stopping_criterion': 'Stop after the one bounded attempt and retain its success or failure.',
+        'provenance': {'author_role': 'coordinator', 'transport': 'internal',
+                       'authority': 'scripted_experiment', 'reviewed_by': []}}
+    return method_selection.record_machine_decision(rundir, record, authority='scripted_experiment')
+
+
+def _governed_task(record):
+    """The one governed study of an adopted request: inspect, then run within the approved job count."""
+    return {'schema_version': 1, 'operation': 'inspect-run', 'adoption': RECORD, 'files': _shown_files(record),
+            'unpinned_references': record['unpinned_references'], 'rules': record['rules'],
+            'commands': inspection_commands(record), 'command': run_command(record),
+            'jobs': (record.get('site') or {}).get('jobs'), **_contract_field(record)}
+
+
+def verify_prepared_specification(request, prepared, *, base, preparation):
+    """Prove the request-to-task transformation against the adopted source and exact preparation."""
+    task = request['task']
+    _validate_request(task)
+    _require(request['mode'] == MODE and prepared['mode'] == MODE,
+             'the adopted workflow preserves its operation mode')
+    root = Path(preparation['workflow_root'])
+    _require(root.is_absolute() and root.is_relative_to(Path(base) / 'children')
+             and not any(path.is_symlink() for path in (root, *root.parents)),
+             'the adoption belongs to this controller child directory')
+    path = root / 'adoption' / RECORD
+    _require(_pin(path) == preparation['adoption'], 'the preparation binds the exact adoption record')
+    record = read_json(path)
+    check_pins(record)
+    _require(record['snakefile'] == _pin(Path(base) / task['snakefile']),
+             'the adoption binds the supplied source file')
+    for field in ('targets', 'cores', 'outputs', 'output_contract'):
+        _require(record.get(field) == task.get(field), 'the adoption preserves request field ' + field)
+    site = record.get('site')
+    _require((None if site is None else {key: site[key] for key in ('scheduler', 'jobs')}) == task.get('site'),
+             'the adoption preserves the requested execution site and job count')
+    expected = _specification({key: request[key] for key in STUDY_KEYS}, _governed_task(record))
+    _require(prepared == expected, 'the prepared study equals the source-derived task and review contract')
+    _require({key: request[key] for key in request if key != 'task'} ==
+             {key: expected[key] for key in expected if key != 'task'},
+             'the preparation preserves the complete requested study envelope')
+    inputs(prepared['task'], path.parent)
+
+
+def prepare_governed(task, study, *, base, child, workflow_root, snakemake=None):
+    """Adopt a request form and plan its governed study inside the controller's prepare launch.
+
+    ``task`` is the request (``is_request``), ``study`` the study document the specification carries,
+    ``base`` the run directory the request's paths are relative to, ``child`` the run study's directory
+    the controller declared and ``workflow_root`` a controller-declared directory for the adoption record,
+    the working directory and, for a batch site, the pinned scheduler profile. Nothing is parsed, run or
+    approved here: the adoption pins the workflow by a static scan, and the planned study (``inspect-run``)
+    is approved by its controller after CHECK-IN 1. Returns the preparation facts the plan binds.
+    """
+    _validate_request(task)
+    _study(study)
+    _require(study['approval_mode'] == 'scripted_yes',
+             'a governed external-workflow study is approved by its controller; its approval_mode must say scripted_yes')
+    base, child, workflow_root = Path(base).absolute(), Path(child).absolute(), Path(workflow_root).absolute()
+    snakefile = base / task['snakefile']
+    _require(snakefile.is_file() and not snakefile.is_symlink(), f'request snakefile {snakefile} is not an ordinary file')
+    for folder in (child, workflow_root):
+        _require(not folder.is_symlink() and (not folder.exists() or (folder.is_dir() and not any(folder.iterdir()))),
+                 'the governed preparation needs fresh (absent or empty) child and workflow directories')
+    workflow_root.mkdir(parents=True, exist_ok=True)
+    work = workflow_root / 'work'
+    work.mkdir()
+    site = None
+    if task.get('site'):
+        from .site_profiles import write_profile
+        written = write_profile(workflow_root / 'profiles', task['site']['scheduler'], jobs=task['site']['jobs'],
+                                options={'workflow_dir': str(work), 'submission': 'broker'})
+        site = {'scheduler': task['site']['scheduler'], 'profile_dir': written['path'], 'jobs': task['site']['jobs']}
+    adopted = adopt(snakefile, work, workflow_root / 'adoption', study, targets=task['targets'], cores=task['cores'],
+                    outputs=task.get('outputs'), snakemake=snakemake, site=site,
+                    output_contract=task.get('output_contract'))
+    root = workflow_root / 'adoption'
+    record = read_json(root / RECORD)
+    governed = _governed_task(record)
+    spec = root / 'run.science.json'
+    atomic_json(spec, _specification(study, governed))
+    from . import science
+    science.plan(child, spec)
+    # The method choice is part of the proposal its CHECK-IN 1 shows; it approves nothing.
+    _machine_decision(child, 'Inspect the supplied workflow with dry runs, then run it once as written within '
+                      'the approved bound.', [f"adoption.json#{adopted['adoption']['sha256']}"], study['max_seconds'])
+    launch = None
+    if site is not None:
+        from . import wms_site
+        launch = {'wms_scope': {'workflow_dir': str(work), 'max_jobs': site['jobs'],
+                                'rules': sorted({row['name'] for row in record['rules']}),
+                                'profile_sha256': wms_site.profile_pin(site['profile_dir'])['sha256']},
+                  'batch': site['jobs'],
+                  'site_broker': {'profile_dir': site['profile_dir'],
+                                  'publish_dir': str(work.resolve().parent / '.ravel-controller-submissions')}}
+    return {'adoption': adopted['adoption'], 'files': record['files'], 'rules_declared': record['rules'],
+            **_contract_field(record),
+            'unpinned_references': record['unpinned_references'], 'commands': governed['commands'],
+            'command': governed['command'], 'site': site, 'site_launch': launch, 'workflow_root': str(workflow_root),
+            'snakefile_parsed': False, 'execution_authorized': False}
 
 
 def status(rundir):
@@ -989,15 +1341,24 @@ def main(argv=None):
                                          'one that its first line names')
     a.add_argument('--root', action='append', default=[], type=Path,
                    help='another folder that included and referenced files may lie in; repeat for several')
+    a.add_argument('--site-scheduler', choices=SITE_SCHEDULERS,
+                   help='batch site scheduler; with --site-profile-dir and --site-jobs the run uses that pinned profile')
+    a.add_argument('--site-profile-dir', type=Path, help='absolute directory of the batch site profile')
+    a.add_argument('--site-jobs', type=int, help='most batch jobs the run submits at once')
     r = sub.add_parser('adopt-run', help='plan the run study from a passed inspection; CHECK-IN 1 shows the roster')
     r.add_argument('--adoption', type=Path, required=True)
     s = sub.add_parser('adopt-status', help='show pins, inspection and run state of an adoption')
     s.add_argument('--adoption', type=Path, required=True)
     args = p.parse_args(arguments)
     if args.operation == 'adopt':
+        given = [args.site_scheduler, args.site_profile_dir, args.site_jobs]
+        if any(value is not None for value in given) and any(value is None for value in given):
+            p.error('--site-scheduler, --site-profile-dir and --site-jobs are given together or not at all')
+        site = None if args.site_scheduler is None else {
+            'scheduler': args.site_scheduler, 'profile_dir': str(args.site_profile_dir), 'jobs': args.site_jobs}
         value = adopt(args.snakefile, args.workdir, args.rundir, read_json(args.study), targets=args.target,
                       cores=args.cores, outputs=args.output, pins=args.pin, snakemake=args.snakemake, roots=args.root,
-                      members=args.member, interpreter=args.interpreter)
+                      members=args.member, interpreter=args.interpreter, site=site)
     elif args.operation == 'adopt-run':
         value = plan_run(args.adoption)
     else:

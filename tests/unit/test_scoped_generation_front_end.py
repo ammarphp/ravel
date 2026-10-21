@@ -45,16 +45,21 @@ def card(text, overrides):
     values = {}
     for name, *rest in overrides:
         values[(name.upper(), rest[0])] = rest[-1]
+    skip_branch = False
     for row in rows:
         f = row.split()
-        if f and f[0].upper() == "BLOCK": block = f[1].upper(); out.append(row); continue
+        if f and f[0].upper() == "BLOCK": block = f[1].upper(); skip_branch = False; out.append(row); continue
         if f and f[0].upper() == "DECAY":
+            block = None; skip_branch = False
             key = ("DECAY", f[1])
             if key in values:
                 v = values[key]
                 row = f"DECAY {f[1]} " + ("4.07e-03" if v.lower() == "auto" else v)
-                if v.lower() == "auto": row += "\n  1.0 2 5 -5"
+                if v.lower() == "auto":
+                    row += "\n  1.0 2 5 -5"
+                    skip_branch = True
             out.append(row); continue
+        if skip_branch: continue
         if f and block and (block, f[0]) in values:
             row = f"  {f[0]} {values[(block, f[0])]}"
         out.append(row)
@@ -122,6 +127,10 @@ def lepton_spec(runtime, **extra):
                           "scalefact": 1},
          "cross_section_only": True}
     g.update(extra)
+    from model_validation_fixture import scoped_evidence
+    if runtime is not None:
+        scoped_evidence(g, Path(runtime['madgraph']).parent,
+                        auto_widths={25: ('.00407', [('1', [5, -5])])})
     return {"schema_version": 1, "mode": "generate", "source": "lepton-quark control",
             "assumptions": ["LO, lepton PDF of the proton"], "max_seconds": 600, "approval_mode": "scripted_yes",
             "generation": g}
@@ -312,7 +321,7 @@ def test_generator_version_auto_selects_madgraph_3_for_lepton_partons(tmp_path, 
                {"version": "3.7.0", "tree": three["madgraph"], "python": three["python"], "compiler": three["compiler"],
                 "lhapdf_config": three["lhapdf_config"], "installed": True, "source_commit": "b" * 40}]
     monkeypatch.setattr(generator_versions, "installed_madgraph", lambda prefix=None, **k: entries)
-    spec = lepton_spec(None)
+    spec = lepton_spec(three)
     del spec["generation"]["runtime"]
     spec["generation"]["generator"] = {"name": "madgraph", "version": "auto"}
     rd, proposal = plan(tmp_path, spec)
@@ -321,5 +330,9 @@ def test_generator_version_auto_selects_madgraph_3_for_lepton_partons(tmp_path, 
     sm = deepcopy(spec)
     sm["generation"]["process"] = "u u~ > e+ e-"
     sm["generation"]["run_settings"].update(pdlabel="nn23lo1", lhaid=247000)
+    from model_validation_fixture import scoped_evidence
+    sm["generation"]["runtime"] = two
+    scoped_evidence(sm["generation"], tmp_path / "second-evidence")
+    del sm["generation"]["runtime"]
     _, proposal = plan(tmp_path, sm, "sm")
     assert proposal["generator_selection"]["selected"] == "2.9.27"

@@ -18,7 +18,7 @@ request needs. See `docs/workflow/analysis-simpleanalysis/config-decisions.md` f
    cp "$CARDS/<template>.toml" "$RUN/config/run.toml"
    ```
    Then edit `$RUN/config/run.toml`:
-   - `[base] engine = "podman"`  (the **container backend** only — the native default does not use mapyde/podman)
+   - `[base] engine = "podman"`  (the **container backend** setting)
    - `[madgraph.masses]` — the parameter point the request names (`<PARAM> = <value>` per entry)
    - `[madgraph.run] nevents = <N>`
    - `[simpleanalysis] name = "<selection>"` and `[pyhf] likelihood = "<file>.json"` for the target analysis

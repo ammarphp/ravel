@@ -13,6 +13,7 @@ import pytest
 from ravel.workflow import execution, physics_review as review, review_enforcement, stage_supervisor, waypoint_evidence
 from ravel.workflow import launch_authorization, workflow_state
 from ravel.workflow.state_io import atomic_json, read_json
+from bound_review import bound_accept, bound_review
 from test_checkin2_gate import CHECKIN2, _run, _ws
 from test_physics_review import policy
 
@@ -71,7 +72,8 @@ def _packet(data, agreement):
 
 
 def _reject(data):
-    return review.submit_review(data["root"], role="physics_critic", actor_id="critic", verdict="send_back",
+    # A recorded rejection is the bound response of a dispatched critic; declared names are advice.
+    return bound_review(data["root"], role="physics_critic", verdict="send_back",
         summary="The declared value is wrong; perform the bounded correction", findings=[{
             "id": "F-value", "summary": "Recompute after fixing the declared setting",
             "evidence": [{"path": "outputs/control-result.json", "location": "$.value"}],
@@ -85,9 +87,8 @@ def _admit(data, *, fail=False):
 
 
 def _accept(data, *, closes=(), scope="reproduction"):
-    for role, actor in (("physics_critic", "critic"), ("skeptical_verifier", "skeptic"), ("physics_decider", "physicist")):
-        review.submit_review(data["root"], role=role, actor_id=actor, verdict="accept", summary="Checked the actual control output",
-            closes=list(closes), claim_scope=scope)
+    # Critic, skeptic and decider accept through bound responses; declared names are advice.
+    return bound_accept(data["root"], scope=scope, closes=list(closes))
 
 
 def test_real_sendback_redo_successor_go_and_launch_audit(control):

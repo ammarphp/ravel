@@ -1,10 +1,12 @@
-"""Pure public role preparation; synthetic journal votes, no model/native calls."""
+"""Pure public role preparation; journal votes are bound responses of the inert observed transport,
+no model/native calls."""
 from copy import deepcopy
 from pathlib import Path
 import pytest
 from ravel.workflow import scientific_judgment as judgment, physics_review as review
 from ravel.workflow import agent_graph, execution
 from ravel.workflow.state_io import atomic_json, read_json
+from bound_review import bound_review
 from test_physics_review import run, opened, finding
 
 
@@ -15,19 +17,20 @@ def cycle(run):
 
 
 def record(root, tmp_path, *, role, absolute=False, verdict='accept'):
-    actors = {'physics_critic': 'critic', 'skeptical_verifier': 'skeptic'}
     path = (tmp_path / 'external' if absolute else root / 'inputs') / (role + '.json')
     path.parent.mkdir(exist_ok=True)
     value = {'kind': 'scientific_review', 'summary': 'synthetic retained public role output',
              'verdict': verdict, 'origin': role}
     atomic_json(path, {'result': {'kind': 'model_result', 'value': value}})
     pins = [review._pin(root, str(path)), review._pin(root, review.POLICY)]
-    event = review.submit_review(root, role=role, actor_id=actors[role], verdict=verdict,
+    # The vote is the bound response of a dispatched role; the planted pins ride beside its own support.
+    event = bound_review(root, role=role, verdict=verdict,
         summary='Synthetic journal control; no actual scientific vote',
         findings=[finding()] if verdict == 'send_back' else [],
         claim_scope='reproduction' if verdict == 'accept' else None,
         supporting_artifacts=pins)
-    assert event['supporting_artifacts'] == pins
+    # The bound role's own support is recorded too, so the planted pins are a subset of the event's support.
+    assert all(pin in event['supporting_artifacts'] for pin in pins)
     return path, value
 
 
@@ -62,7 +65,13 @@ def test_public_prepare_from_foreign_cwd_binds_actual_run_support(cycle, tmp_pat
     before = review._read(root)
     binding = prepare(root, tmp_path / 'prepared', role)
     rows = actual(binding)
-    assert [row['actual_public_role_outputs'] for row in rows] == [[value] for _, value in sources]
+    # Expected value changed by the new contract: each bound vote also carries its own actual public response
+    # beside the planted one. The planted outputs, read from the actual run and never from the cwd decoys, are
+    # those that name an origin; the other output of each row is the bound role's own recorded response.
+    assert [[o for o in row['actual_public_role_outputs'] if 'origin' in o] for row in rows] == [[value] for _, value in sources]
+    assert all(len(row['actual_public_role_outputs']) == 2
+               and row['recorded_review']['independence_evidence']['response'] in row['actual_public_role_outputs']
+               for row in rows)
     assert [row['role'] for row in rows] == [value['origin'] for _, value in sources]
     assert review._read(root) == before
     request = read_json(binding['request']['path'])
@@ -92,12 +101,16 @@ def test_recorded_support_damage_refuses_before_role_graph(cycle, tmp_path, monk
 
 
 def test_same_cwd_legacy_prepare_and_empty_support_still_work(cycle, tmp_path, monkeypatch):
-    for role, actor in [('physics_critic', 'critic'), ('skeptical_verifier', 'skeptic')]:
-        review.submit_review(cycle, role=role, actor_id=actor, verdict='accept',
-            summary='Synthetic empty-support control', claim_scope='reproduction', supporting_artifacts=[])
+    # A bound vote always carries its own role support, so no journal vote has an empty support; the
+    # explicit empty list adds nothing beside it and the rows show exactly the bound roles' own responses.
+    events = [bound_review(cycle, role=role, verdict='accept',
+                           summary='Synthetic empty-support control', claim_scope='reproduction', supporting_artifacts=[])
+              for role in ('physics_critic', 'skeptical_verifier')]
     monkeypatch.chdir(cycle)
     binding = prepare(cycle, tmp_path / 'empty-support', 'synthesizer')
-    assert [row['actual_public_role_outputs'] for row in actual(binding)] == [[], []]
+    # Expected value changed by the new contract: formerly [[], []] (empty recorded support).
+    assert [row['actual_public_role_outputs'] for row in actual(binding)] == [
+        [event['independence_evidence']['response']] for event in events]
     assert agent_graph.status(binding['graph_root'])['usage']['calls'] == 0
 
 

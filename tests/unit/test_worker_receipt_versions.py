@@ -17,7 +17,7 @@ from ravel.workflow import agent_worker as worker, broker, rdj_custody, role_reg
 from ravel.workflow import review_points as rp
 from ravel.workflow import transport_registry as tr
 
-from worker_supervision import descriptor, supervised
+from worker_supervision import descriptor, review_packet, supervised
 
 GOLDEN = Path(__file__).resolve().parents[1] / 'fixtures/worker_receipt_v1'
 # sha256 of the golden receipt as the base code wrote it (step 0 capture).
@@ -84,10 +84,11 @@ def stub_execution():
             'session_id': 'stub-session'}
 
 
-def close(run, s, execution):
+def close(run, s, execution, packet=None):
     """Complete one worker as the dispatcher does. A transport observation only comes out of a
-    supervised launch; the stub transport hands back no envelope and the host completes it."""
-    ws = worker.materialize(run, s)
+    supervised launch; the stub transport hands back no envelope and the host completes it.
+    ``packet`` is the role projection the review graph hands the dispatcher, when the worker is a reviewer."""
+    ws = worker.materialize(run, s, packet=packet)
     tool = broker.Broker(run, ws, node_id=s['node_id'], attempt=1, allowed_actions=['write'], max_calls=100)
     reply = tool.call({'call_id': 'put-' + s['node_id'], 'action': 'write',
                        'args': {'path': 'outputs/review.json', 'content': '{"findings": []}'}})
@@ -97,7 +98,8 @@ def close(run, s, execution):
     if transport['transport_kind'] == 'cli-worker':
         launch = {**descriptor(), 'transport': transport, 'model': execution['model']}
         return supervised(run, s, final=final, session=execution['session_id'], attestation=execution['attestation'],
-                          launch_spec=launch, observed={'cli_version': execution['cli_version']})
+                          launch_spec=launch, observed={'cli_version': execution['cli_version']},
+                          **({'packet': packet} if packet is not None else {}))
     # The dispatcher assigns the actor of this worker session at spawn; the execution record never names one.
     worker.bind_actor(run, s['node_id'], s['attempt'], transport_id=transport['id'],
                       model_id=(execution.get('model') or {}).get('requested') or 'unspecified',
@@ -203,7 +205,8 @@ def test_a_malformed_review_subject_is_refused_at_dispatch(env, subject, point_i
 def test_a_real_transport_receipt_with_a_matching_subject_earns_credit(env):
     facts, point = plan(env)
     assert not rp.satisfied(env, point['id'])
-    close(env, spec('real', point_id=point['id'], subject=rp.review_subject(facts, point)), real_execution('real'))
+    close(env, spec('real', point_id=point['id'], subject=rp.review_subject(facts, point)), real_execution('real'),
+          packet=review_packet(env, point['id'], 'physics-critic'))
     assert rp.satisfied(env, point['id'])
     report = next(r for r in rp.checkin3_section(env)['review_receipts'] if '/real/' in r['path'])
     assert report['attestation'] == 'transport_attested' and report['independent'] and report['advisory'] is None

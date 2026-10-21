@@ -64,11 +64,11 @@ installed copy differs from the packaged handbook; `skill-keys` reports
 workflow skills whose frontmatter leaves the six-key set; `collisions` reports
 skill descriptions that overlap strongly. The last two only report.
 
-## Unavailable tools
+## Tool readiness
 
 `--doctor-report FILE` reads a `ravel doctor --json` report (or a
 `native_doctor` report) and prints, per handbook, whether the toolchain groups
-it pins are ready. A handbook for an unavailable tool is illustrative on that
+it pins are ready. Each handbook retains its declared executable or illustrative status on that
 host. `tool_handbooks.doctor_report()` produces a live report, preferring
 `ravel doctor` and falling back to `native_doctor`.
 

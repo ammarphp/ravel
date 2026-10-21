@@ -65,7 +65,7 @@
     },
     "protocol": [
       "Attribute mechanism gains using an arm without the mechanism and fixed generic controls. Open findings stay exploratory until independent review and an R3 decision.",
-      "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast.",
+      "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses.",
       "Only new_receipt, code_check or a typed discriminating-test request can block. Ask for the cheapest test that could invalidate the claim. Cited claims and opinions remain advisory.",
       "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
       "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
@@ -112,5 +112,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
+  "registry_sha256": "2889e12595a211cf69a07c491b52f4f523c911f0f19a1b2759ef648c5bde704d"
 }

@@ -16,7 +16,7 @@
         "module": "ravel.validation.higgs_checks",
         "function": "run_check",
         "roles": [],
-        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+        "description": "Runs the measurement-bundle refusal checks: unique row identities, one scalar mass, quantity against unit and a symmetric positive-semidefinite correlation. A refused bundle fails; a bundle that is schema-invalid or whose correlation is still a file reference is inconclusive. Input: the higgs-measurement-bundle document with its correlation matrix resolved."
       },
       {
         "id": "check:higgs.parameterization_closure",
@@ -30,14 +30,14 @@
         "module": "ravel.validation.higgs_checks",
         "function": "run_check",
         "roles": [],
-        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+        "description": "Reviewer must_check item: no implementation exists, so the check is always inconclusive and credit needs the reviewer's per-item verdict with evidence."
       },
       {
         "id": "check:higgs.theory_constraints",
         "module": "ravel.validation.higgs_checks",
         "function": "run_check",
         "roles": [],
-        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+        "description": "Reviewer must_check item: no implementation exists, so the check is always inconclusive and credit needs the reviewer's per-item verdict with evidence."
       },
       {
         "id": "check:higgs.cross_engine",

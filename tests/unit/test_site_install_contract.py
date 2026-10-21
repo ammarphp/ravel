@@ -119,9 +119,9 @@ def test_site_profile_trimmed_and_tester_qualification(tmp_path):
     from ravel.setup import manifest
     value, _ = manifest.load(SOURCE)
     groups = manifest.profile_groups(value, 'site')
-    assert 'root-combine' not in groups and 'tex' not in groups
-    assert value['profiles']['site']['disk_gb'] == 10
-    assert sum(manifest.by_id(value)[name]['size_gb'] for name in groups) <= 10
+    assert 'root-combine' not in groups and 'tex' not in groups and 'ml' in groups
+    assert value['profiles']['site']['disk_gb'] == 12
+    assert sum(manifest.by_id(value)[name]['size_gb'] for name in groups) <= 12
     for name in ('site-root-wms', 'site-access'):
         assert manifest.by_id(value)[name]['qualification']['status'] == 'tester-qualification'
 

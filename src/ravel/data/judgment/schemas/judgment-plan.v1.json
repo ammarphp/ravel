@@ -1,0 +1,220 @@
+{
+  "title": "judgment-plan.v1",
+  "description": "A judgment-route decomposition: a DAG of typed steps from the closed step vocabulary, each with inputs, outputs, obligations, budget share, protocols and review seats, plus the mapping of every frame deliverable to step outputs or to an explicit hold. The plan is data; the controller runs each step through the governed step graph.",
+  "type": "object",
+  "required": ["schema_version", "kind", "frame_sha256", "steps", "deliverables"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "kind": {"type": "string", "const": "judgment-plan"},
+    "frame_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "revision": {"type": "integer", "minimum": 0},
+    "parent_plan_sha256": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"type": "null"}]},
+    "tool_reasons": {"type": "object", "additionalProperties": {
+      "type": "object", "additionalProperties": false, "required": ["code", "statement", "evidence"],
+      "properties": {"code": {"type": "string", "enum": ["not_applicable"]},
+                     "statement": {"type": "string", "minLength": 8, "pattern": "\\S"},
+                     "evidence": {"type": "array", "minItems": 1, "items": {
+                       "type": "string", "pattern": "^(reading|step):[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"}}}}},
+    "assumption": {
+      "description": "A reasoned assumption answering one unanswered question: every option considered with its evidence and reasons, the rejection reason of each one not chosen, the chosen option, whether the ambiguity is physics-critical, and the alternative option a sibling branch of this plan runs (null: none).",
+      "type": "object",
+      "required": ["question_step", "chosen", "alternatives", "physics_critical"],
+      "additionalProperties": false,
+      "properties": {
+        "question_step": {"type": "string", "minLength": 1},
+        "chosen": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string"},
+        "physics_critical": {"type": "boolean"},
+        "alternative_branch": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "alternatives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["option", "evidence", "reasons"],
+            "additionalProperties": false,
+            "properties": {
+              "option": {"type": "string", "minLength": 1},
+              "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+              "reasons": {"type": "string", "minLength": 1},
+              "rejection": {"anyOf": [{"type": "string"}, {"type": "null"}]}
+            }
+          }
+        }
+      }
+    },
+    "recovery": {
+      "description": "A recovery plan's alternatives for a step that could not complete: each one considered with its evidence, the rejection reason of each one not chosen, and the chosen one (null: none recovers the step).",
+      "type": "object",
+      "required": ["failed_step", "alternatives", "chosen"],
+      "additionalProperties": false,
+      "properties": {
+        "failed_step": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string"},
+        "chosen": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "alternatives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "kind", "description", "evidence"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "kind": {"type": "string", "enum": ["source", "method", "approximation", "descope"]},
+              "description": {"type": "string", "minLength": 1},
+              "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+              "bound": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+              "rejection": {"anyOf": [{"type": "string"}, {"type": "null"}]}
+            }
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "purpose", "inputs", "outputs", "depends_on", "budget_share", "protocols",
+                     "review", "obligations"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,47}$"},
+          "kind": {"type": "string", "enum": ["acquire", "operate", "author", "derive", "compare", "review",
+                                              "synthesize", "ask", "decide", "subgraph", "route"]},
+          "purpose": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "operation": {"type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"},
+          "operation_task": {
+            "description": "A registered native task read from a declared input, never inline executable parameters. The installed adapter validates that task and its complete file-input custody before launch.",
+            "type": "object", "additionalProperties": false,
+            "required": ["materializer", "task_input", "result_output"],
+            "properties": {
+              "materializer": {"type": "string", "enum": ["science-mode"]},
+              "task_input": {"type": "string", "pattern": "^(inputs/[A-Za-z0-9_][A-Za-z0-9_./-]*|[a-z][a-z0-9_-]{0,47}:outputs/[A-Za-z0-9_][A-Za-z0-9_./-]*)$"},
+              "result_output": {"type": "string", "pattern": "^outputs/[A-Za-z0-9_][A-Za-z0-9_./-]*$"}
+            }
+          },
+          "role": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9-]*$"},
+          "graph": {"type": "string", "enum": ["research.loop", "rdj.case", "review.points", "manuscript.build",
+                                               "ml.study", "literature.scout", "intake.plan", "consult.case"]},
+          "route": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_.-]*$"},
+          "inputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["artifact"],
+              "additionalProperties": false,
+              "properties": {
+                "artifact": {"type": "string", "minLength": 1, "pattern": "^(request|reading|contract|inputs/[A-Za-z0-9_][A-Za-z0-9_./-]*|[a-z][a-z0-9_-]{0,47}:outputs/[A-Za-z0-9_][A-Za-z0-9_./-]*)$"},
+                "sha256": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"type": "null"}]}
+              }
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["path", "kind", "required"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {"type": "string", "pattern": "^outputs/[A-Za-z0-9_][A-Za-z0-9_./-]*$"},
+                "kind": {"type": "string", "minLength": 1, "pattern": "\\S"},
+                "required": {"type": "boolean"}
+              }
+            }
+          },
+          "depends_on": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,47}$"}},
+          "waypoint": {"type": "boolean"},
+          "rung": {"anyOf": [{"type": "string", "enum": ["dry", "smoke", "pilot", "full", "scan"]}, {"type": "null"}]},
+          "verification": {"type": "object", "additionalProperties": false,
+                           "required": ["output", "pointer", "unit", "relative_tolerance"],
+                           "properties": {"output": {"type": "string", "pattern": "^outputs/[A-Za-z0-9_][A-Za-z0-9_./-]*$"},
+                                          "pointer": {"type": "string", "pattern": "^/"},
+                                          "unit": {"type": "string", "minLength": 1, "pattern": "\\S"},
+                                          "relative_tolerance": {"type": "number", "minimum": 0},
+                                          "absolute_tolerance": {"type": "number", "minimum": 0}},
+                           "description": "How the controller compares a blind verifier's independent value with this step's result: the declared output and JSON pointer of the quantity, its unit and the tolerances CHECK-IN 1 approves. A mismatch escalates."},
+          "check_inputs": {"type": "object", "additionalProperties": {"type": "object"},
+                           "description": "Validator parameters by exact validator id, approved with the plan as the step's parameters.check_inputs. A pin names existing bytes by path and sha256; {\"output\": <declared output path>} names this step's own output, bound to the bytes adopted for it when the step's checks run."},
+          "budget_share": {
+            "type": "object",
+            "required": ["fraction"],
+            "additionalProperties": false,
+            "properties": {
+              "fraction": {"type": "number", "minimum": 0, "maximum": 1},
+              "wall_seconds": {"type": "number", "minimum": 0},
+              "events": {"type": "integer", "minimum": 0},
+              "broker_calls": {"type": "integer", "minimum": 0},
+              "tokens": {"type": "integer", "minimum": 0}
+            }
+          },
+          "protocols": {"type": "array", "items": {"type": "string", "enum": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]}},
+          "review": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}},
+          "instruction_sources": {"type": "array", "items": {"type": "string", "pattern": "^[A-Za-z0-9_][A-Za-z0-9_./-]*\\.md(#[a-z0-9-]+)?$"}},
+          "obligations": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+          "needs": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$"}},
+          "tool_reasons": {"type": "object", "additionalProperties": {
+            "type": "object", "additionalProperties": false, "required": ["code", "statement", "evidence"],
+            "properties": {"code": {"type": "string", "enum": ["not_applicable"]},
+                           "statement": {"type": "string", "minLength": 8, "pattern": "\\S"},
+                           "evidence": {"type": "array", "minItems": 1, "items": {
+                             "type": "string", "pattern": "^(reading|step):[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"}}}}},
+          "triggers": {"type": "array", "items": {"type": "string", "enum": ["render_published_artifact", "compare",
+                                                                               "route_new_pair", "use_produced_number",
+                                                                               "discrepancy", "resource_unavailable",
+                                                                               "adopt_default", "delivery",
+                                                                               "method_escalation", "stage_recovery"]}},
+          "resolves": {"type": "array", "items": {"type": "string", "pattern": "^(U[0-9]{1,4}|B[0-9]{1,4}|failure:[a-z][a-z0-9_.-]*)$"}},
+          "question": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "description"],
+              "additionalProperties": false,
+              "properties": {
+                "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$"},
+                "description": {"type": "string", "minLength": 1, "pattern": "\\S"}
+              }
+            }
+          },
+          "default": {"anyOf": [{"$ref": "protocols/P7.v1.json"}, {"type": "null"}]},
+          "default_option": {"anyOf": [{"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$"}, {"type": "null"}]},
+          "action": {"$ref": "action.v1.json"},
+          "declared_class": {"type": "string", "enum": ["R0", "R1", "R2", "R3"]}
+        }
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "outputs"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"},
+          "status": {"type": "string", "enum": ["planned", "held"]},
+          "outputs": {
+            "type": "array",
+            "maxItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["step", "path"],
+              "additionalProperties": false,
+              "properties": {
+                "step": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,47}$"},
+                "path": {"type": "string", "pattern": "^outputs/[A-Za-z0-9_][A-Za-z0-9_./-]*$"}
+              }
+            }
+          },
+          "held_reason": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]}
+        }
+      }
+    }
+  }
+}

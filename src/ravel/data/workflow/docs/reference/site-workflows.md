@@ -33,6 +33,26 @@ ravel site doctor --profile analysis-facility --site-record site.json \
 `--site-record` overrides the analysis-facility profile's Slurm default and its
 credential requirements. Declare only the requirements that the site actually has.
 
+To keep the site's settings, save a site profile once:
+
+```sh
+ravel site init --seed analysis-facility --scheduler auto --network auto \
+  --mirror /work/ravel-mirror --cvmfs /cvmfs/<repository>
+ravel site show
+ravel site doctor --site-profile active --prefix /work/ravel-tools
+```
+
+`init` observes this host once (resources, filesystem roots, network egress, the batch
+system, sandbox and container backends, installed tools) and writes the profile privately
+under the controller home (`--output` writes elsewhere). The named built-in profile is only
+its seed: `--requires-proxy`, `--requires-kerberos`, `--requires-afs`, `--cvmfs` and
+`--scheduler` replace the seeded settings, and `--scheduler auto` takes the detected batch
+system (it refuses when both HTCondor and Slurm clients are present). `--network offline`
+declares that runs have no network; their acquisitions then read the `--mirror` copy
+(`<mirror>/hepdata/ins<digits>/` laid out as an offline record fixture) and never fetch.
+`site doctor --site-profile` checks the saved settings; `--site-record` still overrides
+them. Every controller run pins the saved profile's digest in its environment profile.
+
 Choose an absolute LCG view path containing `setup.sh` when the facility uses
 CVMFS. `auto` lists this CPU's candidates and refuses installation. The installer
 carries the explicit choice through `RAVEL_LCG_VIEW` and writes
@@ -73,8 +93,9 @@ Installer children, `config/ravel-env.sh` and container wrappers set
 `TMPDIR=<prefix>/tmp` on Linux; pip, conda and XDG caches also use the prefix. The doctor
 reports both Apptainer locations and fails when an override escapes the prefix.
 
-The site disk gate is 10 GiB: the selected groups and dependencies total 9.1 GiB
-in the manifest estimates, with 0.9 GiB headroom; it is an estimate, not a measured peak. The doctor
+The site disk gate is 12 GiB: the selected groups and dependencies, the machine-learning
+libraries included, total 10.9 GiB in the manifest estimates, with 1.1 GiB headroom; it is an estimate,
+not a measured peak. The doctor
 reads `fs listquota` on AFS paths or `quota -s`, then free space with `df`.
 The prefix needs at least the install size. Runs and transcripts need 4 GiB free
 by default; `--min-free-gb` sets their threshold and can increase the prefix
@@ -177,7 +198,7 @@ explicitly null for MC-only tasks, or the reviewed data mask entry, never omitte
 The kernel implements `analyze(table, source_entries, sample)` and returns each
 admitted source row including empty selections, with exact source_entry and the
 complete quantity-ID fill mapping. Weights are captured from original arrays
-before supplied code can change them. MC rows cannot be omitted.
+before supplied code can change them. MC rows must not be omitted.
 
 Data blinding requires exclude_signal_regions, reviewed source, blind_entry and
 explicit allowed control/validation regions and a closed model_fields map from
@@ -194,7 +215,7 @@ only allowed CR/VR bins and covariance, plus a digest/completion verdict of the
 private census; no total DATA entries, range endpoints, SR values, empty/flow or
 excluded counts. Ordinary Host model presentation rejects typed internal DATA
 source/census/native records; models consume the safe source-context/aggregate
-projection. External CERN metadata and arbitrary trusted Python remain outside
+projection. External site metadata and arbitrary trusted Python remain outside
 this enforcement, and source/mask safety needs independent review.
 
 Complete runtime capture has a prospective 64,000-file/8 GiB ceiling and 32 MiB
@@ -232,15 +253,14 @@ site-analysis interpreter pin. wms is either the original
 engine=snakemake/version=9.27.0/cores=1/retries=0 block or a bounded profile that adds
 `profile` (local|htcondor|slurm), `cores` (1..1024), `jobs` and `remote_ceiling`.
 Snakemake `retries` stays 0 in both: a Snakemake retry would re-run a spent run-step,
-so a failed partition is retried by RAVEL instead (below). Locally, `cores` may not
+so a failed partition is retried by RAVEL instead (below). Locally, `cores` must not
 exceed the slots the machine lease admits on this host (one on macOS: one native
-scientific job at a time) and `jobs` may not exceed `cores`. A remote profile bounds
+scientific job at a time) and `jobs` must not exceed `cores`. A remote profile bounds
 `jobs` by its `remote_ceiling`, which must fit the owner-set remote job ceiling
 (`RAVEL_REMOTE_JOB_CEILING`); each remote worker relies on its host-scoped lease.
 Ordered tasks have unique id, rundir, actual canonical plan pin, owner and earlier
 actual depends_on IDs. Owner is ordinary or the actual research_cycle/cycle/
-experiment association read from records. A staged actual campaign parent cannot
-be omitted. Arbitrary shell commands, retries and automatic resume are refused.
+experiment association read from records. Retain the actual staged campaign parent in the exported owner binding. Arbitrary shell commands, retries and automatic resume are refused.
 
 Audit binds complete prompt pins, exact model_build, timezone-aware timestamps,
 token_accounting, environment, tracked_skill_sources and blinding_policy. The
@@ -260,7 +280,7 @@ The generated Snakefile runs no Python when parsed: integrity is the explicit ru
 ravel_verify_export (marker completed/.export-verified-<sha12>.json), which every
 task rule (task_<id>) takes as input. Task ids `all` and Snakemake keywords are refused.
 Tests parse every generated Snakefile with real Snakemake `-n` when RAVEL_TEST_SNAKEMAKE
-names a tests-only Snakemake; site execution through Snakemake is not yet qualified.
+names a tests-only Snakemake.
 
 Fresh workflow.json/Snakefile/export-closure and WMS argv bind original manifest
 digest, full source and retained completion receipts. Rules call existing
@@ -308,6 +328,15 @@ ravel wms launch --project /work/campaign --task TASK --jobs 8
 ravel wms retry --project /work/campaign --task TASK
 ```
 
+Credential-using submissions inspect proxy lifetime through
+`voms-proxy-info --timeleft`, with `--file` for an explicit proxy path. An expired
+proxy opens the controller's `proxy_expired` operator wait and sends one
+notification. Renew the proxy and acknowledge with `ravel operator resume --run
+RUN --reason REASON`; the next submission verifies its positive lifetime before
+continuing. The protected condition retains integer lifetime metadata and a
+credential locator digest. An unknown lifetime has the distinct
+`credential_status_unknown` disposition.
+
 Optional `init --site-options options.json` supplies the existing validated HTCondor
 submit options, including memory, runtime, analysis-bin path and opt-in proxy path
 handoff. The governed profile fixes `workflow_dir` to the project workflow and
@@ -325,14 +354,14 @@ or extra profile member is refused. Local projects keep the one-core command.
 
 `launch --jobs N` defaults to the initialized count and must fit the declared
 remote ceiling and the current owner ceiling. Partition tasks additionally retain
-the exact fan-out pinned in their approved master; a project ceiling cannot widen
+the exact fan-out pinned in their approved master; a project ceiling must not widen
 that approval, including for unfinished `--after` tasks. Snakemake retries remain zero;
 `ravel wms retry` plans/registers a fresh approved partition attempt within its
 master's attempt bound. No launch flag enables scheduler retries.
 
 The declared shared root must contain the project, run state, exports, launch
 records and live authorization locks. Node-local temporary and worker scratch
-paths are refused. A path declaration cannot establish remote reachability:
+paths are refused. Verify remote reachability independently of the path declaration:
 qualify identical paths, read/write access and cross-node POSIX locks on the
 workers before a campaign. The run directories' canonical paths must stay inside
 the project. Per-slot leases use worker scratch while persistent state stays
@@ -353,7 +382,7 @@ inside the project, so that the project's policy governs it. `add` writes a one-
 site-workflow export under `workflow/exports/<task>/` and its rule as
 `workflow/rules/<task>.smk`. Then it records the task, export, rule and policy pins in
 `index.json`. An aborted or failed run leaves the rule and export intact. A spent
-attempt cannot resume; add a fresh approved attempt under a new task id. Duplicate task
+attempt requires a fresh approved attempt under a new task id. Duplicate task
 ids, a run dir that is already a task and `--after` names missing from the index are
 refused before any rule is written. `--after` makes the rule depend on those tasks'
 completion markers, and run-step checks their deliveries, such as a note built after
@@ -370,7 +399,7 @@ re-verifies the export and approval and calls `science.run` or
 `research_cycle.run_experiment`. It writes the completion marker. Each launch writes
 `workflow/launches/<task>/<n>.json` with the Snakemake argv, version, start and end
 UTC, exit code, marker pin and log. The receipt records delivery only. The Snakemake
-version is read before the stage runs. A delivery record that cannot be read after the
+version is read before the stage runs. A delivery record whose read fails after the
 run marks the receipt `incomplete` and names the record, so a stage that ran always has
 a receipt. Dispatch records of the `--after` tasks that ran inside a launch are attached
 to that launch's receipt.
@@ -389,7 +418,7 @@ task's rule once, including rules for other tasks. It verifies the stable Snakef
 bytes and every rule pin, reserves a new log and writes the verified bytes as read-only
 copies to `workflow/launches/<task>/<n>.parse/`. A changed or missing rule refuses the
 launch. Snakemake parses the copies with the project workflow as its working directory.
-An edit or a concurrent `add` after the check therefore cannot change what the launch
+An edit or a concurrent `add` after the check therefore must not change what the launch
 parses. The receipt pins the copies under `parse_inputs` and records in
 `unchanged_after_run` whether they still matched after Snakemake returned. Logs and
 receipts never overwrite an earlier launch's evidence.
@@ -407,7 +436,7 @@ dir for every approval route: a scientific study, a scoped plan, a native plan a
 compute rung. Only a stage with no approval route, such as a build step, is outside
 that check. A run stays governed
 while any ancestor `workflow/index.json` lists it or any ancestor
-`workflow/policy.json` requires the workflow manager. A nearer policy cannot lift
+`workflow/policy.json` requires the workflow manager. A nearer policy must retain
 that requirement. An index lists a run by the identity of its directory: an entry
 written with `..` segments or through a symbolic link governs the same run, and a
 relative entry is refused. A malformed policy or index anywhere on the path refuses
@@ -448,13 +477,12 @@ This is discipline, not a security boundary against code that rewrites these
 functions. Every run-step writes `exports/<task>/dispatch/<n>.json`. The
 record holds the working directory, whether `.snakemake/locks` held a lock during the
 step and the runtime environment snapshot. `ravel wms status` counts dispatches
-without a Snakemake lock and dispatches outside a launch. The plan does not yet pin
-the policy file; governance checks at dispatch remain independent of that plan binding.
+without a Snakemake lock and dispatches outside a launch. Governance checks read the policy at dispatch.
 
 ## Code provenance
 
 This is original RAVEL implementation using public APIs reviewed against
-[US ATLAS AF AI](https://usatlas.github.io/af-docs/ai/),
+[Site agent API documentation](https://usatlas.github.io/af-docs/ai/),
 [marketplace](https://github.com/usatlas/marketplace),
 [fsspec-xrootd0.5.5](https://github.com/scikit-hep/fsspec-xrootd/tree/0b5121497e9dfb7c17f84fbc00579f90d01268b0)
 (BSD-3-Clause), [XRootD6.2.0](https://github.com/xrootd/xrootd/tree/v6.2.0)
@@ -507,7 +535,7 @@ additional figures/files require their own source-defined blinding check.
 An existing WMS completion marker and every predecessor output must resolve the
 actual canonical approved plan, original spent attempt, launch/admission receipt,
 succeeded execution and complete current output census through RAVEL's existing
-science lifecycle. A caller-created passed JSON file cannot establish delivery.
+science lifecycle. Delivery requires the actual ordinary lifecycle receipt.
 The statistical handoff uses the same successful original ROOT producer boundary;
 its pure table projection remains conditional on the supplied complete scientific
 laws, and neither boundary grants scientific acceptance or new execution rights.
@@ -526,9 +554,9 @@ not an OS sandbox or a classifier for arbitrary text copied outside provenance.
 Schema-2 exports resolve the authenticated original stage before an attempt, or
 its actual selected stage after the retained attempt/correction token exists.
 The prepared plan has no top-level output-directory field. A changed selected
-destination requires a fresh exact export; it cannot reuse an old WMS marker.
+destination requires a fresh exact export; it must not reuse an old WMS marker.
 Model presentation refuses a producer namespace with retained original science
-records and a missing, renamed or nonordinary plan. Loss of authority cannot make
+records and a missing, renamed or nonordinary plan. Loss of authority must not make
 its private DATA intervals into an external text input. The genuine lifecycle
 regression is a proposed two-record signed-weight software control, not ROOT/site
 or scientific qualification.
@@ -599,7 +627,7 @@ master, successful approval/admission/attempt receipt, original output census,
 complete raw native census, closure, current source and exact selected task.
 Caller-created passed JSON, repeated IDs/run directories, changed sources,
 stale receipts and incomplete coverage refuse. Resume lists pending partitions;
-it cannot renew a spent failed ordinary attempt. A fresh merge specification is
+it must not renew a spent failed ordinary attempt. A fresh merge specification is
 created only after the complete original completion roster authenticates. Plan,
 approve and optionally export that merge through the same ordinary route.
 
@@ -622,7 +650,7 @@ these namespaces before ordinary Host decoding, including authenticated role
 copies and retained namespaces. Only the complete merge's existing fixed public
 CR/VR projection is analytical/model evidence. An incomplete DATA partition has
 no public counts, interval endpoints or complement yield. This enforcement is
-not a sandbox for arbitrary Python, manual out-of-band copies or external CERN
+not a sandbox for arbitrary Python, manual out-of-band copies or external site
 metadata. ROOT access, Linux runtime/ABI, production independence, normalization,
 selection, background modeling and numerical/physics qualification still require
 actual scoped evidence; source preparation and synthetic software controls do not
@@ -634,13 +662,13 @@ in the partition-plan request. The existing cycle must have enough original
 wall/native-attempt allowance for the complete master. Preparation debits the
 whole declared master ceiling once in its durable resource ledger, keyed by the
 original specification digest; it grants no approval. Re-preparing the same
-original specification under this owner cannot reset that reservation.
+original specification under this owner must not reset that reservation.
 At the actual approved ordinary worker boundary, a canonical partition or merge
 identity claims its exact registered run/attempt in the same immutable journal.
 Claims retain their full declared seconds after failure, interruption or missing
-terminal evidence. A new run directory cannot renew one. Resume distinguishes
+terminal evidence. A new run directory must not renew one. Resume distinguishes
 unclaimed pending partitions from blocked claimed partitions, and reuses only
-the original successful ordinary receipt. A partition may claim again only up to
+the original successful ordinary receipt. A partition can claim again only up to
 the master's `max_attempts`, in a new run directory. Earlier attempts must be
 failed or reported as "ran but did not deliver"; unresolved attempts block retry. A
 missing, unreadable or still-running execution record is unresolved and blocks
@@ -653,7 +681,7 @@ supervised recovery; this command grants no fresh attempt or approval. A record
 that does not name its recording host stays unresolved: a process id observed on
 this host proves nothing about a record of unknown origin.
 
-Limitation: a workflow-manager project refuses that command for a run directory
+scope condition: a workflow-manager project refuses that command for a run directory
 it governs before supervised recovery starts, and no `ravel wms` command runs that
 recovery. An unresolved attempt of a governed partition is therefore held: it
 stays charged, and its partition is neither retried nor merged under this master.
@@ -661,7 +689,7 @@ The retry and merge refusals name this hold instead of the command. Continuing
 that partition needs a new master reservation through the research design and
 admission route.
 
-Limitation: a lost supervisor is not resolved by that command. When the ledger
+scope condition: a lost supervisor is not resolved by that command. When the ledger
 still says `running` and both the child and its recorded process group are
 absent, `ravel run --rundir <attempt> --resume` records the attempt as failed
 with `descendant_containment: not_established` and keeps a recovery hold. The
@@ -678,7 +706,7 @@ design/admission route, rather than replacing the original master.
 ### Parallel partitions through the workflow manager and bounded retries
 
 Partitions run in parallel through Snakemake over ordinary site-workflow tasks:
-each prepared partition run dir is one task, and an export may add a merge rule
+each prepared partition run dir is one task, and an export can add a merge rule
 `fanin: [{id, master, output}]`. The merge rule waits for a delivery record
 for every partition of that master, at its original task output path
 `completed/<task>.json`. All original partition tasks must be in the export.
@@ -705,7 +733,7 @@ only publishes needs no launch authorization, because it runs no stage.
 
 A later attempt reaches the merge rule by any approved route within the
 master's attempt bound: a retry registered with `ravel wms retry`, a fresh run
-directory planned from the same partition specification and run with
+directory declared from the same partition specification and run with
 `ravel run`, or a new campaign experiment for a campaign-owned partition. Each
 claims its attempt in the master journal at the same worker boundary, and a
 campaign experiment passes its campaign admission there. When the original
@@ -714,7 +742,7 @@ spent publishes the delivery of the attempt that the journal selects and
 dispatches nothing. A registered retry publishes through its retry ledger. An
 attempt run outside the retry command has no ledger: its publication binds the
 journal claim, the canonical completion and the ordinary result and
-verification pins, and a registered retry cannot be published that way.
+verification pins, and a registered retry must not be published that way.
 
 An ordinary task that depends on a partition task waits for the same delivery
 record. Its run-step accepts the selected delivered attempt, original or
@@ -767,13 +795,13 @@ Delivered means that the attempt's ordinary delivery exists and passes the same
 receipt, result and verification checks used by partition recording. Execution
 status `succeeded` and a completion marker alone are insufficient. A succeeded execution with a refused
 result is reported as "ran but did not deliver", stays charged, is excluded
-from the merge, and may retry only within the approved attempt bound.
+from the merge, and can retry only within the approved attempt bound.
 A campaign-owned
 partition is retried as a new campaign experiment instead; relaunching the
 original export publishes its delivery as described above.
 The master deadline starts on its first actual claim and is never renewed; each
 branch must also fit the original campaign deadline. WMS duplicate task IDs or
-run directories cannot evade the canonical master/partition identity guard.
+run directories remain bound by the canonical master/partition identity guard.
 
 The complete roster uses a bounded source-typed attempt journal under the original
 campaign, with one constant-size predecessor record per canonical task (up to
@@ -783,7 +811,7 @@ role/campaign limit unchanged: the campaign only needs its reservation and
 initial clock commits, not one generic revision per data partition. No partition
 is dropped, and no full historical snapshot is copied on each claim. Missing or
 changed records, broken ancestry, incomplete publication and head rollback with
-retained later records refuse. Failure/unknown status cannot release a claim.
+retained later records refuse. Claim release requires verified terminal evidence.
 
 
 For an actual campaign experiment using this schema2 master, the experiment
@@ -803,7 +831,7 @@ reacquires the same lock and repeats the campaign admission against the current
 state and exact dispatch event before publishing its original immutable claim.
 The ordinary run/attempt locks and master claim journal remain the concurrency
 and failed/unknown-spend authority. Merely holding a lock, planning a study or
-passing a Boolean cannot replace this admission. Direct standalone ordinary
+passing a Boolean must not replace this admission. Direct standalone ordinary
 partition runs remain supported under the same original master reservation;
 direct dispatch of a campaign-owned experiment without its current campaign
 boundary refuses. Other science experiment lock lifetimes remain unchanged.
@@ -813,8 +841,8 @@ boundary refuses. Other science experiment lock lifetimes remain unchanged.
 Check the site before a long session:
 
 ```sh
-ravel site doctor --profile lxplus --eos-dir /eos/user/a/me/work
-ravel site install-plan --env-prefix /afs/cern.ch/work/a/me/env --checkout /afs/cern.ch/work/a/me/ravel
+ravel site doctor --profile generic --eos-dir /path/to/shared/work
+ravel site install-plan --env-prefix /path/to/work/env --checkout /path/to/work/ravel
 ```
 
 The doctor checks the installed WMS lock, Snakemake, executor plugin/interface,
@@ -825,6 +853,178 @@ Node, an agent CLI, rucio, apptainer, XRootD and tmux. `install-plan`
 prints the no-root route: Miniforge with Python 3.12 in your work space, then
 `site_installation.py`. For long sessions run the agent in tmux, renew Kerberos
 with `krenew` or `k5reauth`, and create a long proxy with `voms-proxy-init --valid 96:00`.
+Where the facility ends long login sessions, run the driver as an HTCondor job instead
+(`ravel site study-job submit --scheduler htcondor`, see
+[batch allocations](batch-allocations.md#htcondor-one-driver-job)).
+
+### Driver jobs of controller-owned runs
+
+A study directory inside a controller-owned run gets three more boundaries. A request is
+written, submitted and started only while the run is running: a stop, pause or revocation
+refuses each step, and a job that starts after a stop records `stopped` without running the
+agent; a restart never runs it. Submission goes only through the trusted launch capability
+of the parent site step. The capability admits the exact submit description or sbatch
+script once, the scheduler receives that frozen copy, and the capability never enters the
+job's environment. While the agent runs, the job reads the run's controls again. After a
+stop the agent has `STOP_DRAIN_SECONDS` (600 s) to reach its own bounded ending; a process
+group still running then gets SIGTERM, then SIGKILL, and the receipt records `stopped`.
+
+The lease follows the job. A request must not set `RAVEL_LEASE_SCOPE`, `RAVEL_STATE_DIR`,
+`HOME`, `PATH`, the `_CONDOR_` and `SLURM_` variables or the agent's identity variables.
+An HTCondor job starts only when its job ad's universe is the request's universe and its
+lease matches that universe: the batch-slot lease for `vanilla`, the access point's host
+lease for `local`. Each slot or access point therefore still runs one native scientific
+job at a time. The submit description pins the wrapper's sha256, so a changed `study.sh`
+is never submitted. Slurm scripts and receipts of other runs are unchanged.
+
+### Bounded multi-job submission of controller-owned runs
+
+A site step can instead declare N jobscripts. The study scope binds `site: {"jobscripts":
+[{"path", "sha256"}, ...], "wms_scope": {"workflow_dir", "max_jobs": N, ...}}`: N distinct
+prepared files, each content-pinned before CHECK-IN 1, and `max_jobs` equal to their count, so
+the approved plan bounds N. The site step mints one capability for exactly those N scripts
+(`max_jobs` N, no single-script digest) and journals the pins in its reservation. Every
+submission then passes the trusted boundary (`wms_launch.controller_submission`): the
+presented script must be one of the pinned files with its exact bytes, each pin is admitted
+at most once, the capability's job count bounds the total, the operator state must be
+running, and a stop or drain request refuses the next submission. The scheduler receives
+the verifier's frozen copy. Each admitted submission and its returned handle is journalled
+(`wms-submission`, `study-site-job`); reconciliation observes those jobs through the site's
+status client and, on a stop or a bounded ending, removes the ones still queued or running
+and records the observation (`study-site-job-state`). A restarted controller finds the
+original reservation and never submits again. The operate capsule of such a step names the
+launch capability in its child's environment, and the record lists the variable name only.
+Submission is admitted only where the run store is readable, so a confined child whose
+store is hidden delegates submission to the controller's trusted context.
+The single driver-job path above is unchanged by this form.
+
+### A supplied workflow on a batch site, governed by its controller
+
+A study can name a supplied workflow file instead of prepared jobscripts. Its specification
+carries the request form of the `external-workflow` mode, with `approval_mode: "scripted_yes"`:
+
+```json
+{"schema_version": 1, "operation": "run", "snakefile": "inputs/<supplied workflow>",
+ "targets": ["all"], "cores": 1, "site": {"scheduler": "htcondor", "jobs": 4}}
+```
+
+- **Before CHECK-IN 1.** The confined prepare launch adopts the workflow by a static scan: it
+  pins the Snakefile and its include closure and parses or runs nothing. It writes the brokered
+  HTCondor site profile and plans one governed study whose task is `inspect-run`. It records the
+  method choice that the check-in shows and approves nothing. The adoption shows every rule with
+  its source text. The plan binds one capability: the requested job count, the rules the adoption
+  names and the profile pin.
+- **The child's approval.** At the operate step the controller first verifies the
+  `approve_plan` decision against the current check-in pins. Only then does it record the child
+  study's scripted assent, quoting that decision (`study-child-approval`). A child that needs a
+  human approval is held. An existing approval is verified as it stands and never rewritten.
+- **The approved run.** The study runs in the confined operate launch. It first repeats the four
+  dry runs of an inspection and writes them beside its run records. It starts only when that
+  inspection passes and schedules exactly the approved job count as one fan-out, in which no
+  batch job consumes another batch job's output. Snakemake then submits every job at once
+  (`--immediate-submit --notemp`) through the brokered profile.
+- **Each submission.** The profile's commands are typed requests to the controller's submission
+  broker over a private socket. The child holds no capability, no scheduler command and no store
+  access. The broker admits a generated jobscript only as an ordinary file of the approved
+  workflow directory, a job of a named rule with a distinct output set, within the job count,
+  with the pinned profile and while the operator state is running. The scheduler receives the
+  verifier's frozen copy, and each handle is journalled (`wms-submission`, `study-site-job`).
+- **After the go-ahead.** The bound plan of a batch submission orders the operation review before
+  the reconciliation step; a single driver job keeps the route's own order, with reconciliation
+  first. CHECK-IN 2 reviews the submitted operation while its jobs run. After the
+  go-ahead the reconciliation step waits in the controller for every journalled job, bounded by
+  the study ceiling and the operator state. A job that exits nonzero or is lost holds the step.
+  The outputs the adoption declares, or else the outputs the run's own inspection lists, are copied
+  into the reconciliation attempt and journalled as their adoption (`study-adoption`). That is
+  custody, not scientific acceptance.
+- **Stop and restart.** A stop or a bounded ending drains every journalled job. A restarted
+  controller rereads its journals and never submits or fetches twice. The confined launch writes
+  its authorization events in its own run tree, and the controller adopts them into its store
+  after the launch.
+- **Held and removed jobs.** On every poll the scheduler observer (`ravel.controller.batch_jobs`)
+  classifies the journalled jobs and records a typed decision (`batch-recovery-decision`). A held
+  job opens the run's `jobs_held` condition, with one operator wait and one notification, and the
+  decision `await_release`. The controller never releases, edits or resubmits it. If the hold
+  outlasts the operator's wait bound, the decision becomes `end_qualified`: the step holds
+  (`batch_jobs_held`) and the bounded ending drains every job. A job seen running again clears
+  the condition (`released`). A job removed at the scheduler by anyone other than this run's own
+  drain or stop opens `jobs_removed` with the decision `recover`. The step then holds with
+  `batch_jobs_removed`, which runtime recovery classifies as recoverable. After the operator
+  acknowledges the removal (`ravel operator resume --run`), a judgment recovery plan can propose
+  another method, an approximation or a descope. A new submission needs a replanned, approved
+  plan and its own capability.
+
+The inspection's job roster and shell commands are seen at CHECK-IN 2, not CHECK-IN 1: they come
+from dry runs, which parse the workflow and so run only under the approved bound.
+
+### The operator stop cancels the run's batch jobs
+
+`ravel operator stop --run <id>` (and `revoke`) records the control, then drains the run's batch
+jobs itself; it does not wait for a running driver to poll. Only jobs the run journalled are
+addressed (`study-site-job` handles and tracked `study-remote` driver attempts), always by their
+recorded ids, never by name, owner or tag. Each nonterminal job is observed, removed and
+observed again until it is terminal or the bound passes (at most thirty seconds per job). The
+`batch-stop` record lists the state before, the removal request and the state after for each job.
+`verified` is true only when every job was observed terminal; otherwise the command prints the
+result and exits 3. Running the stop again is safe: a job already observed terminal is listed as
+`already_terminal` and never removed twice. Child controller runs frozen under the run are drained
+the same way. `ravel operator pause` does not cancel batch jobs itself, because cancelling would
+discard work. Whether a draining driver removes them is a separate question, answered by its own
+reconciliation.
+
+### A site profile does not make a PDF
+
+`ravel doctor --profile site` is ready without TeX, and that readiness establishes no PDF
+capability. In the staged note build, a PDF stage whose launch names no TeX engine runs to
+its typed source-only ending (`manuscript_tex_unavailable`): the reviewed source bundle is
+the deliverable. A launch that names an engine is admitted only on one of two bases. The
+first is this host's manuscript-build qualification: the manifest's `tex` group qualified
+with a ready doctor result for this host's platform, with the engine being the qualified
+prefix's `bin/pdflatex`. The second is the owner's explicit reference-host build record,
+`inputs/manuscript-reference-host.json`:
+
+```json
+{"schema_version": 1, "kind": "manuscript-reference-host-build",
+ "host_identity": {"nodename": "...", "sysname": "...", "release": "...", "version": "...", "machine": "..."},
+ "engine": {"path": "/absolute/bin/pdflatex", "sha256": "<engine bytes>"},
+ "doctor": {"mode": "manuscript-build", "result": "ready", "report_sha256": "<doctor JSON report>"}}
+```
+
+The record admits only that exact host and engine. A changed kernel, node name, engine
+byte or doctor result holds the stage. Without either basis the stage holds with
+`manuscript_pdf_unqualified`. The note's plan names an engine only on a host whose
+manuscript-build qualification covers it. A `pdflatex` on the path is not used, so on a
+site host the PDF stage ends source-only and never waits for TeX. A held stage, from a plan
+that names an engine this host does not cover, delivers nothing on its own.
+
+### Qualify an HTCondor driver job
+
+Run the facility qualification checklist once with a harmless agent command, for example
+`python3 -c "import os; open('agent-was-here','w').write(os.environ['RAVEL_ALLOCATION_ATTEMPT'])"`.
+It records each check as passed or failed. A machine-recorded result is not physicist
+review.
+
+| Check | Command or action | Passes when |
+|---|---|---|
+| Q1 profile | `ravel doctor --profile site --json`; `ravel doctor --mode manuscript-build --json` | site ready; the manuscript-build report is kept whatever its result |
+| Q2 vanilla driver | `submit --scheduler htcondor --universe vanilla --cpus 1 --time 30 --max-attempts 2` on a fresh study | receipt `finished`, exit 0; job schedd, cluster and proc equal `submission.json`; host recorded; lease directory inside the job scratch |
+| Q3 local driver | the same with `--universe local` | receipt `finished`; host lease; no `RAVEL_LEASE_SCOPE` in the agent environment |
+| Q4 job-ad proof | `ravel site study-job run --request ...` outside the job, and inside with a copied ad | both refused before anything is recorded |
+| Q5 wall time | `--time 1` with an agent that sleeps for 5 minutes | receipt `deadline`; collection `timed-out` |
+| Q6 attempts | vacate or hold and release the running job with `--max-attempts 2`, then once more | attempts `interrupted`, `finished`; a start beyond the bound exits 75 and runs nothing |
+| Q7 refused fields | `--submit-option executable=/bin/true` and `--env RAVEL_LEASE_SCOPE=batch-slot` | refused locally, with no request written |
+| Q8 controller stop | stop a controller-owned run (`ravel operator stop --run <id>`) before submission, then during a running job | submission refused with no scheduler call; the running job records `stopped` after the drain period |
+| Q9 capability | submit a controller-owned request without, then with, the parent site step's launch | refused without; one job with; a second submission refused; the capability absent from the job environment |
+
+Artifact contract. Keep one directory per qualification session with a `manifest.json`.
+The manifest lists the RAVEL source commit and `ravel --version`, `condor_version`, the
+schedd name, `uname -a` of the access point and of each execute node seen, and the UTC
+start and end. Each check gets its id, command, result and evidence files with their
+sha256: `request.json`, `study.sub`, `study.sh`, `submission.json`, `condor.log`,
+`condor-*.out` and `condor-*.err`, `logs/allocations/htcondor-*/allocation.json`,
+`agent.log`, and `condor_q -l` or `condor_history -l` of the job. A failed or skipped check
+stays in the manifest with its reason, and the qualification is not claimed until every
+check passes.
 
 Build the dataset document from grid datasets with `ravel ntuples`:
 
@@ -880,7 +1080,7 @@ a binding without the protocol refuses export. Non-research runs explicitly stat
 no research disclosure applies, without inventing a zero funnel or human review.
 
 Profiles under `profiles/local` and `profiles/htcondor` render bounded core/job counts
-and zero retries. The SLURM profile is not available in this release. The HTCondor
+and zero retries. The HTCondor
 profile has `qualified: false`, `release_status: "tester-qualification"` and the label
 "awaits site qualification". Install `snakemake-executor-plugin-cluster-generic` at
 the exact version in the site install lock, with
@@ -896,7 +1096,7 @@ configuration behavior; a successful site run establishes scheduler qualificatio
 project_id=None)` writes `directory/name/config.yaml` and `profile.json` and returns
 the directory, both files' SHA-256 pins and the profile. `write_profiles` calls that
 writer for local and HTCondor. The governed project launcher exports its pinned profile under `.ravel-site` at
-initialization. Standalone exports may call `write_profile` with a project id
+initialization. Standalone exports can call `write_profile` with a project id
 and must write `run-keys.json` before starting Snakemake. That plain
 JSON object maps task ids to study run keys, taken from `rdj_custody.root(rundir).name`.
 The submit client reads the index without importing custody. It derives the task id
@@ -929,11 +1129,11 @@ The profile references these short filenames so Snakemake 9.x can resolve them a
 profile-local files. The wrappers carry the same encoded options and project id;
 both wrappers join the profile's byte pins and are frozen executable for each launch.
 
-`site_options` is a validated scheduler key/value map. Keys cannot contain spaces
-or `=`; values cannot contain newlines. The map cannot override fixed resource,
+`site_options` is a validated scheduler key/value map. Keys must not contain spaces
+or `=`; values must not contain newlines. The map must not override fixed resource,
 environment, tagging, hold, credential or executable fields under any spelling:
 the submit command, its `+Name` or `MY.Name` job attribute and the scheduler's
-alternate names are refused alike, and `runtime_attribute` cannot name one of
+alternate names are refused alike, and `runtime_attribute` must not name one of
 them. The one syntax distinction is an explicitly declared `"+queue": "\"short\""`
 entry in the site's `site_options`: this writes the custom ClassAd attribute
 `+queue = "short"`. Bare `queue` remains protected submit syntax and RAVEL still
@@ -1013,7 +1213,7 @@ it does not claim knowledge of a historical execution environment.
 
 ## Facility agent plugins
 
-A facility may expose its site tools through an agent plugin and MCP server.
+A facility can expose its site tools through an agent plugin and MCP server.
 For example, the [UChicago public AI guide](https://usatlas.github.io/af-docs/ai/)
 describes `af-uchicago` from the `usatlas/marketplace` marketplace. The supplied
 facility context includes Rucio lookup/download, AMI metadata, HTCondor status
@@ -1041,7 +1241,7 @@ host session alongside the project's instructions.
 Before creating runs with restricted material, put the project's classification
 and exact transport/account allowlist in `<project>/.ravel/data_classification.json`
 and run `ravel agent-surface install --project <project>`. New runs inherit it and
-record its digest in their inputs; run declarations may only narrow the project
+record its digest in their inputs; run declarations can only narrow the project
 restriction. `ravel agent-surface check --project <project>` reports the effective
 policy. Once declared, a missing or unreadable default refuses dispatch rather
 than restoring public behavior. Keep the declaration marker with the project and
@@ -1064,6 +1264,15 @@ Export an accepted run into a fresh repository directory:
 ```bash
 ravel export-submission --request request.json --into repository --framework-source vendor --framework-checkout tagged-framework
 ```
+
+Every result must be captured by the current accepted review of the request's claim
+scope. `submission.json` records the export's fresh delivery label, its plain-language
+notices and the digest of the architecture receipt it was decided under. The receipt
+itself names local paths, so it is recomputed from the source run and never shipped.
+A diagnostic scope exports with the diagnostic label and `accepted: false`;
+`review_accepted` records the accepted review for every scope. Any other scope needs
+the accepted label, as a result-template fill does. `verify` refuses a labelled
+package without an accepted review or whose label disagrees with its claim scope.
 
 Use `--framework-source release:v1.0.0` to install framework code from its public
 repository tag. Use `vendor` to ship the framework files inside `vendor/ravel/`.
@@ -1129,9 +1338,8 @@ Run these targets from the package directory:
   The package never grants approval or labels machine approval as human.
 
 The embedded procedure calls `ravel procedure verify-node` through PATH and binds
-source pins to the package's `run/` copy. Verification survives relocation and does
-not execute scientific commands. Standalone procedure exports keep absolute source
-pins for the original machine and disclose that limitation. Copied records that need
+source pins to the package's `run/` copy. Verification survives relocation and checks retained evidence records. Standalone procedure exports keep absolute source
+pins for the original machine and disclose that scope condition. Copied records that need
 path changes become labelled package projections; gzip originals retain the exact
 historical bytes, sizes and SHA256. Historical approvals grant no fresh authority.
 
@@ -1193,7 +1401,7 @@ its commands call. A file that is only pinned is never loaded as an include.
 The result is `adoption.json` in the new adoption folder, with each file's role, path,
 digest and the line that names it; every include as written, with the file it resolved
 to; the members; every rule with its source text, file and line; the interpreter of the
-Snakemake console entry; and the planned inspection study in `inspect/`. Snakemake is
+Snakemake console entry; and the declared inspection study in `inspect/`. Snakemake is
 not started.
 
 Included files, members and named files lie in the Snakefile's folder or the working
@@ -1204,12 +1412,19 @@ The record binds the Python interpreter that runs the Snakemake console entry. I
 interpreter that the entry's first line names, by absolute path or through `env`, which
 adoption resolves on the search path once. For the shim of an installed site prefix it is
 the interpreter of the manager entry that the prefix's own validated record names.
-`--interpreter` names the interpreter directly. An entry whose interpreter cannot be
-resolved is refused at adoption.
+`--interpreter` names the interpreter directly. An entry with an unresolved interpreter is refused at adoption.
 
-Adoption refuses a workflow whose code it cannot pin: an `include:`, `workflow.include()`
+`--site-scheduler htcondor --site-profile-dir <dir> --site-jobs N`, given together, record a
+batch site: the profile directory is pinned at adoption and the run study's command uses
+that profile with `--jobs N` instead of running locally; the inspection's dry runs stay
+local parses. The run starts only with the profile's original bytes and under the
+controller launch capability that admits each job submission (a changed profile or a
+missing capability refuses it before Snakemake starts). Without these options the run
+is local, as before.
+
+Adoption requires exact workflow code pins and refuses: an `include:`, `workflow.include()`
 or module `snakefile:` that is not a plain string, a remote include, a `meta_wrapper:`, a
-file that cannot be read as Snakefile text, and an included file, a member or a named
+file that fails Snakefile text decoding, and an included file, a member or a named
 file outside the allowed folders. `script:` paths with wildcards, `wrapper:`
 directives and other references that name no fixed local file are listed in
 `unpinned_references`. Targets and outputs are plain names; a name that starts with a
@@ -1318,7 +1533,7 @@ dispatches the ordinary supervised worker through the existing run-step route.
 The index binds the emitted `workflow.json` manifest and `adoption.json` by
 sha256. For the task and every task it depends on, the shared launcher verifies
 both before parsing and again immediately before dispatch; a change to either
-refuses the launch. An adoption that the launch cannot run is not read, so a
+refuses the launch. The launch reads an adoption only after checking its execution eligibility, so a
 workflow edited after its own study does not refuse the other tasks of the
 project. The single launch receipt retains both pins under `workflow_bindings`,
 including adopted dependency tasks. The adapter's own before-load wrapper remains

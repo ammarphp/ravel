@@ -23,10 +23,9 @@ declaration digest and the configuration evidence. What the CLI reports about it
 User configuration. Claude runs with ``--setting-sources project --safe-mode``
 and ``--strict-mcp-config`` in an empty directory (not ``--bare``, which drops
 the subscription login); admin-managed settings stay in force and their digest is
-recorded. Codex runs with a fresh ``CODEX_HOME`` holding a copy of ``auth.json``
-and a generated ``config.toml``. Gemini CLI and Antigravity run with a fresh
-``HOME`` holding only their login material, but have no flag that excludes
-settings or instructions found from their working directory, and keep read tools.
+recorded. Codex runs with generated ``config.toml`` in a private configuration home.
+Gemini CLI and Antigravity use generated nonsecret settings in their private home.
+External owner setup supplies login files to the selected worker home.
 Every answer records ``user_configuration_loaded``.
 
 Three uses:
@@ -57,7 +56,7 @@ import tempfile
 import time
 import uuid
 
-from . import project_instructions, transport_registry, transport_receipt
+from . import agent_tripwire, project_instructions, transport_registry, transport_receipt
 
 AGENTS = ('claude', 'codex', 'antigravity', 'gemini')
 LAUNCHERS = {'claude': 'claude', 'codex': 'codex', 'antigravity': 'agy', 'gemini': 'gemini'}
@@ -86,8 +85,9 @@ DENIED_EXTRA = {'claude': ('--setting-sources', '--settings', '--add-dir', '--mc
                           '--disable')}
 MANAGED_SETTINGS = ('/Library/Application Support/ClaudeCode/managed-settings.json',
                     '/etc/claude-code/managed-settings.json')
-# Login material copied into a fresh HOME (never read or logged); everything else in HOME stays out.
-LOGIN_MATERIAL = {'gemini': ('.config/gcloud/application_default_credentials.json',),
+# Known login filenames for metadata validation; external setup owns their contents.
+LOGIN_MATERIAL = {'gemini': ('.config/gcloud/application_default_credentials.json',
+                              '.gemini/oauth_creds.json', '.gemini/google_accounts.json'),
                   'antigravity': ('.gemini/oauth_creds.json', '.gemini/google_accounts.json')}
 DOTENV_CANDIDATES = ('.env', '.gemini/.env')
 WRAPPER_MODULE = 'ravel.workflow.cli_agent_host'
@@ -248,6 +248,7 @@ def _run(argv, prompt, *, cwd, env, timeout, own_group=True, max_bytes=MAX_OUTPU
     CLI stays in the wrapper's group, so cancelling the wrapper's group stops the CLI too. On timeout
     or an over-long output every member of the group is stopped before this returns.
     """
+    agent_tripwire.check('cli_agent_host.launch')
     data = (prompt or '').encode()
     started = _utc()
     process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -378,39 +379,27 @@ def _codex_rollout(thread_id, env):
 
 
 def fresh_codex_home(target, env):
-    """A per-call CODEX_HOME: a copy of the login's auth.json and a generated config.toml, nothing else.
-
-    The file is copied, never read or logged, and a symlinked auth.json is refused. The copy can
-    refresh its token inside the temporary home; the user's own auth.json is not updated.
-    Returns the evidence label.
-    """
+    """Generate per-call configuration and validate the source file's link metadata."""
     source = Path(env.get('CODEX_HOME') or Path(env.get('HOME', '~')).expanduser() / '.codex')
     target = Path(target)
-    target.mkdir(mode=0o700)
+    target.mkdir(mode=0o700, parents=True, exist_ok=True)
     auth = source / 'auth.json'
     if auth.is_symlink():
-        raise AgentCLIError('codex auth.json is a symbolic link; refusing to copy it', 'refused')
-    if auth.is_file():
-        shutil.copyfile(auth, target / 'auth.json', follow_symlinks=False)
-        os.chmod(target / 'auth.json', 0o600)
+        raise AgentCLIError('codex auth.json requires a regular owner-provided file; symbolic link found', 'refused')
     (target / 'config.toml').write_text('# Configuration of one call: no user instructions, profiles or providers.\n')
     env['CODEX_HOME'] = str(target)
     return 'fresh-home'
 
 
 def fresh_google_home(agent, target, env):
-    """A per-call HOME holding only the agent's login material; returns (label, dotenv paths left out)."""
+    """Generate per-call nonsecret settings; external setup supplies the login files."""
     real = Path(env.get('HOME', '~')).expanduser()
     target = Path(target)
-    target.mkdir(mode=0o700)
+    target.mkdir(mode=0o700, parents=True, exist_ok=True)
     for relative in LOGIN_MATERIAL[agent]:
         source = real / relative
         if source.is_symlink():
-            raise AgentCLIError(f'{agent} login material {relative} is a symbolic link; refusing to copy it', 'refused')
-        if source.is_file():
-            (target / relative).parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-            shutil.copyfile(source, target / relative, follow_symlinks=False)
-            os.chmod(target / relative, 0o600)
+            raise AgentCLIError(f'{agent} login file {relative} requires a regular owner-provided file; symbolic link found', 'refused')
     settings = real / '.gemini' / 'settings.json'
     selected = None
     if settings.is_file() and not settings.is_symlink():

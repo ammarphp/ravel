@@ -168,9 +168,12 @@ def _physics(records):
 
 def _block(index):
     summary = {k: index[k] for k in ('run', 'code_version', 'reviews', 'physics', 'literal_findings')}
+    summary['delivery_label'] = index['delivery_label']
+    summary['architecture_receipt_sha256'] = index['architecture_receipt']['sha256']
+    summary['notices'] = index['notices']
     summary['files'] = [{k: row[k] for k in ('path', 'sha256', 'category', 'size', 'reference', 'fill') if k in row}
                         for row in index['files']]
-    block = '\n' + BEGIN + '\n```json\n' + json.dumps(summary, ensure_ascii=True, separators=(',', ':')) + '\n```\n' + END + '\n'
+    block = '\n' + '\n'.join(index['notices']) + '\n' + BEGIN + '\n```json\n' + json.dumps(summary, ensure_ascii=True, separators=(',', ':')) + '\n```\n' + END + '\n'
     if len(block.encode()) > 6 * 1024:
         raise ValueError('provenance block exceeds 6 kB; narrow the supplied layout')
     return block
@@ -180,6 +183,9 @@ def deliver(rundir, layout, into):
     """Preflight all sources and destinations before writing requester files."""
     validate_layout(layout)
     rd, ws = Path(rundir).absolute(), Path(into).absolute()
+    from ravel.controller.sink import legacy as sink_legacy
+    sink_legacy.refuse_controller_owned(rd, 'requester delivery')
+    sink_legacy.refuse_controller_owned(ws, 'requester delivery')
     _safe(ws, INDEX)
     for key in ('analysis_code', 'selected_events', 'cards', 'report'):
         if key in layout:
@@ -271,7 +277,17 @@ def deliver(rundir, layout, into):
     # Findings use workspace-relative names, so no source run is needed to read them.
     for finding in findings:
         finding['path'] = next(row['path'] for source, row in planned if str(source) == finding['path'])
-    index = {'schema_version': 1, 'kind': 'requester-delivery', 'run': rd.name,
+    from . import architecture_receipt
+    # Templates have separately checked fill lineage; include their numeric source.
+    artifacts = [{'path': str(source), 'kind': 'number', 'sha256': row['sha256']}
+                 for source, row in planned if row['category'] in ('accepted_result', 'selected_events')]
+    label = 'diagnostic' if scope == 'diagnostic' else 'accepted'
+    labelling = architecture_receipt.label_delivery(rd, artifacts, label=label)
+    if label == 'diagnostic':
+        for _, row in planned:
+            if row['category'] == 'accepted_result':
+                row['category'] = 'diagnostic_result'
+    index = {**labelling, 'schema_version': 1, 'kind': 'requester-delivery', 'run': rd.name,
              'code_version': code_version(), 'reviews': reviews, 'physics': physics,
              'literal_findings': findings, 'files': [row for _, row in planned], 'report': layout.get('report')}
     block = _block(index)
@@ -288,6 +304,8 @@ def deliver(rundir, layout, into):
     _, current_cycle, _ = _review(rd)
     if current_cycle != cycle:
         raise ValueError('accepted review changed during delivery')
+    if architecture_receipt.label_delivery(rd, artifacts, label=label) != labelling:
+        raise ValueError('architecture evidence changed during delivery')
     ws.mkdir(parents=True, exist_ok=True)
     created = []
     try:
@@ -354,6 +372,22 @@ def verify(into):
             raise ValueError(f'missing delivered report: {index["report"]}')
         if file_sha256(path) != index['report_sha256']:
             raise ValueError(f'changed report: {index["report"]}')
+    from . import architecture_receipt
+    receipt = index.get('architecture_receipt')
+    architecture_receipt.verify_saved_receipt(receipt)
+    label = architecture_receipt.claimed_label(index)
+    if label == 'diagnostic' and any(row['category'] == 'accepted_result' for row in index['files']):
+        raise ValueError('diagnostic delivery cannot carry an accepted result category')
+    if label != 'diagnostic':
+        governed_hashes = {row['sha256'] for row in receipt['admissibility']['artifacts'] if row['governed']}
+        numerical_files = [row for row in index['files']
+                           if row['category'] in ('accepted_result', 'selected_events')]
+        if not numerical_files or any(row['sha256'] not in governed_hashes for row in numerical_files):
+            raise ValueError('NOT GOVERNED: delivered bytes differ from the architecture artifact population')
+        artifacts = [{k: row[k] for k in ('path', 'kind', 'sha256')}
+                     for row in receipt['admissibility']['artifacts']]
+        # The saved receipt is not a credential; live custody must still admit it.
+        architecture_receipt.label_delivery(receipt['run'], artifacts, label=label)
     return index
 
 
@@ -371,7 +405,11 @@ def main(argv=None):
     except (ValueError, OSError, KeyError, SyntaxError) as exc:
         print(f'deliver-workspace: {exc}', file=sys.stderr)
         return 1
-    print(json.dumps({'verified': checking, 'run': result['run'], 'files': len(result['files']),
+    for notice in result['notices']:
+        print(notice, file=sys.stderr)
+    print(json.dumps({'delivery_label': result['delivery_label'],
+                      'architecture_receipt': result['architecture_receipt'],
+                      'notices': result['notices'], 'verified': checking, 'run': result['run'], 'files': len(result['files']),
                       'literal_findings': result['literal_findings']}))
     return 0
 

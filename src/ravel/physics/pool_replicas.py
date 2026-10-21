@@ -29,6 +29,7 @@ import math
 from pathlib import Path
 import re
 
+from ravel.physics.native_capabilities import MODEL_PDGS
 from ravel.physics.native_normalization import fingerprint, load_normalization, weight_summary
 from ravel.physics.native_pipeline import card_assignments, plan_hash, read_config, validate_process_card, validate_param_card
 from ravel.workflow.execution import digest, load_execution, snapshot
@@ -208,27 +209,56 @@ def load_replica(record, base):
     root = Path(plan["rundir"]).resolve()
     if not plan_path.is_relative_to(root):
         raise ValueError("native plan is outside its source run")
-    if plan["capability"].get("preparation") != "explicit-cards" or not plan["capability"].get("routine") or plan["capability"].get("model") != "slepton-bino" or plan.get("compressed_signal_model") != "full":
-        raise ValueError("pooling v1 requires explicit-card slepton replicas with the full compressed signal model")
     from ravel.physics.analysis_packages import PackageInputError, load_package
-    if not plan["capability"].get("analysis_package"):
+    capability = plan["capability"]
+    if not capability.get("analysis_package"):
         # Never fall back to an ambient package selection for a recorded plan.
         raise PackageInputError("missing_analysis_package")
+    if "compressed_signal_model" in plan:
+        raise PackageInputError("unsupported_native_binding", "selection controls belong to the supplied package")
+    package = load_package(capability["analysis_package"], require_qualification=True)
+    if (capability.get("routine") != package["package_id"]
+            or capability.get("routine_interface") != package["routine"]
+            or capability.get("package_version") != package["package_version"]
+            or capability.get("control_regions") != package.get("control_regions", [])):
+        raise PackageInputError("package_plan_mismatch")
+    for field, predicate in (("model", "models"), ("preparation", "preparations"),
+                             ("detector", "detectors"), ("statistics_adapter", "statistics")):
+        if capability.get(field) not in package["compatibility"][predicate]:
+            raise PackageInputError("unsupported_package_binding", field)
+    model = capability["model"]
+    if (capability["preparation"] != "explicit-cards" or model not in MODEL_PDGS
+            or capability["detector"] != "simpleanalysis-delphes"
+            or capability["statistics_adapter"] not in ("yields", "mapped-likelihood")):
+        raise PackageInputError("unsupported_native_binding", "pooling requires supported explicit-card native replicas")
     sources = {str(plan_path): record["plan"]["sha256"]}
     for source in plan["sources"]:
         path = pinned(source, root)
         sources[str(path)] = source["sha256"]
-    if any(sources.get(pin["path"]) != pin["sha256"] for pin in load_package(plan["capability"]["analysis_package"])["source_pins"]):
+    if (capability.get("source_pins") != package["source_pins"]
+            or any(sources.get(pin["path"]) != pin["sha256"] for pin in package["source_pins"])):
         raise PackageInputError("missing_package_source_binding")
     plan_sources = dict(sources)
-    receipts, stages, receipt_files = historical_receipts(root, plan)
-    sources.update(receipt_files)
     inputs = {key: Path(path).resolve() for key, path in plan["inputs"].items()}
     for path in [Path(plan["config"]).resolve(), *inputs.values()]:
         if str(path) not in sources:
             raise ValueError("native configuration/card lacks source pin")
-    produced = validate_process_card(inputs["process_card"], "slepton-bino")
-    masses = validate_param_card(inputs["param_card"], "slepton-bino", produced=produced)
+    cfg = copy.deepcopy(read_config(plan["config"]))
+    native = cfg.get("ravel", {}).get("native", {})
+    if "compressed_signal_model" in native:
+        raise PackageInputError("unsupported_native_binding", "selection controls belong to the supplied package")
+    for field, config_field in (("model", "model"), ("preparation", "preparation"),
+                                ("detector", "detector"), ("statistics_adapter", "statistics")):
+        if capability[field] != native.get(config_field):
+            raise PackageInputError("package_plan_mismatch", config_field)
+    selected_package = Path(native.get("analysis_package", ""))
+    selected_package = selected_package if selected_package.is_absolute() else root / selected_package
+    if selected_package.is_dir():
+        selected_package = selected_package / "manifest.json"
+    if str(selected_package.resolve()) != package["manifest_path"]:
+        raise PackageInputError("package_plan_mismatch", "analysis_package")
+    produced = validate_process_card(inputs["process_card"], model)
+    masses = validate_param_card(inputs["param_card"], model, produced=produced)
     if masses != plan["expected_masses_gev"]:
         raise ValueError("source card masses differ from plan")
     run = card_assignments(inputs["run_card"])
@@ -239,7 +269,8 @@ def load_replica(record, base):
         raise ValueError("pooling v1 supports only unmerged unweighted LO")
     shower, shower_seed = shower_physics(inputs["shower_card"])
     detector, detector_seed = detector_physics(inputs["delphes_card"])
-    cfg = copy.deepcopy(read_config(plan["config"]))
+    receipts, stages, receipt_files = historical_receipts(root, plan)
+    sources.update(receipt_files)
     cfg["madgraph"]["run"].pop("nevents"); cfg["madgraph"]["run"].pop("seed")
     cfg["ravel"]["native"].pop("inputs")
     physics = {"config_except_paths_seeds_exposure": cfg,
@@ -248,7 +279,12 @@ def load_replica(record, base):
         "run_card_except_seed_exposure": card_without_run_variations(inputs["run_card"]),
         "shower_except_seed_exposure_path": shower, "detector_except_seed": detector,
         "masses": masses, "kfactor": plan["kfactor"], "energy_GeV": plan["ecms_gev"],
-        "routine": plan["capability"]["routine"], "compressed_signal_model": "full"}
+        "routine": capability["routine"],
+        "selection": {"package_id": package["package_id"], "package_version": package["package_version"],
+            "source_pins": package["source_pins"], "routine_interface": package["routine"],
+            "compatibility": package["compatibility"], "analysis_ids": package["analysis_ids"],
+            "control_regions": package.get("control_regions", []),
+            **{key: capability[key] for key in ("model", "preparation", "detector", "statistics_adapter")}}}
     physics["additional_input_sha256"] = {key: fingerprint(path)["sha256"] for key, path in inputs.items()
         if key not in {"process_card", "param_card", "run_card", "shower_card", "delphes_card"}}
     # All implementation/binary source hashes must match as well; card paths and

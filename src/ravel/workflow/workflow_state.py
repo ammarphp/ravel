@@ -117,6 +117,14 @@ def retry_conflict(function):
 
 def new_state(rundir, contract, contract_path, session_id):
     """Build a fresh run_state dict with EVERY schema key populated (lists empty)."""
+    from . import operating_mode
+    # Recover a recorded intake before asking whether its mode is usable.
+    # Rebuilding an older ledger must not retroactively select today's default.
+    pending_mode, mode_committed = operating_mode._transaction_value(Path(rundir).resolve())
+    if (pending_mode is not None and not mode_committed) or operating_mode.frozen(rundir) is not None or not any(
+            (Path(rundir) / rel).exists() for rel in ('run_state.json', 'inputs/checkin1_approval.json',
+                                                    'inputs/science-approval.json', 'execution_state.json')):
+        operating_mode.initialize(rundir, contract, configured_only=True)
     state = {
         "schema_version": SCHEMA_VERSION,
         "session_id": session_id or "",
@@ -469,7 +477,9 @@ def approval_input_paths(rundir):
     plans = os.path.join(rundir, "inputs", "backend-plans")
     if os.path.isdir(plans):
         paths.extend(os.path.join(plans, name) for name in sorted(os.listdir(plans)) if name.endswith(".json"))
-    from . import scientific_autonomy
+    from . import scientific_autonomy, operating_mode
+    if operating_mode.frozen(rundir) is not None:
+        paths.append(str(Path(rundir) / operating_mode.RUN_RECORD))
     if os.path.isfile(paths[0]): paths.extend(scientific_autonomy.input_paths(validate_task_contract.load_contract(paths[0]), rundir))
     if os.path.isfile(paths[0]):
         from .approval_inputs import operation_inputs
@@ -512,6 +522,7 @@ def verify_approval(rundir, record=None, *, required_plan=None, disclose=False):
 
 
 def _verify_approval_record(rundir, record, *, required_plan, disclose):
+    rundir = os.path.abspath(rundir)
     if record is None:
         try:
             record = validate_task_contract.load_contract(
@@ -524,7 +535,7 @@ def _verify_approval_record(rundir, record, *, required_plan, disclose):
     fields = {"schema_version", "generated_by", "generated_utc", "approved_plan", "quote",
               "task_contract", "checkin1", "cost_preflight", "input_fingerprint"}
     if delegated:fields|={"authority","delegation","delegate_actor"}
-    optional = {"approved_inputs", "input_changes", "authority"}
+    optional = {"approved_inputs", "input_changes", "authority", "operating_mode"}
     errors = [f"approval missing required field {key!r}" for key in sorted(fields - record.keys())]
     errors += [f"approval has unknown field {key!r}" for key in record.keys() - fields - optional]
     if type(record.get("schema_version")) is not int or record.get("schema_version") != (3 if delegated else APPROVAL_VERSION):
@@ -539,6 +550,12 @@ def _verify_approval_record(rundir, record, *, required_plan, disclose):
         errors.append('approval authority must be an evidence-based authority label')
     if errors:
         return errors
+    try:
+        from . import operating_mode
+        if 'operating_mode' in record or operating_mode.frozen(rundir) is not None:
+            operating_mode.verify_receipt(rundir, record)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return [str(exc)]
     generator="workflow_state.py delegated-approve" if delegated else APPROVAL_GENERATOR
     if record["generated_by"] != generator:
         errors.append(f"approval.generated_by must be {APPROVAL_GENERATOR!r}")
@@ -684,10 +701,26 @@ def verify_approval_envelope(rundir, required_plan):
 @retry_conflict
 def cmd_approve(args):
     """Record approval of the declared operation inputs, rendered cards and scope."""
-    rd = args.rundir.rstrip("/")
+    rd = os.path.abspath(args.rundir)
     if not os.path.isdir(rd):
         print(f"workflow_state approve: not a directory: {rd}", file=sys.stderr)
         return 2
+    try:
+        legacy_only(rd, 'workflow_state approve')
+    except ValueError as exc:
+        print(f'workflow_state approve: REFUSED -- {exc}', file=sys.stderr)
+        return 1
+    try:
+        from . import operating_mode, scientific_autonomy
+        if operating_mode.bind_plan(rd) or (scientific_autonomy.delegation_intent(args.quote) is not None
+                and scientific_autonomy.declaration(
+                    validate_task_contract.load_contract(os.path.join(rd, 'inputs/task_contract.json')), rd) is not None):
+            record_delegated_approval(rd, args.plan)
+            print('delegated machine approval recorded')
+            return 0
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        print(f'workflow_state approve: REFUSED -- {exc}', file=sys.stderr)
+        return 1
     from .method_selection import launch_errors
     method_errors = launch_errors(rd, args.plan)
     if method_errors:
@@ -724,7 +757,7 @@ def cmd_approve(args):
     # Fingerprint BEFORE validation; verify_approval recomputes after all reads. An edit
     # during validation cannot silently become part of the newly recorded approval.
     from .approval_authority import classify
-    rec = {"authority": classify(scripted=getattr(args, "scripted", False), quote=args.quote),
+    rec = {"operating_mode": operating_mode.receipt(rd), "authority": classify(scripted=getattr(args, "scripted", False), quote=args.quote),
            "schema_version": APPROVAL_VERSION,
            "generated_utc": stamp,
            "approved_plan": args.plan, "quote": args.quote,
@@ -778,6 +811,7 @@ def verify_checkin2_go(rundir, record=None):
     Editing any reviewed evidence or re-recording the first approval voids it.
     Like the first approval, this checks integrity, not who answered.
     """
+    rundir = os.path.abspath(rundir)
     if record is None:
         try:
             record = validate_task_contract.load_contract(os.path.join(rundir, "inputs", "checkin2_go.json"))
@@ -790,7 +824,7 @@ def verify_checkin2_go(rundir, record=None):
               "checkin1_approval", "evidence_manifest", "input_fingerprint"}
     if delegated: fields |= {"authority", "delegation", "delegate_actor"}
     errors = [f"CHECK-IN 2 go missing required field {key!r}" for key in sorted(fields - record.keys())]
-    errors += [f"CHECK-IN 2 go has unknown field {key!r}" for key in sorted(record.keys() - fields)]
+    errors += [f"CHECK-IN 2 go has unknown field {key!r}" for key in sorted(record.keys() - fields - {"operating_mode"})]
     if type(record.get("schema_version")) is not int or record.get("schema_version") != (4 if delegated else CHECKIN2_GO_VERSION):
         errors.append(f"CHECK-IN 2 go schema_version must be integer {CHECKIN2_GO_VERSION}")
     for key in fields - {"schema_version", "delegation"}:
@@ -799,6 +833,12 @@ def verify_checkin2_go(rundir, record=None):
             errors.append(f"CHECK-IN 2 go {key} must be a " + ("string" if key == "generated_utc" else "nonblank string"))
     if errors:
         return errors
+    try:
+        from . import operating_mode
+        if 'operating_mode' in record or operating_mode.frozen(rundir) is not None:
+            operating_mode.verify_receipt(rundir, record)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return [str(exc)]
     generator = "workflow_state.py delegated-go" if delegated else CHECKIN2_GO_GENERATOR
     if delegated:
         try:
@@ -856,6 +896,7 @@ def verify_checkin2_go(rundir, record=None):
 
 def record_delegated_go(rundir):
     """Existing GO gate, machine-labelled and bounded by retained user delegation."""
+    legacy_only(rundir, 'delegated CHECK-IN 2 GO')
     from . import scientific_autonomy
     rd = scientific_autonomy.review_context._safe_path(rundir)
     d = scientific_autonomy.authorize(rd, 'checkin2_go')
@@ -865,7 +906,8 @@ def record_delegated_go(rundir):
     if contract.get('compute_plan') not in d['value']['bounds']['compute_plans']:
         raise ValueError('compute plan outside original delegated envelope; escalate')
     paths = checkin2_go_input_paths(str(rd))
-    rec = {'schema_version':4, 'generated_utc':operational_utc(), 'decision':'GO',
+    from . import operating_mode
+    rec = {'operating_mode':operating_mode.receipt(rd), 'schema_version':4, 'generated_utc':operational_utc(), 'decision':'GO',
            'quote':d['value']['quote'], 'authority':'machine_under_user_delegation',
            'delegation':contract['autonomy'], 'delegate_actor':d['value']['delegate_actor'],
            'checkin2':'inputs/checkin2.json', 'checkin1_approval':'inputs/checkin1_approval.json',
@@ -911,6 +953,16 @@ def approval_custody(rundir):
     return rdj_custody.rows(rundir,'checkin1_approvals')
 
 
+def legacy_only(rundir, action):
+    """Legacy authority commands keep working on runs the controller does not own (NOT GOVERNED).
+
+    A controller-owned run takes authority only from the controller authority service; this
+    command is refused for it before anything is written.
+    """
+    from ravel.controller.authority import common as controller_authority
+    controller_authority.refuse_legacy(rundir, action)
+
+
 def record_approval_custody(rundir,path,authority):
     """Record a written CHECK-IN 1 approval's digest outside the run directory."""
     from . import rdj_custody
@@ -925,7 +977,10 @@ def record_delegated_approval(rundir,plan):
     refuses any path outside ``bounds.allowed_changed_paths``. It records the changes and
     their deviation rows, as the human path does. A missing prior approval is refused.
     """
+    legacy_only(rundir, 'delegated CHECK-IN 1 approval')
     from .method_selection import require_launch
+    from . import operating_mode
+    operating_mode.bind_plan(rundir)
     require_launch(rundir, plan)
     from . import scientific_autonomy,execution
     from copy import deepcopy
@@ -981,7 +1036,7 @@ def record_delegated_approval(rundir,plan):
             raise ValueError('delegated re-approval refuses changed inputs outside allowed_changed_paths: '
                              +', '.join(outside)+'; a human re-approval is required')
         changed=[{**row,'prior_approval_sha256':prior_sha} for row in changed]
-    record={'schema_version':3,'generated_utc':operational_utc(),'approved_plan':plan,'quote':d['value']['quote'],
+    record={'operating_mode':operating_mode.receipt(rd), 'schema_version':3,'generated_utc':operational_utc(),'approved_plan':plan,'quote':d['value']['quote'],
         'task_contract':os.path.relpath(paths[0],rd),'checkin1':'inputs/checkin1.json','cost_preflight':'inputs/cost_preflight.json',
         'authority':'delegated_machine','delegation':document['autonomy'],'delegate_actor':d['value']['delegate_actor'],
         'approved_inputs':snapshot,
@@ -1053,10 +1108,15 @@ def checkin2_gate_errors(rundir, required_plan):
 @retry_conflict
 def cmd_go(args):
     """Record the physicist's CHECK-IN 2 GO, bound to the CHECK-IN 2 artefact and the current approval."""
-    rd = args.rundir.rstrip("/")
+    rd = os.path.abspath(args.rundir)
     if not os.path.isdir(rd):
         print(f"workflow_state go: not a directory: {rd}", file=sys.stderr)
         return 2
+    try:
+        legacy_only(rd, 'workflow_state go')
+    except ValueError as exc:
+        print(f'workflow_state go: REFUSED -- {exc}', file=sys.stderr)
+        return 1
     errors = verify_approval(rd)
     if errors:
         print("workflow_state go: REFUSED -- " + "; ".join(errors), file=sys.stderr)
@@ -1068,7 +1128,8 @@ def cmd_go(args):
         print(f"workflow_state go: REFUSED -- invalid checkin2 evidence: {exc}", file=sys.stderr)
         return 1
     # Fingerprint BEFORE validation, as for the approval: an edit during validation cannot slip in.
-    rec = {"schema_version": CHECKIN2_GO_VERSION,
+    from . import operating_mode
+    rec = {"operating_mode":operating_mode.receipt(rd), "schema_version": CHECKIN2_GO_VERSION,
            "generated_utc": stamp,
            "decision": "GO", "quote": args.quote,
            "checkin2": "inputs/checkin2.json", "checkin1_approval": "inputs/checkin1_approval.json",

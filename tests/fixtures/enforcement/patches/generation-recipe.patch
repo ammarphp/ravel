@@ -1,0 +1,38 @@
+--- a/src/ravel/controller/routes/study/__init__.py
++++ b/src/ravel/controller/routes/study/__init__.py
+@@ -207,10 +207,35 @@
+     return errors
+ 
+ 
++def external_recipe_errors(step, context):
++    """Generation needs retained source recipe bytes bound into the approved plan."""
++    import hashlib
++    params = step.get('parameters') or {}
++    effects = set(params.get('effects') or ())
++    if step.get('operation'):
++        signatures, _ = _tables()
++        effects.update((signatures.get(step['operation']) or {}).get('effects') or ())
++    if 'generates_events' not in effects:
++        return []
++    pin = (context.get('plan') or {}).get('parameters', {}).get('external_recipe') or context.get('external_recipe')
++    try:
++        if type(pin) is not dict or type(pin.get('sha256')) is not str:
++            raise ValueError('source recipe pin missing')
++        path = Path(context['run_dir']) / relative(pin['path'])
++        if path.is_symlink() or any(parent.is_symlink() for parent in path.parents):
++            raise ValueError('source recipe symlink')
++        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != pin['sha256']:
++            raise ValueError('source recipe bytes missing or changed')
++    except (OSError, ValueError, KeyError, TypeError):
++        return [{'code': 'external_recipe_missing', 'message': 'retain a digest-pinned source recipe before generation'}]
++    return []
++
++
+ def admit(step, context):
+     if (step.get('parameters') or {}).get('phase') == 'prepare':
+         return []
+     errors = gate('dispatch', context)
++    errors.extend(external_recipe_errors(step, context))
+     if step['id'] == 'operate':
+         # This worker cannot change the launch/authority boundary owned by the
+         # shared step and confinement packages. An empty argv is never support.

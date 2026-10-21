@@ -18,6 +18,9 @@ separators and lower-cased, has the entry's digest: "Fable Quarry", "FableQuarry
 "fable_quarry" and "FABLE-QUARRY" are one entry. Two outside lists join the denylist at run
 time: the term list in RAVEL_EVAL_TERMS_FILE / RAVEL_EVAL_TERMS, and the fingerprints and
 document hashes of the owner's restricted-source list in RAVEL_RESTRICTED_SOURCES.
+Controller-owned callers and scan targets instead require their admission-pinned
+source policies; missing, unreadable or changed pins raise SourcePolicyRefused
+(CLI exit 2). Ambient selectors never replace a controller's policy.
 
 (e) placeholder identifiers: an arXiv-shaped number whose year-month field no real number has,
     an analysis label of the form ANA-9<nnn>-<nn>, a routine label of the form Routine00<n>, and
@@ -52,7 +55,11 @@ from bisect import bisect_right
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
-import gzip
+from functools import lru_cache
+import bz2
+import lzma
+import stat
+import tarfile
 import hashlib
 import io
 import json
@@ -63,6 +70,7 @@ import re
 import subprocess
 import sys
 import zipfile
+import zlib
 
 GIT = '/usr/bin/git' if Path('/usr/bin/git').exists() else 'git'
 DENYLIST = Path(__file__).resolve().parents[1] / 'data' / 'generality' / 'denylist.json'
@@ -73,6 +81,9 @@ CATEGORIES = ('challenge', 'benchmark', 'comparator', 'study', 'routine', 'perso
               'external', 'restricted-document')
 MAX_WORDS = 6
 MAX_BYTES = 64 << 20
+MAX_ARCHIVE_BYTES = 64 << 20
+MAX_ARCHIVE_MEMBERS = 10000
+MAX_ARCHIVE_DEPTH = 8
 SKIP_DIRS = {'.git', '__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache', 'node_modules', '.venv'}
 
 # (b) Structural identifier shapes. Each rule is general: no list of groups, years or papers.
@@ -206,19 +217,30 @@ class Denylist:
         return found
 
 
-def _external_entries(env):
-    """Entries from the outside term list and the owner's restricted-source list."""
+def _external_entries(env, target=None):
+    """Outside entries, bound to controller policy for the caller and scanned target."""
+    from ravel.controller.confine.policy import restricted_source_document
+    policies = []
+    for scope in (Path.cwd(), target):
+        if scope is not None:
+            pinned = restricted_source_document(scope)
+            if pinned is not None and pinned not in policies:
+                policies.append(pinned)
+    if policies:
+        env = {}
     terms, documents = [], []
     if env.get('RAVEL_EVAL_TERMS_FILE'):
         terms += Path(env['RAVEL_EVAL_TERMS_FILE']).read_text(encoding='utf-8').splitlines()
     if env.get('RAVEL_EVAL_TERMS'):
         terms += env['RAVEL_EVAL_TERMS'].replace(',', '\n').splitlines()
     if env.get('RAVEL_RESTRICTED_SOURCES'):
-        document = json.loads(Path(env['RAVEL_RESTRICTED_SOURCES']).read_text())
+        policies.append(json.loads(Path(env['RAVEL_RESTRICTED_SOURCES']).read_text()))
+    for document in policies:
         if not isinstance(document, dict) or document.get('kind') != 'restricted-sources':
             raise ValueError('RAVEL_RESTRICTED_SOURCES is not a restricted-sources list')
         terms += [f for f in document.get('fingerprints', []) if isinstance(f, str)]
-        documents += [d['sha256'] for d in document.get('documents', []) if isinstance(d, dict)
+        # Matching runs over lowercased text, so a pinned digest is compared in lowercase.
+        documents += [d['sha256'].lower() for d in document.get('documents', []) if isinstance(d, dict)
                       and isinstance(d.get('sha256'), str) and SHA.fullmatch(d['sha256'].lower())]
     entries = []
     for term in terms:
@@ -228,7 +250,7 @@ def _external_entries(env):
     return entries, documents
 
 
-def load_denylist(path, env=None):
+def load_denylist(path, env=None, *, target=None):
     """The maintained denylist (``path`` or the shipped one) plus the outside lists in ``env``."""
     path = Path(path) if path else DENYLIST
     document = json.loads(path.read_text()) if path.is_file() else denylist_document([])
@@ -240,8 +262,22 @@ def load_denylist(path, env=None):
                 or entry['category'] not in CATEGORIES or not re.fullmatch(r'[0-9a-f]{20}', str(entry['digest']))
                 or type(entry['length']) is not int or entry['length'] < 3):
             raise ValueError(f'{path}: invalid denylist entry {entry!r}')
-    extra, documents = _external_entries(os.environ if env is None else env)
-    return Denylist(document['entries'] + extra, documents)
+    extra, documents = _external_entries(os.environ if env is None else env, target)
+    result = Denylist(document['entries'] + extra, documents)
+    result._maintained_entries = document['entries']
+    return result
+
+
+def _bound_denylist(target, denylist):
+    """Rebind public scans; a previously loaded ambient list cannot select run policy."""
+    from ravel.controller.confine.runs import owner_of
+    if owner_of(Path.cwd()) is None and owner_of(target) is None:
+        return denylist
+    extra, documents = _external_entries({}, target)
+    maintained = getattr(denylist, '_maintained_entries', denylist.entries)
+    result = Denylist(maintained + extra, documents)
+    result._maintained_entries = maintained
+    return result
 
 
 def citations_document(files, withheld=None):
@@ -260,6 +296,52 @@ def citations_document(files, withheld=None):
 
 def _pattern_rules(text):
     return {rule for rule, pattern, _ in PATTERNS if pattern.search(text)}
+
+
+def citable_identifier(string):
+    """Recognise one complete source identifier, including a journal DOI's suffix."""
+    if not isinstance(string, str):
+        return False
+    rules = _pattern_rules(string) | _pattern_rules('arXiv:' + string)
+    if not rules or rules & set(PLACEHOLDER_RULES):
+        return False
+    end = None
+    spans = sorted(match.span() for rule, pattern, _ in PATTERNS if rule not in PLACEHOLDER_RULES
+                   for match in pattern.finditer(string))
+    for start, stop in spans:
+        if end is not None and start >= end:
+            return False
+        end = max(end or 0, stop)
+    if re.match(r'10\.\d{4,9}/', string):
+        return bool(re.fullmatch(
+            r'10\.\d{4,9}/[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*[./(][A-Za-z0-9]'
+            r'[A-Za-z0-9._/()-]*[A-Za-z0-9]', string))
+    if re.fullmatch(r'[A-Z][A-Z0-9]{1,9}_(?:19|20)\d\d_[IS]', string, re.I):
+        return False
+    if re.fullmatch(r'(?:0[7-9]|1\d|2\d)(?:0[1-9]|1[0-2])\.\d{4,5}(?:v\d+)?', string):
+        return True
+    if re.search(r'v\d+$', string):
+        base = re.sub(r'v\d+$', '', string)
+        if any(pattern.fullmatch(base) for rule, pattern, _ in PATTERNS
+               if rule in ('arxiv-id', 'hepdata-record', 'inspire-id')):
+            return True
+    if re.fullmatch(r'(?:[A-Za-z][A-Za-z0-9]*[-_])+(?:(?:19|20)\d\d|\d{2})[-_]\d{2,3}'
+                    r'(?:[-_][A-Za-z0-9]+)*', string):
+        return True
+    if re.fullmatch(r'[A-Za-z][A-Za-z0-9]*[-_](?:19|20)\d\d[-_][A-Za-z][A-Za-z0-9_-]*', string):
+        return True
+    if re.fullmatch(r'(?:[A-Za-z][A-Za-z0-9]*_)+(?:19|20)\d\d_[IS]\d{4,8}(?:_[A-Za-z0-9]+)*', string):
+        return True
+    for rule, pattern, _ in PATTERNS:
+        match = pattern.match(string)
+        if (rule not in PLACEHOLDER_RULES and match is not None
+                and re.fullmatch(r'[-_/.][A-Za-z0-9_./()-]+', string[match.end():])):
+            return True
+        if (rule == 'routine-name' and match is not None
+                and re.fullmatch(r'[A-Za-z][A-Za-z0-9]*(?:[_-][A-Za-z0-9]+)*', string[match.end():])):
+            return True
+    return any(pattern.fullmatch(string) or (rule == 'arxiv-id' and pattern.fullmatch('arXiv:' + string))
+               for rule, pattern, _ in PATTERNS if rule not in PLACEHOLDER_RULES)
 
 
 def load_citations(path=None):
@@ -285,8 +367,7 @@ def load_citations(path=None):
             raise ValueError(f'{path}: a citation entry is one exact file path with a list of distinct identifiers: {name!r}')
         for string in strings:
             # An arXiv number of the four-digit form is recognised only behind its prefix.
-            rules = _pattern_rules(string) | _pattern_rules('arXiv:' + string) if isinstance(string, str) else set()
-            if not rules or rules & set(PLACEHOLDER_RULES):
+            if not citable_identifier(string):
                 raise ValueError(f'{path}: {name}: not a citable identifier: {string!r}')
     return {name: list(strings) for name, strings in files.items()}
 
@@ -308,11 +389,79 @@ def _cited(relative, citations):
     return citations.get(relative, ())
 
 
+def _unit_line_citations(text, citations):
+    """{line index: identifiers} for lines that are instruction-unit records copied from a listed
+    citing file. A unit states its ``source`` (or an ``id`` of the form ``<source>#...``) and its
+    ``text``; it carries exactly the identifiers listed for that source and nothing else. Lines
+    that are not such records, or whose source is unlisted, carry no admission."""
+    admitted = {}
+    if not citations or '"text"' not in text:
+        return admitted
+    for index, line in enumerate(text.split('\n')):
+        stripped = line.strip().rstrip(',')
+        if not stripped.startswith('{') or '"text"' not in stripped or '"id"' not in stripped:
+            continue
+        try:
+            record = json.loads(stripped)
+        except ValueError:
+            continue
+        if not isinstance(record, dict) or 'text' not in record or not isinstance(record.get('id'), str):
+            continue
+        source = record.get('source') if isinstance(record.get('source'), str) else record['id'].split('#', 1)[0]
+        strings = citations.get(source)
+        if strings and source != CITATION_LIST:
+            admitted[index] = tuple(sorted(set(strings)))
+    return admitted
+
+
+def _without_unit_citations(text, admitted):
+    """``text`` with each admitted identifier blanked on its own unit line only."""
+    lines = text.split('\n')
+    for index, strings in admitted.items():
+        pattern = _citation_matcher(strings)
+        if pattern is not None:
+            lines[index] = pattern.sub(lambda match: ' ' * len(match[0]), lines[index])
+    return '\n'.join(lines)
+
+
 def _without(text, strings):
     """``text`` with each cited identifier blanked; offsets and line numbers are unchanged."""
-    for string in sorted(strings, key=len, reverse=True):
-        text = text.replace(string, ' ' * len(string))
-    return text
+    pattern = _citation_matcher(tuple(sorted(set(strings))))
+    return text if pattern is None else pattern.sub(lambda match: ' ' * len(match[0]), text)
+
+
+def _citation_pattern(string):
+    left, continuation = _citation_boundaries(string)
+    return re.compile(r'(?:(?<!' + left + r')|(?<=\\[nrt]))' + re.escape(string)
+                      + r'(?!(?:' + continuation + r'))')
+
+
+def _citation_boundaries(string):
+    left, continuation = r'[A-Za-z0-9_]', r'[A-Za-z0-9_-]'
+    if string.startswith('10.'):
+        continuation = r'[A-Za-z0-9_/-]|\.[A-Za-z0-9]'
+    elif re.fullmatch(r'[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+', string):
+        left = continuation = r'[A-Za-z0-9_-]'
+    return left, continuation
+
+
+@lru_cache(maxsize=128)
+def _citation_matcher(strings):
+    groups = {}
+    for string in strings:
+        groups.setdefault(_citation_boundaries(string), []).append(string)
+    branches = [r'(?:(?<!' + left + r')|(?<=\\[nrt]))(?:'
+                + '|'.join(re.escape(s) for s in sorted(values, key=len, reverse=True))
+                + r')(?!(?:' + right + r'))' for (left, right), values in groups.items()]
+    return re.compile('|'.join(branches)) if branches else None
+
+
+@lru_cache(maxsize=128)
+def _overlapping_citations(strings):
+    """Complete literals that can overlap a shorter citation with different boundaries."""
+    available = set(strings)
+    return tuple(s for s in strings if any(s[:i] in available
+                 and _citation_boundaries(s[:i]) != _citation_boundaries(s) for i in range(1, len(s))))
 
 
 def load_allowlist(path):
@@ -362,48 +511,290 @@ def scan_text(text, denylist, path=''):
 PRINTABLE = re.compile(rb'[\t\n\r\x20-\x7e]{16,}')
 
 
+class _ArchiveMetadata(bytes):
+    """Metadata bytes need a lossless decode, including short printable values."""
+
+
 def _decode(data):
     """Text, or for a binary file its printable runs of sixteen or more characters, one per line
     (compressed bytes never spell a term, but embedded text and metadata are kept)."""
+    if isinstance(data, _ArchiveMetadata):
+        return data.decode('latin-1')
     try:
         return data.decode('utf-8')
     except UnicodeDecodeError:
         return '\n'.join(m.group().decode('ascii') for m in PRINTABLE.finditer(data))
 
 
-def scan_bytes(relative, data, denylist, citations=None):
-    """Findings in a file's path and content; gzip and zip members are opened. The identifiers the
-    citation list gives for this file are not findings in it or in its members; a listed one that
-    neither the file nor its name carries is."""
-    cited = _cited(relative, shipped_citations() if citations is None else citations)
-    found = [Hit(relative, 0, h.rule, h.text) for h in scan_text(_without(relative, cited), denylist, relative)]
+def archive_contents(relative, data):
+    """Yield (path, payload or None, unscanned rule or None), without extraction.
+
+    Expanded bytes and members are cumulative across the entire input, including
+    nested containers. Container and member names are yielded even on failure.
+    """
+    remaining, members = MAX_ARCHIVE_BYTES, 0
+
+    def visit(path, payload, depth):
+        nonlocal remaining, members
+        lower = path.lower()
+        kind = None
+        if (payload.startswith((b'PK\x03\x04', b'PK\x05\x06', b'PK\x07\x08'))
+                or lower.endswith(('.zip', '.whl', '.jar', '.docx', '.xlsx', '.pptx', '.npz'))
+                or zipfile.is_zipfile(io.BytesIO(payload))):
+            kind = 'zip'
+        elif payload.startswith(b'\x1f\x8b') or lower.endswith(('.gz', '.tgz')):
+            kind = 'gzip'
+        elif payload.startswith(b'BZh') or lower.endswith(('.bz2', '.tbz', '.tbz2')):
+            kind = 'bz2'
+        elif payload.startswith(b'\xfd7zXZ\x00') or lower.endswith(('.xz', '.txz')):
+            kind = 'xz'
+        elif payload[257:262] == b'ustar' or lower.endswith('.tar'):
+            kind = 'tar'
+        elif (payload.startswith((b'7z\xbc\xaf\x27\x1c', b'Rar!', b'!<arch>\n', b'MSCF', b'\x28\xb5\x2f\xfd'))
+              or lower.endswith(('.7z', '.rar', '.zst', '.zstd', '.lz', '.lz4', '.cab', '.ar', '.deb', '.rpm', '.z', '.cpio', '.iso', '.dmg'))):
+            yield path, payload, 'unscanned-archive-unsupported'
+            return
+        elif len(payload) >= 512 and tarfile.is_tarfile(io.BytesIO(payload)):
+            kind = 'tar'
+        if kind is None:
+            yield path, payload, None
+            return
+        yield path, None, None
+        if depth >= MAX_ARCHIVE_DEPTH:
+            yield path, None, 'unscanned-archive-depth-limit'
+            return
+
+        def read_bounded(stream, declared=None):
+            nonlocal remaining
+            if declared is not None and declared > remaining:
+                return None
+            value = stream.read(remaining + 1)
+            if len(value) > remaining:
+                return None
+            remaining -= len(value)
+            return value
+
+        def metadata(owner, value):
+            if not value:
+                return
+            raw = value.encode('utf-8') if isinstance(value, str) else value
+            bounded = read_bounded(io.BytesIO(raw), len(raw))
+            if bounded is None:
+                yield owner, None, 'unscanned-archive-byte-limit'
+            else:
+                yield owner + '!@metadata', (bounded if isinstance(value, str)
+                                             else _ArchiveMetadata(bounded)), None
+
+        try:
+            if kind == 'gzip':
+                pending, chunks = payload, []
+                while pending:
+                    members += 1
+                    if members > MAX_ARCHIVE_MEMBERS:
+                        yield path, None, 'unscanned-archive-member-limit'
+                        return
+                    if len(pending) < 10 or pending[:3] != b'\x1f\x8b\x08':
+                        yield path, None, 'unscanned-archive-malformed'
+                        return
+                    flags, offset = pending[3], 10
+                    if flags & 0xe0:
+                        yield path, None, 'unscanned-archive-unsupported'
+                        return
+                    if flags & 4:
+                        if len(pending) < offset + 2:
+                            raise EOFError
+                        size = int.from_bytes(pending[offset:offset + 2], 'little')
+                        offset += 2
+                        if len(pending) < offset + size:
+                            raise EOFError
+                        yield from metadata(path, pending[offset:offset + size])
+                        offset += size
+                    for flag in (8, 16):
+                        if flags & flag:
+                            end = pending.find(b'\0', offset)
+                            if end < 0:
+                                raise EOFError
+                            yield from metadata(path, pending[offset:end])
+                            offset = end + 1
+                    if flags & 2:
+                        offset += 2
+                    if offset > len(pending):
+                        raise EOFError
+                    decoder = zlib.decompressobj(31)
+                    expanded = decoder.decompress(pending, remaining + 1)
+                    if len(expanded) > remaining:
+                        yield path, None, 'unscanned-archive-byte-limit'
+                        return
+                    remaining -= len(expanded)
+                    if not decoder.eof:
+                        yield path, None, 'unscanned-archive-truncated'
+                        return
+                    chunks.append(expanded)
+                    pending = decoder.unused_data.lstrip(b'\0')
+                expanded = b''.join(chunks)
+                inner = path.rsplit('.', 1)[0] + ('.tar' if lower.endswith('.tgz') else '')
+                for child, value, rule in visit(inner, expanded, depth + 1):
+                    yield path + child[len(inner):], value, rule
+                return
+            if kind in ('bz2', 'xz'):
+                pending, chunks = payload, []
+                while pending:
+                    members += 1
+                    if members > MAX_ARCHIVE_MEMBERS:
+                        yield path, None, 'unscanned-archive-member-limit'
+                        return
+                    decoder = (bz2.BZ2Decompressor() if kind == 'bz2'
+                               else lzma.LZMADecompressor(memlimit=MAX_ARCHIVE_BYTES))
+                    expanded = decoder.decompress(pending, max_length=remaining + 1)
+                    if len(expanded) > remaining:
+                        yield path, None, 'unscanned-archive-byte-limit'
+                        return
+                    remaining -= len(expanded)
+                    if not decoder.eof:
+                        yield path, None, 'unscanned-archive-truncated'
+                        return
+                    chunks.append(expanded)
+                    pending = decoder.unused_data
+                    if kind == 'xz':
+                        stripped = pending.lstrip(b'\0')
+                        if (len(pending) - len(stripped)) % 4:
+                            yield path, None, 'unscanned-archive-malformed'
+                            return
+                        pending = stripped
+                expanded = b''.join(chunks)
+                inner = path.rsplit('.', 1)[0]
+                if lower.endswith(('.tbz', '.tbz2', '.txz')):
+                    inner += '.tar'
+                for child, value, rule in visit(inner, expanded, depth + 1):
+                    yield path + child[len(inner):], value, rule
+                return
+            archive = (zipfile.ZipFile(io.BytesIO(payload)) if kind == 'zip'
+                       else tarfile.open(fileobj=io.BytesIO(payload), mode='r:'))
+            with archive:
+                if kind == 'zip':
+                    # Scan every byte outside compressed payload spans: local/central
+                    # headers, names, extras, comments, executable prefix and suffix.
+                    ranges = []
+                    for info in archive.infolist()[:MAX_ARCHIVE_MEMBERS + 1]:
+                        start = info.header_offset
+                        if start < 0 or payload[start:start + 4] != b'PK\x03\x04' or start + 30 > len(payload):
+                            raise ValueError('invalid local header')
+                        name_size = int.from_bytes(payload[start + 26:start + 28], 'little')
+                        extra_size = int.from_bytes(payload[start + 28:start + 30], 'little')
+                        begin = start + 30 + name_size + extra_size
+                        end = begin + info.compress_size
+                        if end > len(payload):
+                            raise EOFError
+                        ranges.append((begin, end))
+                    cursor = 0
+                    for begin, end in sorted(ranges):
+                        if begin < cursor:
+                            raise ValueError('overlapping members')
+                        yield from metadata(path, payload[cursor:begin])
+                        cursor = end
+                    if len(archive.infolist()) <= MAX_ARCHIVE_MEMBERS:
+                        yield from metadata(path, payload[cursor:])
+                    else:
+                        yield path, None, 'unscanned-archive-member-limit'
+                entries = archive.infolist() if kind == 'zip' else archive
+                for info in entries:
+                    members += 1
+                    name = info.filename if kind == 'zip' else info.name
+                    child = path + '!' + name
+                    yield child, None, None
+                    if members > MAX_ARCHIVE_MEMBERS:
+                        yield path, None, 'unscanned-archive-member-limit'
+                        return
+                    if kind == 'zip':
+                        mode = info.external_attr >> 16
+                        if stat.S_IFMT(mode) not in (0, stat.S_IFREG, stat.S_IFDIR):
+                            yield child, None, 'unscanned-archive-special-member'
+                            continue
+                        if info.flag_bits & 1:
+                            yield child, None, 'unscanned-archive-encrypted'
+                            continue
+                        if info.is_dir() and info.file_size:
+                            yield child, None, 'unscanned-archive-special-member'
+                            continue
+                        if info.is_dir():
+                            continue
+                        size = info.file_size
+                        stream = archive.open(info)
+                    else:
+                        fields = [info.uname, info.gname, info.linkname]
+                        fields.extend(f'{key}={value}' for key, value in info.pax_headers.items())
+                        yield from metadata(child, '\n'.join(fields))
+                        if info.isdir() and info.size:
+                            yield child, None, 'unscanned-archive-special-member'
+                            continue
+                        if info.isdir():
+                            continue
+                        if not info.isfile() or info.sparse is not None:
+                            yield child, None, 'unscanned-archive-special-member'
+                            continue
+                        size = info.size
+                        stream = archive.extractfile(info)
+                    with stream:
+                        expanded = read_bounded(stream, size)
+                    if expanded is None:
+                        yield child, None, 'unscanned-archive-byte-limit'
+                        return
+                    if len(expanded) != size:
+                        yield child, None, 'unscanned-archive-truncated'
+                        continue
+                    yield from visit(child, expanded, depth + 1)
+                if kind == 'tar':
+                    tail = payload[archive.offset:]
+                    if len(tail) < 1024 or len(payload) % 512:
+                        yield path, None, 'unscanned-archive-truncated'
+                    elif tail.strip(b'\0'):
+                        yield path, None, 'unscanned-archive-malformed'
+        except NotImplementedError:
+            yield path, None, 'unscanned-archive-unsupported'
+        except (OSError, EOFError, ValueError, RuntimeError, zipfile.BadZipFile,
+                tarfile.TarError, lzma.LZMAError, zlib.error):
+            yield path, payload, 'unscanned-archive-malformed'
+
     if len(data) > MAX_BYTES:
-        return found + [Hit(relative, 0, 'unscanned-large-file')]
-    carried = {s for s in cited if s in relative}
+        yield relative, None, 'unscanned-large-file'
+    else:
+        yield from visit(relative, data, 0)
+
+
+def scan_bytes(relative, data, denylist, citations=None):
+    """Scan paths and bounded archive contents under the file's citation contract."""
+    cited = _cited(relative, shipped_citations() if citations is None else citations)
+    found, carried, names = [], set(), set()
+    citation_strings = tuple(sorted(set(cited)))
+    citation_pattern = _citation_matcher(citation_strings)
+    overlaps = _overlapping_citations(citation_strings)
 
     def content(text, path):
-        carried.update(s for s in cited if s in text)
-        return scan_text(_without(text, cited), denylist, path)
+        def blank(match):
+            carried.add(match[0])
+            return ' ' * len(match[0])
+        masked = citation_pattern.sub(blank, text) if citation_pattern is not None else text
+        if path == relative:
+            # Instruction units copied from listed citing files carry their source's identifiers.
+            masked = _without_unit_citations(masked, _unit_line_citations(
+                masked, shipped_citations() if citations is None else citations))
+        carried.update(s for s in overlaps if s not in carried and _citation_pattern(s).search(text))
+        return scan_text(masked, denylist, path)
 
-    if relative.endswith('.gz'):
-        try:
-            data = gzip.GzipFile(fileobj=io.BytesIO(data)).read(MAX_BYTES + 1)
-        except (OSError, EOFError):
-            pass
-        found += content(_decode(data), relative)
-    elif relative.endswith('.zip') and zipfile.is_zipfile(io.BytesIO(data)):
-        with zipfile.ZipFile(io.BytesIO(data)) as archive:
-            for info in archive.infolist():
-                member = f'{relative}!{info.filename}'
-                found += [Hit(member, 0, h.rule, h.text) for h in content(info.filename, '')]
-                if not info.is_dir() and info.file_size <= MAX_BYTES:
-                    found += content(_decode(archive.read(info)), member)
-    else:
-        found += content(_decode(data), relative)
+    for path, payload, rule in archive_contents(relative, data):
+        if path not in names:
+            names.add(path)
+            found += [Hit(path, 0, h.rule, h.text) for h in content(path, path)]
+        if rule:
+            found.append(Hit(path, 0, rule))
+        if payload is not None:
+            found += content(_decode(payload), path)
     if relative != CITATION_LIST:
+        matched = tuple(carried)
+        carried.update(s for s in cited if s not in carried
+                       and any(_citation_pattern(s).search(value) for value in matched))
         found += [Hit(relative, 0, 'stale-citation', s) for s in cited if s not in carried]
     return found
-
 
 def _walk(root):
     for parent, dirs, names in os.walk(root):
@@ -444,6 +835,7 @@ def _scan_many(files, denylist):
 
 
 def scan_tree(root, denylist):
+    denylist = _bound_denylist(root, denylist)
     root = Path(root)
     return _scan_many([(p.relative_to(root).as_posix(), str(p)) for p in _walk(root)], denylist)
 
@@ -459,6 +851,7 @@ def tracked_files(root):
 
 
 def scan_repository(root, denylist, staged=False):
+    denylist = _bound_denylist(root, denylist)
     root = Path(root)
     found, scanned = [], set()
     if staged:
@@ -473,16 +866,18 @@ def scan_repository(root, denylist, staged=False):
 
 
 def scan_paths(paths, denylist, root='.'):
+    denylist = _bound_denylist(root, denylist)
     found, scanned = [], set()
     for given in paths:
         given = Path(given)
+        active = _bound_denylist(given, denylist)
         for path in ([given] if given.is_file() else _walk(given)):
             try:
                 relative = path.resolve().relative_to(Path(root).resolve()).as_posix()
             except ValueError:
                 relative = path.as_posix()
             scanned.add(relative)
-            found += scan_bytes(relative, path.read_bytes(), denylist)
+            found += scan_bytes(relative, path.read_bytes(), active)
     return found, scanned
 
 
@@ -493,8 +888,10 @@ def apply_allowlist(hits, allow, scanned):
     seen = {}
     for hit in hits:
         seen.setdefault(hit.path.split('!')[0], set()).add(hit.rule)
-    kept = [h for h in hits if h.rule not in allow.get(h.path.split('!')[0], ())]
-    stale = []
+    kept = [h for h in hits if h.rule.startswith('unscanned-')
+            or h.rule not in allow.get(h.path.split('!')[0], ())]
+    stale = [f'{path}: an inspection gap requires complete scanning: {rule}'
+             for path, rules in sorted(allow.items()) for rule in rules if rule.startswith('unscanned-')]
     for path, rules in sorted(allow.items()):
         if path not in scanned:
             stale.append(f'{path}: allowlist names a file not scanned')
@@ -506,7 +903,8 @@ def apply_allowlist(hits, allow, scanned):
 def summary(hits):
     """Counts by rule and by file; it never carries matched text."""
     return {'total': len(hits), 'by_rule': dict(sorted(Counter(h.rule for h in hits).items())),
-            'by_file': dict(sorted(Counter(h.path.split('!')[0] for h in hits).items()))}
+            'by_file': dict(sorted(Counter(h.path.split('!')[0] for h in hits).items())),
+            'complete': not any(h.rule.startswith('unscanned-') for h in hits), 'clean': not hits}
 
 
 def _repository_root(start):
@@ -553,20 +951,25 @@ def main(argv=None):
             added = _add_terms(args.denylist, args.add_term, sys.stdin.read().splitlines())
             print(f'check_generality: added {added} entr{"y" if added == 1 else "ies"}', file=sys.stderr)
             return 0
-        denylist = load_denylist(args.denylist)
+        target = args.tree or args.root or (args.paths[0] if args.paths else Path.cwd())
+        denylist = load_denylist(args.denylist, target=target)
         allow = load_allowlist(args.allowlist)
         _CITATIONS = load_citations(args.citations)
     except (OSError, ValueError) as error:
-        print(f'check_generality: {error}', file=sys.stderr)
+        print(f'check_generality: {type(error).__name__}: {error}', file=sys.stderr)
         return 2
-    root = Path(args.root) if args.root else _repository_root(Path.cwd())
-    if args.tree:
-        hits = scan_tree(args.tree, denylist)
-        scanned = {p.relative_to(args.tree).as_posix() for p in _walk(Path(args.tree))}
-    elif args.paths:
-        hits, scanned = scan_paths(args.paths, denylist, root)
-    else:
-        hits, scanned = scan_repository(root, denylist, staged=args.staged)
+    try:
+        root = Path(args.root) if args.root else _repository_root(Path.cwd())
+        if args.tree:
+            hits = scan_tree(args.tree, denylist)
+            scanned = {p.relative_to(args.tree).as_posix() for p in _walk(Path(args.tree))}
+        elif args.paths:
+            hits, scanned = scan_paths(args.paths, denylist, root)
+        else:
+            hits, scanned = scan_repository(root, denylist, staged=args.staged)
+    except (OSError, ValueError) as error:
+        print(f'check_generality: {type(error).__name__}: {error}', file=sys.stderr)
+        return 2
     hits, stale = apply_allowlist(hits, allow, scanned)
     if args.summary or args.json:
         report = summary(hits)

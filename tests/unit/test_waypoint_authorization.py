@@ -52,20 +52,26 @@ def test_failed_comparison_can_ship_as_diagnostic_but_cannot_authorize_bulk(tmp_
 
 @pytest.mark.parametrize("older_name", [False, True])
 def test_later_go_cannot_authorize_already_recorded_bulk_compute(tmp_path, older_name):
-    root = _run(tmp_path)
+    # Review credit binds the exact run, so the older-named run is created under that name rather
+    # than renamed after its review: a moved or copied run never carries the original votes.
+    root = _run(tmp_path, **({"name": "2026-09-01_older-run-name"} if older_name else {}))
     (root / "inputs/native_execution_plan.json").write_text(json.dumps({"required_compute_plan": "full"}))
     (root / "outputs").mkdir()
     (root / "outputs/sr_yields.json").write_text('{"srs":{"SR1":1}}')
     assert _ws("go", "--rundir", root, "--quote", "GO after compute").returncode == 0
-    if older_name:
-        moved = root.with_name("2026-09-01_older-run-name")
-        root.rename(moved)
-        root = moved
     assert ws.verify_checkin2_go(str(root)) == []
     vrs = _vrs()
     contract = json.loads((root / "inputs/task_contract.json").read_text())
     status, detail = vrs.inv_checkin2_go_before_bulk_compute(str(root), contract, vrs.discover_facts(str(root), contract), False, False)
     assert status == "FAIL" and "later GO cannot backfill" in detail
+
+
+def test_review_votes_do_not_follow_a_renamed_run(tmp_path):
+    root = _run(tmp_path)
+    assert _ws("go", "--rundir", root, "--quote", "GO").returncode == 0
+    moved = root.with_name("2026-09-01_older-run-name")
+    root.rename(moved)
+    assert any("no independent credit" in error for error in ws.verify_checkin2_go(str(moved)))
 
 
 def test_launch_retains_exact_approval_and_order_after_current_approval_changes(approved):
@@ -234,6 +240,8 @@ def test_supervised_full_launch_retains_receipt_and_blocks_changed_evidence(tmp_
     config.write_text(config.read_text().replace("nevents = 2", "nevents = 1001"))
     card = tmp_path / "cards/run.dat"
     card.write_text(card.read_text().replace("2 = nevents", "1001 = nevents"))
+    from model_validation_fixture import native_evidence
+    native_evidence(config, pipeline.native_build_root())
     plan = pipeline.build_execution_plan(tmp_path, config)
     approve_fixture(plan)
     _write_checkin2(tmp_path)

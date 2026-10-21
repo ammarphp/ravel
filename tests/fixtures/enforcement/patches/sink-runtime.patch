@@ -1,0 +1,30 @@
+--- a/src/ravel/controller/sink/checks.py
++++ b/src/ravel/controller/sink/checks.py
+@@ -512,8 +512,9 @@
+         findings.satisfied('T10', None, mechanism='sink.custody_origin', record=journals)
+     findings.satisfied('B04', None, mechanism='sink.costs', record={'unknown': unknown})
+     _scan_run_rows(findings, ev, delivered, run_dir)
+-    findings.satisfied('E27', None, mechanism='sink.environment',
+-                       record={'launches': len(ev['launches']), 'identity': (identity.get('live') or {}).get('digest')})
++    if ('E27', None) not in findings.rows:
++        findings.satisfied('E27', None, mechanism='sink.environment',
++                           record={'launches': len(ev['launches']), 'identity': (identity.get('live') or {}).get('digest')})
+     findings.documents = documents
+     findings.defaults = defaults
+     findings.credits = credits
+@@ -633,6 +634,15 @@
+         if document is None:
+             continue
+         for item in _objects(document):
++            historical = item.get('runtime')
++            exported = item.get('exported_runtime')
++            if type(historical) is dict and type(exported) is dict:
++                changed = [name for name, version in historical.items()
++                           if exported.get(name) != version]
++                if changed:
++                    findings.violated('E27', None,
++                                      'unsupported historical runtime substitution: ' + ', '.join(changed),
++                                      refuse='diagnostic')
+             for key in ('certification', 'certificate'):
+                 cert = item.get(key)
+                 if type(cert) is dict:

@@ -4,7 +4,221 @@ This route executes **existing inputs** under a concrete, byte-bound proposal.
 It adds Rivet and reconstructed-object analysis, quantity transport, complete
 paired event contrasts, typed compositional cutflows, supplied Gaussian measurement
 inference and bounded model/classifier/lifetime and topology-efficiency operations.
-It does not generate a collision sample or certify a paper reproduction.
+
+## Measured cutflow inputs
+
+`ravel.validation.validate_cutflow` reads measured schema-v1 columnar JSON
+cutflows without YODA. The reader checks signed weight sums, generated and
+selected cut rows, normalization and uncertainties before comparing last/first
+sumw with the supplied reference tables. The existing residual gates remain in
+force. JSON accepts `--sr-reader auto` or `cutflow`; `counter` returns the typed
+refusal `cutflow_reader_mismatch`. Invalid measured JSON returns
+`cutflow_input_invalid`.
+
+YODA is imported lazily for artifacts that require that external reader. If the
+reader is missing, the command writes a typed artifact refusal with reason
+`yoda_reader_unavailable`; this does not establish a defect in the artifact's
+contents. A valid reader or JSON input alone establishes no physics certification.
+Enumerated toy controls exercise real normalization and cutflow adapters and
+figure production. Complete controller composition requires its separate cluster
+gate proof; reader-control passes alone do not establish it.
+
+An output that declares `parameters.validator_exports` must supply those typed
+fields in its adopted report, whatever the producer's step kind. The compiler
+retains future output references; resolution requires current byte-bound custody
+and the declared fields. A missing field remains `validator_source_unresolved`.
+Composition stand-ins must produce their declared toy evidence through the same
+contract; changing a step label must not supply missing evidence.
+
+## Controller-owned plans
+
+The adopted `study-scope` can declare
+`compute: {"rung": "full", "reason": "Complete the declared calculation."}`.
+Choose one of `smoke`, `full` or `scan` for the child's specified computation and
+state the allocation's purpose. Binding carries that selection into the child's
+operation and its reviewable plan before CHECK-IN 1. Operation admission checks
+the selection against the adopted scope again. The ordinary child approval records
+the selected rung, current plan and specification pins, finite time allocation and
+effect authority. The operator's frozen compute policy and resource ceilings govern
+reservation; full and scan execution also require the applicable current GO.
+Revising the scope to remove its selection clears that scope's previous rung
+before the revised plan enters review.
+
+Publication acquisition is a controller action after the ordinary signature,
+input-custody, resource and current-authority checks. Each initial HTTP request
+and redirected URL must pass source admission before transport. Scoped reads use
+verified TLS, cumulative response-byte and monotonic deadline limits. Likelihood
+archives admit only ordinary file members and directories under the output root,
+with traversal, links and excessive uncompressed bytes refused before extraction.
+These controls grant no network access to workers.
+
+Before plan approval, bounded read-only source preparation must retain a zero-event
+reservation, the installed reader's exact identity and a later protected effect
+authority record. Every provider rechecks the current operator bounds and active
+scientific-review blockers. This preparation mapping carries its actual frozen-mode
+record and effect authority; it does not manufacture plan approval. Subsequent
+operations retain their approval-time commitments and ordinary launch admission.
+
+At approval, operation source commitments pin executable, script and existing
+input bytes. Only future outputs of declared producer dependencies retain a
+producer-step and output-declaration binding; their actual bytes must pass custody
+checks before use. An input-bound route without materialised argv commits its
+installed route adapter and approved step. Actual launch materialisation and
+source verification remain required before execution.
+
+The acquisition consumer's `--record-source` reads `hepdata_record` from its
+declared, custody-verified preparation input. Preparation therefore does not
+replace the consumer's approved plan identity. The compatibility `--inspire`
+argument remains supported. Acquisition, figure and aggregation steps that
+generate no events explicitly request `events=0` in their resource declarations.
+
+A native launch uses exactly one attempt output root. A declared plan path
+`outputs/result.json` names `result.json` within that root. Adoption checks that
+location against the observed digest and retains custody, hash and link checks
+and the original plan path as the artifact identity. Registered child graphs
+supply an explicit source-layout mapping; adoption does not search alternate roots.
+
+A native operation takes the registered launch decision before it starts. Its
+closed action binds the approved step and its consequence-class floor, actual launch
+capsule, attempt, resource reservation and protected preflight record. Approval and scientific review are
+read from their current protected records. A blocking waypoint review permits
+only its prospectively bounded producer correction; it does not authorize a full
+rung. The immediate effect authority and workflow custody checks still run after
+that decision. Provider refusal starts no process.
+
+
+An uncalibrated cost must first be calibrated through the governed pilot rung where one applies, or bounded by a conservative, documented upper estimate; the gate raises an R3 (operator question) only when that bound exceeds the operator's declared envelope or no bound can be established. Never lower the consequence class of a genuinely over-budget or unbounded step.
+
+When a governed event-bound pilot applies, it requires a finite wall budget and
+an approved launch that binds the acting event count through `@events`.
+Unattended runs take that pilot before opening an operator question; attended
+runs retain the operator's cost question and follow its authenticated answer.
+Otherwise an ordinary explicit or registered route-materialized launch can use
+a finite signature-mapped wall ceiling, such as `/max_seconds`, as a typed
+`upper_bound` with basis `declared-operation-ceiling`. The resource reservation
+and launch watchdog are both narrowed to that ceiling without changing approved
+plan bytes. A matched pilot's forecast must also fit that effective reservation.
+This bound covers wall cost and the qualified CPU-affinity grant;
+it makes no event-measurement or calibration claim. Custom runtime adapters do
+not inherit this ordinary-launch enforcement. A `cost_preflight` artifact or a
+preceding smoke rung alone establishes neither an enforced wall cap nor a
+matched pilot.
+
+Other resource allocations remain checked by the budget gate. Known
+over-envelope allocations refuse before any cost question, and final atomic
+reservation rechecks them after that read. Positive explicitly declared
+generated events are preserved and refuse an `events=0` envelope even when
+input volume is present. Supplied-event reads declare zero generated events and
+separately reserve input volume. Unverified or unknown units and unresolvable
+ceilings retain the R3.
+
+For registered non-event cost units, an ordinary local launch with no declared
+external effects can use its reservation as an upper estimate only when every
+consumable is finite and runtime enforcement establishes that bound. The launch
+wall ceiling is enforced by the controller's `process.wait(timeout=...)` watchdog
+and kill path in `src/ravel/controller/step/graph.py`; the Linux backend's enforced
+CPU affinity bounds core-hours, and each child reservation covers one governed
+attempt. Cooperative thread settings do not establish that CPU bound. The worker
+branch uses `cards.worker_budgets` and the transport's wall deadline, turn counter
+and spend guard; a finite worker reservation alone does not prove a token or
+monetary upper bound. Unknown units, event work without an applicable bounded
+pilot or enforced declared ceiling, undeclared dimensions and consumables
+without runtime enforcement still require the R3.
+The reservation's typed `conservative-cost-bound` fact records its basis, amounts
+and mechanisms; C02/C13 retain that fact. Before the packet is built, the gate
+recomputes it and rechecks the protected reservation, current cost authority,
+resource ceilings and stop state. A bounded checkpoint pause only polls authority;
+resuming the graph supplies no approval.
+
+A consequential native action above R2 additionally needs an observed governed
+RDJ critic on its exact action digest and a current authenticated operator
+`admit` answer. Its retained view binds the plan, step, capsule, attempt and
+protected preflight. A stale, withdrawn or differently pinned answer refuses.
+The prelaunch gate checks all registered providers, and execution repeats the
+fresh decision immediately before starting the effect. Neither critic credit
+nor a checkpoint resume supplies operator authority.
+
+The controller dispatches a native launch above R2 alone in its wave. The authority service
+retains one current view per decision kind, so overlapping consequential launches would
+supersede each other's exact views while their critics or operator answers are pending.
+Other ready steps remain ready for later waves; lower-class native launches retain parallel
+dispatch. Wave selection uses the launch's policy kind, rung and declared class floor;
+the exact prelaunch decision still recomputes its class and all authority checks. A rejected
+check-in reports its validation errors and stays distinct from an answerable operator wait.
+
+CHECK-IN 2 retains the controller's complete accepted-output subject digest.
+Route-specific document pins occupy separate keys; a conflicting existing pin
+refuses the check-in. Before requesting GO, a governed RDJ critic reviews the
+exact acceptance action and its current retained view. The gate requires this
+observed accepting case and rechecks every declared waypoint seat against the
+current output custody, subject and review round. Critic credit supplies no
+operator authority; a later revision or changed subject withholds acceptance. Native instruction-absence records come from the actual
+preflight packet and its materialized step, seat, attempt and reservation.
+Preparation environment credit requires a successful transport receipt, current
+qualified provider and equal observed broker inventory.
+
+Prepared scientific bindings name an adopted expected artifact and one declared
+producer output. Descriptor checks run before dispatch, on staged output bytes,
+and after protected independent review credit. Pending review evidence is recorded
+without mutating the ledger's pending status. A collection review counts only when
+the exact artifact and hash belonged to the accepted subject and the authenticated
+review session's committed inputs. This establishes descriptor continuity, with
+physical applicability limited to the declared operation and scientific checks.
+
+Scientific descriptor checks use the actual scoped runtime descriptors and bind
+records to the exact current step, seat and attempt. Missing descriptors remain
+unresolved. A credited review that executes no scientific operation records the
+absence of execution-only conditions through its protected credit. This evidence
+does not validate an operation's scientific outputs.
+
+Controller routes prepare the typed specification and scope, then run the dry
+`ordinary-study-prepare` step under its 120-second ceiling. `study.bind` consumes
+the adopted preparation receipt and exact ordinary plan/specification hashes
+before CHECK-IN 1. Mixed requests retain uncovered deliverables and stages.
+The adopted study scope selects its execution rung with a typed `compute`
+selection: one `rung` (`smoke`, `full` or `scan`) and the `reason` for it.
+Binding places that selection in the study binding and the operation step
+before plan review, and the approved step must carry the same selection. CHECK-IN 1 authenticates the selected rung and its finite time
+ceiling. Full and scan execution follow the route's declared GO requirement.
+The child approval pins this compute binding alongside the child contract.
+A sink assessment that withholds acceptance closes through the bounded task
+ending, preserving the assessment reasons and the complete task and ledger
+obligation census in the qualified delivery.
+A scope that leaves the rung unspecified retains the route's declared rung.
+The runtime dispatch keeps ordinary approval, production-role, source and
+confinement checks; a clean process exit does not close the scientific task.
+
+`evidence.py` checks approved descriptors against staged actual products before
+custody acceptance. It retains operation-bound external recipes and their source
+artifacts before generation, units and requested statistics, signed bases and
+covariances, executed settings, weights, bins and perturbative order. Unknown
+scientific validators leave a labelled pending obligation. Spectrum integrity
+remains pending authenticated independent review; `operation-review` runs the
+ordinary review graph before its waypoint. Current ordinary packet PASS is
+required before synthesis and final delivery. Bounded correction keeps the
+original prospective attempt and resource envelope.
+
+For calculations, the charged `intake.plan` runner delivers its actual pinned
+child through `controller_child`. Literal calculations revalidate the complete
+original parent; physical children retain all parent obligations and continue
+through judgment. Planning grants no child execution or parent acceptance.
+
+Site lifecycle records reserve attempts and reconcile remote handles durably.
+The reconciliation step reads the recorded backend handle and adopts outputs
+only after observed success. Its original adoption root and output hashes remain
+bound across restart. Interrupted fetches require reconciliation; they never
+repeat automatically. Operation review follows adoption, and delivery rehashes
+the adopted files. Worker-authored reconciliation text grants no custody credit.
+The final scheduler effect consumes one capability and submits its immutable
+script snapshot, with exact profile, rule, task and resource scope. The shared
+privileged capability channel carries subprocess credentials; an in-process
+Use the privileged capability channel for subprocess credential transport. Budget and stop outcomes
+retain notification, drain/reconciliation and qualified sink records.
+
+These mechanisms have inert interface controls. Merged controller transport and
+native/scientific operation qualification require their own executed evidence.
+The direct CLI examples below apply to legacy runs outside controller ownership
+and carry **NOT GOVERNED** status.
 
 ## Install and start
 
@@ -13,7 +227,7 @@ For selected table packages and explicit regional mass/width grids, follow
 [regional construction](../../reference/mass-width-grid-recipes.md). SAF delivery
 uses the supplied-booking schema2 family with source and upstream API pins,
 complete named views and population descriptions; schema1 needs external
-conversion, with missing metadata reported as `missing-input`. Its task may
+conversion, with missing metadata reported as `missing-input`. Its task can
 declare `output: {filename, format}` for `json` or `json-compact` delivery.
 MSSM source-listed populations use only the complete `point-list-v1` form.
 Normalize another supplied JSON layout with
@@ -23,7 +237,7 @@ The contract declares `schema_version: 1`, source pin, mapping (`records`,
 Mappings use literal JSON key paths; each relation has linear `{path, factor}`
 terms and a rational `equals`. The converter preserves every row and tests
 supplied relations. Select its returned pin explicitly in the spectrum-map
-request; there is no identity or fixed-count compatibility reader.
+request.
 The spectrum-map task also accepts the explicit JSON output contract. These
 offline transformations authorize no native generation or fit.
 
@@ -108,12 +322,12 @@ worker starts. A mode being available does not establish analysis-wide validatio
 | Mode | Delivered operation | Evidence boundary |
 |---|---|---|
 | `model-portfolio` | Run the declared SModelS model/database portfolio while retaining model cross sections, branching ratios, lifetimes, prediction population and expected-sensitive selection | Database applicability, coverage and permitted combinations remain explicit; a simplified-model constraint is not detector-level reproduction |
-| `signal-template` | Compile complete nominal and absolute signal variations into a pinned published workspace, preserving signal/control regions and shared modifiers | An explicitly declared compile-only source identity study may retain incomplete signal coverage; it cannot produce a new-model limit |
+| `signal-template` | Compile complete nominal and absolute signal variations into a pinned published workspace, preserving signal/control regions and shared modifiers | An explicitly declared compile-only source identity study can retain incomplete signal coverage; it must not produce a new-model limit |
 | `stau-events` | Project supplied calibrated features through an explicitly selected analysis package, with complete event accounting and grouped moments | Supplied features and arithmetic checks do not establish tau, trigger, fake or detector response; signed moments alone do not admit an MC likelihood |
-| `native-likelihood` | Execute a pinned CMS card/ROOT model in its declared compatible native worker, including complete signal replacement where supplied | Runtime qualification, unchanged reference agreement and new-signal validation are separate requirements |
-| `eft-functions` | Preserve admitted coefficient-dependent source functions and exact process mappings | Unsupported source syntax or missing used mappings are refused; static algebra is not a native fit |
+| `native-likelihood` | Execute a pinned Combine card/ROOT model in its declared compatible native worker, including complete signal replacement where supplied | Runtime qualification, unchanged reference agreement and new-signal validation are separate requirements |
+| `eft-functions` | Preserve admitted coefficient-dependent source functions and exact process mappings | Unverified source syntax or missing used mappings are refused; static algebra is not a native fit |
 | `normalized-measurement` | Evaluate an explicitly declared normalized signal-plus-background contrast with retained covariance and a bounded signal-strength fit | Approximate contrast inference retains the discarded normalization direction; it does not silently repair the published covariance or claim CLs |
-| `ratio-measurement` | Compare an absolute ratio prediction with a supplied full experimental covariance, retaining numerator and denominator contributions and declared joint prediction uncertainty | Fixed-hypothesis Gaussian diagnostics use the declared covariance and optional linear uncertainty propagation; they do not establish a fitted likelihood, CLs or detector applicability |
+| `ratio-measurement` | Compare an absolute ratio prediction with a supplied full experimental covariance, retaining numerator and denominator contributions and declared joint prediction uncertainty | Fixed-hypothesis Gaussian diagnostics use the declared covariance and optional linear uncertainty propagation; fitted inference and detector applicability require their own scientific evidence |
 | `group-normalization` | Normalize complete supplied histogram/event-counter group vectors by an explicitly fixed coefficient times N/sumW, preserving joint correlations and original native marginals | First-order Poissonized independent-group delta covariance; it performs no native acquisition, model validation or inference |
 | `group-composition` | Reconcile complete supplied native-coordinate groups before exact rebinning, join original-event modes with one counter, and deliver an exact measurement-component slice with full cross-mode covariance | Supplied conditional group arithmetic; original acquisition, projection/model applicability and inference remain separately unqualified |
 | `derived-quantities` | Construct source-defined ratios, efficiencies and asymmetries with a complete joint input basis, named variations and conditional covariance | Supplied covariance or explicitly Poissonized independent-group moments determine the propagated uncertainty; missing cross correlations cannot be inferred from marginal errors |
@@ -200,8 +414,7 @@ Both `rivet` and `rivet-built` accept `grounding` as a nonempty list of explicit
 `{"path": "source-oracle.json", "sha256": "..."}` records. These bind external
 source definitions, precision contracts and checking code into the actual stage
 input census and are checked again before execution. Paths must be distinct regular
-files without symlinks. Including a checker as evidence does not execute it or
-establish the scientific truth of its assertions.
+files without symlinks. Execute each checker and retain its result; assess the scientific truth of its assertions through review.
 
 - `routine` is an unambiguous catalogue identity, such as
   `rivet:SYN_9003_I1145`. `source_root` must contain the pinned source,
@@ -243,7 +456,7 @@ optional group-width units. It requires `flow_policy: "retain_all"` and
 Every final density token, labeled signed error and undefined state is retained
 alongside the RAW primitive moments and all finite/flow rows. These source-native
 values retain their original normalization and units; integral, variance and
-bin/event-group covariance remain unavailable. The portable table delivers the
+bin/event-group covariance remain missing. The portable table delivers the
 full token population. Source conventions and physics applicability still
 require separate review.
 
@@ -252,7 +465,7 @@ Source-native categorical and mixed axes use the distinct
 Literal string/integer labels, OTHER and continuous flow states, masks, native
 signed errors and declared RAW objects are retained without transforms. A
 weight-name/suffix mapping is a declaration, not an observed native weight census.
-The closed YODA 2.1.3 serialization contract keeps group covariance unavailable.
+The closed YODA 2.1.3 serialization contract keeps group covariance missing.
 
 Continuous one- and two-dimensional profiles use the
 distinct `quantity_kind: "profile_mean"`, `representation: "mean"`,
@@ -260,9 +473,8 @@ distinct `quantity_kind: "profile_mean"`, `representation: "mean"`,
 the finalized mean and error must agree with retained raw running moments under
 the serialization tolerance. No bin-width division applies. Transformed profile
 estimates without that agreement and mixed continuous RAW moment/categorical profile transport remain
-unsupported. Asymmetric errors are retained; bin covariance is not
-invented. Finalized overflow normalization is left unspecified when it cannot be
-reconstructed safely; raw flow is retained separately. A reference file supplies
+outside the declared transport grammar. Asymmetric errors are retained; bin covariance is not
+invented. Finalized overflow normalization requires a safe source-backed reconstruction; retain raw flow separately. A reference file supplies
 binning, not automatically a usable measurement likelihood.
 
 ### Reconstructed-object selections
@@ -280,7 +492,7 @@ No detector working points are inferred or aliased. The selection uses the
 preserved native engine's `name`, explicit baseline `objects`, `signal`
 requirements (`pt`, `eta`, `id` for every collection), ordered
 `overlap_removal`, named `regions` with `var`/`op`/`val` cuts, and optional `btag`.
-Undefined object-derived observables cannot pass cuts through zero sentinels.
+Undefined object-derived observables must not pass cuts through zero sentinels.
 
 The result retains every rejected event, region decision, weighted yield,
 region overlap and group covariance. A reference must contain `source` and an
@@ -294,7 +506,7 @@ An optional mapping supplies a pyhf `workspace`, `poi`, `weight_name`, documente
 `channels` (`channel`, `sample`, ordered `regions`, `role`), `omitted_regions`
 with reasons and `mc_modifier`. Every POI-controlled sample, including control
 regions, must be mapped. Overlaps, correlated-group off-diagonal MC covariance,
-negative bins, and zero nominal yield with positive variance cannot be disguised
+negative bins, and zero nominal yield with positive variance must not be disguised
 as independent Poisson/staterror bins. Absolute/shape nuisances need a new
 model-specific template. Zero-selected bins remain precision-unresolved.
 
@@ -367,7 +579,7 @@ For example, a jet-multiplicity program is:
 ```
 
 Nodes are typed expressions, never Python text. The compiler rejects mismatched
-energy/angular dimensions, forward references, unsupported operators and cuts
+energy/angular dimensions, forward references, operators outside the declared expression grammar and cuts
 that are not predicates. Available operations include object filtering,
 ordered fixed or variable-radius overlap removal, sorting, leading-object
 selection, OSSF pairing, invariant and transverse masses, MET quantities,
@@ -421,7 +633,7 @@ other scientific studies. Its input document requires exactly:
   The latter needs at least two independent groups and uses `G/(G-1)`, with
   groups counted before arm expansion.
 
-Arm-specific weights and fills may both change. The worker transports the joint
+Arm-specific weights and fills can both change. The worker transports the joint
 group moments, reports each normalized arm, the candidate-minus-baseline
 difference, and the baseline/candidate cross covariance. It does not discard
 that cross covariance to assume independence. `in_range` is a unit-area shape
@@ -465,9 +677,8 @@ See [domain operations](../../reference/domain-adapters.md) for exact tasks usin
 interference reconstruction, ONNX inference, finite-cylinder decay probabilities,
 censored lifetime reweighting, nuclear per-event normalization, neutral straight
 line forward acceptance, and supplied neutrino flux folding. Those bounded
-operations are not full experiment adapters. FeynRules generation, detector
-calibration, charged beam optics, medium evolution and neutrino interaction
-simulation are not implicitly supplied.
+operations use the exact source and physical input contracts described in the
+domain reference.
 
 The `model-probe` domain executes one explicitly bounded fixed-phase-space
 matrix-element check using a supplied native runtime. It has its own strict
@@ -482,7 +693,7 @@ This builds an explicitly supplied source capsule with declared tools and an
 exact recipe. Planning inventories the source and dependencies; compilation and
 the bounded probe execute only in the approved worker. The
 [routine-build contract](../../reference/routine-build.md) describes catalogue,
-external and generated source capsules, output binary custody and unsupported
+external and generated source capsules, output binary custody and out-of-contract
 framework recipes. A build receipt establishes retained source/build agreement,
 while event semantics, detector response and requested-output closure require
 their own evidence.
@@ -518,14 +729,14 @@ Reviewed metadata discrepancies require a selected `source_reference_acknowledgm
 with a `reviewed_registry` file pin. The errata registry binds the archive, member
 pair, affected metadata pointer, literal value and external attribution
 assertions. Its evidence files join the ordinary approval input census. Ambient
-configuration cannot authorize an exception. Missing reviewed errata refuse
+configuration must not authorize an exception. Missing reviewed errata refuse
 with `missing_reviewed_erratum`; archive and member bytes remain unchanged.
 
 Event cutflow diagnostics consume a supplied reviewed definition. Its predicate
-population, ordered flows, unavailable decisions, membership checks, source-row
+population, ordered flows, missing decisions, membership checks, source-row
 mapping, normalization population and luminosity are inputs. The trace header
 binds the definition; missing definitions refuse with `missing_cutflow_definition`.
-The predicate flows, unavailable decisions and region membership of the compressed
+The predicate flows, missing decisions and region membership of the compressed
 slepton selection ship as `src/ravel/data/analysis_assets/cutflow/compressed-slepton.cutflow.json`;
 `ravel.physics.shipped_assets.cutflow_definition(selection_source, directory)` writes the
 definition bound to the selected producer's bytes and returns its pin. It carries no
@@ -573,7 +784,7 @@ It keeps expected EFT-reference and bounded-root failures. The separate
 `run_rivet_controls.py` requires `--cases controls.json --out controls`. Its version 1
 manifest supplies every synthetic kinematic control (`name`, `energy`, `kind`,
 `observable`, `unit`, `normalized`, `grouped`, `expected`); also supply
-`--runtime runtime.json --source <pinned-checkout>`. There is no built-in routine roster.
+`--runtime runtime.json --source <pinned-checkout>` with the supplied routine source.
 
 Version 2 selects arbitrary complete scientific specifications and a requested report:
 
@@ -626,10 +837,7 @@ use identity component scales and declare its complete output census. Linearized
 group gradients are not central event contributions and must not be relabelled as
 `independent_group_moments`; a second xs/sumW factor would double normalize.
 
-Native acquisition qualification remains false in the result. The operation does
-not establish trace correctness, detector/model applicability, independence from
-experimental data, native marginal-error parity, sparse-event calibration or a
-statistical inference. Nonrepresentable central values or derivatives refuse,
+The result records conditional propagation of the supplied moments. Review trace correctness, detector/model applicability, independence from experimental data, native marginal-error parity, sparse-event calibration and statistical inference against their own source evidence. Nonrepresentable central values or derivatives refuse,
 while representable subnormals and exact zero/cancellation remain allowed.
 
 
@@ -642,7 +850,6 @@ Use mode `group-composition` with a version 2 scientific specification and task
 ordinary planning, approval, worker and review lifecycle. The closed nested
 contracts bind all original normalization/acquisition/trace/RAW inputs, source
 fill definitions, target geometry and the measurement basis before approval.
-There is no import of a private native observer or event runner.
 
 A coordinate rebin first reconstructs every original finite and flow group from
 its complete source-coordinate trace, effective selected weights and exact fill
@@ -679,11 +886,11 @@ created automatically. All operations retain `native_acquisition_qualified: fals
 
 ### Explicit Rivet cap-zero argument
 
-Rivet tasks may declare the optional `native_weight_cap: 0` field. Only literal
+Rivet tasks can declare the optional `native_weight_cap: 0` field. Only literal
 integer zero is admitted. This opt-in requires a version 2 scientific study,
 including for the initial `rivet` route. It adds exactly `--weight-cap 0` to the
 event command; the nominal weight remains the first explicitly supplied metadata
-weight name. The field is unavailable to other backends and accepts no arbitrary
+weight name. The field is missing to other backends and accepts no arbitrary
 CLI passthrough. Absence preserves the existing command and output schema.
 
 Opt-in delivery retains `native-dispatch.json` with the declared analysis options,
@@ -717,7 +924,7 @@ direct adapter call alone does not cover this route.
 This engineering fixture does not waive numbered scientific checks, grant a native
 lease or qualify physics. Native generation or another substantial workload still
 requires its own bound approval. Frozen experiments retain their original source
-and cannot inherit later smoke-test results.
+and must not inherit later smoke-test results.
 
 
 ## Retained original-LHA shower
@@ -728,8 +935,7 @@ inventory names the supplied executable, actual wrapper source, original LHE,
 nominal unmerged run card, fresh shower card, exact reviewed initialization-report
 schema, producer evidence, and complete native runtime inventory. The ordinary
 version-2 study, approval, supervisor and worker own execution and resource limits.
-This mode performs no build, hard-event generation, detector simulation, analysis
-or likelihood calculation. It showers every declared original event once and
+It showers every declared original event once and
 retains the original-LHA sidecar, verified HepMC stream, initialization report,
 source identities, transport verification and separate initialization checks.
 
@@ -796,11 +1002,11 @@ The [complete-workspace comparison](workspace-combination-study.md) and [retaine
 
 ### Complete semi-visible-jet recipe construction
 
-Use schema2 mode `svj-recipe` for a complete supplied ATLAS non-resonant Run2 parameter/scenario grid, with an exact original `goal_binding`. The pure worker reuses existing generation planning, supplied-event analysis intake, same-event detector response, full signal templates and conditional inference preparation. It retains every prepared/blocked cell and unresolved fitted bin. No events or fits are run and the original task stays incomplete. See [SVJ study recipes](../../reference/svj-study-recipes.md) for closed inputs, resource bounds, ordered-shower prerequisite and MC/applicability requirements. Each future child requires its own ordinary approval and qualified inputs/runtime.
+Use schema2 mode `svj-recipe` for a complete supplied non-resonant parameter/scenario grid, with an exact original `goal_binding`. The pure worker reuses existing generation planning, supplied-event analysis intake, same-event detector response, full signal templates and conditional inference preparation. It retains every prepared/blocked cell and unresolved fitted bin. No events or fits are run and the original task stays incomplete. See [SVJ study recipes](../../reference/svj-study-recipes.md) for closed inputs, resource bounds, ordered-shower prerequisite and MC/applicability requirements. Each future child requires its own ordinary approval and qualified inputs/runtime.
 
 ## Original EasyScan framework and programme chains
 
-The `parameter-space-sampling` mode wraps a supplied schema-2 scan contract and source-bound EasyScan CLI, retaining raw programme calls, table/chain/weighted populations, supplied plots and source discrepancies. The contract supplies its identity, parameters, mappings, workspace population, resources and JSON/CSV table export; missing inputs receive a typed reason before external inspection. See [the complete native contract](../../reference/parameter-space-sampling.md). This requires schema2, actual original inputs/runtime and ordinary approval; source context does not run a sampler or establish engine/physics/convergence validity.
+The `parameter-space-sampling` mode wraps a supplied schema-2 scan contract and source-bound EasyScan CLI, retaining raw programme calls, table/chain/weighted populations, supplied plots and source discrepancies. The contract supplies its identity, parameters, mappings, workspace population, resources and JSON/CSV table export; missing inputs receive a typed reason before external inspection. See [the complete native contract](../../reference/parameter-space-sampling.md). This requires schema2, actual original inputs/runtime and ordinary approval; execution and scientific validation require their own receipts and review.
 
 
 ### Optional symbolic evaluation
@@ -855,7 +1061,7 @@ emit MC projections in `binned-values/` for a whole delivery, retaining covarian
 and named weights; one partition's public record carries no projections. These
 convenience files do not widen the existing blinded DATA evidence roster.
 
-A `columnar-analysis` recipe may declare event-observable correction maps:
+A `columnar-analysis` recipe can declare event-observable correction maps:
 
 ```json
 "event_weights": [
@@ -872,7 +1078,7 @@ axis in order. Declared observable units must match axis units. Alternative maps
 have the same axis names and units. These are event corrections applied after
 object construction and observable evaluation, before all cutflow and histogram
 accumulation. Their named variations join the usual `systematics` passes. An
-explicit systematic may also use `kind: "event-weight-map"`, with `weight` naming
+explicit systematic can also use `kind: "event-weight-map"`, with `weight` naming
 the event-weight application and `map` naming its alternative map. Pass names
 must be unique, including variations declared by applications.
 
@@ -923,7 +1129,7 @@ qtilde result or a certification of general likelihood coverage.
 
 The pre-shower guard also runs at scoped-generation, retained-shower and weighted
 LHE entry points. Integrated generation and shower reentry bind the original
-supplied LO/NLO method source before installing the guard. Unsupported source
+supplied LO/NLO method source before installing the guard. Unverified source
 interfaces refuse; inert fixtures do not qualify an installed native toolchain.
 
 ### Supplied calibrated selection packages
@@ -955,8 +1161,8 @@ A compiled columnar recipe can retain a physical-event selection for later passe
 `region` must name a declared region. A region with no cuts is a pre-selection.
 `branches` is either `"all-declared"` or a nonempty list of unique raw branch names
 from the format descriptor. Only those columns are exported. The format is
-`"root"` or `"parquet"`; Parquet requires the optional `pyarrow` runtime. ROOT
-may add structural count branches for jagged arrays. Source weight columns are
+`"root"` or `"parquet"`; Parquet requires the `pyarrow` runtime. ROOT
+can add structural count branches for jagged arrays. Source weight columns are
 retained only when declared in the branch selection.
 
 Use the partition engine with an explicit new output directory:
@@ -967,7 +1173,7 @@ from ravel.physics.columnar import engine
 partial = engine.analyse(partition, plan, skim_dir=output_directory)
 ```
 
-A partition payload may instead set `RAVEL_OUTPUT_DIR` to its own new output
+A partition payload can instead set `RAVEL_OUTPUT_DIR` to its own new output
 parent. The parent contains `<output-parent>/skim/events.root` (or `<output-parent>/skim/events.parquet`) and
 `<output-parent>/skim/custody.json`. Each partition needs a distinct output parent. This is a
 per-partition interface; callers driving several partitions in one process must
@@ -996,7 +1202,7 @@ as a finished custody record.
 `engine.merge(partials)` retains the skim pins and checks the source ranges,
 contracts, data checksums, output counts, selected identities and weight sums.
 `engine.finalize(...)` writes `skim-manifest.json` referring to the original
-partition files. It does not copy or concatenate the population. The manifest
+partition files. The manifest
 must remain alongside access to its pinned custody/data files.
 
 For `ravel partitions`, declare the custody JSON with merge kind `skim` and
@@ -1009,12 +1215,12 @@ contains a custody JSON `path` and `sha256`.
 A later recipe can list a custody JSON or merged manifest among its input files,
 using the original format descriptor. The engine checks the manifest and each
 partition before streaming ROOT or Parquet columns through that descriptor. It
-requires all branches used by the later recipe. The recipe may differ, and may
+requires all branches used by the later recipe. The recipe can differ, and can
 write another skim; original identities remain intact. Branch-variation replay
 is refused until a contract for retained varied columns is implemented. Input
 manifest entry ranges are refused; select the required events in the later recipe.
 Full-original-population normalization still requires a declared original
-normalization denominator; skim entry counts or selected weight sums cannot
+normalization denominator; skim entry counts or selected weight sums must not
 replace that denominator.
 
 Run an approved partition pilot, retain its `columnar-partial` JSON as a fetched
@@ -1060,7 +1266,7 @@ A recipe can add a `features` output to a declared region:
 ```
 
 Both identity fields must be declared event fields. Original ROOT integer IDs retain
-full precision; scaled identities and floating identities that may have rounded are
+full precision; scaled identities and floating identities that can have rounded are
 refused. Events sharing a group receive the same `ml_crossfit.fold_map` fold. The
 optional `folds` block defaults to the values above. Enumerated efficiency replicas
 are refused. Observable values and the nominal per-event weight product must be
@@ -1214,7 +1420,7 @@ input quantity so the intended population and domain remain inspectable.
 This projection admits one complete signal sample in one channel with
 nonnegative event weights and diagonal signal covariance. Its finite-MC modifier
 must be unshared and have no source parameter override, so pooling or fixing a
-nuisance cannot change the declared covariance. A signed population,
+nuisance must not change the declared covariance. A signed population,
 extra weight factors, grouped events, shared-channel covariance or a different
 normalization requires a compatible specialised adapter and its evidence.
 The ordinary adapters retain their existing routes for other studies.
@@ -1273,16 +1479,149 @@ validator whether or not the signature includes the optional registration block.
 Their existing metadata remains the compatibility source when the optional
 registration block is absent. Source discovery reads the selected source's
 declarations and dispatch seam without importing that selected code. An operation
-without discovery descriptors can be listed but cannot gain applicability or
+without discovery descriptors can be listed but must not gain applicability or
 source-ranking claims from its name alone.
 
 Mechanical closed-object, pin, finite-number and bounded output-schema checks
 use `ravel.validation.core` and the existing JSON Schema dependency. Physical
 normalization, covariance and likelihood checks remain in their specialised
-modules. The host still refuses unsupported schema extensions, private fields,
+modules. The host still refuses schema extensions outside the declared schema, private fields,
 open objects and invalid runtime types.
 Template objects permit only their declared optional fields. Invalid normalization
 anchors, including numeric overflow, identify the offending field before compilation.
 Its compatibility exceptions retain their historical text; detailed field,
 observed value, expected condition and repair diagnostics remain attached to
 the exception and its cause.
+
+
+### Output facts, normalization and plan reservations
+
+Ordinary study admission verifies the adopted specification, scope and preparation
+as control documents. Their exact digests and prepared child bindings belong to
+the approved plan. The child's own plan verifier checks the adapter's task schema
+and scientific source closure before the operation's artifact-kind check. Additional
+scientific custody records bind to that source closure by path and digest. The
+complete input subject retains the original control documents. Child approval and
+launch authority follow their existing gates. An adapter that transforms a supplied
+request verifies the complete prepared specification against its adopted source.
+Workflow adoption checks the source file, targets, resources, output declaration,
+execution site and exact generated task before admitting that transformation.
+
+Model-authoring signatures select the scientific specification through the closed
+`task.request` envelope. The request path is an approved critical field; the adapter
+validates the pinned specification or the declared template values and binds their
+source files in the ordinary child plan.
+
+The ordinary `review.points` selector `checkin2` schedules the complete CHECK-IN 2
+population, including claim-specific and conditional specialist points. An exact
+`checkin2:<claim>` selector retains that claim's scope. Each worker packet carries
+the point's original selector and subject digest; conditional packets also carry
+the complete derived policy. Reservations cover the configured round ceiling and
+every required role count. Resume credits the recorded independent receipts and
+dispatches the remaining seats. A `review_role_unavailable` hold names the specialist
+cards and knowledge bindings required to continue. Specialist predicates record
+the effective registry digest and required roles as a staffing qualification.
+Material findings preserve their located evidence in a correction hold; a recorded
+correction and renewed subject review provide the continuation.
+
+Root review check-ins retain the complete applicable core and conditional point
+policies in `checkins[].review_points`. `checkins[].seats` lists unique canonical
+roles; `checkins[].seat_counts` records required multiplicity. Each occurrence
+receives its exact policies in a distinct governed worker session, namespace and
+output artifact. Counted and applicable conditional seats retain their duties
+at each engagement tier. Credit binds the current approved plan, accepting round,
+reviewed subject, installed policy digest and occurrence to observed custody.
+Each required occurrence consumes a distinct session and credit. Complete
+authenticated ordinary receipts retain their existing credit. Root fallback
+supplies the point's complete required population through its own occurrences.
+Numerical comparison points require authenticated independent values, units,
+tolerances and comparison evidence; root fallback records
+`comparison_evidence_required` until that evidence joins the point.
+Producer, launch and delivery-assumption points use their dedicated paths.
+
+Read-only routes admit a reviewer's findings through the effective role card's
+read-only tool contract and findings schema. Scientific outputs, operations and
+resource effects retain their route admission checks.
+
+The controller binds `consult.case` to its approved request pin. Its reservation
+covers the request's worker time, turn and declared cost ceilings. The consultation
+record supplies pinned advisory inputs for the producer's next turn.
+
+Maintainers regenerate selected graph contracts with
+`scripts/maintenance/build_graph_contracts.py --graph <id>=<version> --write`.
+List child graphs before their parents and advance versions for structural changes.
+The builder derives roles, structure digests and declared resource contracts from
+the registered builders, then updates parent references. Running the same command
+with `--write` omitted checks the resulting bytes.
+
+Producer self-checks follow the same recorded applicability policy as reviewer checks.
+For an adopted external workflow, an optional `task.output_contract` maps every explicit
+`task.outputs` path to a registered artifact kind. The adoption, prepared task and current
+plan retain that declaration. Physical or unclassified products keep normalization,
+cutflow and trap checks; document-only scope records typed not-applicable dispositions
+with the policy source and step digest. The production role follows those output facts.
+This disposition creates no ledger and claims no executed validator pass.
+
+A binned result needs a normalization audit when its lineage uses normalized yields or
+rates, cross section, luminosity, weights, a normalization-ledger signature check or a
+simulated/generated basis. A proven analytic-only lineage records the responsible plan
+nodes and the absent normalization facts. Missing or unclassified lineage retains the
+audit obligation. A formula label alone never proves the exception.
+
+Plan reservations use the actual expanded steps. Preparation reservations remain fixed
+after they run. Remaining ceilings narrow within the operator envelope; explicit
+`parameters.budget_minimum` records a known minimum. A generating operation retains its
+intended event count. A prepared native replacement can declare `launch_effects`, keyed
+by its exact step ID, from the registered operation's effect vocabulary; those facts bind
+the prepared source, launch and supplied-input digests before CHECK-IN 1. Declare the
+actual effects when reusing supplied events instead of generating them. A nongenerating
+operation reserves zero new events. Missing facts do not excuse a generation reservation.
+An infeasible declared minimum produces `plan_budget_infeasible` with the contributing
+steps, required/available resource and remedy; narrowing is not a cost calibration.
+Wall ceilings remain integer seconds. A registered task resource ceiling narrows with
+its step ceiling before approval, without changing scientific task fields or completed
+preparation. Requested work contributes a minimum only with a matching resource unit;
+point or event counts never imply elapsed seconds.
+
+When a registered operation changes its producer role according to its declared products,
+the producer card's required reviewers remain independent, fully kept seats at every tier.
+The seat classification records the operation, producer, reviewer and card digest.
+An unregistered operation, a mismatched producer or an arbitrary reviewer does not qualify.
+
+A prepared launch's `launch_inputs` can name only intake-staged supplied files, pinned to
+their exact digests. When a request has no published record, acquisition records typed
+not-applicable only with explicit `hepdata_record: null` and the current census's bound
+`reading/targets: ABSENT` evidence. An omitted record field remains unresolved.
+
+## Reviewed engagement planning inputs
+
+Controller preparation authors write the declared `method-decision` and
+`method-cost-forecast` outputs in their existing preparation steps. The method
+binds the exact request digest and original deliverable ids. The forecast carries
+`schema_version: 1`, `kind: "method-cost-forecast"`, `request_digest`, the canonical
+`method_sha256` and the method's complete `cost_forecast`. The controller checks
+completed-producer custody, ladder validity and both records' correspondence,
+then presents their source pins and exact fact digests to the plan critic.
+Credited acceptance supplies the compute fact used at CHECK-IN 1. An operator
+can also supply `inputs/method-decision.json` through intake.
+
+Research child proposals carry `engagement_planning` with their complete
+controller `plan`, validated `method` and bound `cost` forecast in the adopted
+child-request output. The child's plan retains its original reading and contract
+digests, route specification and deliverable population. Plan review covers each
+child's complete proposal and checked facts. Execution rechecks that credit,
+the proposal bytes, its own applied tier and the corresponding priced reservation.
+
+Adaptive cost planning uses the operator's frozen `compute_policy` and existing
+resource budgets. A completed decision producer declares a `compute-justification`
+artifact bound to the current plan and intended step. Its expected-gain and cost
+reasons cite consumed adopted result artifacts. Name that artifact in the acting
+step's `parameters.compute_justification`; the reservation and pre-dispatch gates
+retain and recheck the decision, allocation and result receipts. Configure the
+model mix through the existing operator `agent_preferences.tier_models`.
+
+The intake planner's parent reservation uses its installed finite resource
+contract: two direct calls and up to 3,600 orchestration seconds. An existing
+validated planner graph supplies a narrower wall allocation. The declared share
+covers that minimum, and the ordinary charged runner owns the planner's calls.
+Scientific execution continues through the child's separately admitted route.

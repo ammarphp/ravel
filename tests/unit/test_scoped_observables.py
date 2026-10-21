@@ -213,6 +213,8 @@ def test_plan_binds_lhapdf_set_and_shower_runtime(tmp_path, monkeypatch):
     g = spec["generation"]
     g["runtime"] = {"madgraph": str(native), "python": python, "compiler": compiler, "lhapdf_config": str(config)}
     g["shower"] = {"engine": "pythia8", "python": python, "seed": 3, "settings": ["PartonLevel:MPI = off"]}
+    from model_validation_fixture import scoped_evidence
+    scoped_evidence(g, tmp_path)
     atomic_json(tmp_path / "spec.json", spec)
     plan = scoped.plan(rd, tmp_path / "spec.json")
     assert str(binding) in plan["stages"][0]["inputs"]

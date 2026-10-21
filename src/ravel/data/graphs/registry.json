@@ -157,7 +157,7 @@
     },
     {
       "id": "ml.study",
-      "version": 2,
+      "version": 3,
       "kernel_version": 1,
       "module": "ravel.workflow.graphs.ml_study",
       "builder": "build",
@@ -206,7 +206,7 @@
         }
       ],
       "interrupts": [],
-      "structure_sha256": "a53a5a6d450fe1f9cee3347948508e4a588e5bef3c1a37e377e5aeeb3795b08b",
+      "structure_sha256": "49d4db8a56d8b899ab243190999ae66459304c19cb28f7f07bba9a65c6b40465",
       "owner": "ml-study"
     },
     {
@@ -237,7 +237,7 @@
     },
     {
       "id": "consult.case",
-      "version": 2,
+      "version": 3,
       "kernel_version": 1,
       "module": "ravel.workflow.graphs.consult",
       "builder": "build",
@@ -246,23 +246,27 @@
         "request"
       ],
       "roles": [
-        "consult-madgraph",
-        "consult-pythia-delphes",
-        "consult-rivet",
-        "consult-inference",
-        "consult-feynrules",
         "consult-columnar",
-        "consult-theory",
-        "consult-recast",
-        "consult-symbolic",
+        "consult-feynrules",
+        "consult-higgs",
+        "consult-inference",
+        "consult-madgraph",
         "consult-normalization",
-        "consult-higgs"
+        "consult-pythia-delphes",
+        "consult-recast",
+        "consult-rivet",
+        "consult-symbolic",
+        "consult-theory"
       ],
       "gates": {},
       "subgraphs": [],
       "interrupts": [],
       "structure_sha256": "cfddcf0d04d6c2899623efb1a91a471f22684dacbc14d93c294bf49ef1a6e1f6",
-      "owner": "intake-and-consult"
+      "owner": "intake-and-consult",
+      "resources": {
+        "starts_launches": false,
+        "budget_builder": "reservation_budget"
+      }
     },
     {
       "id": "intake.plan",
@@ -270,6 +274,7 @@
       "kernel_version": 1,
       "module": "ravel.workflow.graphs.intake_plan",
       "builder": "build",
+      "resources": {"starts_launches": false, "budget_builder": "reservation_budget"},
       "scope": "run",
       "instance_keys": [
         "graph_root"
@@ -346,7 +351,7 @@
     },
     {
       "id": "manuscript.build",
-      "version": 1,
+      "version": 3,
       "kernel_version": 1,
       "module": "ravel.workflow.graphs.manuscript",
       "builder": "manuscript",
@@ -383,37 +388,156 @@
       "interrupts": [
         "checkin3_response"
       ],
-      "structure_sha256": "b4c76e6af0e23276b4cf7248a9d9029d9a8672829300739d393a54a5c532c709",
+      "structure_sha256": "a57b1990ef9e1d695354f380f85a7c121ea94237fa9a875f28dac07b4178a96a",
       "owner": "literature-and-manuscript"
     },
     {
       "id": "review.item",
-      "version": 1,
+      "version": 2,
       "kernel_version": 1,
       "module": "ravel.workflow.graphs.review",
       "builder": "build_item",
       "scope": "run",
-      "instance_keys": ["at", "attempt"],
-      "roles": ["analysis-author", "discrepancy-attributor", "figure-critic", "integrity-auditor", "normalization-auditor", "object-selection-mapper", "physics-critic", "physics-decider", "plan-critic", "skeptical-verifier", "trap-auditor"],
+      "instance_keys": [
+        "at",
+        "attempt"
+      ],
+      "roles": [
+        "analysis-author",
+        "assumption-auditor",
+        "comparative-reviewer",
+        "discrepancy-attributor",
+        "figure-critic",
+        "higgs-combination-reviewer",
+        "higgs-theory-uncertainty-auditor",
+        "integrity-auditor",
+        "model-critic",
+        "normalization-auditor",
+        "object-selection-mapper",
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "re-deriver",
+        "second-method-deriver",
+        "skeptical-verifier",
+        "trap-auditor"
+      ],
       "gates": {},
       "subgraphs": [],
-      "interrupts": ["reconcile_evidence"],
-      "structure_sha256": "9b1048b49d460fa2f9169451b288cb84a8c7a137ed2f1546f953c6e3d49d6d05",
+      "interrupts": [
+        "reconcile_evidence"
+      ],
+      "structure_sha256": "34d34897701827b7d102fec54cbb1ce8b74dfcd7cc614a95d6a6f1f4867ba587",
       "owner": "review-points"
     },
     {
       "id": "review.points",
-      "version": 1,
+      "version": 3,
       "kernel_version": 1,
       "module": "ravel.workflow.graphs.review",
       "builder": "build",
+      "resources": {
+        "starts_launches": false,
+        "budget_builder": "reservation_budget",
+        "records_worker_items": true
+      },
       "scope": "run",
-      "instance_keys": ["at", "attempt"],
-      "roles": ["analysis-author", "discrepancy-attributor", "figure-critic", "integrity-auditor", "normalization-auditor", "object-selection-mapper", "physics-critic", "physics-decider", "plan-critic", "skeptical-verifier", "trap-auditor"],
-      "gates": {"approve_plan": {"required_providers": ["review_points", "rdj", "ceilings"]}, "checkin2_accept": {"required_providers": ["review_points", "rdj", "spawn_rows", "input_closure"]}, "correction": {"required_providers": ["review_points", "rdj"]}, "delivery": {"required_providers": ["review_points", "rdj", "raw_launch", "input_closure"]}, "failed_stage_feedback": {"required_providers": ["review_points", "rdj"]}, "final_task": {"required_providers": ["review_points", "rdj", "raw_launch", "input_closure"]}, "launch": {"required_providers": ["review_points", "rdj", "ceilings", "executor", "spawn_rows"]}, "report_integrity": {"required_providers": ["review_points", "rdj"]}},
-      "subgraphs": [{"id": "review.item", "version": 1}],
-      "interrupts": ["checkin2_response", "checkin3_response", "reconcile_evidence"],
-      "structure_sha256": "f274d57a16edce47f6ba191b4f52ec4668f98c785f4781b49ed2cd52737ac53e",
+      "instance_keys": [
+        "at",
+        "attempt"
+      ],
+      "roles": [
+        "analysis-author",
+        "assumption-auditor",
+        "comparative-reviewer",
+        "discrepancy-attributor",
+        "figure-critic",
+        "higgs-combination-reviewer",
+        "higgs-theory-uncertainty-auditor",
+        "integrity-auditor",
+        "model-critic",
+        "normalization-auditor",
+        "object-selection-mapper",
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "re-deriver",
+        "second-method-deriver",
+        "skeptical-verifier",
+        "trap-auditor"
+      ],
+      "gates": {
+        "approve_plan": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings"
+          ]
+        },
+        "checkin2_accept": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "spawn_rows",
+            "input_closure"
+          ]
+        },
+        "correction": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        },
+        "delivery": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "raw_launch",
+            "input_closure"
+          ]
+        },
+        "failed_stage_feedback": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        },
+        "final_task": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "raw_launch",
+            "input_closure"
+          ]
+        },
+        "launch": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings",
+            "executor",
+            "spawn_rows"
+          ]
+        },
+        "report_integrity": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        }
+      },
+      "subgraphs": [
+        {
+          "id": "review.item",
+          "version": 2
+        }
+      ],
+      "interrupts": [
+        "checkin2_response",
+        "checkin3_response",
+        "reconcile_evidence"
+      ],
+      "structure_sha256": "40e7892e33d6ee5cf2afb07cdbd2ef614e17eb9c9b58326612e10ac6a3c88fac",
       "owner": "review-points"
     },
     {
@@ -438,11 +562,43 @@
       "module": "ravel.workflow.graphs.lifecycle",
       "builder": "build",
       "scope": "run",
-      "instance_keys": ["attempt"],
-      "roles": ["coordinator"],
-      "gates": {"approve_plan": {"required_providers": ["review_points", "rdj", "ceilings"]}, "checkin2_accept": {"required_providers": ["review_points", "rdj", "spawn_rows", "input_closure"]}},
-      "subgraphs": [{"id": "production.node", "version": 1}, {"id": "review.points", "version": 1}],
-      "interrupts": ["checkin1_response", "checkin2_response"],
+      "instance_keys": [
+        "attempt"
+      ],
+      "roles": [
+        "coordinator"
+      ],
+      "gates": {
+        "approve_plan": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings"
+          ]
+        },
+        "checkin2_accept": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "spawn_rows",
+            "input_closure"
+          ]
+        }
+      },
+      "subgraphs": [
+        {
+          "id": "production.node",
+          "version": 1
+        },
+        {
+          "id": "review.points",
+          "version": 3
+        }
+      ],
+      "interrupts": [
+        "checkin1_response",
+        "checkin2_response"
+      ],
       "structure_sha256": "94cec23f389c7abb3830e1946a1bd5ef44394652c3435aeaf620343a17b3bb9e",
       "owner": "lifecycle"
     }

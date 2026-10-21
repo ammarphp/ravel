@@ -22,6 +22,7 @@ import tempfile
 import time
 from datetime import datetime, timezone
 
+from . import agent_tripwire
 from .state_io import atomic_json, file_lock, read_json
 
 MAX_MESSAGE = 1024 * 1024
@@ -420,6 +421,8 @@ class Broker:
                 if r['record']['node_id'] == self.node_id and r['record']['attempt'] == self.attempt]
 
     def call(self, request):
+        # The lowest layer asserts its substrate context first (a no-op unless the tripwire is on).
+        agent_tripwire.check('broker.call')
         # Malformed and refused requests consume calls just like successful ones.
         digest(request)
         with file_lock(self._lock):
@@ -568,10 +571,71 @@ class Broker:
 
 
 @contextmanager
-def serve(broker):
-    """Transport adapters share this socket and the same receipting implementation."""
+def serve(broker, *, node_admission=None):
+    """Transport adapters share this socket and the same receipting implementation.
+
+    Each connection is handled in a copy of the serving thread's context, so a broker served from
+    inside a substrate node answers inside that node's context (the runtime tripwire reads it); a
+    supervisor process serves from an empty one. An optional trusted ``node_admission(node)``
+    context manager grants only a connection-scoped admission; that connection cannot call tools.
+    """
+    import contextvars
+    origin = contextvars.copy_context()
+
     class Handler(socketserver.StreamRequestHandler):
         def handle(self):
+            origin.copy().run(self.answer)
+
+        def send(self, response):
+            self.wfile.write((json.dumps(response, allow_nan=False)+'\n').encode())
+            self.wfile.flush()
+
+        def admission(self, request, first):
+            valid = (first and set(request) == {'schema_version', 'kind', 'node'}
+                     and type(request.get('schema_version')) is int and request['schema_version'] == 1
+                     and request.get('kind') == 'worker-node-admission'
+                     and type(request.get('node')) is str
+                     and re.fullmatch(r'[A-Za-z0-9_.-]{1,100}', request['node']) is not None)
+            if not valid:
+                self.send({'status': 'refused', 'reason': 'node_admission_invalid'})
+                return
+            if node_admission is None:
+                self.send({'status': 'refused', 'reason': 'node_admission_unavailable'})
+                return
+            try:
+                # Enter and leave in this handler thread: custody locks remain thread-owned.
+                with node_admission(request['node']) as record:
+                    if type(record) is not dict or type(record.get('id')) is not str or not record['id']:
+                        raise TypeError('invalid trusted admission record')
+                    identifier = record['id']
+                    self.send({'status': 'ok', 'admission': record})
+                    raw = self.rfile.readline(MAX_MESSAGE + 1)
+                    if not raw:
+                        return  # EOF releases the context, even without a release message.
+                    release = None
+                    if len(raw) <= MAX_MESSAGE and raw.endswith(b'\n'):
+                        try:
+                            release = json.loads(raw)
+                        except (ValueError, TypeError):
+                            pass
+                    valid_release = (type(release) is dict
+                        and set(release) == {'schema_version', 'kind', 'admission_id'}
+                        and type(release.get('schema_version')) is int and release['schema_version'] == 1
+                        and release.get('kind') == 'worker-node-release'
+                        and release.get('admission_id') == identifier)
+                # A release acknowledgement means the trusted context has already exited.
+                self.send({'status': 'ok', 'released': identifier} if valid_release else
+                          {'status': 'refused', 'reason': 'node_release_invalid'})
+            except Exception as exc:
+                # Neither callback text nor custody paths cross the worker boundary.
+                try:
+                    self.send({'status': 'refused', 'reason': 'node_admission_error',
+                               'error': type(exc).__name__})
+                except OSError:
+                    pass
+
+        def answer(self):
+            first = True
             while True:
                 raw = self.rfile.readline(MAX_MESSAGE + 1)
                 if not raw:
@@ -580,10 +644,15 @@ def serve(broker):
                     return
                 try:
                     request = json.loads(raw)
+                    if (type(request) is dict and request.get('kind') in
+                            ('worker-node-admission', 'worker-node-release')):
+                        self.admission(request, first)
+                        return  # an admission connection can never dispatch a broker tool
                     response = broker.call(request)
                 except (ValueError, TypeError):
                     response = broker.call({'invalid_wire_sha256':hashlib.sha256(raw).hexdigest()})
-                self.wfile.write((json.dumps(response, allow_nan=False)+'\n').encode()); self.wfile.flush()
+                self.send(response)
+                first = False
     path = ordinary(broker.socket_path)
     if path.exists():
         raise ValueError('broker socket already owned; do not replace a running worker')

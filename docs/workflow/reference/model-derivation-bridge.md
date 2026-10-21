@@ -9,7 +9,7 @@ The adapter requires a pinned successful provider readiness result and its
 original actual execution run and attempt record. It verifies the closed stage,
 approval commitments and original config byte snapshot, then matches the
 original qualified provider source and kernel/application hashes to the proposed
-inputs. Mutable copies or replacing a kernel at the same pathname cannot
+inputs. Mutable copies or replacing a kernel at the same pathname must not
 establish continuity. Both source trees, the executable, application metadata and
 the previous qualification proof become declared scientific inputs. Provider
 and model source must each be explicitly trusted. Intake does not evaluate
@@ -20,13 +20,13 @@ listed relative `.rst` files and one simple Lagrangian symbol. The operation
 allows no supplied expression or arbitrary kernel arguments. It preserves the
 model's source settings and selects no implicit restrictions. During provider
 or combined model loading, messages or aborts fail the attempt before
-kinetic checks and export. A valid base model cannot conceal a failed extension
+kinetic checks and export. A valid base model must not conceal a failed extension
 behind aggregate class counts or an echoed file list. This first contract
 allows no load-message exceptions; any legitimate message requires explicit
 diagnosis and a prospectively reviewed policy.
 For every supplied restriction, it clears the previous rule variable, records load errors, requires
 valid nonempty rules and compares native processed-rule and registry counts.
-The recorded evaluated rules establish registration; a path echo alone cannot
+The recorded evaluated rules establish registration; a path echo alone must not
 pass. The supervised
 worker copies source into a fresh workspace of its own and invokes the installed
 Wolfram kernel with `-noinit -noprompt -script`. Parallel kernels remain disabled.
@@ -56,7 +56,7 @@ within 0.1 percent, with a nonempty massive population. Native `GetMassSpectrum`
 can mask negative or imaginary values and omit rows. This unresolved population
 is quarantined, and passing returned rows never establishes a complete mass
 spectrum or physical model validity. An undefined function, held expression,
-printed success message or arbitrary value different from `False` cannot pass.
+printed success message or arbitrary value different from `False` must not pass.
 
 `WriteUFO` receives explicit `AddDecays -> False`, `DialogBox -> Off` and
 `Optimization -> False`, with a fresh fixed output path. The complete regular
@@ -94,3 +94,21 @@ The mode is source ready while its central public command is being coordinated.
 Mechanical fixtures establish admission and witness controls only. Actual
 provider and model execution require their own frozen plans, scripted CHECK-IN 1
 approvals, native leases and independent scoped review.
+
+## Generation width receipt
+
+After `handoff`, run card-bound `ravel model admit` on the selected UFO and
+complete process population, then run:
+
+```bash
+ravel model-derivation-bridge width-receipt --handoff qualified-ufo.json \
+  --admission admission.json --out widths.json
+```
+
+The receipt binds the accepted derivation's exact model, selected parameter
+card and literal total-width rows to the admitted process and restriction.
+Requested native partial-width and gauge checks retain their evaluated scope.
+The generator consumes `model_validation: {"admission": <pin>, "widths": <pin>}`
+and adds the current handoff, derivation result, source manifest, original
+attempt and parameter card to its scientific input census. Its result carries
+validation origins and qualifications through generation delivery.

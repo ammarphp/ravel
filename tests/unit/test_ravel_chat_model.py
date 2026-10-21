@@ -107,3 +107,19 @@ def test_public_chat_adapter_preserves_tool_call(tmp_path, monkeypatch):
     result = loop.model.invoke('synthetic')
     assert result.tool_calls[0]['name'] == 'echo' and result.tool_calls[0]['args'] == {'x': 3}
     assert result.response_metadata['http_status'] == 200 and len(sender.calls) == 1
+
+
+@pytest.mark.parametrize('bad', [-1, True, float('nan'), float('inf')])
+def test_pinned_tariff_refuses_invalid_prices_before_any_sender_call(bad):
+    from pydantic import ValidationError
+    from ravel.workflow.ravel_chat_model import RavelTransportChatModel
+    from ravel.workflow.langchain_guard import GuardError
+    class Sender:
+        identity = {'kind': 'inert-tariff'}
+        def __call__(self, *args, **kwargs):
+            pytest.fail('invalid tariff reached provider')
+    with pytest.raises(ValidationError, match='pinned tariff') as invalid:
+        RavelTransportChatModel(adapter='chat_completions', model='synthetic', sender=Sender(),
+            request_binding={}, tariff={'prices_per_million': {
+                'input': bad, 'cache_write': 1.0, 'cache_read': 1.0, 'output': 1.0}})
+    assert isinstance(invalid.value.errors()[0]['ctx']['error'], GuardError)

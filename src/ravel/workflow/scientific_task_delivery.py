@@ -10,6 +10,8 @@ import json
 from ravel.workflow import scientific_artifact as typed
 
 def deliver(request,*,base_dir):
+    from ravel.controller.sink import legacy as sink_legacy
+    sink_legacy.refuse_controller_owned(base_dir,'whole-task artifact delivery')
     if type(request) is not dict or set(request)!={'schema_version','format','artifact_request'} or type(request['schema_version']) is not int or request['schema_version']!=1:raise ValueError('closed task delivery/v1 required')
     kind=request['format']
     if kind not in ('json','madgraph_commands','madgraph_run_card'):raise ValueError('explicit supported requested output format required')

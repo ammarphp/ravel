@@ -50,6 +50,29 @@ def resolve_rundir(session_id, repo, explicit=None, cwd=None):
     found = active_run.resolve(session_id, cwd, repo)
     return str(found) if found is not None else None
 
+UNRESOLVED_NOTICE = ("NOT GOVERNED: no RAVEL run resolves for this session, so no delivery gate checked "
+                     "this turn's results. Results produced outside a registered run (or the controller) "
+                     "carry this label.")
+
+
+def unresolved_notice(repo, session, last_message):
+    """The NOT GOVERNED notice for a turn that ends without a resolvable run, or None.
+
+    It applies to a delivery-like message or a session whose physics request was routed
+    (a route-pending marker). The notice is recorded in the host ledger; it never blocks.
+    """
+    routed = bool(session) and os.path.isfile(os.path.join(repo or "", "logs", ".route-pending-" + session))
+    if not routed and not DELIVERY_RE.search(last_message or ""):
+        return None
+    try:
+        from ravel.workflow import host_governance
+        host_governance.record_host_event("stop_unresolved", session=session or "", project=repo,
+                                          routed=routed)
+    except Exception:
+        pass  # the label is still shown
+    return UNRESOLVED_NOTICE
+
+
 def load_run_state(rundir):
     try:
         return json.load(open(os.path.join(rundir, "run_state.json")))
@@ -643,7 +666,14 @@ def main(argv=None):
         cwd = data.get("cwd")
     rundir = resolve_rundir(session, repo, explicit=args.rundir, cwd=cwd)
     if not rundir or not os.path.isdir(rundir):
-        return 0                              # nothing to gate -> fail-open
+        # Nothing to gate. A delivery-like turn (or a routed physics request) without a run is
+        # labelled NOT GOVERNED, never blocked: controller runs never depend on this hook.
+        if last_message is None:
+            last_message = read_last_assistant_message(transcript)
+        notice = unresolved_notice(repo, session, last_message or "")
+        if notice:
+            print(json.dumps({"systemMessage": notice}))
+        return 0
     if last_message is None:
         last_message = read_last_assistant_message(transcript)
     last_message = last_message or ""

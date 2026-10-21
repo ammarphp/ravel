@@ -433,6 +433,15 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
             if key not in assignments or not effective.equivalent(assignments[key], value):
                 raise ValueError(f"requested generation control {key} disagrees with explicit run_card; edit a copy")
     validate_process_card(inputs["process_card"], declared_model)
+    validation = None
+    if native.get("model_validation") is not None:
+        parameter_text = rendered.get("param_card.dat")
+        if parameter_text is None:
+            parameter_text = Path(inputs["param_card"]).read_text()
+        validation = model_validation(native["model_validation"], base=rundir,
+            process_card=inputs["process_card"], parameter_text=parameter_text,
+            tools=native_build_root() / "tools")
+        source_paths += [Path(p) for p in validation["inputs"]]
     if statistics != "yields":
         background = input_file("likelihood")
         workspace = json.loads(background.read_text())
@@ -602,6 +611,8 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
             "generator_command":[conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/mg5"),str(tools/"mg5amcnlo/bin/mg5_aMC"),str(cards[2])],
             "stages":stages,"required_tools":required_tools,"required_backend_files":[str(converter)],"compute_authorized":False,
             "limitations":["Unmerged LO MSSM generation only", "Execution registration is not physics certification"]}
+    if validation is not None:
+        plan["model_validation"] = validation
     plan["quantity_outputs"] = quantity_outputs
     if override_record:
         plan['output_directory'] = str(out)
@@ -944,6 +955,7 @@ def generate_activated(plan):
     verify_execution_approval(plan)
     verify_effective_settings(plan)
     verify_native_stage_authority(plan, "madgraph", inside_supervised=True)
+    require_model_validation(plan)
     contract, expected = checked_linker(plan)
     root = Path(plan["rundir"]).resolve(); attempt = Path.cwd().resolve()
     if attempt.parent != (root/"work/madgraph").resolve() or not attempt.name.startswith("attempt-"):
@@ -1006,6 +1018,7 @@ def generate(plan):
     verify_execution_approval(plan)
     verify_effective_settings(plan)
     verify_native_stage_authority(plan, "madgraph", inside_supervised=True)
+    require_model_validation(plan)
     linked = "generation_linker" in plan
     if linked:
         if os.environ.get("PYTHONDONTWRITEBYTECODE") != "1":
@@ -1033,6 +1046,57 @@ def generate(plan):
     with source.open("rb") as src, target.open("xb") as dst:
         shutil.copyfileobj(src,dst)
     return 0
+
+
+def model_validation(evidence, *, base, process_card, parameter_text, tools):
+    """Use the common model-admission consumer for native generator stages."""
+    from . import model_admission as admission, model_tool_bridge as custody
+    if not isinstance(evidence, dict) or 'widths' not in evidence:
+        raise admission.ModelEvidenceError('absent', 'native generation requires model_validation')
+    files = []
+    width_path = admission._evidence_pin(evidence['widths'], base, files)
+    widths = admission._evidence_record(width_path)
+    card = admission._evidence_pin(widths.get('parameter_card'), width_path.parent, files)
+    if _sha_text(parameter_text) != custody._hash(card):
+        raise admission.ModelEvidenceError('foreign', 'native effective card differs from width evidence')
+    commands = [' '.join(line.split('#', 1)[0].split()) for line in Path(process_card).read_text().splitlines()]
+    imports = [line.removeprefix('import model ') for line in commands if line.startswith('import model ')]
+    if len(imports) != 1:
+        raise admission.ModelEvidenceError('foreign', 'one native model import required')
+    model_name = imports[0]
+    root = Path(tools) / 'mg5amcnlo/models'
+    models = [p for p in root.iterdir() if p.is_dir() and
+              (model_name == p.name or model_name.startswith(p.name + '-'))] if root.is_dir() else []
+    if not models:
+        raise admission.ModelEvidenceError('absent', 'native imported model source required')
+    model = max(models, key=lambda p: len(p.name))
+    restriction = model_name[len(model.name):].lstrip('-') or 'default'
+    process = '\n'.join(line for line in commands if line.startswith(('define ', 'set ', 'generate ', 'add process ')))
+    result = admission.generation_evidence(evidence, base, ufo=model, process=process,
+                                            card=card, restriction=restriction)
+    from . import model_derivation_bridge, model_events
+    result['inputs'] += [str(Path(module.__file__).resolve()) for module in
+                         (admission, custody, model_derivation_bridge, model_events)]
+    result['model_source'] = str(model)
+    result['inputs'] = sorted(set(result['inputs'] + [str(model / name) for name in custody.source_tree(model)['files']]))
+    return result
+
+
+def _sha_text(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def require_model_validation(plan):
+    from .model_admission import ModelEvidenceError
+    recorded = plan.get('model_validation')
+    if not isinstance(recorded, dict):
+        raise ModelEvidenceError('absent', 'native approved plan requires model validation evidence')
+    current = model_validation(recorded['receipts'], base=plan['rundir'],
+        process_card=plan['inputs']['process_card'],
+        parameter_text=(output_root(plan) / 'param_card.dat').read_text(), tools=native_build_root() / 'tools')
+    if current != recorded:
+        raise ModelEvidenceError('stale', 'native model validation changed since planning')
+    return current
 
 
 def verify_execution_approval(plan):
@@ -1171,6 +1235,8 @@ def main(argv=None):
                 from . import native_effective_config as effective
                 result["effective_settings"] = fingerprint(plan["effective_settings"])
                 result["runtime_settings_evidence"] = effective.runtime_evidence(plan)
+                if plan.get('model_validation'):
+                    result['model_validation'] = require_model_validation(plan)
                 (out/"native_execution_result.json").write_text(json.dumps(result,indent=2,allow_nan=False)+"\n")
             return 0
         if args.plan: plan=load_plan(args.plan)

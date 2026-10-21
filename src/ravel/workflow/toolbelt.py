@@ -36,12 +36,13 @@ NAME = re.compile(r'[A-Za-z0-9_-]{1,64}\Z')
 CENSUS = 'agents/affordances.json'
 # Broker actions with a registered handler: the broker's own workspace actions and the
 # handlers ``register_actions`` installs. Other owners extend this when they register one.
-EXECUTABLE_ACTIONS = ('read', 'write', 'knowledge query')
+EXECUTABLE_ACTIONS = ('read', 'write', 'knowledge query', 'literature query', 'review-context read')
 KNOWLEDGE_ACTION = 'knowledge query'
 # The one argument shape of a knowledge call, for the toolbelt and the broker handler alike:
 # ``{"op": <op>, "args": {...}}``. A knowledge tool's free arguments travel under ``args``.
 KNOWLEDGE_ARGS_KEY = 'args'
 CHECK_ACTION = 'check run'
+REVIEW_ACTION = 'review-context read'
 # A call naming no toolbelt tool goes to the broker under this prefix, which no broker
 # registers, so an unlisted name can never alias an allowed action (``read``, ``write``).
 UNLISTED_PREFIX = 'tool:'
@@ -107,6 +108,17 @@ def _name(*parts):
 def _object(properties, required):
     return {'type': 'object', 'properties': deepcopy(properties), 'required': list(required),
             'additionalProperties': False}
+
+
+def _review_args_schema():
+    paging = {'offset': {'type': 'integer', 'minimum': 0},
+              'max_bytes': {'type': 'integer', 'minimum': 1, 'maximum': 65536}}
+    return {'type': 'object', 'oneOf': [
+        _object({'artifact_id': _TEXT, **paging}, ['artifact_id']),
+        _object({'section': {'enum': ['artifacts', 'omissions']},
+                 'query': {'type': 'string', 'maxLength': 256}, **paging,
+                 'max_bytes': {'type': 'integer', 'minimum': 1024, 'maximum': 65536}}, []),
+    ]}
 
 
 def _describe(row, lead, cost_class):
@@ -203,6 +215,16 @@ def build(card, node_facts=None, *, atlas=None, executable=EXECUTABLE_ACTIONS, m
                                        derivation='retrieval'))
                 else:
                     missing('knowledge', _name('knowledge', op), row['id'], 'action')
+        from . import literature_roles, literature_serving
+        literature_ops = literature_roles.operations(card)
+        if literature_ops:
+            row = rows.get('cmd:literature')
+            if row is None:
+                raise ToolbeltError('atlas has no cmd:literature row')
+            tools.extend(literature_roles.tools(card, row, executable=executable))
+            if literature_serving.ACTION not in executable:
+                for op in literature_ops:
+                    missing('literature', literature_serving.TOOL_NAMES[op], row['id'], 'action')
         checks = list(dict.fromkeys(_check_id(c) for c in [*card['must_check'], *card['tools']['validators']]))
         if facts.get('must_check') is not None:
             checks = [c for c in checks if c in {_check_id(f) for f in facts['must_check']}]
@@ -225,13 +247,14 @@ def build(card, node_facts=None, *, atlas=None, executable=EXECUTABLE_ACTIONS, m
                 else:
                     missing('check', name, check, CHECK_ACTION)
         for action in actions:
-            if action in (KNOWLEDGE_ACTION, CHECK_ACTION):
+            if action in (KNOWLEDGE_ACTION, CHECK_ACTION, 'literature query'):
                 continue
             row = rows.get('cmd:' + action)
             label = _name('cmd', action)
             if row is not None and action in executable:
+                schema = _review_args_schema() if action == REVIEW_ACTION else {'type': 'object'}
                 tools.append(_tool(label, row, lead=f'Run the RAVEL action `{action}`.',
-                                   args_schema={'type': 'object'}, action=action, derivation='toolchain'))
+                                   args_schema=schema, action=action, derivation='toolchain'))
             else:
                 missing('cmd', label, row['id'] if row else None, 'action')
         for consult in card['knowledge']['consult']:
@@ -353,13 +376,29 @@ def validate_final(card, record):
     return (record if not errors else None), errors
 
 
-def register_actions(broker, card, *, atlas_path=None):
+def register_review_reader(broker, packet):
+    """Bind the declared read action to the dispatcher's protected packet."""
+    from . import review_context
+    packet = deepcopy(packet)
+    def read_review(args):
+        page = review_context.broker_read(packet, args)
+        return {'stdout': json.dumps(page, sort_keys=True)}
+    broker.register(REVIEW_ACTION, read_review, read_only=True)
+
+
+def register_actions(broker, card, *, atlas_path=None, review_packet=None):
     """Install the broker handlers this module makes executable, narrowed to the card.
 
     The knowledge handler takes the one shape ``{op, args}`` and refuses an op outside
-    the card's ``knowledge.may_query``.
+    the card's ``knowledge.may_query``. A card granting the literature action gets the
+    governed literature handlers: on a source-bound broker the serving actions without a
+    configuration, elsewhere a handler that refuses every call with a receipted
+    ``retrieval_unavailable``. Neither path serves anything without trusted settings.
     """
     from . import knowledge
+    _register_literature(broker, card)
+    if REVIEW_ACTION in card['tools']['ravel_actions']:
+        register_review_reader(broker, review_packet)
     if KNOWLEDGE_ACTION not in card['tools']['ravel_actions']:
         return
     ops = set(card['knowledge']['may_query'])
@@ -379,6 +418,20 @@ def register_actions(broker, card, *, atlas_path=None):
         return {'stdout': json.dumps(result, sort_keys=True),
                 'source': {'uri': 'ravel-atlas:' + result['atlas_sha256'], 'record_id': result['result_sha256']}}
     broker.register(KNOWLEDGE_ACTION, query, derivation='retrieval', read_only=True)
+
+
+def _register_literature(broker, card):
+    from . import knowledge_broker, literature_serving
+    if literature_serving.ACTION not in card['tools']['ravel_actions'] or literature_serving.ACTION in broker.actions:
+        return
+    if isinstance(broker, knowledge_broker.SourceBoundBroker):
+        literature_serving.register(broker)
+        return
+
+    def unavailable(args):
+        from .broker import Refusal
+        raise Refusal('retrieval_unavailable', literature_serving.MESSAGES['retrieval_unavailable'])
+    broker.register(literature_serving.ACTION, unavailable, derivation='retrieval', read_only=True)
 
 
 # ---- the affordance census (data/agents/affordances.json) ------------------------------

@@ -1,5 +1,10 @@
 # Ordinary scientific judgment and return to work
 
+In a run the controller owns, a judgment call is a typed `decide` step with a judgment record and
+its review seats run through the governed step graph; see
+[judgment sites under the controller](../checklists/judgment-protocols.md#judgment-sites-under-the-controller).
+The commands below serve runs the controller does not own.
+
 CHECK-IN 2 uses the existing physics-review journal. `ravel judgment` connects it
 to bounded AgentGraph/Host role calls; it does not introduce another vote, state
 engine, approval, scientific runner or retry policy. The science status packet
@@ -30,7 +35,7 @@ A configured provider
 failure leaves review pending, with the original graph failure/cost retained.
 No scientific worker or approval is launched. For advisory, nonvoting relay responses, use `prepare-role --external`, existing `agent-graph prepare-external` /
 `deliver-external`, then `judgment consume --binding NEW_ROLE_DIRECTORY/binding.json`.
-Relay results cannot supply independent votes; use the verified launcher or observed HTTP host
+Relay results must not supply independent votes; use the verified launcher or observed HTTP host
 for voting roles. Transport records disclose actual observed versus self-attested execution;
 actor declarations are not authentication, and model agreement is not physics.
 
@@ -43,7 +48,7 @@ including the finite assertion audit, rather than only hash references.
 Ordinary review automatically prepares an initially unresolved public decision
 case for the requested action and its prospectively required checks. Reviewers
 freshly assess all its exact claims, material assumptions and support edges.
-For a specific contested, novel, high-consequence or unsupported inference,
+For a specific contested, novel, high-consequence or unverified inference,
 `prepare-role --case CASE.json` uses the existing bounded decision-case schema;
 it withholds all copied support labels and presents exact bound anchors. The
 response's case digest, complete node/edge coverage and newly assigned reviewer
@@ -51,7 +56,7 @@ must match the current case. Changed claims, links, anchors, model outputs or
 source invalidate the dependent judgment. Structural checks do not prove
 entailment. Unresolved material action support prevents acceptance and produces
 located findings or a stop. The case root must be the requested action: an
-unresolved mechanism may motivate an adequately grounded bounded experiment.
+unresolved mechanism can motivate an adequately grounded bounded experiment.
 Do not require a speculative mechanism to be true before testing it.
 
 A send-back returns a concrete physical objection to an improver. Prepare that
@@ -61,7 +66,7 @@ held conditions and a necessary prospective check for each located objection.
 `method: direct_verification` binds an indexed independently grounded input/reference
 with a located expected value and no invented rivals. `method: discriminating_experiment`
 requires at least two genuinely different prospective outcomes. Same/unknown predictions remain useful exploration or replication;
-they cannot be labeled an established discriminating contrast. No proposal is an
+they must not be labeled an established discriminating contrast. No proposal is an
 acceptance vote. The explicit caller prepares only the allowed settings:
 
 ```sh
@@ -138,11 +143,11 @@ proposal/request. It does not apply the replacement. After explicit preparation,
 `advance --proposal-binding IMPROVER/binding.json` drives the separate skeptical
 and decider design calls and returns `admit_prepared_correction` or the retained
 unresolved design evidence. Admission is still the explicit `admit-repair` call.
-An improver may return `scientific_evidence_request` with a concrete request and
+An improver can return `scientific_evidence_request` with a concrete request and
 no proposal when a useful test requires a new scope. Old findings stay open.
 
 Connected requests parse the exact bounded authenticated byte buffer, never a
-second pathname read. Transient changed/restored input cannot alter the operation
+second pathname read. Transient changed/restored input must not alter the operation
 or case that the caller actually pinned.
 # Full-scale failed-stage contexts
 
@@ -157,11 +162,11 @@ pending initial cycle. The old framework must remain complete and byte-identical
 its original plan, approval, stage receipt, runtime capsule, input/output/log
 populations, journal and sole launch are replayed from their commitments. The old
 package is never imported. The new role request separately pins the current
-review machinery. This flag cannot launch, reopen or correct work, widen the
+review machinery. This flag must not launch, reopen or correct work, widen the
 policy, overwrite a decided role, bless changed inputs or requalify old runtime.
-It is not available for improver/campaign/repair-design calls.
+Use the ordinary improver, campaign or repair-design authority for those calls.
 
-A caller may supply an exact `--case CASE.json` with bounded authenticated stage
+A caller can supply an exact `--case CASE.json` with bounded authenticated stage
 extracts and fresh custody observations as located anchors. Keep the full source
 record and catalogue: a snapshot commitment is distinct from a fresh SHA pass,
 ending identities and continuous historical tool consumption. Additional pages
@@ -179,7 +184,7 @@ must still be nonempty. Large or binary evidence remains committed and explicitl
 omitted from the bounded initial presentation, with existing indexed/page access.
 The model is not claimed to have read every committed byte.
 
-A result role may return `scientific_evidence_request` with null verdict/scope/
+A result role can return `scientific_evidence_request` with null verdict/scope/
 proposal/proposal verdict, no findings/closes, a complete unresolved public audit
 and a located request in `summary`. Consumption verifies it but appends no vote:
 the same cycle remains pending and the actual call stays spent. Use a separately
@@ -202,18 +207,36 @@ inert request/parser controls.
 
 Before accepting a critic, verifier or synthesizer vote, recompute the receipt's attestation.
 Every relay response is `self_attested`, even with a schema-3 declaration digest; it is advisory
-and cannot supply independent judgment. Use a verified launcher receipt or observed HTTP transport
+and must not supply independent judgment. Use a verified launcher receipt or observed HTTP transport
 for independent roles. `transport_attested_cli` remains an observation with a verified label.
 Explicit `allow_control` software controls and nonvoting context requests retain their existing
 behavior. See [transport receipts and executable binding](../../reference/transports.md).
-Role requests may carry `role_requires.tools` (default `none`); the session receipt records and
-checks that policy against effective tools. Role cards do not yet supply this policy automatically.
+Role requests can carry `role_requires.tools` (default `none`); the session receipt records and
+checks that policy against effective tools. Supply this policy explicitly.
+
+### Independent credit
+
+Independent credit is computed by `review_independence.decide`, in addition to ordinary receipt,
+subject and output validation. The evidence must show a context different from every author and
+every other review seat, no inherited transcript, a RAVEL-built projected packet, the permitted
+exposure, packet-only access (or disabled tools) and unchanged output. By default it comes from
+`review_dispatch`: what RAVEL's dispatchers recorded while dispatching the role, either a supervised
+worker launch with confirmed sandbox denial and its role projection, or the graph runner's record of
+an observed fresh model request without tools. A receipt written into the run tree, a registration
+without a supervised launch, a host-subagent or relay report, a control transport, an unknown
+identity and a declared-name legacy record are advice. These records lie outside the run tree and
+every worker sandbox, but processes of the same OS user write them; a host controller with a
+stronger boundary installs its own resolver with `review_independence.authority_session`. Advice is
+retained under `review-advice/`; it must not close objections, admit a repair or satisfy independent
+review seats. Human authorization is separate. Historical records remain readable; current
+admission rechecks authority.
+
 ## Mandatory review points for epoch-two contracts
 
 Contracts with `agent_layer_epoch: 2` use `review_points.derive(facts)` to compute
 review obligations from plan operations, claim lineage and authored artifacts.
 The intake seam is `_facts(rundir)`, which reads `inputs/task_contract.json` and
-its pinned request plan. A declared claim kind cannot remove a computed-basis
+its pinned request plan. A declared claim kind must not remove a computed-basis
 obligation. Existing legacy contracts retain their decisions only under the
 epoch/snapshot rules below, except that `unblind` and `spend_above_ceiling` have no older decision and refuse.
 
@@ -279,7 +302,7 @@ Acceptance and integrity actions supply `outputs`, each with a byte-bound
 `artifact {path, sha256}` and `requirement_ids`. Every original requirement must
 map to an output and retain valid prompt spans. Open criticism holds a gate only
 when its receipt, failed code check, or pending typed request resolves against
-current evidence. An unsupported opinion is not a blocking finding.
+current evidence. An unverified opinion is not a blocking finding.
 
 `run_ceilings.checkin_section(rundir)` supplies the CHECK-IN 1 section. The
 `inputs/agent_ceilings.json` record defaults to six workers, 72 invocations for
@@ -306,7 +329,7 @@ its epoch: deleting the key or replacing the contract refuses with
 epoch and no conflicting snapshot retains its pre-release decision. RDJ is not
 consulted for legacy runs; `unblind` and `spend_above_ceiling` still refuse there.
 Release intake writes portable reading and request-plan pins, then stamps integer two.
-If no draft plan can be produced, intake refuses before creating a run; it cannot
+If no draft plan can be produced, intake refuses before creating a run; it must not
 silently create a legacy run. Scoped planning projects the pinned plan, claims, coverage and
 ambiguities into CHECK-IN 1. Mandatory release validation and the
 `run_init` snapshot producer belong to the lifecycle wiring. Epoch two requires a confined, byte-pinned
@@ -343,7 +366,7 @@ the transport id, the model id, a worker session id it draws and the attempt id
 and registers it with the receipt (`agent_worker.launch`, or `agent_worker.bind_actor` for a
 dispatcher that completes a worker itself). A worker never declares its own actor: a
 receipt whose `actor_id` is missing or differs from the registered assignment, or whose
-stated family differs from the registered one, has the advisory `actor_unassigned` and
+stated model family contradicts the registered one, has the advisory `actor_unassigned` and
 earns no credit at voting, specialist, producer and blind auditor points. Two actors are
 independent when their ids differ and they ran as separate fresh sessions in isolated
 workspaces, which is what the `transport_attested` label verifies. Only a supervised launch
@@ -352,13 +375,12 @@ registered `host_attested` at most and earns no independent credit.
 
 Credit is the largest consistent set of receipts, chosen in a canonical order (point id,
 then receipt node and attempt), so neither the order of points nor the order of receipts
-changes it and a fresh retry is used when a role's first receipt cannot satisfy every role.
+changes it and a fresh retry is used when a role's first receipt falls short of the required evidence for the other roles.
 Within one claim no session is credited twice; a session is its observed session id on its
 transport, so the same id from two transports is two sessions. A voting point with count k
-needs k distinct actors. A role entry that names `distinct_family_from` needs a registered
-transport family different from each named role's credited receipt; a family that is
-unknown on either side shows no difference. Families come from the registered actor, never
-from the receipt body. A producer earns no reviewer credit for its own output: its claim
+needs k distinct actors. Model families are never compared: two sessions of one family
+fill two seats, and the credited receipt is labelled `separate session, same model family`.
+A producer earns no reviewer credit for its own output: its claim
 with the nodes that claim is computed from, its node with the claims computed from it, and
 any point that reviews the whole plan. It is a valid reviewer of an independent claim. A
 producer is known only from a registered receipt with its assigned actor; an unregistered
@@ -381,7 +403,7 @@ item packet the review graph computes for its own item (a hand-written packet fo
 role and point is refused), the run files its card admits, and a work order only as the
 sealed order of its own production node. A JSON input and an explicit packet subject pass the card's
 forbidden classes and field redaction; a forbidden subject refuses the packet. A blind card
-that cannot be read, or that differs from the digest the dispatch pins, refuses the
+that fails a read, or that differs from the digest the dispatch pins, refuses the
 dispatch. The custody record holds one blind flag (`blind_actions`): a graph-blind role is
 launched with workspace read and write only, a card-blind role with those and the actions
 its own card names, and the supervisor and the launch toolbelt both apply it.
@@ -397,7 +419,7 @@ uses `decision_case.label_for` capped at the custody registration's verified
 strength, as in RDJ. A version-3 receipt carries the observed mode (`transport_attested_cli`
 for a governed CLI worker). A version-2 dispatcher receipt has no execution mode and takes
 the registration's verified label. Without a verified registration every mode is self-attested.
-Receipt-body `execution_mode` and `attestation` cannot increase authority.
+Receipt-body `execution_mode` and `attestation` must not increase authority.
 `human_manual` worker bodies remain self-attested until a system-owned human
 provenance producer binds the actual human review to its point and receipt. Voting, specialist and producer counts
 exclude every self-attested receipt, including in human-led runs. The pending
@@ -405,7 +427,7 @@ projection and `checkin3_section.review_receipts` include `independent: false`;
 a disclosure returned by `review deliver` is not independent review evidence.
 Relays and `control_only` voting observations remain inadmissible to scientific
 judgment even with `allow_control=True`. That switch permits nonvoting diagnostic,
-context and evidence work only; it cannot append an ordinary acceptance vote.
+context and evidence work only; it must not append an ordinary acceptance vote.
 Ordinary science-v2 opening/status validates the science route before attempting
 a generic task-contract read.
 
@@ -413,14 +435,14 @@ Findings use RDJ's `materiality`, `evidence_class`, `evidence_locators` vocabula
 Legacy `severity/new_receipt/code_check/evidence_request` records are adapted.
 A `new_receipt` needs a current custody-registered stage from a recognized
 producer; a `code_check` needs `rdj_loop.critic_basis == "verified"`. A sandboxed reviewer
-cannot register a check result, so before a gate weighs review findings RAVEL runs its
+must not register a check result, so before a gate weighs review findings RAVEL runs its
 registered ledger validator on `inputs/normalization_ledger.json` and registers the result
 as `check:normalization-ledger`, once per ledger state
 (`normalization_ledger.ensure_recorded`); a finding that cites that check blocks when the
 recorded result failed for the current ledger bytes. A pending
 request remains blocking until `rdj_loop.evidence_request_answered` verifies its
 item as done with externally verified resolution pins. A missing, deleted,
-withdrawn or merely edited queue item cannot clear a registered finding. RDJ and
+withdrawn or merely edited queue item must not clear a registered finding. RDJ and
 review points share this resolution rule. A file path posing as a code check,
 ghost new receipt, self-declared failure or opinion is advisory. Role cards are resolved by
 `role_registry.load(role_id)` from the role registry, including its aliases and registry defaults.
@@ -438,7 +460,7 @@ that same authorization; an older receipt never supplements a current one.
 
 `node_id` narrows obligations only at `launch` and `failed_stage_feedback`.
 At a claim gate an unknown node returns `action_scope_invalid`; a known node
-cannot remove calibration or unblind obligations. `checkin2_accept` may name a
+must not remove calibration or unblind obligations. `checkin2_accept` can name a
 `claim_id` to accept that claim without waiting for other claims; omission means
 all claims. `delivery`, `final_task` and `export` always recheck every claim and
 calibration row, regardless of `claim_id` or `node_id`.
@@ -468,7 +490,7 @@ An unbound response falls back to defaults and reports `ceiling:checkin1_respons
 `spend_above_ceiling` needs a recorded raise of the exhausted invocation limit,
 recorded after the ledger reached its old limit; charges retain time and the
 then-effective ceiling. Missing temporal evidence refuses. The ceilings provider
-passing does not supply the separate R3 RDJ/human authorization.
+passing still requires the separate R3 RDJ/human authorization.
 
 Raw-launch auditing scans the whole run for event formats, including YODA, LHCO,
 STDHEP and HepMC3, excluding unchanged custody-snapshotted external inputs.
@@ -481,9 +503,16 @@ receipt registration, the role registry/cards and the work executor. A missing e
 report `provider_inactive` with `provider:executor`. Same-user custody is a
 software boundary, not OS isolation; host configuration authority remains with
 the operator path. R2/R3 CHECK-IN 2 additionally requires the `comparison`
-provider whenever derived points require a comparison or certificate. Its
-registry row is deliberately inactive, so these runs report `provider_inactive`
-until the producer and validator land. This does not add that provider to R0/R1
-wiring. `tests/integration/test_decision_control_merged.py` is the shared
+provider whenever derived points require a comparison or certificate. Its source registry supplies the provider contract and activation prerequisites. `tests/integration/test_decision_control_merged.py` is the shared
 acceptance test across transports, RDJ and review points;
 its software receipts do not establish scientific validity.
+
+
+## Evidence handoffs
+
+Draft plans retain required validation ports as awaited owner actions. Bind each port to
+its validation evidence before admitting the consuming operation. Worker receipts carry
+`isolation.launch_context` as an observed launch record or `null`. Continued review contexts
+retain the exact predecessor receipt and its presentation fields. Backend coordination
+records identify their persistent lock path, purpose and locking mechanism; the kernel
+lock controls concurrent access.

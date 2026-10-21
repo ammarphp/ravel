@@ -23,7 +23,7 @@ EXECUTION_RECORDS = ('execution_state.json', 'execution_attempt.json', 'run_stat
 # Evaluator roles are fixed by the protocol; their applicability follows the
 # approved statistic and detector route, never a model's claim.
 EVALUATORS = {
-    'limit_setter': ('physics/pyhf_exclude.py', {'published-likelihood', 'simplified-likelihood', 'best-sr-counting',
+    'limit_setter': ('physics/pyhf_exclude.py', {'published-likelihood', 'simplified-likelihood', 'constructed-likelihood', 'best-sr-counting',
                                                  'combined-counting', 'provided-likelihood', 'sensitivity-expected-only'}),
     'likelihood_builder': ('physics/sa2json_native.py', {'published-likelihood', 'simplified-likelihood',
                                                          'provided-likelihood'}),

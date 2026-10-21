@@ -19,6 +19,13 @@ Plan any of the science modes with `ravel <command> plan --request <request.json
 
 ## Authoring a model
 
+The governed `model-authoring` worker reports `passed` or `failed`, keeps the complete source record in
+`authoring`, and retains executed native checks in `native_result`. Its `scope` and
+`native_run_performed` fields identify the evidence produced. Source authoring covers static lint and
+the exact charge census. A requested native run passes through the existing `checked` model-admission
+outcome. The worker sets `physics_validated` to `false`; scientific acceptance belongs to review of
+the retained evidence and the requested claim.
+
 A ModelSpec is the structured reading of a Lagrangian. It lists:
 
 - new fields: kind (scalar, vector, fermion), whether the field is its own
@@ -94,9 +101,9 @@ Checks, in order:
 
 `ravel model admit` runs the same checks on any UFO, generated or supplied, and
 writes `admission.json` (`kind: model-admission`). Each row records what the
-check cannot detect.
+check leaves to independent scientific review.
 
-| Check | Refuses | Cannot detect |
+| Check | Refuses | Independent review obligation |
 |---|---|---|
 | `ufo-static` | the static UFO problems in step 4 | wrong values or wrong analytic couplings |
 | `vertex-quantum-numbers` | a vertex where electric charge or another declared additive quantum number (lepton number, ghost number, `Y`) does not sum to zero | undeclared quantum numbers; hypercharge in a broken-phase UFO, where mass eigenstates carry `Y = 0` |
@@ -157,7 +164,7 @@ squark–antisquark with a declared number of degenerate flavours, stop or sbott
 pair, wino C1N2 and C1C1, higgsino N2N3, C1N1, C1N2 and C1C1, left- or
 right-handed slepton pairs), the collision energy, the masses and the
 convention: `order` (LO, NLO, NLO+NLL, NNLO+NNLL, aNNLO+NNLL), `pdf` and `scale`
-(either may be `as-published`). Values between grid points are interpolated in
+(either can be `as-published`). Values between grid points are interpolated in
 log sigma against log mass; there is no extrapolation and no fallback to another
 order or a flat factor. A table the registry does not hold is reported as a
 declared gap.

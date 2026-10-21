@@ -192,7 +192,7 @@ def core(root, inventory_value, failed_documents, state):
     raw = raw_json(inventory_value)
     value = {"kind": "indexed_staged_protocol_review_context", "presentation_version": 1,
         "state_sha256": state["sha256"], "question": state["contract"]["question"], "scope": state["contract"]["scope"],
-        "protocol_status": protocol.status_state(state), "actual_feedback": feedback,
+        "protocol_status": protocol.context_status(state), "actual_feedback": feedback,
         "current_goal": deepcopy(state.get("parent_task")), "resource_ledger": deepcopy(state["resource_ledger"]),
         "timing": deepcopy(state["timing"]), "hypotheses": deepcopy(state["hypotheses"]), "premises": deepcopy(state["premises"]),
         "protocol": None if protocol._bound(state) is None else deepcopy(protocol._bound(state)[0]),

@@ -47,16 +47,20 @@ def enforcement(data, project):
         from ravel.workflow import host_governance as hg
     except Exception:
         return "block:the ravel enforcement module is unavailable; restore the installed hook interpreter"
-    ENF = re.compile(r'/\.claude/settings\.json$|/\.claude/hooks/'
+    # Host tables (project and user level, local overrides included), hook runtimes, guard
+    # code and the controller's own package and data.
+    ENF = re.compile(r'/\.claude/settings(?:\.local)?\.json$|/\.claude/hooks/'
                      r'|/\.(claude|codex|gemini|antigravity|opencode)/(?:[^/]+/)*ravel-gate\.sh$'
-                     r'|/\.codex/hooks\.json$|/\.gemini/settings\.json$'
-                     r'|/\.opencode/plugins/ravel-guards\.js$|/\.ravel/(?:bin/|activate\.sh$|hook-runtime\.sh$)'
+                     r'|/\.codex/(?:hooks\.json|config\.toml)$|/\.gemini/settings\.json$'
+                     r'|/\.opencode/plugins/ravel-guards\.js$'
+                     r'|/\.ravel/(?:bin/|activate\.sh$|hook-runtime\.sh$|agent-surface(?:\.local)?\.json$)'
                      r'|/tests/adversarial/'
                      r'|/scripts/(green_board|check_repository)\.py$|/Makefile$'
-                     r'|/src/ravel/(validation|workflow)/[^/]+\.py$'
-                     r'|/src/ravel/data/transports/[^/]+\.json$|/src/ravel/data/gates/providers\.json$'
+                     r'|/src/ravel/(validation|workflow)/(?:[^/]+/)*[^/]+\.py$|/src/ravel/controller/'
+                     r'|/src/ravel/data/(?:controller|obligations|instructions|judgment|agent_surface|agents|gates'
+                     r'|transports)/'
                      r'|/src/ravel/plotting/figure_target\.py$'
-                     r'|/src/ravel/(paths|evidence_layout|_bootstrap)\.py$')
+                     r'|/src/ravel/(paths|evidence_layout|_bootstrap|cli)\.py$')
     try:
         paths = list(hg.surface_files(repo).values())
         # Digests include existing files. Write protection also includes registered
@@ -66,8 +70,21 @@ def enforcement(data, project):
         registered = {str(Path(value).resolve()) for value in paths}
     except Exception:
         return "block:the enforcement surface could not be resolved"
+    try:
+        # The RAVEL package this guard runs, wherever it is installed, and the per-user run
+        # registry and host ledger: none of them is written from a physics session.
+        installed = str(hg.installed_source().resolve() / 'ravel') + os.sep
+        from ravel.workflow.active_run import state_dir
+        state = str(state_dir().expanduser().resolve()) + os.sep
+        owned = tuple(state + name + os.sep for name in ('active-runs', 'host-integrity'))
+        user = hg.user_settings_dir().expanduser().resolve()
+        tables = {str(user / name) for name in hg.USER_SETTINGS_FILES}
+    except Exception:
+        return "block:the enforcement surface could not be resolved"
+    inside = resolved in tables or any(candidate.startswith(prefix) for candidate in (p + os.sep, resolved + os.sep)
+                                       for prefix in (installed, *owned))
     return ('block:the enforcement surface is read-only during a physics session'
-          if ENF.search(p) or ENF.search(resolved) or resolved in registered else 'allow')
+          if ENF.search(p) or ENF.search(resolved) or resolved in registered or inside else 'allow')
 
 
 def protected_cards(raw, root):
@@ -249,7 +266,17 @@ def route(data, project, host):
     prompt = data.get('prompt') or data.get('user_prompt') or ''
     if not prompt or host_governance.development_prompt(prompt) or host_governance.conversational_reply(prompt):
         return
-    contract = route_prompt.route(prompt)
+    try:
+        contract = route_prompt.route(prompt)
+    except ValueError as refused:
+        # An overfull output census (more than 32 declared paths, or a full census) refuses at
+        # `ravel initiate`; the hook binds no workspace and records no census, so the routing
+        # reminder is derived without the output rows. A refusal that remains without them is
+        # raised unchanged.
+        try:
+            contract = route_prompt.route_records(prompt, output_census=False)[0]
+        except ValueError:
+            raise refused from None
     errors = route_prompt.validate(contract)
     if errors:
         raise ValueError('the router produced an invalid contract: ' + '; '.join(errors))
@@ -288,10 +315,14 @@ def main(argv=None):
     try:
         errors = check(json.load(sys.stdin), args.host, args.project, phase=args.phase, rundir=args.rundir)
     except Exception as exc:
-        errors = ['RAVEL guard unavailable or invalid event: ' + str(exc)]
+        # Exit 3: the guard could not decide. Generated hooks block on it and label the session.
+        print('BLOCKED: RAVEL guard unavailable or invalid event: ' + str(exc), file=sys.stderr)
+        return 3
+    if args.phase == 'prompt':
+        from ravel.workflow import host_governance
+        host_governance.observe_host(args.project, source='prompt-hook')
     if errors:
-        prefix = 'RAVEL prompt routing unavailable: ' if args.phase == 'prompt' else 'BLOCKED: '
-        print(prefix + '; '.join(errors), file=sys.stderr)
+        print('BLOCKED: ' + '; '.join(errors), file=sys.stderr)
         return 2
     return 0
 

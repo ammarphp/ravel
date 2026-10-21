@@ -239,9 +239,15 @@ def test_guard_rejects_generation_outside_contract_compute_scope(tmp_path, plan)
     assert "outside task_contract" in result.stderr
 
 
-def test_guard_fails_closed_when_validator_is_missing_in_a_physics_run(tmp_path):
+def test_guard_fails_closed_when_validator_is_missing_in_a_physics_run(tmp_path, monkeypatch):
     proj, rd = _skel(tmp_path, approved=True)
     (proj / "src" / "ravel" / "validation" / "validate_task_contract.py").unlink()
+    # Hooks import only their own checkout's package, never a project copy: the incomplete
+    # package must be the hook's own checkout for its validator to be missing.
+    hook = proj / ".claude/hooks/pretooluse-bash.sh"
+    hook.parent.mkdir(parents=True)
+    shutil.copy2(GUARD, hook)
+    monkeypatch.setattr(sys.modules[__name__], "GUARD", hook)
     result = _guard("bash native/scripts/run-pipeline-native.sh trial-runs/run1 cfg.toml", proj, rd, session="S1")
     assert result.returncode == 2
     assert "validator is unavailable" in result.stderr

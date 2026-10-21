@@ -4,7 +4,7 @@ The `regional-poisson-construction/v1` route uses Combine counting-model Poisson
 
 The supplied Gaussian observation law is full-real, even when the fitted parameter has finite bounds. The generated PhysicsModel `done()` hook removes only generated auxiliary-observation ranges after Combine creates its nuisances. Parameter ranges, measured values and constant unit widths remain explicit and verified. This avoids a parameter-dependent truncated-Gaussian normalizer; no NLL result is corrected after return. ROOT's own hasMin/hasMax conventions define native unbounded-range metadata.
 
-Each source-bound regional probe adds two initial mean getters and one dummy-constant getter per bin, plus one constant-width getter per auxiliary. Returns are flushed as hexadecimal raw evidence before dependent checks. Future resource admission must count these calls; none is a fit or an additional NLL call. Graph checks establish this representation's structural delivery only. Native accuracy, calibration, parameter-domain behavior and scientific applicability still require their own qualification.
+Each source-bound regional probe adds two initial mean getters and one dummy-constant getter per bin, plus one constant-width getter per auxiliary. Returns are flushed as hexadecimal raw evidence before dependent checks. Subsequent resource admission must count these calls; none is a fit or an additional NLL call. Graph checks establish this representation's structural delivery only. Native accuracy, calibration, parameter-domain behavior and scientific applicability still require their own qualification.
 
 The server iterator retains graph membership, not positional proxy roles. The
 ROOT 6.22 Gaussian and Poisson public `getAnalyticalIntegral` query matches a
@@ -15,7 +15,7 @@ matched name, and verifies complete distinct role coverage before reading the
 width. It never calls `analyticalIntegral`, a generator, or a parameter setter
 for this query. The host separately requires the declared nuisance, auxiliary
 observation, unit constant width, count observation and expected-count roles;
-merely permuting the same server names cannot establish those semantics.
+the source law must establish those semantics independently of server-name order.
 
 This adds three structural queries per Gaussian auxiliary and two per count
 factor, while numerical getter and NLL budgets remain unchanged. Reordered

@@ -32,17 +32,17 @@ to supplied data needs no cards, routine, generation or scan.
    printf '# DEVIATIONS — mid-run changes of course (what/from/to/why/impact; append at the moment of change)\n\n(none yet)\n' > $R/DEVIATIONS.md
    printf '# RESUME — state checkpoint (update at every check-in + launch: state, running pids/logs, exact resume commands, what remains)\n\n(not started)\n' > $R/RESUME.md
    ```
-   Add `build/` or `plots/` only when a planned stage writes there.
+   Add `build/` or `plots/` only when a declared stage writes there.
    (`docs/workflow/checklists/check-ins.md` makes the DEVIATIONS ledger mandatory and `verify_pack.py`
    checks it; `RESUME.md` is the checkpoint for anything that outlives a session.)
 3. Populate `inputs/` from the plan. Always: `task_contract.json` (from `physicist-intake` /
-   `route_prompt.py`) and the plan itself. Then, for each planned operation, the inputs its
+   `route_prompt.py`) and the plan itself. Then, for each declared operation, the inputs its
    signature consumes (`ravel.validation.validate_request_plan.signatures()`), for example:
    - a model stage: a **copy** of each supplied card (never the pristine original), per
      `docs/workflow/checklists/model-cards.md`;
    - an analysis stage with a routine: the routine's region-name map and plot labels;
    - a figure claim with a declared reference figure: `figure_target.json` (`figure-contract` skill).
-   Record in `RESULT.md` any planned input that does not exist and why.
+   Record in `RESULT.md` any declared input that does not exist and why.
 4. For an analysis stage, confirm the routine and collision energy: `routine_fetch.py --query
    "<identifier>"` (0 hits → the `route-analysis` skill's re-query loop, NOT a dead end).
 5. Then follow the workflow steps the plan's stages select (`docs/workflow/README.md`): only the
@@ -60,7 +60,7 @@ For an analysis stage, choose the routine path by what the analysis provides —
 |---|---|
 | "Outputs can live wherever for now; I'll tidy later" | An output written outside the run tree escapes its provenance and review. Everything a run produces lives under its rundir from birth. |
 | "I'll add the ledgers when something actually deviates" | Restarts and mid-run changes are NORMAL; a run born without `DEVIATIONS.md`/`RESUME.md` loses its first deviations — and `verify_pack.py` checks for them. |
-| "Every run needs cards, a routine and a scan" | The plan decides. Inputs no planned operation consumes are clutter that reviewers must rule out. |
+| "Every run needs cards, a routine and a scan" | The plan decides. Inputs no declared operation consumes are clutter that reviewers must rule out. |
 | "It's a fresh physics request — scaffolding IS starting" | An unrouted request is answered by improvisation. physicist-intake routes and gates FIRST; this skill is only the skeleton. |
 
 ## Stop conditions

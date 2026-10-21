@@ -14,10 +14,25 @@
     ],
     "graph_id": "research.loop",
     "implementation": {
+      "workflow/architecture_receipt.py": "68a1935dd485bf22cf6aa9046555b2325c5f55b9d22f4a76a985cd25dbb0f553",
       "workflow/graphs/__init__.py": "ee5395aa2eaa9e21639a850cef319d9a2ee58bc1c0e6ecb27d68b401458b2a43",
-      "workflow/graphs/research_loop.py": "a37955a194a875d695c98a42f2bbb49a388e4b5cda261d00fb3cd695ef9a0880",
-      "workflow/graphs/stage.py": "3c08b4ea0d50bee76c79dcc2ea5936c50753fff003a5f456cd891be19011b781",
-      "workflow/research_orchestrator.py": "cd982feeb1aabe1f5c82407b30b5d58232280f2b8058dfe8e3f9e31744c4bdb8"
+      "workflow/graphs/research_loop.py": "fb90000e4064e5d999cd1192abfa330fc2f5282031ef6f5d5e6b41e827a0f36b",
+      "workflow/graphs/stage.py": "9e7f94bccfbfdb81f30ed4fa2f7cdbe672dc313459ffb49bf8533fb6c347048f",
+      "workflow/ordinary_review_observations.py": "a01e00f9945688235473b1c8a0e77ef5c2143a146e91d86ac91cd761bad46dcb",
+      "workflow/rdj_anchor.py": "0056d49e2fda953a72526477fc227ee231a08284ce11b81ed1d724f501e707ef",
+      "workflow/rdj_loop.py": "81969d1bc53c28d51e8c9d8366879f0a08c148d5f5ff721ad52ad90e7700b3e1",
+      "workflow/research_admission.py": "354614babb8a8c683cf84d6e92d2c3129f0b56650806e22ce49c96c888ab58a9",
+      "workflow/research_architecture.py": "dc6728b9f72d48b52bb2098895672a0a4daf76beb33037db6326bc310b5888c4",
+      "workflow/research_child_plan.py": "6e4801ff19db76150badc1f77669fd3ed559a0f8618b49de995af66e43332298",
+      "workflow/research_controller.py": "4dd1cc71bb43e6b4191fda94beb5479db8421ce019981b47045640c6af1856d5",
+      "workflow/research_coordinator_decisions.py": "5a1e7aa963b179065be7d6981f8bb8c633f1826f35548acf7af3286b6d117451",
+      "workflow/research_cycle.py": "d270853662665479f6fc678093f9322accaddf4f7aecc9b65967d3e403037b56",
+      "workflow/research_evaluation.py": "0f755df7cc3d7aeec7422063f1d102cd43e03eaf1e54e07a52ee57709956f2ca",
+      "workflow/research_history.py": "633098119822ad458f4bd37f4564940322d7e4f159707f712b05ca0e834ae7ff",
+      "workflow/research_orchestrator.py": "f8b29edfe050db4d8465a654b2fc7754c9a6024a6fb32a60f6b9977b9eea06bf",
+      "workflow/research_protocol.py": "3e6ee5c781007af7ccc58a790cab063e8d1fca19d00914bcb8cfef9bae6fb88c",
+      "workflow/science.py": "55461fa102a9ad0b7f1ffccc215c9c8cb33fc854890d1b7d7ed99778a3f26816",
+      "workflow/stage_supervisor.py": "35eebaf34058f84cbbf60777a92b6bbfca2850b91bb48d6e32942aace2628663"
     },
     "structure_sha256": "2766b92b93cfbcc10dce0828568c848bcb3a2e3aff5dc582d11809e1c70d67a7",
     "version": 1
@@ -28,33 +43,43 @@
     "legacy": "research_orchestrator.open_research (langgraph_runtime.run_state_machine)"
   },
   "fixture_sources": {
-    "tests/unit/test_research_loop_graph.py": "d9a53a782e470e91a963903ad74d4b6e633ab788254e0a5f6f3e1f83786ed573"
+    "tests/fixtures/research_full_cycle/case.json": "f87f786604ffafd4a513662c0dc12541a3cd45a2b9a7d262dd2524639effe146",
+    "tests/unit/test_research_full_cycle.py": "9ad1857f1c01a26acb6e3b215f0a82eb01655798b1c5b9e9c9e978b0afe63205",
+    "tests/unit/test_research_full_cycle_parity.py": "9b92c146522a7a1844a8a4b6e90ba9c07ab6ca774f05e955ba3d5f8f1dddeae6",
+    "tests/unit/test_research_loop_graph.py": "62688ef8c2a36562c1e6de139001f3ddaf22fa856e8231fbc99e3556ce2c352b"
   },
   "fixtures": [
     {
       "equal": true,
-      "graph_sha256": "742861f87e6f372faea1ae739b47ccb74f824de9cea3ea93afff869d5aa8dfba",
+      "graph_sha256": "3bee13e126c6c15a7934c406d51a3c76d08980005e28cf936fc4a2189c643990",
       "id": "open-question-baseline-failure",
-      "legacy_sha256": "742861f87e6f372faea1ae739b47ccb74f824de9cea3ea93afff869d5aa8dfba",
+      "legacy_sha256": "3bee13e126c6c15a7934c406d51a3c76d08980005e28cf936fc4a2189c643990",
       "test": "tests/unit/test_research_loop_graph.py::test_open_question_engines_agree_where_both_stop_on_the_baseline_failure"
     },
     {
       "equal": true,
-      "graph_sha256": "c28b0ea878b85d7a7d52f91b8cdbfa085a522d7be41564d49a6c4e9fd16fca6f",
+      "graph_sha256": "9b8685243b8224174f249e6e5b2fc84261b809ce647281ccb4d3e8c8827feacc",
       "id": "synthetic-open-question",
-      "legacy_sha256": "c28b0ea878b85d7a7d52f91b8cdbfa085a522d7be41564d49a6c4e9fd16fca6f",
+      "legacy_sha256": "9b8685243b8224174f249e6e5b2fc84261b809ce647281ccb4d3e8c8827feacc",
       "test": "tests/unit/test_research_loop_graph.py::test_open_question_runs_equal_on_both_engines"
     },
     {
       "equal": true,
-      "graph_sha256": "3c7de60f6322c0adefd1d1e7ad9abf57939567d710c10eb2d5b1b25f535d74da",
+      "graph_sha256": "249e200af1d152eee6606d54270879a9788923665a282b2162752edf0061a732",
       "id": "synthetic-protocol-stages",
-      "legacy_sha256": "3c7de60f6322c0adefd1d1e7ad9abf57939567d710c10eb2d5b1b25f535d74da",
+      "legacy_sha256": "249e200af1d152eee6606d54270879a9788923665a282b2162752edf0061a732",
       "test": "tests/unit/test_research_loop_graph.py::test_stage_graph_matches_the_legacy_stage_runner_through_the_first_r2_stage"
+    },
+    {
+      "equal": true,
+      "graph_sha256": "25d5f1a7942927f0df789c3ed6900882908336a47c941ad622e4fec581bd3b6a",
+      "id": "synthetic-research-full-cycle",
+      "legacy_sha256": "25d5f1a7942927f0df789c3ed6900882908336a47c941ad622e4fec581bd3b6a",
+      "test": "tests/unit/test_research_full_cycle.py::test_all_stages_complete_after_actual_review_revision_and_confirmation"
     }
   ],
   "kind": "graph-parity-record",
-  "note": "R2 and higher stages need distinct-family critics, which need per-role stage models (prepare_stage role_models); the fixtures stop at the first R2 stage, which both engines refuse at dispatch. complete_stage re-checks a stage reservation with the campaign's inherited goal binding on both engines (test_goal_bound_stage_completion).",
+  "note": "The full-cycle control preserves actual intake, decision and ordinary execution authority through separately dispatched stage roles, revision, confirmation, CI3 and delivery. Stage roles are credited only from distinct observed actors, sessions and packets; model families are descriptive labels and are never compared. Synthetic transport responses establish engineering traversal, not scientific efficacy or live qualification.",
   "schema_version": 2,
-  "sha256": "3be7b2dc25c6fcec11c85f05edb3cfc1a6f73b078c8d475f67affc720fd4bacb"
+  "sha256": "49193ffdb7b3b344c706edc3520502fdfb4a770103d75f8eb0fa3e4f8d9b9333"
 }

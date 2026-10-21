@@ -42,6 +42,16 @@ def objective(document):
     return execution.digest({k:v for k,v in document.items() if k != 'autonomy'})
 
 
+def approval_requirement(text):
+    """Conservative user steering shared by every delegation entry point."""
+    import re
+    return re.search(
+        r'\b(?:do\s+not|don.t|never|cannot|must\s+not)\b[^.!?\n]*(?:autonom\w*|delegat\w*|without\b[^.!?\n]*(?:approval|confirmation|permission))'
+        r'|\b(?:only|wait|until|before|after)\b[^.!?\n]*\b(?:approv\w*|confirmation|permission)\b'
+        r'|\bask\b[^.!?\n]*\b(?:approval|confirmation|permission)\b'
+        r'|\bphysicist-in-the-loop\b', text, re.I)
+
+
 def delegation_intent(full_text):
     """Locate one affirmative authority clause in the retained whole message.
 
@@ -51,8 +61,19 @@ def delegation_intent(full_text):
     """
     import re
     if type(full_text) is not str or not full_text.strip():return None
-    mentions=list(re.finditer(r'\brun\s+autonomously\b',full_text,re.I))
+    if approval_requirement(full_text):return None
+    command = (r'(?:run|operate|proceed|work|execute)(?:\s+(?:this|the\s+task|this\s+task))?\s+autonomously'
+               r'|(?:use|enable)\s+autonomous\s+mode'
+               r'|(?:i\s+(?:grant|give)\s+you|you\s+have)\s+(?:full\s+)?autonomy'
+               r'|(?:i\s+(?:authorize|authorise))\s+autonomous\s+(?:operation|execution)'
+               r'|(?:proceed|continue|complete\s+the\s+task)\s+without\s+(?:asking\s+me\s+for\s+|further\s+)(?:approval|confirmation)'
+               r'|(?:you\s+(?:may|can|should)|i\s+(?:authorize|authorise)\s+you\s+to)\s+'
+               r'(?:run|operate|proceed|work)\s+autonomously'
+               r'|i\s+delegate\s+(?:autonomous\s+(?:operation|execution)|authority\s+to\s+(?:run|operate)\s+autonomously)\s+to\s+you'
+               r'|(?:complete|perform|execute)\s+(?:this|the)\s+task\s+(?:autonomously|without\s+(?:further\s+)?(?:confirmation|approval))')
+    mentions=list(re.finditer(r'\b(?:' + command + r')\b',full_text,re.I))
     if len(mentions)!=1:return None
+    if re.search(r'\b(?:wait\s+for\s+my|ask\s+(?:me\s+)?for(?:\s+my)?)\s+(?:approval|confirmation|permission)|\bphysicist-in-the-loop\b',full_text,re.I):return None
     hit=mentions[0]
     # Lex the retained prefix, not a sentence fragment. Paired typography and
     # ASCII/code quotations keep their scope across punctuation and new lines.
@@ -88,7 +109,7 @@ def delegation_intent(full_text):
     # or "Run autonomously -". The rest of the message is its scope, so a
     # question or instruction after the heading is the delegated task itself.
     heading_line=full_text.rfind('\n',0,hit.start())+1
-    heading=re.match(r'[ \t]*(?:please\s+)?(?P<command>run\s+autonomously)[ \t]*(?::|--?|–|—)(?=\s|$)',
+    heading=re.match(r'[ \t]*(?:please\s+)?(?P<command>' + command + r')[ \t]*(?::|--?|–|—)(?=\s|$)',
                      full_text[heading_line:],re.I)
     if heading and heading_line+heading.start('command')==hit.start():
         scope=full_text[heading_line+heading.end():]
@@ -170,6 +191,7 @@ def _original_prompt(document,base,read):
 
 def effective_document(document,base,*,sources=None):
     """Existing-run CI1 authority is opt-in sidecar, never a scientific-spec rewrite."""
+    base=Path(base).resolve()
     if 'autonomy' in document:return document
     path=Path(base)/TRANSITION
     if sources is None:
@@ -189,7 +211,7 @@ def effective_document(document,base,*,sources=None):
     read=lambda pin,where:_document(pin,where) if sources is None else _retained_document(pin,where,sources)
     _,declaration_raw=read(record['declaration'],base)
     value=review_context._strict_json_bytes(declaration_raw)
-    if value.get('source_binding')!=record['source_binding'] or value.get('origin')!='checkin1_response':
+    if value.get('source_binding')!=record['source_binding'] or value.get('origin') not in {'checkin1_response', 'operating_mode'}:
         raise ValueError('CI1 transition declaration/source correspondence differs')
     return {**deepcopy(document),'autonomy':deepcopy(record['declaration'])}
 
@@ -215,21 +237,26 @@ def _source_binding(document,base,value,read):
         expected={'kind':'original_task_prompt','task_contract':source,'prompt_sha256':prompt_sha}
         if binding!=expected:raise ValueError('initial delegation does not bind the actual original task')
     else:
-        if type(binding) is not dict or set(binding)!={'kind','rundir','task_document','plan','checkin','prompt_sha256'} or binding['kind']!='checkin1_response':
+        if type(binding) is not dict or set(binding)!={'kind','rundir','task_document','plan','checkin','prompt_sha256'} or binding['kind'] not in {'checkin1_response', 'operating_mode'}:
             raise ValueError('exact existing-plan CI1 response binding required')
         root=Path(binding['rundir'])
-        if not root.is_absolute() or root!=Path(base):raise ValueError('CI1 response belongs to another run')
+        if not root.is_absolute() or root!=Path(base).resolve():raise ValueError('CI1 response belongs to another run')
         from . import science
         original_path=root/science.SPEC if (sources_plan:=binding['plan']['path'])==str(root/science.PLAN) else root/'inputs/task_contract.json'
         if binding['task_document']['path']!=str(original_path):raise ValueError('CI1 original task document path differs')
         permitted_plans={str(root/science.PLAN),str(root/'inputs/native_execution_plan.json')}
+        if type(document.get('request_plan')) is dict:
+            request_path=Path(document['request_plan']['path'])
+            permitted_plans.add(str((root/request_path).resolve()))
         if sources_plan not in permitted_plans or binding['checkin']['path']!=str(root/'inputs/checkin1.json'):
             raise ValueError('CI1 source is not the current ordinary plan/checkin')
         for name in ('task_document','plan','checkin'):
             _,raw=read(binding[name],root)
             if name=='task_document' and review_context._strict_json_bytes(raw)!={k:v for k,v in document.items() if k!='autonomy'}:
                 raise ValueError('CI1 response cannot alter original scientific spec or ceilings')
-        if binding['prompt_sha256']!=prompt_sha or value['user_text']['path']!=str(root/CI1_RESPONSE):
+        from .operating_mode import RUN_RECORD
+        message_path = RUN_RECORD if value['origin']=='operating_mode' else CI1_RESPONSE
+        if binding['prompt_sha256']!=prompt_sha or value['user_text']['path']!=str(root/message_path):
             raise ValueError('CI1 response must be the retained current run message for the actual task')
     return contract
 
@@ -242,16 +269,29 @@ def declaration(document, base, *, _sources=None):
     path, raw = read(document['autonomy'],base)
     value = review_context._strict_json_bytes(raw)
     fields={'schema_version','kind','origin','user_text','quote','delegate_actor','objective_sha256','actions','bounds','task_class','blinding_policy','source_binding','command_span'}
-    if type(value) is not dict or set(value)!=fields or type(value['schema_version']) is not int or value['schema_version']!=2 or value['kind']!='user_delegated_autonomy':
+    if type(value) is not dict or set(value)!=fields or type(value['schema_version']) is not int or value['schema_version'] not in (2, 3) or value['kind']!='user_delegated_autonomy':
         raise ValueError('closed explicit user-delegation schema required')
-    if value['origin'] not in {'initial_prompt','checkin1_response'}:
+    if value['origin'] not in {'initial_prompt','checkin1_response','operating_mode'}:
         raise ValueError('autonomy must originate in supplied user text')
     user_path,user_raw=read(value['user_text'],path.parent)
     try: text=user_raw.decode('utf8')
     except UnicodeError: raise ValueError('user-delegation text must be UTF8') from None
     quote=value['quote']
-    span=_affirmative_span(text,quote)
-    if span!=value['command_span']:raise ValueError('delegation actionable span differs from complete retained user text')
+    if value['origin']=='operating_mode':
+        from . import operating_mode
+        if _sources is None:
+            _verify_mode_transaction(base)
+        mode = operating_mode.frozen(base, document=document, sources=_sources)
+        if mode is None or mode['mode']!='autonomous' or json.loads(text)!=mode:
+            raise ValueError('delegation requires authenticated frozen autonomous mode')
+        if value['schema_version']!=3 or value['command_span']!=mode['statement']:
+            raise ValueError('operating mode delegation source differs')
+        expected_quote = mode['statement']['text'] if mode['statement'] else 'Autonomous operating mode selected by operator.'
+        if quote!=expected_quote:raise ValueError('operating mode decision statement differs')
+    else:
+        if value['schema_version']!=2:raise ValueError('text delegation requires schema 2')
+        span=_affirmative_span(text,quote)
+        if span!=value['command_span']:raise ValueError('delegation actionable span differs from complete retained user text')
     contract=_source_binding(document,base,value,read)
     if value['origin']=='initial_prompt' and text!=contract['prompt']:
         raise ValueError('initial delegation message is not the actual full original task request')
@@ -274,6 +314,13 @@ def declaration(document, base, *, _sources=None):
             raise ValueError('finite distinct delegated bounds required')
     if type(bounds['max_redos']) is not int or bounds['max_redos']<0:
         raise ValueError('finite redo limit required')
+    if value['origin']=='operating_mode':
+        expected = mode['bounds']
+        if (not set(bounds['compute_plans'])<=set(expected['compute_plans'])
+                or not set(bounds['allowed_stages'])<=set(expected['allowed_stages'])
+                or bounds['max_redos']>expected['max_redos'] or bounds['allowed_changed_paths']):
+            raise ValueError('delegation exceeds frozen operating mode bounds')
+        _mode_budget(document, base, expected, read)
     if value['task_class'] not in {'deterministic_calculation','research_analysis'}:
         raise ValueError('explicit task classification required')
     if value['task_class']=='deterministic_calculation':
@@ -296,7 +343,11 @@ def input_paths(document,base,*,sources=None):
     binding=d['value']['source_binding']
     if binding['kind']=='original_task_prompt' and binding['task_contract'] is not None:
         paths.append(binding['task_contract']['path'])
-    if binding['kind']=='checkin1_response':
+    if binding['kind']=='operating_mode':
+        read=lambda pin,b:_document(pin,b) if sources is None else _retained_document(pin,b,sources)
+        _,parent,_=_original_prompt(document,base,read)
+        if parent is not None:paths.append(parent['path'])
+    if binding['kind'] in {'checkin1_response', 'operating_mode'}:
         paths.extend([str(Path(base)/TRANSITION),*[binding[k]['path'] for k in ('task_document','plan','checkin')]])
     if d['value']['blinding_policy'] is not None:
         read=lambda pin,b:_document(pin,b) if sources is None else _retained_document(pin,b,sources)
@@ -307,7 +358,9 @@ def input_paths(document,base,*,sources=None):
 def _run_document(root):
     from . import science
     root=review_context._safe_path(root)
-    path=root/science.SPEC if (root/science.PLAN).is_file() else root/'inputs/task_contract.json'
+    contract=root/'inputs/task_contract.json'
+    # A planned science run, or a run whose only task document is its spec, is read from the spec.
+    path=root/science.SPEC if (root/science.PLAN).is_file() or not contract.exists() else contract
     committed={'path':str(path),'sha256':execution.file_hash(path)}
     _,raw=_document(committed,root)
     return root,effective_document(review_context._strict_json_bytes(raw),root)
@@ -327,8 +380,28 @@ def observed_run_document(root):
     return _run_document(root)
 
 
+def _refuse_controller_run(root):
+    """Refuse legacy delegated authority for a controller-owned run, naming its revocation first.
+
+    A controller-owned run takes delegated authority only from the controller authority service;
+    its revocation lives in the run's protected store, never in the run tree.
+    """
+    from ravel.controller.authority import common as controller_authority
+    identifier = controller_authority.owned_run(root)
+    if identifier is None:
+        return None
+    from ravel.controller.authority import stop
+    view = stop.control(controller_authority.open_store(identifier))
+    if view['revoked']:
+        raise ValueError(f'user delegation revoked by the operator (controller record {view["revocation"]}); '
+                         'explicit escalation required')
+    raise ValueError(f'run {identifier} is controller-owned: delegated decisions come only from the controller '
+                     'authority service')
+
+
 def authorize(root,action):
     """Current opt-in and original approval; no automatic scientific acceptance."""
+    _refuse_controller_run(root)
     root,document=_run_document(root)
     d=declaration(document,root)
     if d is None:raise ValueError('human steering mode: no explicit delegation')
@@ -356,6 +429,8 @@ def authorize(root,action):
 
 def revoke(root, *, user_text, quote):
     """Exclusive retained user steering receipt; never relabel as scientific vote."""
+    from ravel.controller.authority import common as controller_authority
+    controller_authority.refuse_legacy(root, 'revoke-delegation (use `ravel operator revoke --run`)')
     root,document=_run_document(root);d=declaration(document,root)
     if d is None:raise ValueError('no delegated mode to revoke')
     path,raw=_document(user_text,root)
@@ -691,6 +766,12 @@ def plan_authority(root, *, required_plan=None):
     """
     root,document=_run_document(root);d=declaration(document,root)
     if d is None or 'approve_plan' not in d['value']['actions']:raise ValueError('initial/CI1 user plan delegation required')
+    from . import operating_mode
+    mode = operating_mode.frozen(root)
+    if mode is not None and mode['mode']=='autonomous':
+        if required_plan is not None and required_plan not in mode['bounds']['compute_plans']:
+            raise ValueError('compute plan exceeds frozen operator scope')
+        _mode_budget(document, root, mode['bounds'], _document)
     if (root/REVOCATION).exists():raise ValueError('user delegation revoked before plan approval')
     if required_plan is not None and required_plan not in d['value']['bounds']['compute_plans']:
         raise ValueError('recommended compute plan exceeds delegated finite choices')
@@ -710,6 +791,9 @@ def verify_decision(document,receipt,base,*,sources=None,action='approve_plan'):
             or receipt.get('delegate_actor')!=d['value']['delegate_actor']
             or receipt.get('quote')!=d['value']['quote']):
         raise ValueError('machine plan/GO decision contradicts actual user delegation')
+    if d['value']['origin']=='operating_mode':
+        from .operating_mode import verify_receipt
+        verify_receipt(base, receipt, sources=sources)
     if action == 'approve_plan':
         from .completion_budget import reserve_delegated
         reserve_delegated(document, d, base, check_only=True)
@@ -734,6 +818,8 @@ def record_checkin1_delegation(root,*,user_text,quote,delegate_actor,actions,bou
     if 'autonomy' in document:raise ValueError('prior autonomy declaration must remain immutable')
     original=root/science.SPEC if (root/science.PLAN).is_file() else root/'inputs/task_contract.json'
     plan=root/science.PLAN if (root/science.PLAN).is_file() else root/'inputs/native_execution_plan.json'
+    if not plan.exists() and type(document.get('request_plan')) is dict:
+        plan=(root/document['request_plan']['path']).resolve()
     checkin=root/'inputs/checkin1.json'
     if plan.name==Path(science.PLAN).name:science.verify_plan(root)
     original_pins={k:{'path':str(p),'sha256':execution.file_hash(p)} for k,p in [('task_document',original),('plan',plan),('checkin',checkin)]}
@@ -768,3 +854,135 @@ def record_checkin1_delegation(root,*,user_text,quote,delegate_actor,actions,bou
     if (root/REVOCATION).exists():raise ValueError('CI1 delegation revoked before transition return')
     return {'delegation':d,'plan_unchanged':True,'approval_required':True,'execution_authorized':False,
         'human_identity_authenticated':False,'original_inputs':original_pins}
+
+
+def _mode_budget(document, root, limits, read):
+    """Compare pinned request-plan totals (or explicit operation ceilings)."""
+    if 'request_plan' in document:
+        _, raw = read(document['request_plan'], root)
+        plan = review_context._strict_json_bytes(raw)
+        budget = plan['aggregate_budget']
+        seconds, events = budget['wall_seconds'], budget['events']
+        events = 0 if events is None else events
+    else:
+        budget = document.get('resource_budget', {})
+        seconds = document.get('max_seconds', budget.get('max_wall_seconds'))
+        events = document.get('generation', {}).get('events', budget.get('max_generated_events', 0))
+        attempts = document.get('max_attempts', 1)
+        if type(attempts) is not int or attempts < 1:
+            raise ValueError('finite operation attempt ceiling required')
+        if seconds is not None: seconds *= attempts
+        events *= attempts
+    if (type(seconds) not in (int, float) or type(events) is not int
+            or not 0 <= seconds <= limits['max_seconds'] or not 0 <= events <= limits['max_events']):
+        raise ValueError('plan exceeds operating mode budget or lacks finite resource ceilings')
+
+
+def _prepare_mode_delegation(root, mode):
+    """Derive a plan-bound machine authority from the frozen operator choice."""
+    from . import operating_mode, science
+    root=review_context._safe_path(root)
+    if operating_mode.frozen(root)!=mode or mode['mode']!='autonomous':
+        raise ValueError('frozen operator authority required')
+    _, document = _run_document(root)
+    if 'autonomy' in document or (root/TRANSITION).exists():
+        raise ValueError('existing delegation must remain immutable')
+    if (root/REVOCATION).exists() or (root/'inputs/checkin1_approval.json').exists() or (root/science.APPROVAL).exists():
+        raise ValueError('operating mode cannot replace prior approval or revocation')
+    original = root/science.SPEC if (root/science.PLAN).exists() else root/'inputs/task_contract.json'
+    plan = root/science.PLAN if (root/science.PLAN).exists() else root/'inputs/native_execution_plan.json'
+    if not plan.exists() and 'request_plan' in document:
+        plan=(root/document['request_plan']['path']).resolve()
+    pins={k:{'path':str(p),'sha256':execution.file_hash(p)} for k,p in (
+        ('task_document',original),('plan',plan),('checkin',root/'inputs/checkin1.json'))}
+    binding={'kind':'operating_mode','rundir':str(root),**pins,'prompt_sha256':mode['prompt_sha256']}
+    limits=mode['bounds']
+    rung=document.get('compute_plan','none')
+    if rung not in limits['compute_plans']:
+        raise ValueError('plan exceeds operating mode compute scope')
+    value={'schema_version':3,'kind':'user_delegated_autonomy','origin':'operating_mode',
+        'user_text':{'path':str(root/operating_mode.RUN_RECORD),'sha256':execution.file_hash(root/operating_mode.RUN_RECORD)},
+        'quote':mode['statement']['text'] if mode['statement'] else 'Autonomous operating mode selected by operator.',
+        'delegate_actor':'ravel-coordinator','objective_sha256':objective(document),
+        'actions':['approve_plan','checkin2_go','accept_recommendation'],
+        'bounds':{'compute_plans':[p for p in ('none','dry','smoke','full','scan')
+                    if p in limits['compute_plans'] and ('none','dry','smoke','full','scan').index(p)<=('none','dry','smoke','full','scan').index(rung)],
+                  'allowed_changed_paths':[], 'allowed_stages':limits['allowed_stages'], 'max_redos':limits['max_redos']},
+        'task_class':'deterministic_calculation' if document.get('mode')=='literal-calculation' else 'research_analysis',
+        'blinding_policy':None,'source_binding':binding,'command_span':mode['statement']}
+    declaration_path=root/'inputs/mode-delegation.json'
+    raw=(json.dumps(value,indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
+    pin={'path':str(declaration_path),'sha256':hashlib.sha256(raw).hexdigest()}
+    transition={'schema_version':1,'kind':'checkin1_delegation_transition','objective_sha256':objective(document),
+                'declaration':pin,'source_binding':binding}
+    transition_raw=(json.dumps(transition,indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
+    sources={str(declaration_path):raw,str(root/TRANSITION):transition_raw,
+             str(root/operating_mode.RUN_RECORD):(root/operating_mode.RUN_RECORD).read_bytes(),
+             **{p['path']:_document(p,root)[1] for p in pins.values()}}
+    for name in ('request_plan','reading'):
+        if name in document:
+            p,data=_document(document[name],root);sources[str(p)]=data
+    _,parent,_=_original_prompt(document,root,lambda p,b:_document(p,b))
+    if parent is not None:
+        p,data=_document({k:parent[k] for k in ('path','sha256')},root);sources[str(p)]=data
+    declaration(document,root,_sources=sources)
+    files = {str(declaration_path):raw.decode(), str(root/TRANSITION):transition_raw.decode()}
+    return {'files':files, 'inputs':{p:hashlib.sha256(raw).hexdigest()
+            for p,raw in sources.items() if p not in files}}
+
+
+def _mode_transaction(root):
+    from . import operating_mode, rdj_custody
+    ledger = operating_mode._ledger(root, 'delegations')
+    rows = rdj_custody._read(ledger)
+    if not rows: return None, False
+    if (len(rows) not in (1,2) or rows[0]['record'].get('phase') != 'pending'
+            or len(rows)==2 and rows[1]['record'] != {'phase':'committed','pending':rows[0]['digest']}):
+        raise ValueError('invalid mode delegation transaction')
+    return rows[0]['record']['value'], len(rows)==2
+
+
+def _check_mode_transaction(root, value, *, published):
+    expected = {str(root/'inputs/mode-delegation.json'), str(root/TRANSITION)}
+    if set(value['files']) != expected:
+        raise ValueError('mode delegation transaction file scope differs')
+    for path,digest in value['inputs'].items():
+        _document({'path':path,'sha256':digest},root)
+    if published:
+        for path,text in value['files'].items():
+            _, raw = _document({'path':path,'sha256':hashlib.sha256(text.encode()).hexdigest()},root)
+            if raw != text.encode(): raise ValueError('committed delegation bytes differ')
+
+
+def _verify_mode_transaction(root):
+    root=Path(root).resolve()
+    value,committed=_mode_transaction(root)
+    if value is None or not committed:
+        raise ValueError('mode delegation transaction is not committed; resume binding')
+    _check_mode_transaction(root,value,published=True)
+
+
+def record_mode_delegation(root, mode):
+    """Locked exact-byte write-ahead transaction, recoverable at every write boundary."""
+    from . import operating_mode, rdj_custody, state_io
+    root=review_context._safe_path(root)
+    ledger=operating_mode._ledger(root,'delegations')
+    with state_io.file_lock(ledger.with_suffix('.lock-bind')):
+        if operating_mode.frozen(root)!=mode or mode['mode']!='autonomous':
+            raise ValueError('frozen operator authority required')
+        value,committed=_mode_transaction(root)
+        if value is None:
+            _, document = _run_document(root)
+            if 'autonomy' in document:
+                # Existing independently admitted text delegation remains immutable.
+                return declaration(document,root)
+            value=_prepare_mode_delegation(root,mode)
+            rdj_custody._append(ledger,{'phase':'pending','value':value})
+        _check_mode_transaction(root,value,published=committed)
+        if not committed:
+            for path,text in value['files'].items():
+                operating_mode._publish_exact(path,text.encode())
+            pending=rdj_custody._read(ledger)[0]['digest']
+            rdj_custody._append(ledger,{'phase':'committed','pending':pending})
+        _,document=_run_document(root)
+        return declaration(document,root)

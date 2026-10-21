@@ -583,7 +583,14 @@ def accepted(result_path, *, rundir, claim_scope, base_dir):
         inputs.finish()
     finally:
         inputs.close()
-    return raw, pin, {'rundir': str(rd), 'claim_scope': claim_scope, 'review_sequence': cycle['sequence'], 'accepted': True}
+    from .architecture_receipt import label_delivery
+    labelling = label_delivery(rd, [{'path': pin['path'], 'sha256': pin['sha256'], 'kind': 'number'}],
+                               label='diagnostic' if claim_scope == 'diagnostic' else 'accepted')
+    # `accepted` is the scientific delivery label; a diagnostic scope never carries it, though
+    # the result was captured by the current accepted review of that scope.
+    return raw, pin, {'rundir': str(rd), 'claim_scope': claim_scope,
+                     'review_sequence': cycle['sequence'], 'review_accepted': True,
+                     'accepted': labelling['delivery_label'] == 'accepted', **labelling}
 
 
 def captured(result_path, *, rundir, claim_scope, base_dir):
@@ -687,6 +694,9 @@ def fill(template, result, out, *, rundir, claim_scope, base_dir=None, table=Non
     margin. `supersedes` names the provenance record of a provisional fill that
     this reviewed fill replaces in `deliver_into`.
     """
+    from ravel.controller.sink import legacy as sink_legacy
+    for path in (rundir, out, deliver_into):
+        sink_legacy.refuse_controller_owned(path, 'template fill')
     if type(provisional) is not bool:
         raise ValueError('provisional must be explicit')
     if provisional and supersedes is not None:

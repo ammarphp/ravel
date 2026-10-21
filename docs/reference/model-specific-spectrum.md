@@ -14,7 +14,7 @@ solver convergence, decay results and physical model validity are unqualified.
 
 The named source capsule contains 1,003 files from the official framework export
 and 127 released generated NMSSM files. Its whole file/hash/mode census must equal
-the shipped profile. A model name or a few representative files cannot replace
+the shipped profile. A model name or a few representative files must not replace
 this check. The source is GPL-licensed; LICENSE.FlexibleSUSY.txt accompanies the
 profile. The public release and its generation workflow are primary sources:
 [2.9.0 release](https://github.com/FlexibleSUSY/FlexibleSUSY/releases/tag/v2.9.0),
@@ -38,7 +38,7 @@ implicit spectrum point and changes no original card.
 Decay calculation requires an explicitly selected Collier or LoopTools build,
 complete pinned include/library directories, and the matching native input
 choice. HiggsTools and Lilith subprocess options are excluded. With decays
-disabled, absent widths cannot become zero or exporter defaults. With decays
+disabled, absent widths must not become zero or exporter defaults. With decays
 enabled, a total width does not establish complete channels or lifetime accuracy.
 
 ## Ordinary build and return
@@ -63,7 +63,7 @@ generated-spectrum.json contains the raw-return pin, all original SLHA lines,
 all block occurrences and scale tokens, scalar/opaque rows, decay totals and
 channels, and every SPINFO/DCINFO row. Signed masses and complex mixing blocks
 remain unchanged. A successful process or transport result is not physics_validated.
-Unknown block bodies remain visible. Unsupported headers or malformed arithmetic
+Unknown block bodies remain visible. Headers outside the declared grammar or malformed arithmetic
 refuse the interpreted delivery while the original native file remains available.
 
 ## Spectrum-to-UFO point

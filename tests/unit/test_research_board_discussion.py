@@ -166,11 +166,14 @@ def test_discussion_complete_real_graph_adoption_and_ordinary_prepare(tmp_path,m
     assert after['contract']==before['contract'] and after['context']==before['context']
     assert cycle.select(root)['selected']=='paired'
     calls=[]
-    def source_only(rd,source):
-        calls.append((rd,source));write(Path(rd)/science.PLAN,{'inert_source_only':True})
+    actual_plan = science.plan
+    def source_only(rd, source, **kwargs):
+        calls.append((rd, source))
+        return actual_plan(rd, source, **kwargs)
     monkeypatch.setattr(science,'plan',source_only)
     cycle.prepare_experiment(root,'paired',tmp_path/'ordinary-prepared')
-    assert len(calls)==1 and not (tmp_path/'ordinary-prepared'/'outputs').exists()
+    assert len(calls)==1 and not list((tmp_path/'ordinary-prepared'/'outputs').rglob('result.json'))
+    assert not (tmp_path/'ordinary-prepared'/'execution_attempt.json').exists()
     assert cycle._usage(cycle._load(root)[1])['native_attempts']==1
     assert cycle.status(root)['connected_task_complete'] is False
 

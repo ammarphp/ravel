@@ -461,7 +461,7 @@
         },
         "protocol": [
           "Attribute mechanism gains using an arm without the mechanism and fixed generic controls. Open findings stay exploratory until independent review and an R3 decision.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast.",
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses.",
           "Only new_receipt, code_check or a typed discriminating-test request can block. Ask for the cheapest test that could invalidate the claim. Cited claims and opinions remain advisory.",
           "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
           "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
@@ -580,6 +580,8 @@
           "ma5-pad",
           "ma5-saf",
           "manuscript-build",
+          "manuscript-note-pdf",
+          "manuscript-note-sources",
           "native-group-acquisition",
           "ntuple-inventory",
           "published-classifier",
@@ -836,7 +838,7 @@
         },
         "protocol": [
           "Compare our result, our reproduction and the published result with source pins and common quantities, units and uncertainty conventions.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
         ],
         "purpose": "Perform the baseline stage under its bound protocol. Return every required stage output.",
         "requires": {
@@ -1076,7 +1078,7 @@
         },
         "protocol": [
           "Compare our result, our reproduction and the published result with source pins and common quantities, units and uncertainty conventions.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast.",
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses.",
           "Only new_receipt, code_check or a typed discriminating-test request can block. Ask for the cheapest test that could invalidate the claim. Cited claims and opinions remain advisory.",
           "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
           "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
@@ -1261,7 +1263,8 @@
             "coverage"
           ],
           "must_read": [
-            "check:validation.validate_task_contract.validate"
+            "check:validation.validate_task_contract.validate",
+            "doc:docs/workflow/steps/cosmology-solvers.md"
           ]
         },
         "model": {
@@ -1287,7 +1290,9 @@
           "owns": []
         },
         "protocol": [
-          "Advise on source-backed cosmology tool inputs and outputs."
+          "Advise on source-backed cosmology tool inputs and outputs.",
+          "Inspect the requested observables, parameter convention, units, solver inputs and source validity domain. Bind the solver version and required input evidence to the contracted question.",
+          "Return an advisory handoff with the applicable source locators, checked assumptions, required runtime evidence and a bounded next action for the producing seat."
         ],
         "purpose": "Advise on source-backed cosmology tool inputs and outputs.",
         "requires": {
@@ -1565,10 +1570,12 @@
             "coverage"
           ],
           "must_read": [
-            "check:validation.validate_task_contract.validate"
+            "check:validation.validate_task_contract.validate",
+            "doc:docs/reference/staged-manuscript-authoring.md"
           ]
         },
         "model": {
+          "cheap_ok": true,
           "distinct_family_from": [],
           "effort": "high",
           "tier": "agent"
@@ -1591,7 +1598,9 @@
           "owns": []
         },
         "protocol": [
-          "Advise on document compilation inputs and outputs."
+          "Advise on document compilation inputs and outputs.",
+          "Inspect the requested document format, editable source, bibliography, figures and presentation requirements. Bind the writing stages and render checks to the declared artifact contract.",
+          "Return an advisory handoff with concrete source edits, source locators, compilation and visual inspection checks, and the producing seat responsible for each artifact."
         ],
         "purpose": "Advise on document compilation inputs and outputs.",
         "requires": {
@@ -1869,7 +1878,9 @@
             "coverage"
           ],
           "must_read": [
-            "check:validation.validate_task_contract.validate"
+            "check:validation.validate_task_contract.validate",
+            "doc:docs/reference/classifier-inputs.md",
+            "doc:docs/reference/published-classifier-composition.md"
           ]
         },
         "model": {
@@ -1895,7 +1906,9 @@
           "owns": []
         },
         "protocol": [
-          "Advise on supplied ONNX classifier artifact inputs and outputs."
+          "Advise on supplied ONNX classifier artifact inputs and outputs.",
+          "Inspect the complete tensor and feature census, preprocessing order, types, shapes, dynamic dimensions, output use, runtime dependencies and weight conventions against source evidence.",
+          "Return an advisory handoff with source-pinned tensor bindings, required runtime checks, applicability conditions and a bounded next action for the producing seat."
         ],
         "purpose": "Advise on supplied ONNX classifier artifact inputs and outputs.",
         "requires": {
@@ -2274,7 +2287,8 @@
             "coverage"
           ],
           "must_read": [
-            "check:validation.validate_task_contract.validate"
+            "check:validation.validate_task_contract.validate",
+            "doc:docs/reference/symbolic-evaluation.md"
           ]
         },
         "model": {
@@ -2301,7 +2315,9 @@
         },
         "protocol": [
           "Advise on symbolic tool semantics, known pitfalls and the smallest useful check. A consultation is not final scientific acceptance.",
-          "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence."
+          "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
+          "Inspect the expression, ordered free variables, units, physical conventions, domains, assumptions and requested analytic or numerical outputs against the bound source.",
+          "Return an advisory handoff with the source-pinned expression and conventions, limiting-case and numerical checks, kernel dependencies and a bounded next action for the producing seat."
         ],
         "purpose": "Advise on symbolic tool semantics, known pitfalls and the smallest useful check. A consultation is not final scientific acceptance.",
         "requires": {
@@ -2375,7 +2391,9 @@
             "coverage"
           ],
           "must_read": [
-            "check:validation.validate_task_contract.validate"
+            "check:validation.validate_task_contract.validate",
+            "proto:P2",
+            "proto:P3"
           ]
         },
         "model": {
@@ -2402,7 +2420,9 @@
         },
         "protocol": [
           "Advise on theory tool semantics, known pitfalls and the smallest useful check. A consultation is not final scientific acceptance.",
-          "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence."
+          "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
+          "Inspect the hypothesis, definitions, symmetries, dimensions, expansion order, validity domain and physical assumptions. Check limiting cases and identify an independent discriminating calculation.",
+          "Return an advisory handoff with source locators, explicit premises, derivation obligations, applicable checks and a bounded next action for the producing seat."
         ],
         "purpose": "Advise on theory tool semantics, known pitfalls and the smallest useful check. A consultation is not final scientific acceptance.",
         "requires": {
@@ -3101,7 +3121,7 @@
         },
         "protocol": [
           "Run independent citation-led and speculative idea streams. Use novelty to order seeds, never to accept a claim. Preserve unresolved novelty searches.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
         ],
         "purpose": "Perform the ideas stage under its bound protocol. Return every required stage output.",
         "requires": {
@@ -3204,7 +3224,7 @@
         },
         "protocol": [
           "Run independent citation-led and speculative idea streams. Use novelty to order seeds, never to accept a claim. Preserve unresolved novelty searches.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
         ],
         "purpose": "Perform the ideas stage under its bound protocol. Return every required stage output.",
         "requires": {
@@ -3333,6 +3353,7 @@
           "published-model",
           "published-summary",
           "ratio-measurement",
+          "scoped-likelihood",
           "search-statistics",
           "sfitter-native-fit",
           "sfitter-observed-events",
@@ -3681,7 +3702,7 @@
         },
         "protocol": [
           "Register flaws, consequences, opportunities, located evidence and testable signatures for the reference method and our approximations.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
         ],
         "purpose": "Perform the limitation census stage under its bound protocol. Return every required stage output.",
         "requires": {
@@ -4518,9 +4539,7 @@
           ]
         },
         "model": {
-          "distinct_family_from": [
-            "ml-trainer"
-          ],
+          "distinct_family_from": [],
           "effort": "high",
           "tier": "judgment"
         },
@@ -4667,6 +4686,12 @@
           "check:ml-benchmark-localization"
         ],
         "operations": [
+          "ml-stage-admit",
+          "ml-stage-card",
+          "ml-stage-evaluate",
+          "ml-stage-features",
+          "ml-stage-review",
+          "ml-stage-train",
           "ml-training"
         ],
         "output": {
@@ -5173,7 +5198,7 @@
         },
         "protocol": [
           "Run independent citation-led and speculative idea streams. Use novelty to order seeds, never to accept a claim. Preserve unresolved novelty searches.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast.",
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses.",
           "Only new_receipt, code_check or a typed discriminating-test request can block. Ask for the cheapest test that could invalidate the claim. Cited claims and opinions remain advisory.",
           "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
           "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
@@ -6430,7 +6455,7 @@
         },
         "protocol": [
           "Register a discriminating experiment for each concern. Retain its original finding, experiment identity and result.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
         ],
         "purpose": "Perform the critique to experiments stage under its bound protocol. Return every required stage output.",
         "requires": {
@@ -6533,7 +6558,7 @@
         },
         "protocol": [
           "Confirm on withheld cells. Carry every trace, re-inject seeds and retain failures. Stop at the success or round bound. Select by reviewed dominance.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
         ],
         "purpose": "Perform the validate stage under its bound protocol. Return every required stage output.",
         "requires": {
@@ -6743,7 +6768,7 @@
         },
         "protocol": [
           "Review the complete claim and failed-evidence record independently. Material objections return to experiments; novelty does not establish acceptance.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast.",
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses.",
           "Only new_receipt, code_check or a typed discriminating-test request can block. Ask for the cheapest test that could invalidate the claim. Cited claims and opinions remain advisory.",
           "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
           "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
@@ -6958,7 +6983,7 @@
         },
         "protocol": [
           "Use a declared subset and list omitted regimes. Promote, discard or engineer under an RDJ decision. Engineering stays within declared mutable paths.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
         ],
         "purpose": "Perform the screen stage under its bound protocol. Return every required stage output.",
         "requires": {
@@ -7164,6 +7189,7 @@
           ]
         },
         "model": {
+          "cheap_ok": true,
           "distinct_family_from": [],
           "effort": "high",
           "tier": "agent"
@@ -7383,6 +7409,7 @@
           ]
         },
         "model": {
+          "cheap_ok": true,
           "distinct_family_from": [],
           "effort": "high",
           "tier": "agent"
@@ -7805,6 +7832,7 @@
           ]
         },
         "model": {
+          "cheap_ok": true,
           "distinct_family_from": [],
           "effort": "high",
           "tier": "agent"
@@ -8560,6 +8588,7 @@
           ]
         },
         "model": {
+          "cheap_ok": true,
           "distinct_family_from": [],
           "effort": "high",
           "tier": "agent"
@@ -8788,7 +8817,8 @@
           "initialized-settings-retained",
           "mpi-observer",
           "mpi-paired-effect",
-          "retained-shower"
+          "retained-shower",
+          "scoped-generate"
         ],
         "output": {
           "declared_outputs": [],
@@ -9033,7 +9063,7 @@
         },
         "protocol": [
           "Register flaws, consequences, opportunities, located evidence and testable signatures for the reference method and our approximations.",
-          "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast.",
+          "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses.",
           "Only new_receipt, code_check or a typed discriminating-test request can block. Ask for the cheapest test that could invalidate the claim. Cited claims and opinions remain advisory.",
           "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
           "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",

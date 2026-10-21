@@ -33,8 +33,8 @@ Common keys: `nevents`, `ebeam1/2` (= ½·√s, so 6500 for 13 TeV), `iseed` (Ma
 each run — re-set to reproduce), `use_syst=False` (single nominal weight).
 
 ## SLHA card invariant — verify masses + decays BEFORE showering (a 🔴 silent trap)
-Determine which inputs the actual imported model consumes. A UFO may expose physical masses and
-mixing matrices as independent external SLHA parameters; a spectrum calculator may instead derive
+Determine which inputs the actual imported model consumes. A UFO can expose physical masses and
+mixing matrices as independent external SLHA parameters; a spectrum calculator can instead derive
 them from soft parameters. `MSOFT/HMIX` presence alone does not establish an override. Pin the UFO,
 restriction/cache inputs and effective cards; inspect their mass and coupling dependencies before
 changing the spectrum. When a model reads a physical mass from its `MASS` entry and the mixing
@@ -45,8 +45,7 @@ MadGraph does **NOT** inject `MODSEL` into the LHE banner — the banner carries
 card had — and Pythia 8.312 imports SLHA `DECAY` tables **regardless of MODSEL** when
 `SLHA:useDecayTable=on`. The real silent killer is a **width-only DECAY table** (total width, no BR
 rows — MadGraph's default restrict card): Pythia imports nothing ("ignoring empty DECAY tables"), and
-with internal SUSY off (no MODSEL) it can't compute the channels itself → undecayed sparticles →
-empty SRs, exit 0. Include `MODSEL` (`1 1`) anyway — it is required the moment any particle relies on
+with internal SUSY off (no MODSEL), empty decay tables leave sparticles undecayed and SRs empty despite exit 0. Supply populated external decay tables. Include `MODSEL` (`1 1`) anyway — it is required the moment any particle relies on
 Pythia's internal machinery for its channels. Preserve the declared spectrum/mixing/decay policy,
 give every produced unstable sparticle explicit BR rows, then run the automated pre-shower guard
 `src/ravel/validation/lhe_check.py <lhe> --expect-mass <PDG>:<mass> …` (first-event + banner
@@ -67,13 +66,13 @@ For a separately supported MLM workflow:
 1. Process: `generate p p > <parents>` + `add process … j` + `… j j`.
 2. Run card: `ickkw=1`; assess `xqcut` with a **measured scale-variation study** including
    integration and sampling errors, jet rates and analysis-relevant shapes. A small smoke can
-   detect gross failures but cannot establish a precision plateau. With
+   detect gross failures; establishing a precision plateau requires a precision study. With
    `auto_ptj_mjj=T` the applied parton cut is `xqcut`, not the literal `ptj` line. Full recipe + the
    worked example: `docs/workflow/checklists/merging.md`.
 3. **Matched shower** with `$RAVEL_NATIVE_BIN/pythia_shower_merged` (uses the
    `CombineMatchingInput` MLM hook). The plain `pythia_shower` has **no** matching hook and would
    double-count the ME jets.
-4. Pythia cfg (explicit — `setMad=on` often can't parse MG's header and silently defaults `qCut=10`,
+4. Pythia cfg (explicit — `setMad=on` can fall back to `qCut=10` while parsing MG's header,
    which vetoes **every** event): `JetMatching:merge=on`, `scheme=1`, `setMad=off`, `qCut ≥ xqcut`
    (e.g. 100), `nJetMax=2`, `nQmatch=4`.
 5. Validate accepted weights, cross sections, differential jet rates and recoil/selection shapes

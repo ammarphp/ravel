@@ -12,6 +12,7 @@ from ravel.workflow import decision_case as dc
 from ravel.workflow import evidence_queue, rdj_anchor, rdj_custody
 from ravel.workflow import rdj_loop as rdj
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import (PROMPT, PROPOSER, assigned, TOOL, Roles, Run, add, challenge, critic, critic_once, node, reviewer,
                           said, sha, two_level_r2, verifier)
 
@@ -93,7 +94,13 @@ def test_approval_needs_user_text_recorded_after_the_commit_that_names_the_case(
     with pytest.raises(ValueError, match="recorded"):
         rdj_custody.record_human_approval(run.root, case_id=case_id, source="user_steering", path=planted["path"],
                                           start=10, end=10 + len(case_id), text=case_id)
-    run.approve(case_id)
+    # Named, correctly ordered user text alone records nothing and earns no human credit.
+    with pytest.raises(ValueError, match="controller capture"):
+        run.approve(case_id, confirmed=False)
+    assert rdj_custody.approvals(run.root, case_id, run.case(case_id)["decision_point"]["action"]["digest"]) == []
+    assert "human_required" in codes(open_items(run, case_id))
+    # The operator's confirmation of exactly this case at the controller terminal (inert stand-in).
+    run.approve(case_id, confirmed=True)
     assert "human_required" not in codes(open_items(run, case_id))
 
 
@@ -132,7 +139,7 @@ def test_stub_dispatcher_is_not_part_of_the_module():
     assert not hasattr(rdj, "StubDispatcher")
 
 
-def test_session_identity_and_attestation_are_read_from_the_receipt(tmp_path):
+def test_session_identity_and_attestation_are_read_from_the_receipt(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id = full_r2(run)
     edge = run.case(case_id)["edges"][0]
@@ -190,7 +197,7 @@ def test_gate_reads_digest_gate_and_class_from_the_case_not_the_receipt(tmp_path
     assert rdj.gate_errors(run.root, "launch", run.action("single_point_launch")) == []
 
 
-def test_receipt_absent_from_custody_does_not_open_the_gate(tmp_path):
+def test_receipt_absent_from_custody_does_not_open_the_gate(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id = full_r2(run)
     receipt = rdj.authorize(run.root, case_id)
@@ -889,20 +896,24 @@ def test_queue_item_ids_are_checked_and_done_needs_verified_pins(tmp_path):
     assert again["item_id"] != item["item_id"] and again["status"] == "open"
 
 
-# ---------------------------------------------------------------- R3 model family
+# ---------------------------------------------------------------- R3 model family is never compared
 
-def test_r3_critic_and_verifier_of_one_family_are_refused_when_configured(tmp_path, monkeypatch):
+def test_r3_same_family_critic_and_verifier_in_separate_sessions_proceed_with_the_label(tmp_path):
+    # A retained legacy family-policy flag describes common-mode exposure; it no longer vetoes.
+    assert rdj_anchor.policy()["r3_distinct_family"] is False  # the shipped flag stays off
     run = Run(tmp_path / "run")
-    policy = rdj_anchor.policy()
-    policy["r3_distinct_family"] = True
-    monkeypatch.setattr(rdj_anchor, "policy", lambda: policy)
     case_id = two_level_r2(run, gate="delivery", kind="deliver_claims")
     rdj.run_roles(run.root, case_id, Roles())
     add(run, case_id, "B", node("C", "The validator certified it",
                                 anchors=[run.stage("cert", "outputs/cert.json", {"pass": True}, kind="measurement")]))
     roles = Roles(critic=critic(family="family-a"), verifier=verifier(family="family-a"))
-    with pytest.raises(rdj.IndependenceError, match="family"):
-        rdj.run_roles(run.root, case_id, roles)
+    result = rdj.run_roles(run.root, case_id, roles)
+    assert result["case_id"] == case_id
+    state = json.loads(rdj._state_path(run.root, case_id).read_text())
+    rows = state["verifier_family_relationships"]
+    assert rows and all(row["relationship"] == "same" and row["label"] == "separate session, same model family"
+                        for row in rows)
+    assert run.case(case_id)["verification"]["outcome"] == "authorize"
 
 
 # ---------------------------------------------------------------- bounded work

@@ -11,6 +11,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'unit'))
 from rdj_fixtures import (Run, Roles, PROPOSER, add, node, prepare_case, escalate,
                           critic, verifier, record_decision)
+from inert_dispatch import inert_dispatch  # noqa: F401
 from test_review_points import receipt
 from ravel.workflow import review_points as rp, decision_gate as dg, rdj_loop as rdj, rdj_custody as custody
 from ravel.workflow import run_ceilings
@@ -113,7 +114,7 @@ def test_l3_registered_self_attested(joined):
     assert all(not rec['independent'] for p in rp.pending(joined.root) for rec in p['receipts'])
 
 
-def test_l4_real_authorization_and_same_receipt(joined):
+def test_l4_real_authorization_and_same_receipt(joined, inert_dispatch):
     value = authorize(joined)
     assert dg.check(joined.root, 'checkin2_accept', action(joined)) == []
     accepted = rdj.authorizing_receipt(joined.root, 'checkin2_accept', {**action(joined), 'floor': 'R2'})
@@ -122,12 +123,12 @@ def test_l4_real_authorization_and_same_receipt(joined):
     assert rp._rdj_errors(joined.root, point, 'checkin2_accept', action(joined)) == []
 
 
-def test_l5_unknown_node(joined):
+def test_l5_unknown_node(joined, inert_dispatch):
     authorize(joined)
     assert 'action_scope_invalid' in {e.code for e in dg.check(joined.root, 'checkin2_accept', {**action(joined), 'node_id': 'N9'})}
 
 
-def test_l6_changed_claim(joined):
+def test_l6_changed_claim(joined, inert_dispatch):
     authorize(joined)
     a = action(joined)
     plan = json.loads((joined.root/'inputs/plan.json').read_text())
@@ -138,7 +139,7 @@ def test_l6_changed_claim(joined):
     assert any(e.provider == 'rdj' for e in errors)
 
 
-def test_l7_removed_calibration_separation(joined):
+def test_l7_removed_calibration_separation(joined, inert_dispatch):
     authorize(joined)
     plan = json.loads((joined.root/'inputs/plan.json').read_text())
     plan['nodes'][0]['calibration'].clear()
@@ -146,7 +147,7 @@ def test_l7_removed_calibration_separation(joined):
     assert 'obligations_changed' in {e.code for e in dg.check(joined.root, 'delivery', action(joined))}
 
 
-def test_l8_unblind_needs_recorded_human(joined):
+def test_l8_unblind_needs_recorded_human(joined, inert_dispatch):
     a = joined.action('unblind', node_id='N2')
     cid = prepare_case(joined, 'unblind', cls='R3', action=a)
     assert 'rdj_receipt_missing' in {e.code for e in dg.check(joined.root, 'unblind', a)}
@@ -206,7 +207,7 @@ def test_l12_executor_decides_worker_rungs(joined):
     assert not [e for e in smoke if e.provider == 'executor']
 
 
-def test_l13_file_is_not_code_check(joined):
+def test_l13_file_is_not_code_check(joined, inert_dispatch):
     f = {'id': 'F1', 'code': 'missing_evidence', 'targets': ['L1'], 'materiality': 'A',
          'evidence_class': 'code_check', 'evidence_locators': ['inputs/cards/settings.json'], 'request': None}
     roles = Roles(critic=critic([f]), verifier=verifier(resolved='no'))

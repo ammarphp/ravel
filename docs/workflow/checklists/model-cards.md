@@ -38,8 +38,7 @@ the card. Physical MASS entries and mixing matrices can be independent external 
   (source-verified): Pythia 8.312 imports SLHA `DECAY` tables **regardless of MODSEL** when
   `SLHA:useDecayTable=on`. The real silent killer is a **width-only DECAY table** (no BR rows —
   MadGraph's default restrict card): Pythia imports nothing ("ignoring empty DECAY tables"), and with
-  internal SUSY off ("No MODSEL found…") it cannot compute the channels itself → undecayed sparticles
-  → empty SRs, exit 0. `MODSEL` is still required the moment any particle relies on Pythia's internal
+  internal SUSY off ("No MODSEL found…"), empty decay tables leave sparticles undecayed and SRs empty despite exit 0. Supply populated external decay tables. `MODSEL` is still required the moment any particle relies on Pythia's internal
   machinery for its decays — include it always; never rely on it alone.
 - **Mixing:** the N/U/V matrices affect couplings and decay predictions. Pure bino/wino entries
   are simplified-model assumptions when supplied independently; changing a soft parameter does

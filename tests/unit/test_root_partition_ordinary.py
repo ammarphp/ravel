@@ -252,7 +252,9 @@ def test_complete_master_over_128_tasks_uses_typed_claim_capacity_not_role_revis
     assert len(master['partitions'])==137 and len(prepared['partition_specifications'])==137
     assert master['owner']['attempt_journal']['capacity']==138
     _,state=p.owner_state(master)
-    assert state['revision']==1 and cycle.MAX_REVISIONS==128
+    from ravel.workflow import research_history
+    # Partition attempts keep their own journal; the campaign journal keeps at least the former bound.
+    assert state['revision']==1 and research_history.capacity(state)>=research_history.LEGACY_REVISIONS
     assert p.master_claims(master,state)==[]
     assert state['resource_ledger'][0]['ceiling']['native_attempts']==138
     assert p.resume(prepared['master'],[],source)['pending_partition_ids']==[row['id'] for row in master['partitions']]

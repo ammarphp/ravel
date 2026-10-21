@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "exceptions": [
+    {
+      "path": "docs/reference/cross-section-conventions.md",
+      "pattern": "incapacity",
+      "text": "must have zero response ratio. A zero source contribution cannot establish a",
+      "count": 1,
+      "reason": "Zero source signal contribution carries no information defining a nonzero target response; source-to-target physics mapping condition."
+    },
+    {
+      "path": "docs/reference/models-and-normalization.md",
+      "pattern": "incapacity",
+      "text": "the free-width path. A colour-singlet spin-1 state cannot decay to two identical",
+      "count": 1,
+      "reason": "Landau-Yang physics condition for a colour-singlet spin-1 state and identical on-shell massless vector bosons; not a RAVEL capability statement."
+    },
+    {
+      "path": "docs/reference/quantities-and-measurements.md",
+      "pattern": "incapacity",
+      "text": "Zero sensitivity cannot produce a limit. The fit's separately recorded bound",
+      "count": 1,
+      "reason": "A parameter with zero observable sensitivity has no finite identifiable upper limit; statistical identifiability condition."
+    },
+    {
+      "path": "docs/reference/rivet-nominal-weight-selection.md",
+      "pattern": "incapacity",
+      "text": "and negative subevent count. A zero selected sum cannot normalize the run, even",
+      "count": 1,
+      "reason": "Normalization requires division by a nonzero selected weight sum; exact numerical-domain condition."
+    },
+    {
+      "path": ".claude/agents/ravel-limitation-census.md",
+      "pattern": "deferral",
+      "text": "description: \"Dispatch redirect for limitation-census.\"",
+      "count": 1,
+      "reason": "The source role identifier names the scientific-method census of reference-method weaknesses, rather than a RAVEL capability absence."
+    },
+    {
+      "path": ".claude/agents/ravel-limitation-census.md",
+      "pattern": "deferral",
+      "text": "name: ravel-limitation-census",
+      "count": 1,
+      "reason": "The source role identifier names the scientific-method census of reference-method weaknesses, rather than a RAVEL capability absence."
+    },
+    {
+      "path": ".claude/skills/physicist-intake/SKILL.md",
+      "pattern": "hedge",
+      "text": "these new specifications. Scripted assent still needs explicit experimental",
+      "count": 1,
+      "reason": "Experimental means a scientific experiment; the passage requires explicit approval of a new specification."
+    },
+    {
+      "path": ".claude/skills/route-analysis/SKILL.md",
+      "pattern": "incapacity",
+      "text": "- Do not execute an incompatible adapter, a model outside its declared domain or unapproved compute.",
+      "count": 1,
+      "reason": "User safety imperative: execute compatible, approved model operations within the declared adapter domain."
+    },
+    {
+      "path": ".claude/skills/route-analysis/SKILL.md",
+      "pattern": "incapacity",
+      "text": "preparation use existing authorization; do not add a redundant confirmation step.",
+      "count": 1,
+      "reason": "User safety imperative: execute compatible, approved model operations within the declared adapter domain."
+    },
+    {
+      "path": ".claude/skills/run-scan/SKILL.md",
+      "pattern": "incapacity",
+      "text": "- A point FAILs its lhe_check/driver stage \u2192 diagnose that point; do not launch more wallpaper.",
+      "count": 1,
+      "reason": "User safety imperative: diagnose a failed point before launching additional computation."
+    },
+    {
+      "path": ".claude/skills/run-stage/SKILL.md",
+      "pattern": "hedge",
+      "text": "  experimental physics or authorize serving an exclusion.",
+      "count": 1,
+      "reason": "Experimental physics denotes empirical scientific validation, distinct from software checks."
+    },
+    {
+      "path": "docs/figures/src/checkins.tex",
+      "pattern": "deferral",
+      "text": "    {Final check-in}/{The results: figures, numbers with their evidence, limitations and the panel verdict}/{You accept the results or ask to revisit a step}} {",
+      "count": 1,
+      "reason": "Final-result instructions require reporting scientific result qualifications and uncertainty with the evidence."
+    },
+    {
+      "path": "docs/figures/src/methodology-agent-roles.tex",
+      "pattern": "deferral",
+      "text": "\\cell[p5]{agent}{\\cE}{\\wE}{limitation census, two idea proposers, baseline, screen, evolver, rebuttal}",
+      "count": 1,
+      "reason": "The census concerns weaknesses of a reference scientific method, rather than RAVEL capability."
+    },
+    {
+      "path": "docs/figures/src/methodology-research-loop.tex",
+      "pattern": "deferral",
+      "text": "  {\\nodetitle{Limitation census}\\nodesub{flaws of the reference method}};",
+      "count": 1,
+      "reason": "The diagram describes reference-method analysis and a sealed confirmation dataset; these are scientific method and data-access conditions."
+    },
+    {
+      "path": "docs/figures/src/methodology-research-loop.tex",
+      "pattern": "deferral",
+      "text": "\\node[data, minimum width=27mm, text width=24mm, draw=rvguardline, dash pattern=on 3pt off 1.6pt] (dw) at (134,-71) {withheld, sealed until selection};",
+      "count": 1,
+      "reason": "The diagram describes reference-method analysis and a sealed confirmation dataset; these are scientific method and data-access conditions."
+    },
+    {
+      "path": "docs/reference/manuscript-production.md",
+      "pattern": "incapacity",
+      "text": "records; do not copy unrelated whole TeX installations or omit consumed members.",
+      "count": 1,
+      "reason": "User custody imperative: retain the consumed TeX members and exclude unrelated installations."
+    },
+    {
+      "path": "docs/reference/model-sources.md",
+      "pattern": "incapacity",
+      "text": "`null`. A declared conjugate names its original field; do not add an antiparticle",
+      "count": 1,
+      "reason": "User model-construction imperative: preserve declared self-conjugacy and antiparticle identity."
+    },
+    {
+      "path": "docs/reference/quantities-and-measurements.md",
+      "pattern": "incapacity",
+      "text": "separate scientific validation. The numerical result retains the supplied Gaussian covariance and linear response model. A YODA histogram's marginal errors alone do\nnot supply the missing measurement covariance or likelihood.",
+      "count": 1,
+      "reason": "A histogram marginal error lacks the joint measurement covariance needed for the physical likelihood; zero sensitivity gives no finite inferential constraint."
+    },
+    {
+      "path": "docs/reference/staged-manuscript-authoring.md",
+      "pattern": "incapacity",
+      "text": "other permitted sections, or an allowed appendix/caption. Do not add a machine",
+      "count": 1,
+      "reason": "User authoring imperative: preserve allowed section membership and avoid injecting machine-only material."
+    },
+    {
+      "path": "docs/workflow/analysis-simpleanalysis/01-container-runtime.md",
+      "pattern": "incapacity",
+      "text": "podman client + Apple Virtualization. Do NOT use conda-forge's podman (it is x86 and pulls an",
+      "count": 1,
+      "reason": "User installation imperative: select the native architecture-compatible container client."
+    },
+    {
+      "path": "docs/workflow/analysis-simpleanalysis/README.md",
+      "pattern": "hedge",
+      "text": "The SimpleAnalysis branch of step 4. SimpleAnalysis is the SR-yield framework that many experimental",
+      "count": 1,
+      "reason": "Experimental denotes the physical measurement collaborations whose selections the framework represents."
+    },
+    {
+      "path": "docs/workflow/checklists/check-ins.md",
+      "pattern": "incapacity",
+      "text": "refuses even qualitative inspection. Do not include this gallery in a blinded",
+      "count": 1,
+      "reason": "User blinding imperative: exclude a qualitative inspection gallery from sealed scientific evaluation."
+    },
+    {
+      "path": "docs/workflow/checklists/choosing-routine.md",
+      "pattern": "hedge",
+      "text": "Rivet source availability does not supply detector calibration or an experimental",
+      "count": 1,
+      "reason": "Physical likelihood and detector calibration require independent scientific inputs beyond analysis source code."
+    },
+    {
+      "path": "docs/workflow/checklists/choosing-routine.md",
+      "pattern": "incapacity",
+      "text": "Do not combine overlapping analyses or turn marginal errors into independent",
+      "count": 1,
+      "reason": "Physical likelihood and detector calibration require independent scientific inputs beyond analysis source code."
+    },
+    {
+      "path": "docs/workflow/checklists/choosing-routine.md",
+      "pattern": "incapacity",
+      "text": "Rivet source availability does not supply detector calibration or an experimental",
+      "count": 1,
+      "reason": "Physical likelihood and detector calibration require independent scientific inputs beyond analysis source code."
+    },
+    {
+      "path": "docs/workflow/checklists/detector-fidelity.md",
+      "pattern": "incapacity",
+      "text": "## Default: do NOT run Delphes \u2014 the scope (vetted via a full installed-share census)",
+      "count": 1,
+      "reason": "User safety imperative: preserve the selected detector-response route and avoid an unnecessary second simulation."
+    },
+    {
+      "path": "docs/workflow/checklists/exclusion-model.md",
+      "pattern": "incapacity",
+      "text": "SRs overlap and cannot be combined without their correlations. `pyhf_exclude.py` does this and prints",
+      "count": 1,
+      "reason": "Overlapping signal regions require their joint correlation model for a combined statistical inference."
+    },
+    {
+      "path": "docs/workflow/checklists/ml-training.md",
+      "pattern": "hedge",
+      "text": "one-sided false-fail probability; it does not certify an experimental null law.",
+      "count": 1,
+      "reason": "Finite moments establish bounded diagnostics, while distributional independence and an empirical null law require their own scientific evidence."
+    },
+    {
+      "path": "docs/workflow/checklists/ml-training.md",
+      "pattern": "incapacity",
+      "text": "Finite moment checks cannot prove arbitrary distributional independence, and",
+      "count": 1,
+      "reason": "Finite moments establish bounded diagnostics, while distributional independence and an empirical null law require their own scientific evidence."
+    },
+    {
+      "path": "docs/workflow/checklists/ml-training.md",
+      "pattern": "incapacity",
+      "text": "Intake and the research planner must consume this result before approval. Do not use a generation smoke's",
+      "count": 1,
+      "reason": "Finite moments establish bounded diagnostics, while distributional independence and an empirical null law require their own scientific evidence."
+    },
+    {
+      "path": "docs/workflow/checklists/ml-training.md",
+      "pattern": "incapacity",
+      "text": "They do not include toy-threshold uncertainty or establish unconditional power.",
+      "count": 1,
+      "reason": "Finite moments establish bounded diagnostics, while distributional independence and an empirical null law require their own scientific evidence."
+    },
+    {
+      "path": "docs/workflow/checklists/physics-traps.md",
+      "pattern": "incapacity",
+      "text": "| T8 | **Wide resonances (\u0393/m \u2273 5%).** Narrow-width approximation breaks: \u03c3\u00d7BR factorization degrades, the low-mass PDF-enhanced tail grows, signal shape morphs across the fit window, interference (T1) grows with \u0393. | \u0393/m over the studied range (strongly coupled mediators can reach tens of percent); does the published analysis quote limits only for narrow widths? | Evaluate shape and acceptance at each requested width using new generation or applicable, independently reviewed coherent amplitude reuse/full matrix-element reweighting. Check phase-space support, effective statistics, interference, acceptance and tail/Breit-Wigner cutoff conventions. Generate new samples when reuse cannot cover the required support or precision. Normalization-only rescaling of a narrow template is invalid. A narrow-only published limit cannot directly supply broad-width constraints; qualify the appropriate model and fit. |",
+      "count": 2,
+      "reason": "Physical phase-space support and a narrow-width approximation determine the validity of reusing a signal prediction."
+    },
+    {
+      "path": "docs/workflow/checklists/plot-guidelines.md",
+      "pattern": "incapacity",
+      "text": "- A log axis **cannot show zero or negative values** (log is undefined there). Floor the lower limit to",
+      "count": 1,
+      "reason": "The logarithm is undefined for zero and negative real values; this is a mathematical plotting-domain condition."
+    },
+    {
+      "path": "docs/workflow/checklists/reproduction-closure.md",
+      "pattern": "hedge",
+      "text": "a passing statistical regression does not establish experimental closure.",
+      "count": 1,
+      "reason": "Experimental closure denotes physical agreement with independent empirical evidence."
+    },
+    {
+      "path": "docs/workflow/checklists/scan-and-contour.md",
+      "pattern": "incapacity",
+      "text": "      requested density does not fit the local machine, say so and propose a coarser grid or remote",
+      "count": 1,
+      "reason": "User resource-planning instruction: choose an executable grid and obtain approval for its compute requirements."
+    },
+    {
+      "path": "docs/workflow/reference/dark-matter-observables.md",
+      "pattern": "hedge",
+      "text": "density fraction, scattering convention and target response. An experimental",
+      "count": 1,
+      "reason": "Experimental denotes a measured limit and the signal and astrophysical premises used to derive it."
+    },
+    {
+      "path": "docs/workflow/reference/higgs-decay-programs.md",
+      "pattern": "incapacity",
+      "text": "source review; the conservation test alone cannot establish them.",
+      "count": 1,
+      "reason": "A partial four-fermion sector and conservation alone do not define a complete physical total-width prediction."
+    },
+    {
+      "path": "docs/workflow/reference/higgs-decay-programs.md",
+      "pattern": "incapacity",
+      "text": "width cannot be written as a complete scalar SLHA DECAY block or compared as",
+      "count": 1,
+      "reason": "A partial four-fermion sector and conservation alone do not define a complete physical total-width prediction."
+    },
+    {
+      "path": "docs/workflow/reference/native-pipeline.md",
+      "pattern": "hedge",
+      "text": "The shared Delphes converter writes all lepton ID bits set and maps a generic nonzero Delphes b-tag into several SimpleAnalysis working-point flags. Validate the selected detector response for each requested working point. An analysis requesting an 85% working point therefore still needs evidence for the physical response represented by the supplied card. Changing either behavior is a detector-model change requiring validation. Acceptance certification and current experimental comparison are separate from executable registration and successful receipts.",
+      "count": 1,
+      "reason": "Experimental comparison denotes independent empirical validation of the declared detector-response model."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "hedge",
+      "text": "The result records conditional propagation of the supplied moments. Review trace correctness, detector/model applicability, independence from experimental data, native marginal-error parity, sparse-event calibration and statistical inference against their own source evidence. Nonrepresentable central values or derivatives refuse,",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "hedge",
+      "text": "joint covariance and independence from experimental data must be separately",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "hedge",
+      "text": "policy, positive final denominator over the declared domain, full experimental",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "hedge",
+      "text": "scientific assumptions; neither supplies missing experimental response evidence.",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "hedge",
+      "text": "theory errors or an experimental constraint. Such downstream operations require",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "hedge",
+      "text": "| `ratio-measurement` | Compare an absolute ratio prediction with a supplied full experimental covariance, retaining numerator and denominator contributions and declared joint prediction uncertainty | Fixed-hypothesis Gaussian diagnostics use the declared covariance and optional linear uncertainty propagation; fitted inference and detector applicability require their own scientific evidence |",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "incapacity",
+      "text": "events cannot use this independent-event projection. Generation leaves the",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scientific-studies.md",
+      "pattern": "incapacity",
+      "text": "| `derived-quantities` | Construct source-defined ratios, efficiencies and asymmetries with a complete joint input basis, named variations and conditional covariance | Supplied covariance or explicitly Poissonized independent-group moments determine the propagated uncertainty; missing cross correlations cannot be inferred from marginal errors |",
+      "count": 1,
+      "reason": "Experimental denotes empirical data/covariance; independence, cross correlations and propagation require the stated physical or mathematical premises."
+    },
+    {
+      "path": "docs/workflow/reference/scoped-workflows.md",
+      "pattern": "hedge",
+      "text": "complete experimental likelihood. Generic workspaces report signal strength. Signal-event units and",
+      "count": 1,
+      "reason": "Experimental likelihood denotes the measurement likelihood needed to interpret a numerical result physically."
+    },
+    {
+      "path": "docs/workflow/reference/scoped-workflows.md",
+      "pattern": "incapacity",
+      "text": "MC counting errors do not include precision-theory uncertainty.",
+      "count": 1,
+      "reason": "Experimental likelihood denotes the measurement likelihood needed to interpret a numerical result physically."
+    },
+    {
+      "path": "docs/workflow/reference/width-input-materialization.md",
+      "pattern": "hedge",
+      "text": "cross-section-times-branching-times-acceptance limit tables of the supplied experimental",
+      "count": 1,
+      "reason": "Experimental denotes the measured limit table whose physical signal basis determines the interpretation."
+    },
+    {
+      "path": "docs/workflow/steps/02-inputs.md",
+      "pattern": "incapacity",
+      "text": "facts and selection-provided normalization into the numbered flags; do not supply missing",
+      "count": 1,
+      "reason": "User scientific-integrity imperative: retain located inputs and avoid fabricating absent covariance or normalization evidence."
+    },
+    {
+      "path": "docs/workflow/steps/04-analyze.md",
+      "pattern": "hedge",
+      "text": "engineering checks alone do not establish experimental acceptance.",
+      "count": 1,
+      "reason": "Experimental acceptance denotes detector/selection efficiency established against empirical validation."
+    },
+    {
+      "path": "docs/workflow/steps/07-exclude.md",
+      "pattern": "hedge",
+      "text": "experimental and MC covariance policy, auxiliaries, independent starts and",
+      "count": 1,
+      "reason": "Overlapping selections and a Gram matrix have precise mathematical information requirements; experimental covariance denotes measurement uncertainty."
+    },
+    {
+      "path": "docs/workflow/steps/07-exclude.md",
+      "pattern": "incapacity",
+      "text": "hypothesis-dependent pairing estimator. A Gram-only cache cannot reconstruct",
+      "count": 1,
+      "reason": "Overlapping selections and a Gram matrix have precise mathematical information requirements; experimental covariance denotes measurement uncertainty."
+    },
+    {
+      "path": "docs/workflow/steps/07-exclude.md",
+      "pattern": "incapacity",
+      "text": "when SRs overlap and cannot be combined:",
+      "count": 1,
+      "reason": "Overlapping selections and a Gram matrix have precise mathematical information requirements; experimental covariance denotes measurement uncertainty."
+    },
+    {
+      "path": "docs/workflow/steps/cosmology-solvers.md",
+      "pattern": "hedge",
+      "text": "An optional pinned bridge declares `{model, point_id, quantity, cell_ids, bin_ids, role:'sm', task}`. The complete quantity cells, explicit bin mapping and units must match the supplied existing measurement model. It preserves experimental covariance, theory covariance, overlap/constraint policy, signal and data, and replaces only its declared SM values. The caller's ordinary measurement task retains its inference and signal-strength settings; only its input path is replaced with the new full model. Output files `measurement-model.json` and `measurement-task.json` are ready for a separate existing `measurement` study. No inference, approval, physical applicability or covariance is manufactured.",
+      "count": 1,
+      "reason": "Experimental covariance denotes supplied measured uncertainties, which the bridge preserves."
+    }
+  ]
+}

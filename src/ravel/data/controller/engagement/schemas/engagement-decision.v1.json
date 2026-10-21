@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority_record_ids": {
+      "type": "array"
+    },
+    "budget_authority": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "computed_tier": {
+      "enum": [
+        "lean",
+        "standard",
+        "full"
+      ]
+    },
+    "compute_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {"mode": {"enum": ["bounded", "generous", "adaptive"]}}
+    },
+    "correction_bound": {
+      "type": "integer"
+    },
+    "envelopes": {
+      "type": "object"
+    },
+    "facts": {
+      "type": "object"
+    },
+    "minimum_tiers": {
+      "type": "object"
+    },
+    "operator_minimum": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "packet_scope": {
+      "type": "object"
+    },
+    "physicist_raise_ids": {
+      "type": "array"
+    },
+    "policy_id": {
+      "type": "string"
+    },
+    "policy_sha256": {
+      "type": "string"
+    },
+    "policy_version": {
+      "type": "integer"
+    },
+    "projected_envelope": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "reasons": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "engagement-decision.v1"
+    },
+    "scientific_plan": {
+      "type": "object"
+    },
+    "scientific_plan_sha256": {
+      "type": "string"
+    },
+    "seat_plan": {
+      "type": "object"
+    },
+    "seat_plan_sha256": {
+      "type": "string"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "tier": {
+      "enum": [
+        "lean",
+        "standard",
+        "full"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "sha256",
+    "policy_id",
+    "policy_version",
+    "policy_sha256",
+    "facts",
+    "minimum_tiers",
+    "computed_tier",
+    "tier",
+    "reasons",
+    "seat_plan",
+    "seat_plan_sha256",
+    "correction_bound",
+    "packet_scope",
+    "envelopes",
+    "projected_envelope",
+    "budget_authority",
+    "operator_minimum",
+    "physicist_raise_ids",
+    "authority_record_ids",
+    "scientific_plan_sha256",
+    "scientific_plan"
+  ],
+  "title": "engagement-decision.v1",
+  "type": "object"
+}

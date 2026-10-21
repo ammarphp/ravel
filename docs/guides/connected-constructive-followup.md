@@ -18,7 +18,7 @@ if turn["complete"]:
     )
 ```
 
-This function really dispatches if called with a live Host. It is not a source-only checker. A fresh root execution admission, compatible provider/runtime and exact cumulative budget are prerequisites. Each stream is one normal model node. `prepare_ideation` and `ideation_spec` are separately usable preparation APIs and make no model calls. `adopt_ideas` verifies the actual charged Graph, exact presented context/instructions/schema, source-scoped attributions and hypothesis stream before using the original `research_cycle.propose` journal operation.
+This function really dispatches if called with a live Host. A fresh root execution admission, compatible provider/runtime and exact cumulative budget are prerequisites. Each stream is one normal model node. `prepare_ideation` and `ideation_spec` are separately usable preparation APIs and make no model calls. `adopt_ideas` verifies the actual charged Graph, exact presented context/instructions/schema, source-scoped attributions and hypothesis stream before using the original `research_cycle.propose` journal operation.
 
 The returned `bindings` are a dictionary keyed by `citation_led` and `speculative`, each with `{graph_root,node_id,context_pin}`. Content pins have exactly `{path,sha256,size}`. They bind the actual consumed bytes, not a later path hash.
 
@@ -34,9 +34,9 @@ An explicit designer model or deterministic source producer supplies:
 }
 ```
 
-Before either Host delivery or final adoption, the context must contain exactly one citation-led stream and one speculative stream. Each literal hypothesis row is checked against its genuine original model result and the currently adopted cycle content. Deleting, duplicating or rewriting rows cannot narrow the rival denominator, even with a truthful new context file hash.
+Before either Host delivery or final adoption, the context must contain exactly one citation-led stream and one speculative stream. Each literal hypothesis row is checked against its genuine original model result and the adopted cycle content. Deleting, duplicating or rewriting rows must not narrow the rival denominator, even with a truthful new context file hash.
 
-The designer result must be a completed charged Graph node with role `designer`. A normal AgentHost tool node may use action `research-portfolio` and parameters `{proposal_input,context_input}`, naming explicitly bound normal input IDs. Its complete inputs include the context, canonical feedback, proposed study specifications and every consumed study input. The model route uses the same `bound_portfolio` admission; `adopt_portfolio(cycle_root, graph_root, node_id=..., context_pin=...)` then performs one atomic existing cycle commit.
+The designer result must be a completed charged Graph node with role `designer`. A normal AgentHost tool node can use action `research-portfolio` and parameters `{proposal_input,context_input}`, naming explicitly bound normal input IDs. Its complete inputs include the context, canonical feedback, proposed study specifications and every consumed study input. The model route uses the same `bound_portfolio` admission; `adopt_portfolio(cycle_root, graph_root, node_id=..., context_pin=...)` then performs one atomic existing cycle commit.
 
 `research_cycle.select`, phase allocation/check reservation, `prepare_experiment`, ordinary CI1 approval, `run_experiment`, `observe`, actual role decisions, `adjudicate`, knowledge export/retrieval and `synthesize` remain the execution and delivery path. Parent task completion is not inferred from admitting or selecting one rival.
 
@@ -64,7 +64,7 @@ loop, binding = agentrivet_runtime.instantiate(
 # prepared = agentrivet_runtime.prepare_source_study(...)
 ```
 
-The role keys are `analyst`, `coder`, `code_reviewer`, `physics_reviewer`. Source pins use `{path,sha256}` and must identify the exact external `.py` files already bound as normal Graph provider inputs. `inspect_binding` and `instantiate` do not call a provider. `instantiate` supports one to three original revision rounds and requires the full worst-case ceiling `1 + 3 * max_iterations`, not a forecast assuming early approval. The provider object must be the concrete GraphLLM, not an overriding subclass.
+The role keys are `analyst`, `coder`, `code_reviewer`, `physics_reviewer`. Source pins use `{path,sha256}` and must identify the exact external `.py` files already bound as normal Graph provider inputs. `inspect_binding` and `instantiate` prepare the source-bound GraphLLM configuration. `instantiate` supports one to three original revision rounds and requires the full worst-case ceiling `1 + 3 * max_iterations`, not a forecast assuming early approval. The provider object must be the concrete GraphLLM, not an overriding subclass.
 
 `generation_outputs(llm)` verifies complete fresh Analyst/coder/reviewer triplets and returns the actual reserved-call/request/message/result/transport census. It is read-only. Unknown external inference usage remains unknown; reservations are not observed provider token usage.
 

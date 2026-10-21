@@ -26,6 +26,12 @@
         "conventions:node_tags"
       ],
       "forbidden": [],
+      "literature_operations": [
+        "search",
+        "get_paper",
+        "list_papers",
+        "compare_measurements"
+      ],
       "may_query": [
         "find",
         "show",
@@ -48,7 +54,8 @@
     ],
     "operations": [
       "knowledge query",
-      "check run"
+      "check run",
+      "literature query"
     ],
     "output": {
       "declared_outputs": [
@@ -107,7 +114,8 @@
       "exec_argv_prefixes": [],
       "ravel_actions": [
         "knowledge query",
-        "check run"
+        "check run",
+        "literature query"
       ],
       "read_paths": [
         "inputs/"
@@ -116,5 +124,5 @@
     },
     "version": "2.1.0"
   },
-  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
+  "registry_sha256": "2889e12595a211cf69a07c491b52f4f523c911f0f19a1b2759ef648c5bde704d"
 }

@@ -33,7 +33,9 @@
         "coverage"
       ],
       "must_read": [
-        "check:validation.validate_task_contract.validate"
+        "check:validation.validate_task_contract.validate",
+        "proto:P2",
+        "proto:P3"
       ]
     },
     "model": {
@@ -60,7 +62,9 @@
     },
     "protocol": [
       "Advise on theory tool semantics, known pitfalls and the smallest useful check. A consultation is not final scientific acceptance.",
-      "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence."
+      "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
+      "Inspect the hypothesis, definitions, symmetries, dimensions, expansion order, validity domain and physical assumptions. Check limiting cases and identify an independent discriminating calculation.",
+      "Return an advisory handoff with source locators, explicit premises, derivation obligations, applicable checks and a bounded next action for the producing seat."
     ],
     "purpose": "Advise on theory tool semantics, known pitfalls and the smallest useful check. A consultation is not final scientific acceptance.",
     "requires": {
@@ -97,5 +101,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
+  "registry_sha256": "2889e12595a211cf69a07c491b52f4f523c911f0f19a1b2759ef648c5bde704d"
 }

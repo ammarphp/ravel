@@ -34,7 +34,7 @@ its supervised children, and reset when it returns or raises. The caller still
 supplies the actual approval quote and any explicitly authorized scripted mode.
 The API never signs, approves, retries, re-execs Python or selects a stored command.
 A failed guard preserves the existing study. A source change requires its normal
-new plan and approval; replay cannot make an upgraded package match an old plan.
+new plan and approval; replay must not make an upgraded package match an old plan.
 
 Historical plans without retained values remain inspectable. If the original
 values are independently available, create a separate capsule without rewriting
@@ -45,15 +45,14 @@ ravel runtime-capsule --rundir <existing-run> --environment <exact-eight-key-val
 ravel approve --rundir <existing-run> --quote '<actual authorized assent>' --replay-runtime --runtime-capsule <new-capsule.json>
 ```
 
-Creation requires exact equality to the planned environment digest. A hash alone
-cannot recover values. Missing/extra keys, non-string values except null,
+Creation requires exact equality to the declared environment digest. Capsule creation requires the original environment values as well as their digest. Missing/extra keys, non-string values except null,
 interpreter aliases, tampered source association or an external replacement of
 embedded values refuse. Passing `--runtime-capsule` without `--replay-runtime`
 also refuses. Capsule files are bounded, must be regular paths without symlink
 ancestors, and reject duplicate or nonfinite JSON tokens and nesting over 32 levels.
 
 Replay is a dedicated, ordinary unoptimized main-thread CLI operation. Concurrent
-mutation of process environment and nested replay are unsupported. Restoring
+The replay requires an unchanged process environment and one active replay context. Restoring
 `PYTHONPATH` does not change Python's already initialized `sys.path`, already
 imported modules or an installed dependency set. Use the original interpreter
 spelling and source package before invocation. No native-weight, detector,

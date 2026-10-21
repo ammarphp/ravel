@@ -24,12 +24,13 @@ FINAL_INVENTORY += ('docs/workflow/steps/eft-conventions.md',)
 _batch_at = FINAL_INVENTORY.index('docs/reference/execution-backends.md') + 1
 FINAL_INVENTORY = FINAL_INVENTORY[:_batch_at] + ('docs/reference/batch-allocations.md',) + FINAL_INVENTORY[_batch_at:]
 FINAL_INVENTORY = ('docs/reference/host-enforcement.md', 'docs/workflow/hooks.md') + FINAL_INVENTORY
+FINAL_INVENTORY += ('docs/reference/component-inventory.md', 'docs/reference/tool-licences.md')
 
 
 def assert_inventory(actual):
     assert tuple(actual) == FINAL_INVENTORY
     assert tuple(x for x in actual if x in set(PRIOR_84)) == PRIOR_84
-    assert len(FINAL_INVENTORY) == 121 == len(set(FINAL_INVENTORY))
+    assert len(FINAL_INVENTORY) == 123 == len(set(FINAL_INVENTORY))
     assert tuple(x for x in actual if x in set(PRIOR_105)) == PRIOR_105
     assert tuple(x for x in actual if x in set(PRIOR_106)) == PRIOR_106
     assert tuple(x for x in actual if x in set(PRIOR_107)) == PRIOR_107

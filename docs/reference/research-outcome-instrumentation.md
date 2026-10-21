@@ -2,9 +2,8 @@
 
 `research_cycle.outcome_metrics(cycle, completion_request=None,
 utility_declaration=None)` reads the existing cycle, original parent assignment,
-Graph call receipts and ordinary science attempt records. It makes no calls to a
-model, provider, scientific worker or review role. There is no new state store,
-metric acceptance gate or scheduler.
+Graph call receipts and ordinary science attempt records to produce a deterministic
+measurement readout.
 
 The ordinary `research-cycle status` result includes this readout automatically.
 `research-cycle synthesize` includes the same typed readout and appends an
@@ -32,19 +31,18 @@ An optional completion request uses the existing `task_completion.evaluate`
 operation and must name the exact original contract. No new evaluator is added.
 
 The complete experiment population contains every declared design and every
-required but not yet designed identity. Records remain not-designed, unresolved,
+required design identity awaiting a concrete design. Records remain not-designed, unresolved,
 failed, partial, or a recorded component result. A component's historical review
 state/scope and current premise applicability are separate fields. A source/API
 port, software control, refusal, role vote or author's improvement claim is not a
 correct complete physics result. Even a genuine recorded whole-parent acceptance
 is reported as `recorded_full_delivery`, with independent correctness unknown.
-All scientific error/effectiveness counters remain null. These records cannot
-calibrate autonomous benefit, erroneous acceptance, or erroneous refusal.
+All scientific error/effectiveness counters remain null. Autonomous benefit and error calibration require independently evaluated scientific outcomes.
 
 ## Resource and intervention accounting
 
 `resource_use.charged_ceiling` and the complete original reservation ledger are
-declared ceilings, not actual calls, tokens or native time. The planned experiment
+declared ceilings, not actual calls, tokens or native time. The declared experiment
 cost vectors remain explicitly prospective. Graph checkpoints contain the whole
 debited call census. The engine debits a call and writes its initial `started`
 receipt before invoking the Host function, so neither is evidence of provider
@@ -52,7 +50,7 @@ dispatch. `calls.observed_count` is retained for compatibility and explicitly
 means resolved completed/failed outcome receipts. `complete_count` is null while
 any call is started/ambiguous or any Graph is unobserved. Separate debited,
 receipt, started, ambiguous, resolved, completed and failed counts retain the
-entire denominator. Reusing one receipted outcome does not add another record.
+entire denominator. Outcome records are counted by their unique receipt identities.
 Actual provider invocation count remains null: even a failed Host outcome can
 occur before a provider call, and reconciled outcomes are retained attestations.
 
@@ -120,6 +118,6 @@ with `research_cycle._load`; these pins are not a replacement for complete nativ
 runtime, output, source and scientific-review inventories. Pure source fixtures
 test the integration and accounting, with synthetic Host returns/authority where
 explicitly marked. They are not autonomous efficacy, physics correctness or a
-historical result reclassification. Such future studies need prospectively fixed
+historical result reclassification. Such subsequent studies need prospectively fixed
 task/utility definitions, independent truth assessment, complete populations,
 actual intervention provenance and measured resource/cost instrumentation.

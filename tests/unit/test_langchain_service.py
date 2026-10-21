@@ -317,3 +317,25 @@ def test_returned_runnable_cannot_turn_a_host_result_into_a_second_effect(tmp_pa
     # RunnableLambda can perform its automatic returned-Runnable invocation.
     with pytest.raises((TypeError, ValueError)): adapter.invoke(envelope)
     assert other == [] and host.dispatched == ['n']
+
+
+def test_the_enclosing_substrate_node_record_reaches_the_charged_call_and_nothing_else_does(tmp_path):
+    """The fresh context keeps only the substrate node record the lowest layers assert (agent_tripwire)."""
+    from ravel.workflow import graph_nodes
+    other = ContextVar('software-control-ambient-value', default=None)
+    seen = []
+
+    def operation(item, request, control):
+        seen.append((graph_nodes.TRIPWIRE.get(), other.get()))
+        return {'public': item['id']}
+    record = {'ravel_kind': 'service', 'graph_id': 'fictional.graph', 'role': None, 'node': 'decide'}
+    _, host, control, envelope = running(tmp_path, host=Host(operation))
+    tokens = (graph_nodes.TRIPWIRE.set(record), other.set('ambient'))
+    try:
+        assert service.ChargedService(host, **envelope, control=control).invoke(envelope) == {'public': 'n'}
+    finally:
+        other.reset(tokens[1]); graph_nodes.TRIPWIRE.reset(tokens[0])
+    assert seen == [(record, None)]
+    _, host, control, envelope = running(tmp_path / 'outside', host=Host(operation))
+    assert service.ChargedService(host, **envelope, control=control).invoke(envelope) == {'public': 'n'}
+    assert seen[-1] == (None, None), 'outside every node there is still no substrate context'

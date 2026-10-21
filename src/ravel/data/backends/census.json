@@ -96,6 +96,89 @@
     }
   ],
   "kind": "ravel-backend-census",
+  "needs": {
+    "external-workflow-execution": {
+      "methods": [],
+      "summary": "Run a supplied or exported external workflow under a workflow manager",
+      "triggers": {
+        "task_modes": [],
+        "terms": []
+      }
+    },
+    "global-fit": {
+      "methods": [
+        {
+          "available": "always",
+          "id": "gaussian-measurement-fit",
+          "operations": [
+            "measurement"
+          ],
+          "preference": 3,
+          "roles": [],
+          "title": "Gaussian measurement-model fit assembled by RAVEL"
+        }
+      ],
+      "summary": "Global or effective-field-theory fit of several measurements to couplings or Wilson coefficients",
+      "triggers": {
+        "task_modes": [],
+        "terms": [
+          "re:\\bglobal\\s+(?:[\\w-]+\\s+){0,3}fits?\\b",
+          "re:\\b(?:SMEFT|EFT)\\s+(?:[\\w-]+\\s+){0,3}fits?\\b",
+          "re:\\bfits?\\s+(?:[\\w-]+\\s+){0,4}(?:Wilson\\s+coefficients?|coupling\\s+modifiers?)\\b",
+          "re:\\b(?:Higgs\\s+)?couplings?\\s+fits?\\b",
+          "re:\\bkappa\\s+fits?\\b"
+        ]
+      }
+    },
+    "routine-construction": {
+      "methods": [
+        {
+          "available": "always",
+          "id": "hand-written-analysis",
+          "operations": [
+            "authored-analysis"
+          ],
+          "preference": 2,
+          "roles": [],
+          "title": "Hand-written analysis code run in the governed sandbox"
+        }
+      ],
+      "summary": "Implement a particle-level analysis routine for a published analysis that has no published routine",
+      "triggers": {
+        "task_modes": [
+          "no_routine"
+        ],
+        "terms": [
+          "re:\\bno\\s+(?:published\\s+|public\\s+|existing\\s+|released\\s+)?(?:Rivet\\s+)?(?:analysis\\s+)?routines?\\s+(?:exists?|is\\s+available|are\\s+available|available)\\b",
+          "re:\\bwithout\\s+(?:a|an|any)\\s+(?:published\\s+|public\\s+|existing\\s+|released\\s+)?(?:Rivet\\s+)?(?:analysis\\s+)?routine\\b",
+          "re:\\b(?:construct|write|build|implement|create)\\s+(?:a|an|the)\\s+(?:new\\s+)?Rivet\\s+(?:analysis\\s+)?routine\\b"
+        ]
+      }
+    },
+    "symbolic-model-building": {
+      "methods": [
+        {
+          "available": "supplied:model",
+          "id": "supplied-ufo",
+          "operations": [
+            "model-tool-bridge"
+          ],
+          "preference": 2,
+          "roles": [],
+          "title": "The supplied UFO model, checked through the matrix-element generator"
+        }
+      ],
+      "summary": "Derive a model symbolically from its Lagrangian (Feynman rules, a UFO model or a spectrum)",
+      "triggers": {
+        "task_modes": [],
+        "terms": [
+          "re:\\b(?:derive|obtain|compute|generate)\\s+(?:the\\s+)?Feynman\\s+rules\\b",
+          "re:\\b(?:build|generate|produce|derive|create|write)\\s+(?:a|an|the)\\s+(?:new\\s+)?UFO\\b",
+          "re:\\bUFO\\s+(?:model\\s+)?from\\s+(?:the|this|a)\\s+Lagrangian\\b"
+        ]
+      }
+    }
+  },
   "qualification_source": {
     "path": "src/ravel/data/knowledge/qualification.json",
     "sha256": "c31392a5eaa5c68878bee6f63b5c53441369834e4bc6e510bbf319a6f7fe4ead"
@@ -121,6 +204,9 @@
       "installer_groups": [
         "simpleanalysis"
       ],
+      "request_names": [
+        "SimpleAnalysis"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:226",
       "source_status": "E",
@@ -141,7 +227,23 @@
       "installer_groups": [
         "agent-sources"
       ],
+      "request_names": [
+        "AgentRivet"
+      ],
       "requirement": "required_for_profile",
+      "serves": [
+        {
+          "implies": true,
+          "need": "routine-construction",
+          "operations": [],
+          "preference": 1,
+          "roles": [
+            "routine-constructor",
+            "upstream-agentrivet-analyst",
+            "upstream-agentrivet-coder"
+          ]
+        }
+      ],
       "source_locator": "tools-and-validation-census.md:318",
       "source_status": "S",
       "status": "not_installed",
@@ -159,6 +261,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-analysisbase-21-2-inside-the-sa-image",
       "installer_groups": [],
+      "request_names": [
+        "AnalysisBase"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:227",
       "source_status": "E",
@@ -178,6 +283,11 @@
       "id": "census-camb-1-6-5-class-classy-3-4-1-0-cobaya-3-6-2",
       "installer_groups": [
         "cosmology"
+      ],
+      "request_names": [
+        "CAMB",
+        "classy",
+        "Cobaya"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:291",
@@ -213,6 +323,11 @@
       "id": "census-cms-combine-9-2-1-on-root-6-22-image-sha256-5da96967",
       "installer_groups": [
         "root-combine"
+      ],
+      "request_names": [
+        "HiggsCombine",
+        "combineTool",
+        "re:(?-i:Combine)(?=\\s+(?:tool|datacards?|fits?)\\b)"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:245",
@@ -259,6 +374,10 @@
       "installer_groups": [
         "site-access"
       ],
+      "request_names": [
+        "HTCondor",
+        "apptainer"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:305",
       "source_status": "S",
@@ -289,6 +408,10 @@
       "installer_groups": [
         "checkmate"
       ],
+      "request_names": [
+        "CheckMATE",
+        "ONNX Runtime"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:231",
       "source_status": "E−",
@@ -306,6 +429,10 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-collier-or-looptools",
       "installer_groups": [],
+      "request_names": [
+        "Collier",
+        "LoopTools"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:265",
       "source_status": "P",
@@ -331,6 +458,9 @@
       "installer_groups": [
         "contur"
       ],
+      "request_names": [
+        "re:(?-i:Contur)"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:233",
       "source_status": "E",
@@ -352,6 +482,9 @@
         "checkmate",
         "recast-base"
       ],
+      "request_names": [
+        "Delphes"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:222",
       "source_status": "E",
@@ -369,6 +502,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-dsixtools",
       "installer_groups": [],
+      "request_names": [
+        "DsixTools"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:278",
       "source_status": "P",
@@ -399,6 +535,9 @@
       "installer_groups": [
         "easyscan"
       ],
+      "request_names": [
+        "EasyScan_HEP"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:280",
       "source_status": "S",
@@ -416,6 +555,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-form-standalone",
       "installer_groups": [],
+      "request_names": [
+        "re:(?-i:FORM)"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:264",
       "source_status": "P",
@@ -435,6 +577,9 @@
       "id": "census-fastjet-3-5-1",
       "installer_groups": [
         "recast-base"
+      ],
+      "request_names": [
+        "FastJet"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:223",
@@ -466,6 +611,10 @@
       "installer_groups": [
         "wolfram"
       ],
+      "request_names": [
+        "FeynArts",
+        "FAPatch"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:259",
       "source_status": "S",
@@ -490,6 +639,9 @@
       "id": "census-feyncalc-fe664511",
       "installer_groups": [
         "wolfram"
+      ],
+      "request_names": [
+        "FeynCalc"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:258",
@@ -521,6 +673,9 @@
       "installer_groups": [
         "feyngraph"
       ],
+      "request_names": [
+        "FeynGraph"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:261",
       "source_status": "S",
@@ -546,7 +701,23 @@
       "installer_groups": [
         "wolfram"
       ],
+      "request_names": [
+        "FeynRules"
+      ],
       "requirement": "required_for_profile",
+      "serves": [
+        {
+          "implies": true,
+          "need": "symbolic-model-building",
+          "operations": [
+            "model-authoring",
+            "model-derivation-bridge",
+            "model-provider-bridge"
+          ],
+          "preference": 1,
+          "roles": []
+        }
+      ],
       "source_locator": "tools-and-validation-census.md:256",
       "source_status": "E−",
       "status": "built_but_unqualified",
@@ -576,7 +747,21 @@
       "installer_groups": [
         "spectrum"
       ],
+      "request_names": [
+        "FlexibleSUSY"
+      ],
       "requirement": "required_for_profile",
+      "serves": [
+        {
+          "implies": false,
+          "need": "symbolic-model-building",
+          "operations": [
+            "generated-spectrum"
+          ],
+          "preference": 3,
+          "roles": []
+        }
+      ],
       "source_locator": "tools-and-validation-census.md:273",
       "source_status": "S",
       "status": "not_installed",
@@ -606,6 +791,10 @@
       "installer_groups": [
         "easyscan"
       ],
+      "request_names": [
+        "GM2Calc",
+        "PhaseTracer"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:281",
       "source_status": "S",
@@ -623,6 +812,10 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-geant4-gdml",
       "installer_groups": [],
+      "request_names": [
+        "Geant4",
+        "GDML"
+      ],
       "requirement": "excluded",
       "source_locator": "tools-and-validation-census.md:235",
       "source_status": "X",
@@ -642,6 +835,9 @@
       "id": "census-hepdata-api-and-hepdata-cli-0-3-1-inspire-arxiv-zenodo-cern-gitlab",
       "installer_groups": [
         "python-host"
+      ],
+      "request_names": [
+        "hepdata-cli"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:306",
@@ -703,6 +899,10 @@
       "installer_groups": [
         "diagram-consumers",
         "wolfram"
+      ],
+      "request_names": [
+        "HEPTAPOD",
+        "Diagrammatica"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:260",
@@ -770,6 +970,10 @@
         "nyx",
         "site-access"
       ],
+      "request_names": [
+        "HTCondor",
+        "SLURM"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:315",
       "source_status": "S",
@@ -800,6 +1004,9 @@
       "installer_groups": [
         "checkmate"
       ],
+      "request_names": [
+        "HepMC2"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:213",
       "source_status": "I",
@@ -820,6 +1027,9 @@
       "installer_groups": [
         "rivet-shower"
       ],
+      "request_names": [
+        "HepMC3"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:212",
       "source_status": "E",
@@ -839,6 +1049,10 @@
       "id": "census-herwig-7-3-0-thepeg-2-3-0",
       "installer_groups": [
         "contur"
+      ],
+      "request_names": [
+        "Herwig",
+        "ThePEG"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:209",
@@ -886,6 +1100,10 @@
         "higgstools",
         "lilith"
       ],
+      "request_names": [
+        "HiggsTools",
+        "Lilith"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:284",
       "source_status": "X",
@@ -905,6 +1123,9 @@
       "id": "census-jax-0-4-35",
       "installer_groups": [
         "python-host"
+      ],
+      "request_names": [
+        "re:(?-i:JAX)"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:243",
@@ -926,6 +1147,10 @@
       "installer_groups": [
         "container-runtime",
         "python-host"
+      ],
+      "request_names": [
+        "JHUGen",
+        "MELA"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:267",
@@ -1013,6 +1238,9 @@
         "lhapdf-sets",
         "madgraph"
       ],
+      "request_names": [
+        "LHAPDF"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:214",
       "source_status": "E",
@@ -1068,6 +1296,8 @@
       "installer_groups": [
         "lhapdf-sets"
       ],
+      "request_names": [],
+      "request_names_reason": "a data set or supplied layout, not a runtime tool",
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:215",
       "source_status": "E",
@@ -1086,6 +1316,8 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-supplied-array-layout",
       "installer_groups": [],
+      "request_names": [],
+      "request_names_reason": "a data set or supplied layout, not a runtime tool",
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:234",
       "source_status": "S",
@@ -1106,6 +1338,8 @@
       "installer_groups": [
         "python-host"
       ],
+      "request_names": [],
+      "request_names_reason": "the controller graph runtime; never a study tool",
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:316",
       "source_status": "I",
@@ -1126,6 +1360,9 @@
       "installer_groups": [
         "mcfm-amplitudes"
       ],
+      "request_names": [
+        "MCFM"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:266",
       "source_status": "S",
@@ -1145,6 +1382,9 @@
       "id": "census-mg5amc-py8-interface-5d82df1b",
       "installer_groups": [
         "mg5-py8-interface"
+      ],
+      "request_names": [
+        "MG5aMC_PY8_interface"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:206",
@@ -1171,6 +1411,10 @@
       "installer_groups": [
         "ma5"
       ],
+      "request_names": [
+        "MadAnalysis 5",
+        "SampleAnalyzer"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:230",
       "source_status": "I",
@@ -1195,6 +1439,9 @@
       "id": "census-madgraph-3-7-0-adf3d62d",
       "installer_groups": [
         "madgraph"
+      ],
+      "request_names": [
+        "MadGraph"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:204",
@@ -1231,6 +1478,9 @@
       "installer_groups": [
         "madgraph"
       ],
+      "request_names": [
+        "MadGraph5_aMC@NLO"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:203",
       "source_status": "E",
@@ -1259,6 +1509,11 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
       "installer_groups": [],
+      "request_names": [
+        "MadLoop",
+        "CutTools",
+        "COLLIER"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:205",
       "source_status": "E−",
@@ -1282,6 +1537,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-magnus-cli-agpl",
       "installer_groups": [],
+      "request_names": [
+        "Magnus CLI"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:314",
       "source_status": "P",
@@ -1302,6 +1560,8 @@
       "installer_groups": [
         "research-host"
       ],
+      "request_names": [],
+      "request_names_reason": "model-provider transports serve agent sessions; a request names no study step for them",
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:317",
       "source_status": "I",
@@ -1319,6 +1579,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-multinest",
       "installer_groups": [],
+      "request_names": [
+        "MultiNest"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:283",
       "source_status": "P",
@@ -1354,6 +1617,12 @@
       "installer_groups": [
         "nyx"
       ],
+      "request_names": [
+        "Nyx",
+        "AMReX",
+        "SUNDIALS",
+        "CosmicIC"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:293",
       "source_status": "S",
@@ -1373,6 +1642,10 @@
       "id": "census-onnx-1-23-0-onnx-runtime-1-30-0",
       "installer_groups": [
         "python-host"
+      ],
+      "request_names": [
+        "ONNX",
+        "ONNX Runtime"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:248",
@@ -1409,6 +1682,9 @@
       "installer_groups": [
         "container-runtime"
       ],
+      "request_names": [
+        "Podman"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:312",
       "source_status": "E",
@@ -1426,6 +1702,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-powheg",
       "installer_groups": [],
+      "request_names": [
+        "Powheg"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:211",
       "source_status": "P",
@@ -1446,6 +1725,9 @@
       "installer_groups": [
         "python-host"
       ],
+      "request_names": [
+        "PySLHA"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:276",
       "source_status": "E",
@@ -1465,6 +1747,9 @@
       "id": "census-pythia-8-244",
       "installer_groups": [
         "checkmate"
+      ],
+      "request_names": [
+        "Pythia"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:208",
@@ -1496,6 +1781,9 @@
       "installer_groups": [
         "rivet-shower"
       ],
+      "request_names": [
+        "Pythia"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:207",
       "source_status": "E",
@@ -1514,6 +1802,10 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-python-numerical-core",
       "installer_groups": [],
+      "request_names": [
+        "NumPy",
+        "SciPy"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -1532,6 +1824,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-qgraf-model-format",
       "installer_groups": [],
+      "request_names": [
+        "QGRAF"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:262",
       "source_status": "P",
@@ -1551,6 +1846,9 @@
       "id": "census-root-6-40",
       "installer_groups": [
         "recast-base"
+      ],
+      "request_names": [
+        "re:(?-i:ROOT)"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:224",
@@ -1587,6 +1885,9 @@
       "installer_groups": [
         "restframes"
       ],
+      "request_names": [
+        "RestFrames"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:228",
       "source_status": "E",
@@ -1612,6 +1913,10 @@
       "installer_groups": [
         "rivet-shower"
       ],
+      "request_names": [
+        "Rivet",
+        "YODA"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:225",
       "source_status": "E",
@@ -1631,6 +1936,10 @@
       "id": "census-roofit-xroofit-root-6-32-14-for-hs3",
       "installer_groups": [
         "recast-base"
+      ],
+      "request_names": [
+        "RooFit",
+        "XRooFit"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:246",
@@ -1657,6 +1966,9 @@
       "installer_groups": [
         "wolfram"
       ],
+      "request_names": [
+        "SARAH"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:257",
       "source_status": "S",
@@ -1682,7 +1994,25 @@
       "installer_groups": [
         "sfitter"
       ],
+      "request_names": [
+        "SFitterAgents",
+        "SFitter",
+        "PyTorch"
+      ],
       "requirement": "required_for_profile",
+      "serves": [
+        {
+          "implies": true,
+          "need": "global-fit",
+          "operations": [
+            "sfitter-native-fit",
+            "sfitter-scan-extraction",
+            "sfitter-observed-events"
+          ],
+          "preference": 1,
+          "roles": []
+        }
+      ],
       "source_locator": "tools-and-validation-census.md:279",
       "source_status": "S",
       "status": "not_installed",
@@ -1707,6 +2037,9 @@
       "installer_groups": [
         "smodels"
       ],
+      "request_names": [
+        "SModelS"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:232",
       "source_status": "E",
@@ -1727,6 +2060,9 @@
       "installer_groups": [
         "spectrum"
       ],
+      "request_names": [
+        "SPheno"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:274",
       "source_status": "S",
@@ -1745,6 +2081,11 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-susy-cross-section-tables-lhc-susy-xs-wg-nnll-fast-resummino-via-hepi-json",
       "installer_groups": [],
+      "request_names": [
+        "NNLL-fast",
+        "Resummino",
+        "HEPi"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:216",
       "source_status": "E",
@@ -1765,6 +2106,10 @@
       "installer_groups": [
         "iris"
       ],
+      "request_names": [
+        "ServiceX",
+        "func-adl-servicex-xaodr25"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:301",
       "source_status": "I",
@@ -1782,6 +2127,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-sherpa",
       "installer_groups": [],
+      "request_names": [
+        "Sherpa"
+      ],
       "requirement": "excluded",
       "source_locator": "tools-and-validation-census.md:210",
       "source_status": "X",
@@ -1802,7 +2150,21 @@
       "installer_groups": [
         "site-root-wms"
       ],
+      "request_names": [
+        "Snakemake"
+      ],
       "requirement": "required_for_profile",
+      "serves": [
+        {
+          "implies": true,
+          "need": "external-workflow-execution",
+          "operations": [
+            "external-workflow"
+          ],
+          "preference": 1,
+          "roles": []
+        }
+      ],
       "source_locator": "tools-and-validation-census.md:304",
       "source_status": "S",
       "status": "not_installed",
@@ -1819,6 +2181,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-softsusy",
       "installer_groups": [],
+      "request_names": [
+        "SoftSUSY"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:275",
       "source_status": "P",
@@ -1839,6 +2204,9 @@
       "installer_groups": [
         "python-host"
       ],
+      "request_names": [
+        "re:(?-i:Spey)"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:244",
       "source_status": "I",
@@ -1856,6 +2224,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-tmva",
       "installer_groups": [],
+      "request_names": [
+        "TMVA"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:249",
       "source_status": "P",
@@ -1881,6 +2252,13 @@
       "installer_groups": [
         "tex"
       ],
+      "request_names": [
+        "TeX Live",
+        "MacTeX",
+        "pdflatex",
+        "BibTeX",
+        "REVTeX"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:324",
       "source_status": "I",
@@ -1901,7 +2279,24 @@
       "installer_groups": [
         "python-host"
       ],
+      "request_names": [
+        "WCxf",
+        "wilson",
+        "flavio",
+        "smelli"
+      ],
       "requirement": "required_for_profile",
+      "serves": [
+        {
+          "implies": false,
+          "need": "global-fit",
+          "operations": [
+            "eft-toolchain"
+          ],
+          "preference": 2,
+          "roles": []
+        }
+      ],
       "source_locator": "tools-and-validation-census.md:277",
       "source_status": "I",
       "status": "built_but_unqualified",
@@ -1920,6 +2315,11 @@
       "id": "census-wolfram-kernel-mathematica-or-wolfram-engine-wolframscript",
       "installer_groups": [
         "wolfram"
+      ],
+      "request_names": [
+        "Mathematica",
+        "Wolfram Engine",
+        "wolframscript"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:255",
@@ -1941,6 +2341,10 @@
       "installer_groups": [
         "site-root-wms"
       ],
+      "request_names": [
+        "XRootD",
+        "Rucio"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:303",
       "source_status": "S",
@@ -1960,6 +2364,12 @@
       "id": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
       "installer_groups": [
         "site-root-wms"
+      ],
+      "request_names": [
+        "coffea",
+        "cabinetry",
+        "boost-histogram",
+        "pyarrow"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:302",
@@ -1996,6 +2406,11 @@
       "installer_groups": [
         "container-runtime"
       ],
+      "request_names": [
+        "docker",
+        "apptainer",
+        "podman"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:313",
       "source_status": "S",
@@ -2016,6 +2431,10 @@
       "installer_groups": [
         "python-host"
       ],
+      "request_names": [
+        "emcee",
+        "dynesty"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:247",
       "source_status": "I",
@@ -2033,6 +2452,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-hi-class",
       "installer_groups": [],
+      "request_names": [
+        "hi_class"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:292",
       "source_status": "P",
@@ -2052,6 +2474,9 @@
       "id": "census-iminuit-2-32-0",
       "installer_groups": [
         "python-host"
+      ],
+      "request_names": [
+        "iminuit"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:242",
@@ -2073,6 +2498,9 @@
       "installer_groups": [
         "simpleanalysis"
       ],
+      "request_names": [
+        "mapyde"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:229",
       "source_status": "E",
@@ -2093,6 +2521,11 @@
       "installer_groups": [
         "python-host"
       ],
+      "request_names": [
+        "matplotlib",
+        "mplhep",
+        "contourpy"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:327",
       "source_status": "E",
@@ -2110,6 +2543,9 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-micromegas-as-a-general-dm-tool",
       "installer_groups": [],
+      "request_names": [
+        "micrOMEGAs"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:285",
       "source_status": "P",
@@ -2127,6 +2563,12 @@
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-micromegas-7-1-susy-hit-feynhiggs-higgsbounds",
       "installer_groups": [],
+      "request_names": [
+        "micrOMEGAs",
+        "SUSY-HIT",
+        "FeynHiggs",
+        "HiggsBounds"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:282",
       "source_status": "P",
@@ -2162,6 +2604,8 @@
       "installer_groups": [
         "publication"
       ],
+      "request_names": [],
+      "request_names_reason": "document and figure utilities used inside RAVEL steps; never a study tool",
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:325",
       "source_status": "S",
@@ -2192,6 +2636,10 @@
       "installer_groups": [
         "finite-integrals"
       ],
+      "request_names": [
+        "pySecDec",
+        "re:(?-i:FORM)"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:263",
       "source_status": "I",
@@ -2211,6 +2659,10 @@
       "id": "census-pyhf-0-7-6-minuit-jsonpatch",
       "installer_groups": [
         "python-host"
+      ],
+      "request_names": [
+        "pyhf",
+        "jsonpatch"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:241",
@@ -2232,6 +2684,11 @@
       "installer_groups": [
         "python-host"
       ],
+      "request_names": [
+        "pypdfium2",
+        "PDFium",
+        "pypdf"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:326",
       "source_status": "E",
@@ -2251,6 +2708,11 @@
       "id": "census-uproot-5-3-12-awkward-2-6-7-hist-2-8-0-pandas-2-2-3",
       "installer_groups": [
         "python-host"
+      ],
+      "request_names": [
+        "uproot",
+        "awkward-array",
+        "pandas"
       ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:300",
@@ -2281,6 +2743,9 @@
       "id": "component-madloop",
       "installer_groups": [],
       "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "request_names": [
+        "MadLoop"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:205",
       "source_status": "E−",
@@ -2300,6 +2765,9 @@
       "id": "component-cuttools",
       "installer_groups": [],
       "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "request_names": [
+        "CutTools"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:205",
       "source_status": "E−",
@@ -2319,6 +2787,9 @@
       "id": "component-ninja",
       "installer_groups": [],
       "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "request_names": [
+        "re:(?-i:Ninja)"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:205",
       "source_status": "E−",
@@ -2338,6 +2809,9 @@
       "id": "component-collier",
       "installer_groups": [],
       "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "request_names": [
+        "COLLIER"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:205",
       "source_status": "E−",
@@ -2357,6 +2831,7 @@
       "id": "component-numpy",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2376,6 +2851,7 @@
       "id": "component-scipy",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2395,7 +2871,21 @@
       "id": "component-sympy",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [
+        "SymPy"
+      ],
       "requirement": "required_for_profile",
+      "serves": [
+        {
+          "implies": false,
+          "need": "symbolic-model-building",
+          "operations": [
+            "authored-analysis"
+          ],
+          "preference": 4,
+          "roles": []
+        }
+      ],
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
       "status": "built_but_unqualified",
@@ -2414,6 +2904,7 @@
       "id": "component-mpmath",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2433,6 +2924,7 @@
       "id": "component-jsonschema",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2452,6 +2944,7 @@
       "id": "component-pyyaml",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2471,6 +2964,7 @@
       "id": "component-packaging",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2490,6 +2984,7 @@
       "id": "component-certifi",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2509,6 +3004,7 @@
       "id": "component-pytest",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2528,6 +3024,7 @@
       "id": "component-hatchling",
       "installer_groups": [],
       "parent_census_row": "census-python-numerical-core",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:329",
       "source_status": "I",
@@ -2549,6 +3046,7 @@
         "site-root-wms"
       ],
       "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:302",
       "source_status": "P",
@@ -2570,6 +3068,7 @@
         "site-root-wms"
       ],
       "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:302",
       "source_status": "P",
@@ -2591,6 +3090,7 @@
         "site-root-wms"
       ],
       "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:302",
       "source_status": "P",
@@ -2612,6 +3112,7 @@
         "site-root-wms"
       ],
       "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:302",
       "source_status": "P",
@@ -2633,6 +3134,7 @@
         "site-root-wms"
       ],
       "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "request_names": [],
       "requirement": "required_for_profile",
       "source_locator": "tools-and-validation-census.md:302",
       "source_status": "P",
@@ -2668,6 +3170,8 @@
       "installer_groups": [
         "higgstools"
       ],
+      "request_names": [],
+      "request_names_reason": "a data set or supplied layout, not a runtime tool",
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hbdataset",
       "source_status": "not-built",
@@ -2703,6 +3207,8 @@
       "installer_groups": [
         "higgstools"
       ],
+      "request_names": [],
+      "request_names_reason": "a data set or supplied layout, not a runtime tool",
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hsdataset",
       "source_status": "not-built",
@@ -2752,6 +3258,9 @@
       "id": "census-hdecay",
       "installer_groups": [
         "higgs-decays"
+      ],
+      "request_names": [
+        "HDECAY"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hdecay",
@@ -2803,6 +3312,9 @@
       "installer_groups": [
         "higgs-decays"
       ],
+      "request_names": [
+        "eHDECAY"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#ehdecay",
       "source_status": "not-built",
@@ -2852,6 +3364,9 @@
       "id": "census-2hdecay",
       "installer_groups": [
         "higgs-decays"
+      ],
+      "request_names": [
+        "2HDECAY"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#2hdecay",
@@ -2903,6 +3418,9 @@
       "installer_groups": [
         "higgs-decays"
       ],
+      "request_names": [
+        "sHDECAY"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#shdecay",
       "source_status": "not-built",
@@ -2952,6 +3470,9 @@
       "id": "census-n2hdecay",
       "installer_groups": [
         "higgs-decays"
+      ],
+      "request_names": [
+        "N2HDECAY"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#n2hdecay",
@@ -3003,6 +3524,9 @@
       "installer_groups": [
         "higgs-decays"
       ],
+      "request_names": [
+        "Prophecy4f"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#prophecy4f",
       "source_status": "not-built",
@@ -3032,6 +3556,9 @@
       "id": "census-2hdmc",
       "installer_groups": [
         "two-hdm"
+      ],
+      "request_names": [
+        "2HDMC"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#2hdmc",
@@ -3063,6 +3590,9 @@
       "installer_groups": [
         "two-hdm"
       ],
+      "request_names": [
+        "ScannerS"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#scanners",
       "source_status": "not-built",
@@ -3093,6 +3623,9 @@
       "installer_groups": [
         "two-hdm"
       ],
+      "request_names": [
+        "GMCALC"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#gmcalc",
       "source_status": "not-built",
@@ -3112,6 +3645,9 @@
       "id": "census-sushi",
       "installer_groups": [
         "sushi"
+      ],
+      "request_names": [
+        "SusHi"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#sushi",
@@ -3163,6 +3699,9 @@
       "installer_groups": [
         "higgs-models"
       ],
+      "request_names": [
+        "two-doublet-nlo"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#two-doublet-nlo",
       "source_status": "not-built",
@@ -3212,6 +3751,9 @@
       "id": "census-two-doublet-pseudoscalar",
       "installer_groups": [
         "higgs-models"
+      ],
+      "request_names": [
+        "two-doublet-pseudoscalar"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#two-doublet-pseudoscalar",
@@ -3263,6 +3805,9 @@
       "installer_groups": [
         "higgs-models"
       ],
+      "request_names": [
+        "custodial-triplet"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#custodial-triplet",
       "source_status": "not-built",
@@ -3312,6 +3857,9 @@
       "id": "census-type-two-seesaw",
       "installer_groups": [
         "higgs-models"
+      ],
+      "request_names": [
+        "type-two-seesaw"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#type-two-seesaw",
@@ -3363,6 +3911,9 @@
       "installer_groups": [
         "higgs-models"
       ],
+      "request_names": [
+        "real-triplet"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#real-triplet",
       "source_status": "not-built",
@@ -3412,6 +3963,9 @@
       "id": "census-smeftsim",
       "installer_groups": [
         "higgs-models"
+      ],
+      "request_names": [
+        "smeftsim"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#smeftsim",
@@ -3463,6 +4017,9 @@
       "installer_groups": [
         "higgs-models"
       ],
+      "request_names": [
+        "smeft-nlo"
+      ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#smeft-nlo",
       "source_status": "not-built",
@@ -3482,6 +4039,9 @@
       "id": "census-hepfit",
       "installer_groups": [
         "hepfit"
+      ],
+      "request_names": [
+        "HEPfit"
       ],
       "requirement": "required_for_profile",
       "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hepfit",

@@ -76,10 +76,10 @@ def test_worker_adversarial_suite_passes_and_skips_only_without_a_sandbox(tmp_pa
     if launcher == 'macos':
         assert 'skipped' not in summary, summary
     elif launcher is not None:
-        # The login keychain exists on macOS only, and port filtering elsewhere needs kernel port rules.
+        # Port filtering and metadata visibility use the native sandbox profile.
         reasons = [line for line in output.splitlines() if line.startswith('SKIPPED')]
         admitted = re.compile(r'^SKIPPED \[1\] tests/unit/test_worker_sandbox\.py:\d+: '
-                              r'(the keychain home|port filtering|metadata visibility) is a macOS sandbox profile property\b')
+                              r'(port filtering|metadata visibility) is a macOS sandbox profile property\b')
         assert all(admitted.match(line) for line in reasons), reasons
         declared = (HERE / 'test_worker_sandbox.py').read_text().count('is a macOS sandbox profile property')
         assert len(reasons) <= declared, reasons

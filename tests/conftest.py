@@ -90,6 +90,12 @@ if str(ROOT / "tests") not in sys.path:
 os.environ["PYTHONPATH"] = os.pathsep.join([SRC, *[p for p in os.environ.get("PYTHONPATH", "").split(os.pathsep)
                                                    if p and p != SRC]])
 
+# The controller refuses its in-process seams (gate overrides, graph, route-spec and service
+# registrations) outside the test harness (SW30). This test process enables them, in process only.
+from ravel.controller.testing import enable_seams
+
+enable_seams()
+
 # A test never inherits the host session of the agent or shell that runs it: `ravel initiate`
 # would otherwise register that session's run (R-50 registry) and make its enforcement surface
 # read-only. Tests that need a session set one explicitly.
@@ -230,3 +236,26 @@ def short_tmp_path(monkeypatch):
     with tempfile.TemporaryDirectory(prefix='rv-', dir=Path('/tmp').resolve()) as folder:
         monkeypatch.setenv('TMPDIR', folder)
         yield Path(folder)
+
+
+@pytest.fixture(autouse=True)
+def _operator_capture_private_ledger(tmp_path_factory, monkeypatch):
+    """Keep controller capture evidence private for the whole test; never confirm decisions.
+
+    The ledger directory is allocated on first use only. A test process never reads the
+    controlling terminal it was started from: a capture without the explicit
+    ``operator_capture`` stand-in refuses as a process without a terminal would."""
+    from ravel.workflow import approval_capture as capture
+    path = None
+
+    def no_terminal():
+        raise OSError('tests never read the controlling terminal')
+    monkeypatch.setattr(capture, '_open_terminal', no_terminal)
+
+    def ledger():
+        nonlocal path
+        if path is None:
+            path = tmp_path_factory.mktemp('operator-captures') / 'captures.jsonl'
+        return path
+
+    monkeypatch.setattr(capture, '_ledger', ledger)

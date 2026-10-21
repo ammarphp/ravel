@@ -18,6 +18,7 @@ PROJECT_MARKER = {'schema_version': 1, 'default': PROJECT_CONFIG}
 PIN = 'provider-policy/pin.json'
 LOCK = 'provider-policy/policy.lock'
 PUBLIC = {'level': 'public', 'allowed_providers': None}
+RESTRICTED = {'level': 'restricted', 'allowed_providers': []}
 
 
 class PolicyRefused(ValueError):
@@ -50,15 +51,44 @@ def restricted_inputs(pins):
     if isinstance(pins, dict):
         if 'restricted' in pins and type(pins['restricted']) is not bool:
             raise PolicyRefused('input pin restricted must be boolean')
-        return pins.get('restricted', False) or any(
+        declared = pins.get('data_classification')
+        if declared is not None:
+            declared = classification(declared)
+        return pins.get('restricted', False) or (declared is not None and declared['level'] == 'restricted') or any(
             [restricted_inputs(v) for k, v in pins.items() if k != 'restricted'])
     return False
 
 
 def validate_start(declaration, input_pins=()):
     value = classification(declaration) if declaration is not None else None
+    _narrower(value, input_classification(input_pins), scope='input classification')
     if restricted_inputs(list(input_pins)) and (value is None or value['level'] != 'restricted'):
         raise PolicyRefused('restricted input pins require an explicit restricted data_classification before run start')
+    return value
+
+
+def input_classification(pins):
+    """Combine complete supplied declarations, including wrappers and derived pins."""
+    rows = []
+    def visit(item):
+        if isinstance(item, (list, tuple)):
+            for child in item:
+                visit(child)
+        elif isinstance(item, dict):
+            if 'data_classification' in item:
+                rows.append({'data_classification': classification(item['data_classification'])})
+            for key, child in item.items():
+                if key != 'data_classification':
+                    visit(child)
+    visit(pins)
+    return _combine(rows)
+
+
+def supplied_classification(project, declaration=None):
+    """Unclassified supplied bytes are restricted unless an explicit project default exists."""
+    floor = _combine(project_policy(project)['project_defaults'])
+    value = classification(declaration) if declaration is not None else (floor or deepcopy(RESTRICTED))
+    _narrower(value, floor)
     return value
 
 
@@ -120,12 +150,12 @@ def project_policy(project, *, register=False):
     return {**_record(_combine(rows)), 'project_defaults': rows}
 
 
-def _narrower(value, floor):
+def _narrower(value, floor, *, scope='project default'):
     levels = ('public', 'internal', 'restricted')
     if floor is not None and (value is None
             or levels.index(value['level']) < levels.index(floor['level'])
             or any(entry not in floor['allowed_providers'] for entry in value['allowed_providers'])):
-        raise PolicyRefused('run provider policy cannot widen the project default')
+        raise PolicyRefused(f'run provider policy cannot widen the {scope}; supply a policy within its clearance')
 
 
 def validate_run_start(run, declaration=None, input_pins=()):
@@ -133,6 +163,9 @@ def validate_run_start(run, declaration=None, input_pins=()):
     project = project_policy(run)
     floor = _combine(project['project_defaults'])
     value = classification(declaration) if declaration is not None else floor
+    supplied = input_classification(input_pins)
+    if supplied is not None:
+        value = _combine([{'data_classification': v} for v in (value, supplied) if v is not None])
     _narrower(value, floor)
     return validate_start(value, input_pins)
 
@@ -258,13 +291,44 @@ def _current(root):
     return state, current
 
 
+def _controller_policy(run):
+    """The policy frozen into a controller-owned run's protected store at intake, or None.
+
+    A controller-owned run never re-reads ``.ravel/provider-policy.json``, the project or run
+    ``data_classification.json`` or the run-tree pin: those are same-user writable after intake.
+    """
+    if run is None:
+        return None
+    from ravel.controller.authority import common as controller_authority
+    path = Path(run).expanduser().absolute()
+    identifier = None
+    for candidate in (path, *path.parents[:8]):
+        identifier = controller_authority.owned_run(candidate)
+        if identifier is not None:
+            break
+    if identifier is None:
+        return None
+    from ravel.controller.authority import mode
+    frozen = mode.frozen(controller_authority.open_store(identifier)).get('provider_policy')
+    if type(frozen) is not dict or type(frozen.get('record')) is not dict or digest(frozen['record']) != frozen.get('policy_sha256'):
+        raise PolicyRefused('the controller-owned run has no provider policy frozen at intake')
+    return deepcopy(frozen['record'])
+
+
 def start(run, *, data_classification=None, input_pins=()):
     """Pin at run start. Existing runs are checked, never silently re-pinned.
 
     A caller may supply the declaration here or provision CONFIG before start.
     Legacy runs are pinned on their first guarded call. Child roots inherit an
     enclosing policy; a child cannot replace it by supplying a declaration.
+    A controller-owned run uses the policy frozen in its store at intake (SW25).
     """
+    frozen = _controller_policy(run)
+    if frozen is not None:
+        if data_classification is not None and _record(classification(data_classification)) != frozen:
+            raise PolicyRefused('a controller-owned run keeps the provider policy frozen at intake')
+        validate_start(frozen['data_classification'] if frozen['declared'] else None, input_pins)
+        return frozen
     root = find_run(run)
     if root is None:
         if data_classification is not None:
@@ -281,6 +345,9 @@ def start(run, *, data_classification=None, input_pins=()):
         value = classification(data_classification) if data_classification is not None else configured
         if value is None and state is None:
             value = floor
+        supplied = input_classification(input_pins)
+        if supplied is not None and state is None:
+            value = _combine([{'data_classification': v} for v in (value, supplied) if v is not None])
         _narrower(value, floor)
         validate_start(value, input_pins)
         target = _record(value)
@@ -304,6 +371,9 @@ def start(run, *, data_classification=None, input_pins=()):
 
 def approve_change(run, data_classification, approval_record):
     """Apply an operator approval; records retain the initial pin and whole chain."""
+    if _controller_policy(run) is not None:
+        raise PolicyRefused('a controller-owned run keeps the provider policy frozen at intake; start a new run '
+                            'to use a different policy')
     root = find_run(run)
     replacement = _record(classification(data_classification))
     with file_lock(root / LOCK):

@@ -117,6 +117,8 @@ here = Path(__file__).resolve().parent
 args = sys.argv[1:]
 if args == ['--version']:
     print('fake-cli 9.9.9'); sys.exit(0)
+if args == ['auth', 'status', '--json']:  # the login preflight's prompt-free status observation
+    print(json.dumps({{'loggedIn': True, 'authMethod': 'claude.ai'}})); sys.exit(0)
 if '--help' in args:
     sys.stdout.write((here / 'help.txt').read_text()); sys.exit(0)
 prompt = sys.stdin.read()

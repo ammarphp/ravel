@@ -2,6 +2,7 @@
 import importlib
 from pathlib import Path
 import pytest
+from inert_dispatch import inert_dispatch  # noqa: F401
 from test_review_points import run, write, receipt
 
 
@@ -220,7 +221,7 @@ def test_plan_edit_after_approve_changes_derived_digest_refused(tmp_path, mutati
     assert 'obligations_changed' in [e.code for e in rp.gate_errors(tmp_path, 'delivery', {})]
 
 
-def test_checkin2_accept_scoped_to_named_claim(tmp_path):
+def test_checkin2_accept_scoped_to_named_claim(tmp_path, inert_dispatch):
     from ravel.workflow import review_points as rp
     run(tmp_path, claims=[{'id': 'C1'}, {'id': 'C2'}])
     for p in rp.derive(rp._facts(tmp_path)):
@@ -319,7 +320,7 @@ def test_approval_writer_records_and_fingerprints_derived_points(tmp_path, monke
     assert __import__('json').loads(path.read_text())['derived_points_sha256'] == rp.jdigest(rp.derive(rp._facts(tmp_path)))
 
 
-def test_older_calibration_receipt_does_not_satisfy_current_action(tmp_path):
+def test_older_calibration_receipt_does_not_satisfy_current_action(tmp_path, inert_dispatch):
     from rdj_fixtures import Run, authorize_tuning_case
     from ravel.workflow import rdj_loop as rdj, review_points as rp
     r = Run(tmp_path/'run')

@@ -90,11 +90,19 @@ def test_complete_helper_creates_only_local_environments_and_installs_once(tmp_p
         target=Path(argv[0]).parent.parent
         return json.dumps([str(target),[3,12]])
     monkeypatch.setattr(subprocess,'check_output',output)
-    monkeypatch.setattr(subprocess,'run',lambda argv,**kwargs:calls.append((argv,kwargs)))
+    sealed={'runtime_id':'0'*16,'runtime_dir':'/fixture/runtime/'+'0'*16,'launcher':'/fixture/runtime/'+'0'*16+'/bin/ravel','reused':False}
+    def run(argv,**kwargs):
+        calls.append((argv,kwargs))
+        return subprocess.CompletedProcess(argv,0,stdout=json.dumps(sealed),stderr='')
+    monkeypatch.setattr(subprocess,'run',run)
     value=p.install(c)
     assert made==[c/'.venv',c/'.venv-smodels',c/'.venv-sfitter']
-    assert len(calls)==3 and all(k['cwd']==c and k['check'] is True for _,k in calls)
-    assert all(a[1:5]==['-m','pip','install','-r'] for a,_ in calls)
+    pip=[(a,k) for a,k in calls if a[1:5]==['-m','pip','install','-r']]
+    assert len(pip)==3 and all(k['cwd']==c and k['check'] is True for _,k in pip)
+    # The installation ends by sealing the host environment's RAVEL with that environment's interpreter.
+    assert len(calls)==4 and calls[-1][0]==[str(c/'.venv/bin/python'),'-I','-m','ravel','governed-runtime','seal']
+    assert calls[-1][1]['cwd']==c
+    assert value['governed_runtime']=={**{k:sealed[k] for k in ('runtime_id','runtime_dir','launcher','reused')},'sealed':True}
     assert value['complete_python_profile'] is True and value['native_admitted'] is False
 
 
@@ -238,7 +246,7 @@ def test_fresh_stdlib_only_wrapper_from_foreign_cwd(tmp_path):
 
 def test_required_particle_table_compatibility_is_canonical():
     m=p.declarations(ROOT)
-    assert len(m['dependencies'])==46
+    assert len(m['dependencies'])==52
     assert m['dependencies'].count('particle==0.26.2')==1
     for requirement in ('flavio==2.7.1','smelli==2.4.3','wilson==2.5.2'):
         assert requirement in m['dependencies']
@@ -297,3 +305,17 @@ def test_original_role_pydantic_v2_is_a_direct_required_host_dependency():
     assert m['import_roots']['pydantic']['environment']=='host'
     assert 'pydantic==2.14.0' in (ROOT/'requirements-full.txt').read_text().splitlines()
     assert p.validate_aliases(ROOT) is True
+
+
+def test_tokenizer_closure_is_pinned_after_onnxruntime_in_every_declaration():
+    m=p.declarations(ROOT)
+    closure=['onnxruntime==1.30.0','tokenizers==0.22.1','huggingface-hub==1.33.0','hf-xet==1.7.0']
+    canonical=tomllib.loads((ROOT/'pyproject.toml').read_text())['project']['dependencies']
+    rows=[l.strip() for l in (ROOT/'requirements-full.txt').read_text().splitlines()
+          if l.strip() and not l.startswith('#')]
+    for values in (m['dependencies'],m['runtime_dependencies'],canonical,rows):
+        start=values.index(closure[0])
+        assert values[start:start+len(closure)]==closure
+        assert all(values.count(v)==1 for v in closure)
+    assert m['import_roots']['tokenizers']=={'environment':'host','provider':'tokenizers'}
+    assert {'huggingface_hub','hf_xet'}.isdisjoint(m['import_roots'])

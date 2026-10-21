@@ -30,7 +30,7 @@ L = X_μ f̄ γ^μ (gL P_L + gR P_R) f for spin 1.
   the declared `sin2_theta_w` and `alpha_em`, and an optional `scale_factor` k.
   Channels name Standard-Model fermions (`e mu tau ve vm vt u c t d s b`).
 - `declared`: each channel gives `gL` and `gR`, or `gV` and `gA`
-  (gL = gV + gA, gR = gV − gA). Couplings may be complex (`{"Re": .., "Im": ..}`).
+  (gL = gV + gA, gR = gV − gA). Couplings can be complex (`{"Re": .., "Im": ..}`).
   A non-Standard-Model fermion declares its `color` (1 or 3).
 
 Every fermion mass is declared. A channel below threshold has zero width.

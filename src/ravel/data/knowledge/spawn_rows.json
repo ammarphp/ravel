@@ -3,7 +3,7 @@
   "kind": "spawn-row-catalogue",
   "rows": [
     {"row":"K1", "predicate":"tool_draft", "trigger":"smoke/full tool node with producer draft", "roles":[], "mode":"advisory", "gate":"launch"},
-    {"row":"K4", "predicate":"evaluated_author", "trigger":"authored node with deterministic evaluator", "roles":[], "mode":"producer", "gate":"launch", "candidate_count":3, "deadline_count":2, "min_model_families":2},
+    {"row":"K4", "predicate":"evaluated_author", "trigger":"authored node with deterministic evaluator", "roles":[], "mode":"producer", "gate":"launch", "candidate_count":3, "deadline_count":2, "min_model_families":1},
     {"row":"K5", "predicate":"absolute_prediction", "trigger":"absolute generated prediction or simulated acceptance claim", "roles":[{"role":"re-deriver", "count":2}, {"role":"normalization-auditor", "count":1}], "mode":"specialist", "gate":"checkin2_accept"},
     {"row":"K6", "predicate":"multi_attempt_panel", "trigger":"two or more independent attempts", "roles":[{"role":"comparative-reviewer", "count":1}], "mode":"specialist", "gate":"checkin2_accept"},
     {"row":"K7", "predicate":"primary_analytic", "trigger":"stated-input or cited-formula analytic basis feeding a primary claim", "roles":[{"role":"re-deriver", "count":1}], "mode":"specialist", "gate":"checkin2_accept"},

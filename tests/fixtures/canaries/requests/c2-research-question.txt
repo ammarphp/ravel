@@ -1,0 +1,3 @@
+Investigate whether the fictional toy observable depends quadratically or quartically on the coupling g
+using the supplied table of fictional toy measurements, and write a short report of what the table
+supports, with its uncertainty and the assumptions it rests on.

@@ -135,6 +135,8 @@ def _project_science_artifact(document, identity):
 _REVIEW_EVENT_FIELDS = {"schema_version", "sequence", "previous_sha256", "run_id", "utc",
                         "event", "cycle_id", "role", "actor_id", "verdict", "summary",
                         "findings", "closes", "claim_scope", "attestation", "sha256"}
+# Optional journal fields: role support, and the dispatch binding a bound vote carries.
+_REVIEW_EVENT_OPTIONAL = {"supporting_artifacts", "independence_evidence"}
 
 
 _REVIEW_SUBMISSION_FIELDS = {
@@ -177,7 +179,8 @@ def _review_event_identity(value):
     independent validation of the historical judgment. Its original input hash
     remains committed and the current event chain is validated by _read.
     """
-    if not isinstance(value, dict) or set(value) not in (_REVIEW_EVENT_FIELDS, _REVIEW_EVENT_FIELDS | {"supporting_artifacts"}):
+    if (not isinstance(value, dict) or not _REVIEW_EVENT_FIELDS <= set(value)
+            or set(value) - _REVIEW_EVENT_FIELDS - _REVIEW_EVENT_OPTIONAL):
         return None
     if (type(value["schema_version"]) is not int or value["schema_version"] != 1
             or type(value["sequence"]) is not int or value["sequence"] < 1
@@ -954,6 +957,34 @@ def read_artifact_page(packet, artifact_id, *, expected_manifest_sha256, offset=
     """Authenticate the complete allowlisted blob on every selected page read."""
     raw = read_artifact(packet, artifact_id, expected_manifest_sha256=expected_manifest_sha256)
     return _artifact_page(raw, artifact_id, offset=offset, max_bytes=max_bytes)
+
+
+BROKER_ACTION = 'review-context read'
+
+
+def broker_read(packet, args):
+    """The broker action ``review-context read``: one page of the worker's own RAVEL-built packet.
+
+    ``packet`` is the dispatcher-bound ``{"path", "manifest_sha256"}``, never a worker argument.
+    The worker supplies ``{"artifact_id", "offset", "max_bytes"}`` for an artifact page, or
+    ``{"section", "offset", "max_bytes", "query"}`` for an index page; nothing outside the packet
+    can be named, and every page re-authenticates the packet.
+    """
+    if type(packet) is not dict or set(packet) != {'path', 'manifest_sha256'}:
+        raise ValueError('review-context read needs the dispatcher-bound packet')
+    if type(args) is not dict:
+        raise ValueError('review-context read arguments must be an object')
+    if 'artifact_id' in args:
+        if set(args) - {'artifact_id', 'offset', 'max_bytes'}:
+            raise ValueError('review-context read arguments are outside the declared shape')
+        return read_artifact_page(packet['path'], args['artifact_id'],
+                                  expected_manifest_sha256=packet['manifest_sha256'],
+                                  offset=args.get('offset', 0), max_bytes=args.get('max_bytes', 65536))
+    if set(args) - {'section', 'offset', 'max_bytes', 'query'}:
+        raise ValueError('review-context read arguments are outside the declared shape')
+    return read_index_page(packet['path'], expected_manifest_sha256=packet['manifest_sha256'],
+                           section=args.get('section', 'artifacts'), offset=args.get('offset', 0),
+                           max_bytes=args.get('max_bytes', 65536), query=args.get('query', ''))
 
 
 def main(argv=None):

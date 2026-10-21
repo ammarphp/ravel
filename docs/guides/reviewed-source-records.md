@@ -10,7 +10,7 @@ file path and SHA256.
 | Errata registry | A metadata pointer, its literal value, archive members and external attribution assertions | Original archive and workspace bytes |
 | Repair manifest | Expected field values, copies, replacements, retained fields and parser projections | Original values, paired-row lineage and correction evidence |
 | Defect registry | Physical-input coverage, unresolved defects and reviewed resolutions | Active holds under identity renaming and numeric-equivalent spelling |
-| Cutflow definition | Predicates, ordered flows, unavailable decisions, region membership, reference rows and normalization | Original event exposure, signed moments and shared-event covariance |
+| Cutflow definition | Predicates, ordered flows, missing decisions, region membership, reference rows and normalization | Original event exposure, signed moments and shared-event covariance |
 
 Every record selects its own context. Study identity, named parameter axes,
 dataset population and output format travel with that supplied context. A card

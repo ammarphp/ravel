@@ -479,6 +479,19 @@ def gate_errors(rundir, gate, action):
     """Provider ``executor``: a full or scan ``launch`` needs a worker receipt or a valid host waiver."""
     if gate != 'launch' or not isinstance(action, dict):
         return []
+    from ravel.controller.step import launch_gate, native_authority
+    try:
+        if launch_gate.selected(rundir, action):
+            launch_gate.load(rundir, action)
+            if native_authority.active(rundir, action):
+                missing, _ = launch_gate.approval(rundir, action)
+                return [GateError('executor_native_invalid', gate, PROVIDER, item,
+                                  'reconcile the exact native approval, critic and operator authority')
+                        for item in missing]
+            return []
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+        return [GateError('executor_native_invalid', gate, PROVIDER, str(exc),
+                          'reconcile the native action with its exact protected role, sources and preflight')]
     rung = action.get('rung')
     if rung not in executors()['worker_rungs']:
         return []
@@ -604,6 +617,9 @@ def _print(value):
 def main(argv=None):
     """``ravel work next|seal|dispatch --node|waive|host-authored``; other work subcommands delegate."""
     arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments and arguments[0] == 'dispatch' and '--role' in arguments:
+        from .transports.host_subagent import main as role_dispatch_main
+        return role_dispatch_main(arguments)
     own = {'next', 'seal', 'waive', 'host-authored', 'executor-status'}
     if not arguments or not (arguments[0] in own or arguments[0] == 'dispatch' and '--node' in arguments):
         from .work_cli import main as work

@@ -287,6 +287,7 @@ def record_checkin1(rundir, *, quote=None, scripted=False):
     the approval writer produced a receipt that differs from the one current at the steering event;
     a row for an unchanged receipt clears nothing. A scripted assent is not user text and never
     re-approves. Returns None for a pre-release contract."""
+    _legacy_only(rundir, 'CHECK-IN 1 response recording')
     if not epoch_two(rundir):
         return None
     missing = _run_init_errors(rundir, "approve_plan")
@@ -348,12 +349,23 @@ def _reopenable(rundir, digest):
     return len(cases) >= policy()["budgets"]["max_cases_per_action"]
 
 
-def respond(rundir, text, *, approve=(), reopen=(), withdraw=()):
-    """The trusted response path: record the user's text, then each decision the operator names.
+def respond(rundir, text, *, approve=(), reopen=(), withdraw=(), confirm=False):
+    """Record legacy response text with explicit unattested provenance.
+
+    Approval requests are evidence only: no caller text can become human approval.
+    A case approval carries human authority only when ``confirm`` captures the operator's
+    confirmation of that exact case at this process's controlling terminal
+    (``approval_capture.capture_terminal``); every capture happens before anything is
+    recorded, and a refusal records nothing. Without it the approval is retained,
+    unattested text. Reopen and withdrawal retain their legacy span and custody checks.
 
     ``approve`` lists case ids, ``reopen`` action digests and ``withdraw`` ``(case_id, finding_id)``
     pairs. Every decision quotes the recorded text (the case id or the first 12 characters of the
-    action digest, or the finding id); text that names none of them records no decision."""
+    action digest, or the finding id); text that names none of them records no decision.
+
+    A controller-owned run refuses this path: its decisions come from the controller authority
+    service, and R3 gates read only that service's records."""
+    _legacy_only(rundir, 'ravel respond')
     if not isinstance(text, str) or not text.strip():
         raise ValueError("a response records the user's actual text")
     if not (approve or reopen or withdraw):
@@ -380,21 +392,58 @@ def respond(rundir, text, *, approve=(), reopen=(), withdraw=()):
         if span is None:
             raise ValueError(f"the response text does not quote finding {finding_id}")
         plans.append(("withdraw", (case_id, finding_id), digest, span))
+    from . import approval_authority
+    provenance = {'authority': approval_authority.classify(quote=text), 'human_approval': False,
+                  'review_credit': False, 'source': 'caller_text', 'governance': 'NOT GOVERNED'}
+    attestations = {}
+    if confirm:
+        from . import approval_capture
+        text_sha256 = _sha(text.encode('utf-8'))
+        for decision, subject, digest, _ in plans:
+            if decision == 'approve':
+                attestations[subject] = approval_capture.capture_terminal(
+                    'case_approval', approval_capture.case_binding(rundir, subject, digest, text_sha256),
+                    summary=f'Approve case {subject} (action {digest[:12]}) of {Path(rundir).resolve()}')
     pin = custody.record_user_steering(rundir, text)
     decisions = []
     for decision, subject, digest, (start, end, quoted) in plans:
-        common = dict(source="user_steering", path=pin["path"], start=start, end=end, text=quoted)
-        if decision == "approve":
-            custody.record_human_approval(rundir, case_id=subject, **common)
-            decisions.append({"decision": "approve", "case_id": subject, "action_digest": digest})
-        elif decision == "reopen":
-            custody.record_reopen(rundir, action_digest=digest, **common)
-            decisions.append({"decision": "reopen", "action_digest": digest})
+        span = dict(source='user_steering', path=pin['path'], start=start, end=end, text=quoted)
+        if decision == 'approve' and subject in attestations:
+            # The controller capture of this exact case is the human authority; the
+            # issuer verifies it again before recording.
+            recorded = custody.record_human_approval(rundir, case_id=subject, attestation=attestations[subject], **span)
+            decisions.append({'decision': decision, 'case_id': subject, 'action_digest': digest,
+                              'effective': True, 'human_authority': True,
+                              'authority': approval_authority.CONTROLLER_CAPTURE})
+            custody.append(rundir, 'approvals', {
+                'decision': 'response_provenance', 'action_digest': digest, 'decision_record': recorded['digest'],
+                'provenance': {**provenance, 'authority': approval_authority.CONTROLLER_CAPTURE,
+                               'human_approval': True, 'source': 'controller_capture'}})
+            continue
+        if decision == 'approve':
+            # Preserve the original span and commit-order checks without invoking the
+            # human-approval issuer. Historical consumers cannot read this as approve.
+            _, response_row = custody._span(rundir, **span)
+            commit = custody._commit_line(rundir, subject)
+            if response_row['ns'] <= commit['ns']:
+                raise ValueError('the response was recorded before the case was committed')
+            recorded = custody.append(rundir, 'approvals', {
+                'decision': 'unattested_approve', 'case_id': subject, 'action_digest': digest,
+                **span, 'sha256': pin['sha256'], 'provenance': provenance})
+            decisions.append({'decision': decision, 'case_id': subject, 'action_digest': digest,
+                              'effective': False, 'human_authority': False, 'authority': provenance['authority']})
+        elif decision == 'reopen':
+            recorded = custody.record_reopen(rundir, action_digest=digest, **span)
+            decisions.append({'decision': decision, 'action_digest': digest})
         else:
-            custody.record_withdrawal(rundir, case_id=subject[0], finding_id=subject[1], **common)
-            decisions.append({"decision": "withdraw", "case_id": subject[0], "finding_id": subject[1],
-                              "action_digest": digest})
-    return {"user_text": pin, "decisions": decisions}
+            recorded = custody.record_withdrawal(rundir, case_id=subject[0], finding_id=subject[1], **span)
+            decisions.append({'decision': decision, 'case_id': subject[0], 'finding_id': subject[1],
+                              'action_digest': digest})
+        custody.append(rundir, 'approvals', {
+            'decision': 'response_provenance', 'action_digest': digest,
+            'decision_record': recorded['digest'], 'provenance': provenance})
+    return {'user_text': pin, 'decisions': decisions, 'provenance': provenance, 'governance': 'NOT GOVERNED'}
+
 
 
 # ---------------------------------------------------------------- steering
@@ -418,6 +467,12 @@ def _steering_lock(rundir):
 
 def _steering_epoch(rows):
     return sum(r['record'].get('event') in ('steering', 'approval') for r in rows)
+
+
+def _legacy_only(rundir, action):
+    """Respond, steer and response recording keep working on runs the controller does not own."""
+    from ravel.controller.authority import common as controller_authority
+    controller_authority.refuse_legacy(rundir, action)
 
 
 def _authority(authority):
@@ -647,6 +702,8 @@ def initialize_steering(rundir, *, route):
     is refused. A directory that passes gets its identity record and binding here
     (``rdj_custody.bind_new_run``), so later copies of it are recognized by identity; a
     transport qualification directory is the exception and is left as it is."""
+    if route == 'operator':
+        _legacy_only(rundir, 'ravel steer init')
     if route not in JOURNAL_ROUTES:
         raise ValueError(f'steering journal route must be one of {JOURNAL_ROUTES}')
     with _steering_lock(rundir):
@@ -687,6 +744,7 @@ def record_steering(rundir, text, *, effect, affected_nodes=(), span=None,
     Redirects require reapproval unless explicitly declared within scope. Requirements
     and redirects require a content-pinned amended plan in their acknowledgement.
     """
+    _legacy_only(rundir, 'ravel steer')
     if effect not in STEERING_EFFECTS:
         raise ValueError(f'steering effect must be one of {STEERING_EFFECTS}')
     if not isinstance(text, str) or not text.strip():
@@ -799,7 +857,11 @@ def _current_policy(rows):
 
 
 def set_steering_policy(rundir, policy, *, source_text, authority='unknown', expected_epoch=None):
-    """Retain the exact policy source text and validated fields in custody."""
+    """Retain the exact policy source text and validated fields in custody.
+
+    A controller-owned run refuses this path: steering changes ceilings only through the
+    controller authority service, whose records the budget reservation reads."""
+    _legacy_only(rundir, 'ravel steer policy')
     if not isinstance(policy, dict):
         raise ValueError('policy must be an object')
     if set(policy) - {'autonomy', 'checkin_thresholds', 'hard_ceilings', 'signoff_steps', 'unknown_cost', 'on_pause', 'result_acceptance', 'authority', 'source_text'}:
@@ -973,6 +1035,7 @@ def render_steering_policy(rundir):
 
 def ack_steering(rundir, event_id, *, interpretation, amended_plan=None, expected_epoch=None):
     """Acknowledge current instructions without granting execution or scientific approval."""
+    _legacy_only(rundir, 'ravel steer ack')
     if not isinstance(interpretation, str) or not interpretation.strip():
         raise ValueError('acknowledgement interpretation is required')
     with _steering_lock(rundir):
@@ -1013,6 +1076,7 @@ def ack_steering(rundir, event_id, *, interpretation, amended_plan=None, expecte
 
 
 def record_result_disposition(rundir, disposition, text, *, authority='unknown', expected_epoch=None):
+    _legacy_only(rundir, 'ravel respond (result disposition)')
     if disposition not in ('accept', 'reject', 'rework'):
         raise ValueError('result disposition must be accept, reject or rework')
     return record_steering(rundir, text, effect='result_disposition', disposition=disposition,
@@ -1560,6 +1624,14 @@ def steering_admitted(rundir, node_id=None, *, role='graph-node'):
     the process that runs the work, and nothing is written into the run directory. The record
     names the admission lock this process holds until the body ends, which is what identifies
     the work as running (``_admission_ended``)."""
+    from .transports.loop_control import remote_admission
+    remote = remote_admission(rundir, node_id)
+    if remote is not None:
+        # The supervisor performs this same transaction against the real parent run. The
+        # sandbox gets its receipt over a lifetime-bound connection, never the custody store.
+        with remote as identifier:
+            yield identifier
+        return
     import fcntl
     import os
     import uuid
@@ -1735,12 +1807,14 @@ def human_approval_errors(rundir, gate, action):
         return []
     from . import rdj_loop
     accepted = rdj_loop.authorizing_receipt(Path(rundir), gate, action)
-    if accepted is None or (accepted["receipt"].get("attestation_summary") or {}).get("human_approver"):
+    # The current recomputed credit, never the receipt's historical summary.
+    if accepted is None or (accepted.get("review_independence") or {}).get("human_approver") is True:
         return []
     case_id = accepted["case"]["case_id"]
     return [GateError("r3_human_approval_missing", gate, PROVIDER,
                       f"{gate} is R3 and its transport is same-user transport; case {case_id} has no recorded human approval",
-                      f"The operator approves the case (ravel gate-wiring respond --approve {case_id}), then re-authorizes it.",
+                      f"The operator confirms the case at the terminal (ravel gate-wiring respond --approve {case_id} "
+                      "--confirm-terminal), then re-authorizes it.",
                       (f"rdj/cases/{case_id}.json",))]
 
 
@@ -2267,13 +2341,17 @@ def main(argv=None):
     steer.add_argument('--checkin-threshold', action='append', default=[], metavar='RESOURCE=NUMBER|null')
     steer.add_argument('--hard-ceiling', action='append', default=[], metavar='RESOURCE=NUMBER|null')
     steer.add_argument('--signoff-step', action='append', default=[])
-    for parser in (resp, steer):
+    for name, parser in (('respond', resp), ('steer', steer)):
         parser.add_argument('--rundir', type=Path, required=True)
         group = parser.add_mutually_exclusive_group()
         group.add_argument('--text')
         group.add_argument('--text-file', type=Path)
         parser.add_argument('--authority', choices=('unknown', 'delegated_machine', 'scripted_experiment'), default='unknown')
         parser.add_argument('--expected-epoch', type=int)
+        if name == 'respond':
+            parser.add_argument('--confirm-terminal', action='store_true',
+                                help="confirm at this process's terminal; only a confirmed case approval "
+                                     'carries human authority')
     ci1 = sub.add_parser('checkin1', help='record CHECK-IN 1 response and display the current steering policy')
     ci1.add_argument('--rundir', type=Path, required=True)
     ci1.add_argument('--quote')
@@ -2281,6 +2359,8 @@ def main(argv=None):
     cost.add_argument('--rundir', type=Path, required=True)
     args = ap.parse_args(argv)
     try:
+        if args.command in ('respond', 'steer', 'checkin1'):
+            _legacy_only(args.rundir, 'ravel ' + args.command)
         if args.command == 'respond':
             body = _body(args)
             if args.action:
@@ -2292,7 +2372,8 @@ def main(argv=None):
                 withdraw = [tuple(w.split(':', 1)) for w in args.withdraw]
                 if any(len(w) != 2 for w in withdraw):
                     raise ValueError('--withdraw takes CASE_ID:FINDING_ID')
-                _print(respond(args.rundir, body, approve=args.approve, reopen=args.reopen, withdraw=withdraw))
+                _print(respond(args.rundir, body, approve=args.approve, reopen=args.reopen, withdraw=withdraw,
+                               confirm=args.confirm_terminal))
         elif args.command == 'checkin1':
             result = record_checkin1(args.rundir, quote=args.quote)
             _print({'checkin1': result, 'steering_policy': steering_policy(args.rundir),

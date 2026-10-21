@@ -50,6 +50,7 @@ import math
 import os
 import re
 import sys
+import zlib
 
 
 def opener(path):
@@ -195,6 +196,7 @@ def check_science(lhe, *, param_card=None, allowed_bsm_pdgs=None, allow_negative
     from decimal import Decimal
     path = Path(lhe)
     failures, checks, weights = [], [], []
+    input_diagnostic = None
     card_masses, lint = parse_param_card(param_card) if param_card is not None else ({}, [])
     card_widths = parse_banner_slha_width(Path(param_card).read_text().splitlines()) if param_card is not None else {}
     allowed = None if allowed_bsm_pdgs is None else {abs(int(p)) for p in allowed_bsm_pdgs}
@@ -290,7 +292,10 @@ def check_science(lhe, *, param_card=None, allowed_bsm_pdgs=None, allow_negative
             parser.close()
             if not root_closed or idwtup is None or not events:
                 raise ValueError('complete init and nonempty event population required')
-    except (ET.ParseError, ValueError, IndexError, ArithmeticError, OSError) as exc:
+    except (ET.ParseError, ValueError, IndexError, ArithmeticError, OSError, EOFError, zlib.error) as exc:
+        input_diagnostic = {'error_type': type(exc).__name__,
+                            'remedy': 'Restore the complete event file from its recorded source and rerun '
+                                      'the pre-shower check.'}
         fail('malformed LHE: ' + str(exc))
     negative = idwtup is not None and idwtup < 0 if allow_negative is None else allow_negative
     allow_zero = idwtup is not None and abs(idwtup) in (1, 2, 4) if allow_zero is None else allow_zero
@@ -317,11 +322,14 @@ def check_science(lhe, *, param_card=None, allowed_bsm_pdgs=None, allow_negative
               'checks': [{'name': 'complete-science-lhe', 'level': 'FAIL' if failures else 'PASS',
                           'msg': '; '.join(failures) or 'complete event structure, declared signs and available card/spec checks'}],
               'failures': failures, 'card_checks_available': param_card is not None}
+    if input_diagnostic is not None:
+        record['input_diagnostic'] = input_diagnostic
     if output is not None:
         target = Path(output); target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(record, indent=2, allow_nan=False) + '\n')
     if failures:
-        raise ValueError('lhe_check refused: ' + '; '.join(failures))
+        remedy = ' ' + input_diagnostic['remedy'] if input_diagnostic is not None else ''
+        raise ValueError('lhe_check refused: ' + '; '.join(failures) + remedy)
     return record
 
 

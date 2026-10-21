@@ -8,12 +8,12 @@ corrected report and retains the original draft, discrepancies and foreign claim
 The closed schema-1 request contains `title`, `artifact_request`, optional
 `context`, `facts`, `sections` and `interpretation`. A fact specifies its exact
 JSON selector, quantity/context selector, label, unit, scope, population and
-limitations. Every declared fact must appear in a section. The artifact and
+scope conditions. Every declared fact must appear in a section. The artifact and
 context APIs verify their own source and supplied-result pins.
 
 Ordinary AgentHost tool actions `scientific-report` and `report-revise` take
 `request_input` and, for revision, `draft_input`. All nested source/result/context
-pins must be explicit graph inputs. Critic and verifier roles cannot receive
+pins must be explicit graph inputs. Critic and verifier roles must not receive
 these authoring actions. The graph charges the tool call and refuses changed
 source or input identities on reuse.
 

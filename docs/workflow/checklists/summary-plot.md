@@ -32,8 +32,7 @@ it does not.
              "transformation": "<the algebra onto target_basis, factor(s) + source>",
              "identity_check": "<where verifiable, e.g. on-contour UL/sigma_model=1, or NONE>"}]}
 ```
-- REFUSE the overlay until every curve has its transformation written (a curve that cannot be
-  mapped is dropped WITH a stated reason, not force-fit).
+- REFUSE the overlay until every curve has its transformation written (drop a curve lacking a justified basis transformation WITH a stated reason).
 - Model-variant conventions (HVT A vs B, charge/flavor sums) are basis entries, not footnotes.
 - **Exact values in check tables (catalogue A9):** every identity/spot-check row shown to
   the physicist (any check-in, the ladder) uses the EXACT harvested value once a harvest exists;

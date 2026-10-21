@@ -1,0 +1,36 @@
+{
+  "args": {
+    "floor": 0,
+    "limit": 1,
+    "text": "guide"
+  },
+  "atlas_sha256": "db25c1747ade9ccf7b99a7968577f2aaeebe98a7bff903ac9ad3400a884e187c",
+  "kind": "knowledge-result",
+  "missing": [],
+  "omitted": {
+    "count": 1,
+    "reasons": {
+      "limit": 1
+    }
+  },
+  "op": "find",
+  "result_sha256": "128aad7e5dfa4ff7fcae33237c4fde9496faa5942b5ff858c85c02782dbb098c",
+  "results": [
+    {
+      "id": "doc:amber",
+      "kind": "doc",
+      "links": {},
+      "source": {
+        "path": "sources/amber.txt",
+        "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a"
+      },
+      "summary": "Amber rate guide",
+      "title": "Amber",
+      "why": "BM25 terms: guide"
+    }
+  ],
+  "schema_version": 1,
+  "served_ids": [
+    "doc:amber"
+  ]
+}

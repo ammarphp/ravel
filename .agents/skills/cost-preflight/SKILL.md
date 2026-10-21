@@ -6,7 +6,7 @@ allowed-tools: Bash, Read
 ---
 # Skill — cost preflight (pilot first, then budget)
 
-State the required output and precision in the user's terms. Choose the cheapest method that meets the output, validity domain and precision, record why each cheaper method is insufficient or unavailable with evidence in `inputs/method-decision.json`, and stop when the answer is complete. Validate and render the record with `ravel method-decision --rundir RUN` before CHECK-IN 1 approval; full and scan launches refuse a missing, invalid or unjustified decision.
+State the required output and precision in the user's terms. Choose the cheapest method that meets the output, validity domain and precision, record why each cheaper method is insufficient or missing with evidence in `inputs/method-decision.json`, and stop when the answer is complete. Validate and render the record with `ravel method-decision --rundir RUN` before CHECK-IN 1 approval; full and scan launches refuse a missing, invalid or unjustified decision.
 
 The physicist approves the budget at CHECK-IN 1. Budget numbers come from measurements of the
 same process, model, settings and machine, or from the study's declared ceilings.
@@ -82,7 +82,9 @@ the run keeps a `RESUME.md` checkpoint (run-scan skill).
 
 ## Stop conditions
 
-- The estimate exceeds free disk or a reasonable wall time: shrink the grid to the published
-  lattice subset, lower concurrency or stage the scan in waves, and put that in the plan.
+- The estimate exceeds free disk or the admitted wall time: lower concurrency or stage
+  the scan in waves, and record the resource plan. Retain every originally requested point
+  as an obligation. Declare comparison subsets separately; replacing the requested
+  domain requires an approved scope change recorded in the contract and deviation check-in.
 - Present every compute plan with these numbers. A size change mid-run is a DEVIATION check-in
   and ledger entry followed by a fresh preflight.

@@ -8,6 +8,11 @@ It is fully general: nothing in the protocol is tied to any one analysis — the
 is the paper-agnostic fact that HEPData table names very often literally carry the figure id
 ("Figure 7 Observed …"), which `hepdata_fetch.py` indexes as `figure_index` on every discovery pass.
 
+**On the controller.** The contract is written by plan step `inputs.figures` (`outputs/figure_target.json`,
+with `gallery.json` and the waypoint proposal `waypoint.json`), reviewed by a `figure-critic` seat and checked
+before CHECK-IN 1: every target records its published axis scales and its source, and every requested figure panel
+has a target.
+
 ## The contract file (schema_version 1)
 `targets[]`, one per figure the run reproduces (typically one `summary` + optionally one `overlay`):
 
@@ -117,7 +122,7 @@ python -m ravel.plotting.figure_target show --rundir R
 ```
 
 Prepare the request after the generated artifact exists, so its counterpart pin is genuine.
-It may be supplied at declaration when that artifact already exists.
+It can be supplied at declaration when that artifact already exists.
 It is a pinned input, not a free command string. The contract exposes both overlay
 PNG and PDF, their receipt, the side-by-side, and the comparison disposition.
 The existing run-state and result-pack figure gates check the prospective receipt.
@@ -133,7 +138,7 @@ Use genuine numerical reference data first. Three request kinds are supported:
 | `existing-numerical` | `mass_plane_overlay` | A source-compatible mass or mass-splitting plane with a tested point and an actual limit artifact. This is a one-point overlay, not a recovered full exclusion contour. |
 | `existing-numerical` | `overlay_on_data` | Same-bin signal and published data/background YODA with literal count data, linear x, log event-count y, and events-per-bin normalization. Density or incompatible-bin inputs require a different source-compatible route. |
 | `numerical` | ordered coordinate overlay | Source-bound agent and official coordinate-series artifacts, retaining their own point order, bin edges, and unknown records. |
-| `raster` | calibrated coordinate-on-image overlay | Only when numerical reference data are unavailable, with a pinned availability disposition and calibrated official image. This is explicitly visual-only. |
+| `raster` | calibrated coordinate-on-image overlay | Only when numerical reference data are missing, with a pinned availability disposition and calibrated official image. This is explicitly visual-only. |
 
 Each request has `schema_version: 1`, `kind`, an exact `target` containing the
 figure ID and paper dictionary, a `counterpart` pin matching the attached generated
@@ -147,7 +152,7 @@ checks; it does not certify the scientific equivalence asserted by a caller.
 The explicit physics basis has exactly these fields: `quantity`, `model`,
 `production`, `width`, `branching_fraction`, `energy`, `normalization`,
 `interference`, and `response`. Fill them from inspected sources, including a
-sourced “not applicable” when appropriate. Unknown fields cannot establish
+sourced “not applicable” when appropriate. Unknown fields must not establish
 comparability. Different basis, quantity identity, unit, or scale is refused;
 there is no plot-time conversion, rescaling, rebinning, or model transfer.
 
@@ -182,14 +187,14 @@ uncertainty endpoints through the declared log/linear transform rather than
 treating offsets as symmetric pixel distances.
 If no errors are available, use `uncertainty: {convention: unavailable, meaning: TEXT}`
 with the source reason. A series without an uncertainty declaration is also
-displayed as “uncertainty unavailable (not supplied)”; absence never means zero
-error. Such series cannot carry error fields. This display route does not create
-a covariance model or satisfy a task requiring unavailable uncertainty.
+displayed with an `Uncertainty unavailable: ...` notice; absence never means zero
+error. Keep error fields absent from such series. Tasks requiring uncertainty
+need an explicit uncertainty model with its scientific evidence.
 
 At final figure gates, kind, counterpart, applicability source inventory and
 the complete displayed population are derived again from the original pinned
 request and coordinate documents and compared with the receipt. File hashes
-alone cannot establish that a differently serialized population was displayed.
+alone must not establish that a differently serialized population was displayed.
 
 For `existing-numerical`, the request supplies the basis and axes above, and
 `renderer` supplies the fixed original renderer configuration:
@@ -228,14 +233,13 @@ use a numerical route instead.
 
 Raster receipts say `visual_only: true`, `numerical_reference: false`, and
 `numerical_fidelity: null`. All three routes keep `physics_validated: false`.
-A rendered PNG, matching shape, or source-bound receipt cannot establish numerical
-fidelity, correct calibration, or completion of the original scientific question.
+Establish numerical fidelity and calibration with independent numerical and source evidence; review completion against the original scientific question.
 
 A description-only synthesis target remains a non-comparison deliverable. For a
 new diagnostic whose reference is absent or physically incomparable, explicitly
 use `--non-comparison-reason TEXT` and `--reference-disposition no-reference`
 or `incomparable-reference`. This records why an overlay is not produced. It
-cannot discharge a requested comparison; keep that original task obligation open.
+must not discharge a requested comparison; keep that original task obligation open.
 
 ## Declarative scan plots
 
@@ -287,11 +291,11 @@ coordinate units and `normalization: {field, basis, unit}`. That field is a posi
 per-point multiplier. Both basis objects must match the scan's explicit
 `model_basis`, and both units must agree. The residual is
 `selected_limit * supplied_multiplier / exact_reference - 1`.
-Unsupported, bound, invalid and unmatched records remain separate in the report;
+`unsupported`, bound, invalid and unmatched records remain separate in the report;
 coverage uses the original `n_planned` denominator. No reference value is invented.
 
 Styles such as `color`, `cmap`, `linestyle`, band `alpha` and residual `vmin`/`vmax`
-may be supplied per layer; they never select a scientific population or output.
+can be supplied per layer; they never select a scientific population or output.
 `figsize` controls the supplied canvas geometry. The renderer applies the existing
 layout gate before writing. `--no-lint` retains its explicit warning semantics.
 The return report and CLI JSON retain axes, full limit population, layer accounting

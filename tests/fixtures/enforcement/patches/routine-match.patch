@@ -1,0 +1,16 @@
+--- a/src/ravel/controller/routes/analysis/evidence.py
++++ b/src/ravel/controller/routes/analysis/evidence.py
+@@ -149,6 +149,13 @@
+         if doc.get(key) == "TBD-judgment" and not any(key in str(e) for e in doc.get("escalate") or ()):
+             out.append(error("route_analysis_undecided", f"{key} is left to judgment without an escalation naming it",
+                              row="E04", step=step["id"]))
++    requested_states = [(row.get("value") or {}).get("final_state")
++                        for row in (context.get("reading") or {}).get("constraints") or ()
++                        if type(row) is dict and row.get("type") == "keep_fixed"
++                        and type(row.get("value")) is dict]
++    if any(value and value != doc.get("final_state") for value in requested_states):
++        out.append(error("route_final_state_mismatch", "selected routine final state differs from the pinned request",
++                         row="E04", step=step["id"]))
+     mismatches = doc.get("mismatches") or []
+     approximations = {a.get("id") for a in doc.get("approximations") or () if isinstance(a, dict)}
+     for row in mismatches if isinstance(mismatches, list) else []:

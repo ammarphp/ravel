@@ -17,7 +17,7 @@ current directory. The pack can also name run directories under `rundirs`;
 relative pack directories are interpreted against the repository. A rule's
 `scope` defaults to `repo`; `runs` applies that rule to every explicitly named
 run and aggregates the evidence. Record paths in parameters are relative to the
-selected scope. Paths cannot escape it or traverse symlinks or `.git`.
+selected scope. Paths must not escape it or traverse symlinks or `.git`.
 
 The output must be a new file outside the inspected repository and every declared
 run. `.md` selects Markdown; `--format json|markdown` selects either rendering
@@ -40,7 +40,7 @@ source paths, policy hashes and tag names at run time.
 | `session_instructions` | `path`, `sha256` | Prompt audit JSON with `records`; each row must carry the hash in `instruction_sha256`, or a supplied `receipt_field`. A missing row receipt FAILs. |
 | `prompt_log` | `path` | Audit JSON with `records` and the explicit `gaps` list from its build. Every row requires full `prompt`, `model`, timezone-qualified `timestamp`, `usage_reported: true` and all five nonnegative `usage` token counts. Unknown or inexact `model_build_exact` is listed by row as NOT-CHECKABLE. Missing text, model, time, tokens or nonzero gaps FAIL. |
 | `workflow_launches` | `stages`, `receipts`, `guard_log`, `policy_sha256`, `manager` | The full stage-attempt population, manager launch receipts and guard command census described below. |
-| `tracked_clean` | `paths` | Listed files and all files consumed by enabled checks must be ordinary files tracked at HEAD, with matching working bytes, executable modes and a clean index. Tracking runs after the other checks. External run records cannot satisfy this repository tracking rule. |
+| `tracked_clean` | `paths` | Listed files and all files consumed by enabled checks must be ordinary files tracked at HEAD, with matching working bytes, executable modes and a clean index. Tracking runs after the other checks. External run records must not satisfy this repository tracking rule. |
 | `environment` | `stages`, `runtime_directory`, `requirements`, `installability` | Verify runtime snapshot content identities and exact stage-attempt coverage. Check exact named requirements pins against supplied installability records. `vendored_ravel` names the directory containing a vendored copy's nonempty LICENSE and NOTICE. |
 | `skill_coverage` | `invoked`, `coverage` | Supplied complete invoked-software census and mappings to nonempty, clean, HEAD-tracked skill files. |
 | `rerun_comparison` | `workflow`, `tolerances` | Ordered declared workflow `rules` must end in `kind: "quantity-comparison"` with `tolerances` naming the supplied nonempty JSON tolerances object. This checks the declared comparison's presence. |
@@ -76,7 +76,7 @@ normalized census instead uses `{"stages": [{"id": "...", "attempt": "...",
 "executed": true}]}`; each stage-attempt pair is distinct and the execution flag
 is explicit. Runtime snapshots use `env_snapshot`'s existing content-addressed
 schema and filenames `<stage>-<attempt>.json`. The snapshot attempt must match
-the execution attempt; a snapshot from another attempt cannot certify it.
+the execution attempt; a snapshot from another attempt must not certify it.
 
 Launch records use `{"receipts": [...]}`. Every receipt carries `stage`,
 `attempt`, the declared `manager` and `policy_sha256`. The receipt population
@@ -85,12 +85,11 @@ missing or duplicate receipts, and mismatched policy hashes FAIL. Guard records
 carry the same `policy_sha256`, `complete: true` and a nonempty `commands` list.
 Each command has explicit Boolean `allowed` and `within_policy`; an allowed
 command outside policy FAILs. An incomplete guard census is NOT-CHECKABLE.
-The check evaluates these supplied declarations; it does not execute or infer a
-command policy from shell text.
+The check evaluates the supplied command-policy declarations.
 
 Installability JSON has `distributions` rows with `name` and `version`. A supplied
 public source has `public: true`, an HTTPS `url` without credentials and an
-artifact `sha256`. A confirmed unavailable source has `public: false`; it FAILs
+artifact `sha256`. A confirmed missing source has `public: false`; it FAILs
 unless a checksum-bound `vendored` file or `public_tag` replacement is present.
 A `public_tag` has HTTPS `url`, `tag` and artifact `sha256`. A missing source or
 incomplete public pin is NOT-CHECKABLE. The requirements file accepts exact

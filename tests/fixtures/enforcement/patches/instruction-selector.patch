@@ -1,0 +1,11 @@
+--- a/src/ravel/data/instructions/sources.json
++++ b/src/ravel/data/instructions/sources.json
+@@ -1366,7 +1366,7 @@
+  "protocols": {
+   "common": [
+    "docs/workflow/checklists/judgment-protocols.md#checklist-judgment-protocols-the-how-behind-every-judgment-tag",
+-   "docs/workflow/checklists/judgment-protocols.md#using-these-under-the-model-tier-policy"
++   "docs/workflow/checklists/judgment-protocols.md#judgment-sites-under-the-controller"
+   ],
+   "P1": [
+    "docs/workflow/checklists/judgment-protocols.md#p1-look-first"

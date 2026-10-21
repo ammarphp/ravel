@@ -39,10 +39,20 @@ table below lists the paths this record covers; a path it does not list is not g
 ## Response path and steering
 
 - `ravel gate-wiring respond --rundir <run> --text <user text> [--approve CASE] [--reopen DIGEST]
-  [--withdraw CASE:FINDING]` records the user's text and only the decisions the operator names.
-  Each decision quotes the recorded text: the case id or the first 12 characters of the action
-  digest, or the finding id. Text that does not contain the quote records no decision. A reopen
-  names an action that has an `escalate` receipt or a spent per-action case budget.
+  [--withdraw CASE:FINDING] [--confirm-terminal]` records the user's text and only the decisions
+  the operator names. Each decision quotes the recorded text: the case id or the first 12
+  characters of the action digest, or the finding id. Text that does not contain the quote records
+  no decision. A reopen names an action that has an `escalate` receipt or a spent per-action case
+  budget.
+- A case approval is recorded only with controller evidence. With `--confirm-terminal` the
+  operator types a fresh code shown at this process's own controlling terminal
+  (`approval_capture`); the capture is bound to the run, case, action digest and approving text
+  and kept in a hash-chained ledger in the machine state root. Without it, or when no terminal is
+  available, the text stays recorded as `unattested_approve` evidence and earns no human credit.
+  `rdj_custody.record_human_approval` otherwise accepts only the id of a current controller
+  authority-service `r3_action` approval of exactly this case (an operator command); it refuses
+  anything else and records nothing. A capture identifies an action at the terminal, not a person.
+  Older approval rows without either stay readable and are labelled NOT GOVERNED.
 - `ravel gate-wiring steer --rundir <run> --text <message> --effect note|requirement|scope_change
   [--affects N1,N2] [--span START:END]` records the message in custody under
   `inputs/user-steering/`. It also records the structured record (span, effect, affected nodes) in
@@ -116,9 +126,8 @@ table below lists the paths this record covers; a path it does not list is not g
   being refused and the pause, veto or parent binding of the original stays in force. A run is
   served only at its recorded location: return the directory there (a run whose task contract
   names a bound `run_id` is moved with `rdj_custody.relocate`). `steer init` at the recorded
-  location stays idempotent and keeps every control. Two limits: a directory that holds no
-  identity record, no such document and no steering text cannot be told from a new one; and an
-  older directory whose task contract is byte-identical to that of a run custody knows elsewhere
+  location stays idempotent and keeps every control. Identity matching treats a directory with no
+  identity record, such document or steering text as a new directory. An older directory whose task contract is byte-identical to that of a run custody knows elsewhere
   is refused even when it is a different run, which then needs a new run directory. When the
   custody store of the machine itself was lost, an identity record names a run custody no longer
   knows and the command refuses it; the operator removes `run-identity.json`, and the command
@@ -134,7 +143,7 @@ table below lists the paths this record covers; a path it does not list is not g
   (a running supervisor, an open host working window) finishes its broker work, including its
   final outputs and self-checks; only a call that starts native work is refused, and reattaching
   to a started attempt does not end it. Under `cancel`, and for a stop record without a mode or one
-  that cannot be read, every broker call is refused (`stop_requested`) and supervisors are told to
+  whose read fails, every broker call is refused (`stop_requested`) and supervisors are told to
   stop. A drain never replaces a cancellation already in force.
 - A pause is durable in three steps: the steering row (dispatch is refused from here), a
   `pause_intent` row recording each stop marker it will write and what that marker replaces, and,
@@ -185,8 +194,8 @@ whose contract changed after `run_init`, or that has no `run_init` row, is refus
 - The operator path (`--host-config`, receipt registration) is not separated from agent sessions.
   R2/R3 transport is therefore **same-user transport**.
   Every R3 gate also needs a recorded human approval of the case that authorizes its action. That
-  approval is a `ravel gate-wiring respond --approve CASE` row in custody, read from the receipt
-  `rdj_loop.authorizing_receipt` returns. Without it the wired check refuses with
+  approval is a `ravel gate-wiring respond --approve CASE --confirm-terminal` row in custody (or
+  an authority-service record), whose current credit `rdj_loop.authorizing_receipt` recomputes. Without it the wired check refuses with
   `r3_human_approval_missing`. Steering text never supplies it.
 - Actions: `bulk_action` (full and scan launch, R2, the plan node of the held lease),
   `plan_action` (delegated CHECK-IN 1), `checkin2_action` (delegated CHECK-IN 2 GO, every file the GO
@@ -206,7 +215,7 @@ whose contract changed after `run_init`, or that has no `run_init` row, is refus
 | `scientific_judgment.research_feedback`, `ravel research-cycle adjudicate` | `research_choice` | gated |
 | `research_orchestrator` `coordinate.adjudicate` node and `open_research` review branch | `research_choice` | gated: `gate_wiring.require_research_choice` before each adjudication |
 | `launch_authorization.authorized_popen`, reached from `ravel stage` and `ravel run` (scientific, scoped and native stages), and `ravel scan launch` | `launch` | gated on a delegated epoch-two run: a dry or smoke rung through P15, a full or scan rung through the R2 launch gate, which includes the executor provider (the node's worker receipt or host waiver). Undelegated runs keep the approval and review checks of the launch authorization |
-| `stage_supervisor` bare branch (no approval record, no plan and no active review) | none | legacy: a run with no CHECK-IN 1 record. The supervisor launches without authorization only when nothing names a plan. A planned node launches through `production_executor.launch_stage`, which calls the launch gate |
+| `stage_supervisor` bare branch (no approval record, no plan and no active review) | none | legacy: a run with no CHECK-IN 1 record. The supervisor launches without authorization only when nothing names a plan. A declared node launches through `production_executor.launch_stage`, which calls the launch gate |
 | `science.py` v1 runs | none | legacy: science runs use their own plan approval (`_capture_science`); no epoch-two contract exists for them |
 | `ravel approve`, `workflow_state.py approve` | approval | CLI path records CHECK-IN 1 custody; the direct `workflow_state` form does not. Both are denied to agent sessions by the host gate (`approve_plan`) |
 | `workflow_state.py delegated-approve` | `approve_plan` | gated (R2): `require_delegated` on `plan_action` before any approval byte is written. The plan pre-authorization also runs PHYS-RDJ for agent-inferred critical fields. It takes no `checkin1` snapshot, so the wired gates keep comparing against `run_init` |
@@ -223,7 +232,7 @@ whose contract changed after `run_init`, or that has no `run_init` row, is refus
   physics-critical value needs an authorizing RDJ receipt (default gate `approve_plan`) for exactly
   that value (`gate-actions/physics_value/<sha>.json`). The receipt's case must hold at least one
   externally verified anchor. The epoch and the delegation come from `review_points._facts`, which
-  refuses a contract that differs from `run_init`. A run whose facts cannot be read is refused.
+  refuses a contract that differs from `run_init`. A failed run-facts read refuses admission.
   Values from the user, a publication or a tool output, and noncritical values, are outside this
   check. The production caller is `scientific_autonomy.plan_preauthorization`. Every agent-inferred
   critical plan field there is refused unless the check passes on an epoch-two run.

@@ -669,8 +669,7 @@ def test_already_charged_complete_meta_resume_keeps_original_authority_without_d
     # Resume still authenticates the original executable source/config. The
     # initial inherited.meta call used this same genuinely configured Host;
     # no provider or model dispatch is allowed when adopting its completion.
-    from ravel.workflow import agent_host
-    host=agent_host.AgentHost(endpoint='http://127.0.0.1:9/v1/responses')
+    host=inherited.meta_host()
     checkpoint=mp.agent_graph._load(Path(graph))[1]
     before=mw.cycle._load(campaign)[1]
     invoked=[]

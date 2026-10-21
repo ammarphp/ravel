@@ -1,142 +1,212 @@
 # Checklist — judgment protocols  ·  the HOW behind every [judgment] tag
 
-These eight protocols are the difference between knowing physics and *operating* on physics under
-limited information. They were extracted from this project's recorded incidents (each cites its
-worked case in `docs/reference/failure-modes.md`): a weaker model's physics knowledge is rarely the
-gap — its *protocol* is. Run the matching protocol BEFORE taking any [judgment] step; the
-`judgment-protocols` skill routes here. They compose: a typical step-2 decision runs P6→P3→P2 in
-sequence; a discrepancy runs P5 with P4 anchors; every delivery ends with P8.
-
----
+Run the matching protocol before a scientific [judgment] step. The `judgment-protocols` skill routes here.
+Protocols compose: source discovery can lead to a trap sweep and basis comparison; a discrepancy uses
+anchors and decomposition; delivery includes attacks on the drafted result. Retain the evidence and
+unresolved obligations in the run. The examples below are generic illustrations, not execution records.
 
 ## P1 — look-first
-**WHEN:** about to render, compare against, or describe ANY published artifact (figure, table,
-contour, cutflow).
-**DO:** 1. Extract the actual artifact (`fetch_figures.py --figure N`, `hepdata_fetch.py`) — not
-its caption, not your memory of similar figures. 2. LOOK at it (Read the image). 3. Enumerate its
-visual/structural grammar (axes+scales, binning, marker/band conventions, panel structure) into
-the figure contract BEFORE building the counterpart.
-| Thought | Reality |
-|---|---|
-| "The caption tells me what the figure shows" | Captions omit the visual grammar — the RS1 Fig-3 color map was rebuilt as a smooth heatmap from its caption and looked "absolutely nothing like" the real sparse blocky lattice (A1). |
-| "I know what an exclusion contour looks like" | You know what a GENERIC one looks like. The published one has a specific form, and the physicist compares against THAT. |
-**Worked incident:** A1 (caption-imagined figure) — the figure was rejected twice before the artifact
-was actually extracted and looked at.
+
+**WHEN:** preparing, comparing or describing a published figure, table, contour or cutflow.
+
+**DO:** Extract the actual artifact and inspect it. Record axes, scales, units, binning, marker and band
+conventions, panels and support in the figure contract before building the counterpart. A caption or a
+similar figure does not establish this artifact's grammar. Keep the extraction and inspected-image pins.
+
+**Example:** A sparse lattice and a smooth interpolation can show the same quantities while implying
+different coverage. Preserve the published support and label any declared interpolation.
 
 ## P2 — basis-manifest
-**WHEN:** about to compare ANY two numbers (or curves) where one side is published — limits,
-cross-sections, acceptances, yields, significances.
-**DO:** 1. Write BOTH sides' conventions explicitly: states summed (charges? flavors? L/R?),
-perturbative order + PDF, inclusive-vs-tagged sample, expected-vs-observed column, per-channel vs
-combined, and the σ the limit is normalized to. 2. REFUSE the comparison until the two manifests
-match (transform one side; record the transformation). 3. Verify with an identity check where one
-exists (on the published exclusion contour, UL/σ_model ≡ 1).
-| Thought | Reality |
-|---|---|
-| "Both are 'the cross-section limit', just divide" | Ours was on the ISR-tagged 6-state SAMPLE σ, ATLAS's on the inclusive 4-state MODEL σ — a mass-dependent ×0.56→×1.01 spurious tilt that inflated the headline residual 33% vs the real 26% (A4). |
-| "Expected, observed — they're within a band anyway" | Pair like columns and contour roles (A3). Pin the reference role from primary data; a caption or dot style may not specify it. |
-**Worked incident:** A4 (σ-comparison-basis) — caught only by the UL/σ_model=1 on-contour identity
-(measured 1.10 on the right basis; 1.47/0.74 on wrong ones).
+
+**WHEN:** comparing numbers or curves whose conventions can differ, including a published reference.
+
+**DO:** Write both sides' states summed, perturbative order, PDF, inclusive or selected sample, expected or
+observed column, channel combination and normalization. Hold the numerical comparison until the conventions
+match, or record an explicit transformation and its resulting manifest. Check an applicable identity and
+its tolerance; record a reason when no identity is available. Preserve both original manifests.
+
+**Example:** A selected-sample cross section and an inclusive model cross section need an evidenced
+conversion before their normalized limits can be compared.
 
 ## P3 — trap-sweep
-**WHEN:** routing any new analysis/model pair (step 2), and again before generation (step 3).
-**DO:** walk `docs/workflow/checklists/physics-traps.md` top to bottom; for each trap answer its CHEAP CHECK;
-any hit becomes a numbered CHECK-IN flag with the trap's named route consequence. Never route by
-similarity to the last analysis.
-| Thought | Reality |
-|---|---|
-| "It's a resonance search, overlay a Breit-Wigner" | A ~343 GeV A/H→tt̄ signal interferes with SM tt̄ — the signature is a peak–DIP; a naive bump limit is invalid (trap T1). |
-| "The paper's model is close enough to the request" | µ–M₂ with M₁=M₂, tanβ=50 is a MIXED wino–bino–higgsino sector, not the paper's pure-higgsino simplified model — σ×BR AND A×ε both move (trap T3). |
-**Worked incidents:** a mixed-sector request read as the paper's simplified model (trap T3); a
-named shape-fit refusal in place of a silently wrong counting product (trap T5).
+
+**WHEN:** routing a new analysis/model pair and before generation.
+
+**DO:** Walk [physics traps](physics-traps.md) and answer every cheap check with evidence. Give each hit
+its numbered check-in flag, escalation and named route consequence. Recompute the sweep from those verdicts.
+Route from the actual model, observable and selection rather than similarity to an earlier study.
+
+**Example:** An interfering amplitude can require a signed signal contribution and an appropriate shape
+model. A positive isolated-bump template does not establish that interpretation.
 
 ## P4 — anchor-chain
-**WHEN:** any produced number is about to be used downstream (σ, A×ε, yield, µ₉₅).
-**DO:** 1. Before using it, obtain an INDEPENDENT order-of-magnitude anchor (WG σ tables, the
-paper's own quoted σ·A×ε, HEPData yields, an SModelS r-value). 2. If |ratio−1| is outside the
-regime you can name a reason for, STOP and run P5 — do not proceed hoping it averages out.
-3. Record number+anchor+ratio in the run (the verify-pack traces them).
-For novel quantities without a published value, seek independent limiting cases, dimensional
-checks, sum rules or a genuinely independent calculation. State what each check can establish.
-If a needed anchor remains unavailable, hold the dependent numerical claim and design a bounded
-test; the missing expected answer does not prohibit hypothesis generation or independent work.
-| Thought | Reality |
-|---|---|
-| "MadGraph ran clean, the σ is what it is" | 59.9 fb vs the 24 fb anchor was not parsing noise — the card prep had silently dropped ptj1min=50 (B2, a ×2.14 normalization error caught BY the anchor). |
-| "The fit converged, µ₉₅ is fine" | A converged fit on a floored bracket returned obs_limit=1.0 exactly — an artifact, not a limit (B1). Anchors catch what convergence flags don't. |
-**Worked incident:** B2 (ptj1min drop) — found because the anchor disagreed, not because anything
-errored.
+
+**WHEN:** a produced cross section, efficiency, yield, fitted value or limit will be used downstream.
+
+**DO:** Obtain an independent scale or limiting-case check before using the number. Record value, anchor,
+ratio, tolerance and the action taken. An unexplained ratio outside the stated regime opens P5 before the
+dependent claim proceeds. Native completion or optimizer convergence does not replace this check.
+
+For a novel quantity, use independent limits, dimensions, sum rules or a separately derived calculation.
+State each check's scope. If the necessary anchor is missing, retain that status and design a bounded
+test. Hold the dependent numerical claim while continuing independent hypothesis or preparation work.
+
+**Example:** A fit can converge at an imposed search bound. Check whether the requested crossing is
+actually bracketed rather than interpreting the bound as a measured limit.
 
 ## P5 — discrepancy-decomposition
-**WHEN:** two numbers/curves that should agree, don't (beyond stated tolerances).
-**DO:** 1. Enumerate EVERY candidate cause you can name (basis, normalization, acceptance,
-statistics, implementation, reference-decoding). 2. Rank by the CHEAPEST discriminating test, not
-by prior plausibility. 3. Run tests in cost order; each test kills or confirms a cause; STOP at
-the first confirmed cause, subtract it, re-measure the residual, repeat. 4. The final statement
-decomposes the discrepancy into named parts + an honest irreducible remainder.
-| Thought | Reality |
-|---|---|
-| "It's probably statistics, regenerate with more events" | The 33% residual decomposed into a σ-basis artifact (0…−44%, mass-dependent, fixed by a re-normalization costing NOTHING) + a genuine 26% acceptance/fast-sim floor. Regeneration would have spent hours and explained nothing. |
-| "One cause explains it" | Discrepancies are usually sums. Subtract the confirmed cause and LOOK at what remains before declaring victory. |
-**Worked incident:** the 33% → (basis + 26%) decomposition on the fig3 scan (A4 + RESULT.md §7).
+
+**WHEN:** expected agreement fails beyond its stated tolerance.
+
+**DO:** List candidate causes, including conventions, normalization, acceptance, statistics, implementation
+and reference decoding. Rank the discriminating tests by cost. Test in that order, correct a confirmed
+cause, recompute the residual and repeat. Report the named contributions and unresolved remainder.
+A failed test or unresolved cause stays visible; do not allocate more events before testing cheaper explanations.
+
+**Example:** Correcting a normalization mismatch can leave a separate response-model discrepancy.
+Report the changed basis and the residual rather than treating the first repair as full agreement.
 
 ## P6 — source-ladder
-**WHEN:** required information is missing (efficiencies, cutflows, likelihoods, model files,
-generator settings).
-**DO:** climb in order, recording each rung's outcome in `inputs/resource_census.json`
-(`resource-sweep` skill automates rungs 1–5): 1. the paper body + auxiliary material; 2. HEPData
-record INCLUDING the resources tab (full likelihoods and efficiency maps live there, not under
-"tables"); 3. the collaboration's public analysis code/glance pages + GitHub orgs; 4. recast DBs
-(Rivet, SimpleAnalysis, SModelS, CheckMATE, MA5-PAD); 5. INSPIRE forward-citations — recast papers
-and THESES (theses carry the cutflows the paper cut); 6. ask the physicist WITH the ladder's
-evidence + named options. Never invent the missing number; never stop at rung 1.
-| Thought | Reality |
-|---|---|
-| "The paper doesn't provide it, so it's unavailable" | An analysis's public code repository went unread for weeks; HEPData full tables were declared "impossible to download" until a second pass found the working endpoint in minutes. |
-| "I checked HEPData" | You checked the TABLES. The resources tab is where reinterpretation material lives. |
-**Worked incident:** the HEPData-download "limitation" and the unread analysis repository.
+
+**WHEN:** an efficiency, cutflow, likelihood, model file, setting or other required input is missing.
+
+**DO:** Record each applicable rung in `inputs/resource_census.json`:
+
+1. Publication body and auxiliary material.
+2. Public data record, including its resources as well as tables.
+3. Public source code and source-author documentation.
+4. Compatible recasting databases and routine catalogues.
+5. Citing work, including detailed technical studies and theses.
+6. The physicist, with the source census and concrete choices.
+
+The `resource-sweep` skill automates the first five source classes, including HEPData resources and
+Rivet, SimpleAnalysis, SModelS, CheckMATE and MA5-PAD catalogues. Record an outage, skipped rung or
+inaccessible source with that status. Before claiming absence, walk rungs 1–5 or give a typed
+not-applicable reason. Never invent the missing input.
+
+**Example:** A data record's resources can contain a likelihood that is absent from its table list.
+Check both locations before proposing a counting approximation.
 
 ## P7 — conservative-default
-**WHEN:** an assumption must be made within the approved scope, including an authorized
-delegated decision or a site that says proceed-with-flag.
-**DO:** 1. For an exclusion, prefer a demonstrably weaker claim where the direction of the
-effect is established. For a measurement, parameter fit or research comparison, retain
-alternative assumptions and propagate their effects on the requested quantity; a smaller
-number is not automatically conservative. Do not infer a bias sign without evidence.
-2. Implement it REVERSIBLY (a config/
-normalization knob, never baked into generated events when avoidable). 3. Flag it numbered in the
-check-in + `DEVIATIONS.md`, with the expected sign+size of the bias.
-| Thought | Reality |
-|---|---|
-| "LO σ is the conservative choice" | Not automatically: for the squark cases k<1 (LO-PDF overshoot) — bare LO OVER-excluded. Conservative means you CHECKED the sign, not that you picked the lower-order option. |
-| "It's a small effect, no flag needed" | Unflagged assumptions are how 2% effects get stacked five deep into a 15% surprise. The flag costs one line. |
-**Worked incident:** the flat k=1.18 → per-mass k(m)=1.38–1.41 fix moved the contour OUTWARD —
-the "safe" LO-ish choice had been anti-conservative the whole time.
+
+**WHEN:** adopting an assumption within the approved scope or a permitted proceed-with-flag decision.
+
+**DO:** Establish the direction of its effect on the requested quantity. For exclusion, choose a weaker
+claim when that direction is demonstrated. For measurements, fits and research comparisons, preserve
+alternative assumptions and propagate their effect; a smaller number is not automatically conservative.
+When the sign is unknown, record it as unknown or propagated rather than infer it.
+
+Implement the choice reversibly with a recorded rollback. Record the numbered check-in flag and `DEVIATIONS.md`
+entry, expected sign and size, reversibility, resource effect and supporting justification. A physics-critical
+default requires its permitted request, invariant or authoritative-practice basis and current authority.
+
+**Example:** Choosing a lower perturbative order does not by itself establish a weaker exclusion.
+Check the relevant normalization and uncertainty before describing its direction.
 
 ## P8 — kill-the-result
-**WHEN:** a result is drafted for delivery (final check-in, RESULT.md, deck) — ALWAYS, as step 9.
-**DO:** before the verification panel sees it, argue your own result is wrong three specific ways:
-1. BASIS — which convention mismatch would produce exactly this agreement/disagreement? 2.
-ACCEPTANCE — which selection/object/detector shortcut would fake it? 3. STATISTICS — which
-floor/cap/stat-fluctuation would fake it? Write the three attacks + why each fails (or doesn't) —
-they seed the Tier-B adversary, which walks the failure catalogue as its attack list.
-| Thought | Reality |
-|---|---|
-| "It matches, we're done" | The 141/141 "bit-faithful" SA port matched because it was RJR-CIRCULAR — it read R_ISR from the container it claimed to reproduce. An adversarial pass found it; the agreement was the disguise. |
-| "The panel will catch anything I missed" | The panel is a NET, not a substitute — a drafted attack list is what makes Tier-B sharp instead of ceremonial. |
-**Worked incident:** the RJR-circularity catch; the panel's number-integrity rule (quoted-number
-vs artifact discrepancy = automatic FAIL) exists because prose drifted from artifacts twice.
+
+**WHEN:** drafting a result for final review and delivery.
+
+**DO:** Write three concrete attacks before the verification panel: one on **basis**, one on
+**acceptance**, and one on **statistics**. Name the test, observed outcome and evidence for each.
+State which attacks remain unresolved. Bind the attack document to the exact plan and drafted result.
+The final reviewers receive these obligations; a favorable attack summary does not replace their review.
+
+**Example:** Apparent agreement can come from reusing the reference quantity in the implementation.
+Trace the allegedly independent inputs and test the counterpart without that shared result.
 
 ---
 
-## Using these under the model-tier policy
-The [judgment] policy (`docs/workflow/README.md` §Roles) still binds: a cheap model's job at a judgment site
-is to RUN the protocol mechanically (extract, manifest, sweep, anchor) and present the structured
-evidence. Manual mode escalates unresolved scientific judgments to the physicist. An explicit
-delegation recorded through `docs/workflow/start.md` instead uses the authorized scientific
-reviewers and coordinator within the declared scope, resources and correction bounds. CI2 and
-CI3 review remain independent; neither the protocol nor a machine approval establishes expert
-human review. Escalate unavailable required expertise and decisions outside the delegation.
+## Judgment sites under the controller
+
+In a controller-owned run, a judgment call is represented by a typed `decide` step with its declared
+triggers, instruction units and required output. The governed step graph dispatches the seat and
+verifies the receipt-bound record before adoption. Fixed routes and judgment planning use the
+same record and trigger checks where they declare such a decision.
+
+An `operate` step in a judgment plan can carry a closed `operation_task`:
+`{"materializer": "science-mode", "task_input": "inputs/task.json", "result_output": "outputs/result.json"}`.
+The task input must be a declared run input or an accepted output of a dependency; the result must
+be a declared output. Installed registrations cover measurement and authored-analysis
+tasks. Supply the native adapter's validated task JSON in that input file and declare every file
+its input reader returns. File paths in the native task resolve relative to that task file.
+The controller pins the task bytes and installed materializer sources at approval, then checks
+current plan identity, accepted input custody, the native task contract and complete declared
+file inputs before materializing its fixed launch. The ordinary native signature, executor role,
+authority, confinement and output validators still apply. An unregistered task holds; no inline
+command or worker-chosen module is admitted, and an operation is never replaced by an author seat.
+The authored task adapter runs one fixed Python child inside the enclosing controller capsule,
+using the native task's lint, postconditions and failure classifier. Its observation is not a
+confinement grant; the enclosing launch receipt supplies that evidence. This registration refuses
+`reference_paths` because additional reference withholding needs a distinct capsule policy.
+The native operation's applicable normalization, cutflow and other checks still need declared
+`check_inputs`; a task's successful process exit does not accept its outputs.
+
+- **The record.** A decide step writes one `judgment-record.v1`: the question; at least two
+  options (or the reason only one exists) with predicted consequences; the chosen option and its
+  rationale; the protocol evidence its triggers require; reversibility and budget impact. A
+  decision without a valid record is refused: the step does not close and nothing that depends on
+  it runs.
+- **The class.** The controller computes the consequence class from code tables, never from the
+  worker. R0 is bookkeeping, naming or ordering. R1 is a reversible choice inside the approved
+  scope. R2 is a consequential scientific choice: method, basis, selection or a statistic the
+  request allows. R3 is a physics-critical ambiguity, a scope change (a new or dropped
+  deliverable, a changed prescribed statistic or boundary), unblinding, spending above a ceiling,
+  or adopting a default the request leaves to the physicist. A declared class can raise the
+  computed one, never lower it; an unknown action is R3.
+- **What each class requires before its effect.** R0 is recorded. R1 is recorded and reported at
+  the next check-in. R2 needs independent RDJ critic-seat credit on the exact record. R3 also
+  needs current authenticated authority for the chosen action. The controller's terminal response
+  is recorded as unattested and grants no effects by itself; a worker must not supply operator authority.
+- **The four site modes** map onto the classes: manual is R3 authority; delegated is R2
+  independent review; script-assisted is an `operate` step that runs the named tool;
+  proceed-with-flag is R1 with a P7 conservative-default record and a deviation entry.
+- **Protocols as structured output.** A trigger names the evidence the record must carry: P1 a
+  figure-grammar record; P2 two basis manifests, the transformation and the identity check; P3 the
+  trap-sweep record; P4 number, anchor and ratio rows; P5 the decomposition table; P6 the
+  source-ladder rows; P7 the default record; P8 the three attacks. A method escalation also
+  carries its method-decision record, and a stage recovery its local diagnosis and recipe-search
+  record. The schemas require these fields and `controller.judgment.protocols` checks specified
+  relations: manifest equality, anchor ratios, trap-sweep reconstruction, test cost order, ladder
+  status and attack-axis coverage. These checks establish the record's structure and those coded
+  relations. They do not establish that every claim is attached to the actual scientific inputs,
+  that an asserted image inspection occurred, or that the evidence supports the chosen method.
+  Current-subject custody and the required reviewers must establish the applicable support.
+- **Asking.** Questions and R3 calls go through the authority service with their current pins and
+  effect bounds. The terminal records an answer without attesting a person. In an
+  unattended run the operator is notified once and ready independent branches can continue. When the operator's
+  wait bound passes, the controller takes the recorded conservative default (P7, labelled) if the
+  operator's policy allows it; otherwise that branch stays held. A default that differs from the
+  recorded choice overturns that choice, and its branch stays held; the default for an R3 step
+  that has no record is not to run it. When nothing can proceed, the run ends in a qualified
+  delivery.
+- **The judgment route.** A request that no route spec covers is declared the same way. The planner
+  frames it (objective, deliverables with acceptance criteria, constraints, unknowns, numbered
+  assumptions, boundaries) and a plan critic reviews the frame. The planner decomposes it into
+  typed steps, the controller classes each call, and exact-subject RDJ critic-seat review covers
+  its R2 and R3 calls before
+  CHECK-IN 1 approves the plan. Replans are bounded (three unless the operator sets another bound)
+  and a scope-changing replan needs renewed authority. Before the final review a fresh worker that
+  is neither the planner nor a producer writes the three P8 attacks; they become the final
+  reviewers' must_check items. An unmatched request retains its original obligations and receives
+  judgment planning. A missing task materializer, child-route binding, physical input or native
+  executor can still hold execution and dependent synthesis. Planning preserves the question;
+  successful execution requires the actual operation binding and evidence. See the
+  [operation contracts](../../reference/scope.md#scientific-interfaces).
+
+Machine decisions are labelled as machine decisions. Neither a protocol nor a machine approval
+establishes expert human review. Escalate missing required expertise and decisions outside the
+delegation.
+
+**Runs the controller does not own.** A session that drives a run with the legacy commands keeps
+the earlier procedure. Manual mode escalates unresolved scientific judgments to the physicist. An
+explicit delegation recorded through `docs/workflow/start.md` uses the authorized scientific
+reviewers and coordinator within the declared scope, resources and correction bounds. CI2 and CI3
+review remain independent. Such results are labelled NOT GOVERNED.
+
+The remaining command examples describe the lower-level graph and scientific-review interfaces.
+Controller-owned runs retain their controller state, authority and sole delivery sink; an applicable
+legacy command refuses ownership rather than replacing that path.
 
 ## Finding classification and bounded repair
 
@@ -144,13 +214,13 @@ New review findings use `findings.v2`; it also accepts unchanged version 1 docum
 Version 1 findings remain unclassified and retain their prior routing. For a defect,
 `classification` contains `kind: defect`, the reviewed `artifact_sha256`, one `target`
 step or node, and `rework_evidence` explaining why its repair changes the result.
-For a limitation it contains `kind: limitation`, the reviewed `artifact_sha256`, and
+For a qualification it contains `kind: limitation`, the reviewed `artifact_sha256`, and
 `claims` with each `claim_id`, `effect` (`bounds` or `invalidates`) and `bound` (or
 `unbounded`). Severity and evidence authority remain separate from classification.
 
 `ravel agent-graph rework --graph <graph> --findings <document> --reason <reason>`
 repairs exactly the named defect nodes and their descendants. `--nodes` must match
-those targets if supplied. Limitations enter the retained limitation census and
+those targets if supplied. Qualifications enter the retained qualification census and
 claim disposition without spending rework budget, even when the budget is exhausted.
 The old `--nodes` interface is reserved for legacy unclassified/manual repairs.
 Repeated objections against unchanged artifact bytes do not spend another repair.
@@ -160,30 +230,30 @@ journal evidence; a defect names its owning execution stage or a domain-mapped p
 Use `ravel review --rundir <run> reclassify --request <json>` for an open journal finding: the declared
 decider supplies a reason and replacement classification; the original vote and
 classification remain in the hash-chained journal. Reclassification grants no new
-execution authority. A limitation-only send-back does not authorize correction;
+execution authority. A qualification-only send-back does not authorize correction;
 the decider must explicitly accept a permitted supported scope before delivery.
-A decider send-back must carry a defect, and no reclassification may leave an
+A decider send-back must carry a defect, and no reclassification can leave an
 acceptance carrying a defect or a decider send-back without one.
-Acceptance may carry limitations. Each bounded affected claim must be qualified
+Acceptance can carry qualifications. Each bounded affected claim must be qualified
 or withdrawn; invalidated or unbounded claims are withdrawn. The actual manuscript
 claim census and its visible reasons must retain these effects. Honest withdrawal
 of a headline claim permits delivery of the negative result without regeneration.
-Research methodology status and its census handoff include these journal limitations.
+Research methodology status and its census handoff include these journal qualifications.
 
 Journal defect targets must name an allowed owning stage when submitted as well as
-when reclassified. Each review policy claim scope may explicitly list `claim_ids`;
-without that field its own scope identifier is the claim identifier. A limitation
+when reclassified. Each review policy claim scope can explicitly list `claim_ids`;
+without that field its own scope identifier is the claim identifier. A qualification
 must name a claim in this policy census. Historical unbound findings remain readable
-but cannot pass delivery as if their scope had been established.
+but must not pass delivery as if their scope had been established.
 
-For every delivery route with retained limitations, the accepting decider supplies
+For every delivery route with retained qualifications, the accepting decider supplies
 one existing full claim-disposition package (`plan`, `rows`, `value`, `evidence`)
 among its pinned `supporting_artifacts`. Its literal final prose must retain every
 required qualification or withdrawal. The journal retains the bounded package bytes
 so live, detached and retained review checks can enforce the same rule. In ordinary
 role orchestration the package can be an explicit source-bound case anchor, which
 is forwarded to review support. A generated summary does not replace this witness.
-The accepted scope cannot contain a withdrawn or unresolved claim; a separate
+The accepted scope must not contain a withdrawn or unresolved claim; a separate
 diagnostic scope can still deliver a supported negative result after headline withdrawal.
 
 ## Progress, bounded endings and unattended waits
@@ -213,7 +283,7 @@ ravel status --rundir "$RUN" --notification-command '["local-notifier"]'
 The command receives two additional arguments: the run path and a one-line reason.
 It runs without a shell, inherited stdin or default network action. It receives no
 request text, findings or scientific data. Each explicit invocation can notify once;
-status alone sends nothing. The command's success is not run approval.
+status records the current notification state. Run approval requires its own check-in.
 
 When bounds are exhausted or the review escalates, produce a qualified ending:
 
@@ -226,10 +296,10 @@ and an appended `DEVIATIONS.md` entry. Every original obligation is stated as
 `satisfied`, `negative`, `partial` or `blocked`. The optional `--request` is an existing
 completion request: its contributions must pass the ordinary current child-evidence
 and review checks. Without such a request the conservative ending marks every
-obligation blocked. It preserves unresolved findings and limitation candidates.
-Limitation-affected claims are withdrawn through the shared disposition contract.
+obligation blocked. It preserves unresolved findings and qualification candidates.
+Qualification-affected claims are withdrawn through the shared disposition contract.
 An optional `--claim-package` supplies the existing plan/rows/value/evidence document
-shape; every planned claim must be withdrawn with its literal final scope and reason.
+shape; every declared claim must be withdrawn with its literal final scope and reason.
 No new scientific claim is adopted by this fallback.
 
 A valid delegation is labelled `machine-produced under delegation`; otherwise the
@@ -241,8 +311,8 @@ includes the two-unchanged-redo bound even when numerical redo capacity remains.
 That bound keeps the existing decider route; reporting does not reclassify a
 finding, spend another redo, add an escalation or declare a human wait.
 Their responses include `qualified_ending` with `recorded` or `unavailable` status
-and a repair reason when unavailable; the review CLI exits unsuccessfully for an
-unavailable report. Reporting failure preserves the terminal event and its refusal.
+and a repair reason when missing; the review CLI exits unsuccessfully for an
+missing report. Reporting failure preserves the terminal event and its refusal.
 An identical escalation retries reporting without adding another journal event.
 The publication lock is acquired before observing the report's source custody,
 which is checked again immediately before final publication. Failed publication
@@ -255,14 +325,14 @@ must retain the returned reporting metadata to expose a publication failure.
 
 ## Evidence obligations and exploration
 
-An RDJ node may declare a nonempty `evidence_obligations` list of required anchor
+An RDJ node can declare a nonempty `evidence_obligations` list of required anchor
 kinds. A branch closes when externally verified evidence of each required kind
 supports its obligated node; it need not reach the class's minimum depth. Untyped
 branches retain their minimum-depth rule. The maximum depth, edge reviews, unknowns,
 common-source checks, alternatives and transport requirements still apply. Low
 confidence or weak reviewed support requires additional distinct sources for each
 kind. Identical content counts once across paths, producer receipts and acquisition
-routes; copying evidence cannot discharge an additional-evidence requirement or
+routes; copying evidence must not discharge an additional-evidence requirement or
 hide shared support across claims. Different bytes alone do not prove independent
 scientific provenance. Contradictory external evidence keeps a typed branch held until resolved.
 The highest risk class still needs a tool-output or measurement anchor on each path.
@@ -281,7 +351,7 @@ condition and finite broker/model bounds under current policy. Set the action's
 `authorization_scope` to `exploration_only` and pass the independent contract pin to
 `open_case`. Every reviewer sees that contract. The receipt authorizes the selection
 only, explicitly denies execution and scientific acceptance, and retains the full
-risk class and its reviews. It cannot be reused for launch, promotion or delivery,
+risk class and its reviews. It must not be reused for launch, promotion or delivery,
 and does not establish the route as accepted practice. Executing any experiment
 still needs the ordinary execution authorization and resource accounting.
 
@@ -318,7 +388,7 @@ lowers risk. The fractional threshold remains unset pending an owner decision.
 
 ## Executable reviewer checks
 
-A tightening rubric overlay may add `executable_checks` for named reviewer roles.
+A tightening rubric overlay can add `executable_checks` for named reviewer roles.
 Each check binds an existing permitted document-validator identifier, an exact
 run-relative subject pin, an optional producer broker-receipt pin and whether a
 distinct method is required. The review approval binds these obligations. Removing
@@ -328,10 +398,10 @@ Credit requires the reviewer's own broker execution against the dispatcher-pinne
 unredacted subject in its review packet. The current input and result bytes must
 match their receipts. Missing, failed, inconclusive or empty checks do not earn
 credit. A later check of the same subject that raises, or broken later worker
-custody, cannot retain credit from an earlier pass. Completed checks identify their
+custody, must not retain credit from an earlier pass. Completed checks identify their
 subject through normalized input pins, including equivalent path spellings.
 A later validator exception without a subject pin also holds credit when its
-argument digest differs: the digest alone cannot exclude another spelling of the
+argument digest differs: the digest alone must not exclude another spelling of the
 same path. A completed check with a pinned different subject leaves prior credit intact.
 A declaration or self-reported check is insufficient. Existing review
 requirements remain in effect when no overlay is selected.
@@ -345,8 +415,8 @@ subject. A different callable does not prove an independent scientific method;
 computation of the same quantity. The current registry supplies no such relationship,
 so `require_distinct_method` remains an open requirement. Producer diagnostics require
 one current matching subject input and one correctly identified, substantive passed
-output. A passed label with material findings cannot earn reviewer credit.
-These checks currently use existing
+output. A passed label with material findings must not earn reviewer credit.
+These checks  use existing
 document validators. The existing `review.normalization_recompute` check independently
 recomputes the scalar yield from supplied cross section, luminosity, branching fraction,
 correction factor and efficiency; a wrong yield or missing input refuses credit.
@@ -361,13 +431,13 @@ method relationships remain separate integration work.
 
 ## Selectable investigation team
 
-A graph may opt into `team_shape.policy = investigator_consult_reviewer`, naming one
+A graph can opt into `team_shape.policy = investigator_consult_reviewer`, naming one
 investigator node, non-voting consultations (each with its specialty), and one blind
 reviewer for each declared consequential subject. The policy censuses every agent,
 requires the reviewer to depend on its subject, and refuses hidden agent populations
 or a changed team arm during revision. Its ordinary graph budgets and fresh-context
 review transport checks remain active. Omission selects the existing team behavior.
 
-This is an advisory investigation-scheduling arm for ablation. It does not delete or
+This is an advisory investigation-scheduling policy. It does not delete or
 replace the mandatory reviewers required by a scientific decision gate. Graph
 completion remains separate from scientific acceptance and execution authority.

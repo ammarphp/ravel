@@ -17,7 +17,7 @@ permission to publish an exclusion. Those remain separate lifecycle obligations.
 | `prompt` | Nonblank string. Validation preserves the supplied text verbatim. |
 | `task_mode` | `survey`, `reproduce`, `reinterpret`, `projection`, `scan`, `summary_plot`, `anomaly_search`, `no_routine`, `generate`, `likelihood`, `calculation`, `research`, `unsupported`. |
 | `detector_mode` | `particle-level`, `rivet-smearing`, `simpleanalysis-delphes-native`, `container`, `effmap-folded`, `delphes-custom-uncertified`, `TBD-judgment`, `parton-level`, `none`. |
-| `stat_mode` | `published-likelihood`, `simplified-likelihood`, `best-sr-counting`, `combined-counting`, `stability-only`, `shape-fit`, `blocked-shape-fit`, `sensitivity-expected-only`, `none-survey`, `prescribed-statistic`, `TBD-judgment`, `none-generation`, `provided-likelihood`. |
+| `stat_mode` | `published-likelihood`, `simplified-likelihood`, `constructed-likelihood`, `best-sr-counting`, `combined-counting`, `stability-only`, `shape-fit`, `blocked-shape-fit`, `sensitivity-expected-only`, `none-survey`, `prescribed-statistic`, `TBD-judgment`, `none-generation`, `provided-likelihood`. |
 | `required_user_inputs`, `assumptions` | Arrays of nonblank strings. Empty arrays are allowed. |
 | `compute_plan` | `none`, `dry`, `smoke`, `full`, `scan`. This is the requested ladder rung, not approval to run. |
 | `approval_required` | Literally JSON `true`. Integer `1` does not qualify. |
@@ -28,7 +28,7 @@ Strings containing only whitespace fail wherever nonblank text is required.
 
 ## Targets
 
-`targets` is optional and may be partial. Its only accepted fields are:
+`targets` is optional and can be partial. Its only accepted fields are:
 
 | Field | Accepted value |
 |---|---|
@@ -45,7 +45,7 @@ CHECK-IN 1 must record and resolve the missing physics inputs.
 
 The router reads masses in keV, MeV, GeV or TeV. Collision energies, widths, decay constants,
 mass splittings, bounds and cuts are not masses. A Rivet routine name adds its analysis name and
-INSPIRE record. A host `--interpretation` may carry a `targets` object that replaces the
+INSPIRE record. A host `--interpretation` can carry a `targets` object that replaces the
 extracted fields; any identifier it names must appear in the request.
 
 ## Reading and plan sidecars
@@ -61,7 +61,7 @@ extracted fields; any identifier it names must appear in the request.
 The obligation census in `task_requirements` is derived from the reading. Its first
 obligation is the whole request verbatim, and every finer obligation carries exact spans.
 
-A contract may pin the sidecars with the optional keys `reading` and `request_plan`, each
+A contract can pin the sidecars with the optional keys `reading` and `request_plan`, each
 `{path, sha256}` with a run-relative path. Pinned files enter the approval fingerprint, so
 editing one after approval fails verification. A contract without pins validates,
 evaluates and fingerprints exactly as before.
@@ -91,9 +91,9 @@ Both scenarios are validated. The validator does not choose or average them.
 | `generated_by` | Optional literal `cost_preflight.py` when embedding an emitted cost artifact. |
 | `generated_utc` | Optional string; the cost emitter permits an empty deterministic timestamp. |
 
-Historical compact costs may omit events, disk, backend, parallelism, and per-point timing.
+Historical compact costs can omit events, disk, backend, parallelism, and per-point timing.
 The validator does not manufacture the absent metadata. `full`/`scan` still require numeric
-`points` by default. A budget is a declared estimate; these checks cannot certify its accuracy.
+`points` by default. A budget is a declared estimate that requires measured cost evidence.
 
 ## Optional annotations
 
@@ -119,18 +119,18 @@ do not endorse a numerical dark-sector assumption or establish its provenance.
 
 ## Cross-field and live-consumer behavior
 
-- `unsupported` requires a nonempty `blocking` list and cannot request generation.
-- `blocked-shape-fit` cannot carry `full` or `scan`.
+- `unsupported` requires a nonempty `blocking` list and must not request generation.
+- `blocked-shape-fit` must not carry `full` or `scan`.
 - The existing survey/summary rule rejects `full` and `scan`.
 - Invalid objects fail before lifecycle code reads their fields. Library calls to
   `validate_run_state.evaluate()` enforce the same gate as its CLI.
 - `workflow_state init`, `advance`, and approval use strict validation. Approval also
   validates the recorded budget for the rung being approved and refuses a rung above
-  the task contract's scope. A lower rung, such as smoke before a planned scan, is allowed.
+  the task contract's scope. A lower rung, such as smoke before a declared scan, is allowed.
 - The approval emitter, Bash guard, and lifecycle approval invariant share
   `workflow_state.verify_approval()`. A present file alone is never live approval.
 - The session-scoped Bash generation guard rejects missing or invalid contracts,
-  unavailable validators, and generation under `none`/`dry`. Non-generation commands
+  missing validators, and generation under `none`/`dry`. Non-generation commands
   and development sessions without a scoped physics run retain their existing behavior.
 - Task-contract JSON readers reject duplicate keys at any nesting level, nonstandard
   `NaN`/`Infinity` literals, and non-finite values produced by exponent overflow. The
@@ -139,7 +139,7 @@ do not endorse a numerical dark-sector assumption or establish its provenance.
 This does not make arbitrary command execution a security boundary. The Bash guard still
 recognizes generation commands heuristically. Standard explicit
 `scan_orchestrator.py launch ... --go` and `scan_babysitter.py ...` invocations require a
-bound **scan** approval; a bound smoke approval cannot launch either driver. Dry launch,
+bound **scan** approval; a bound smoke approval must not launch either driver. Dry launch,
 status, and help calls remain available without scan approval. These two known drivers
 launch the existing pipeline runners internally.
 
@@ -147,15 +147,15 @@ A generic `run-pipeline-native.sh` command does not state whether the referenced
 configuration is smoke or full statistics. The guard validates its bound approval but
 does not inspect that configuration or enforce its event count, point count, or walltime
 budget. Aliases and arbitrary shell wrappers can also evade command recognition. This is
-a remaining execution-scope limitation, not proof of end-to-end budget enforcement.
+a remaining execution-scope scope condition, not proof of end-to-end budget enforcement.
 
 Content integrity and human authentication
 are separate: the user quote and emitter identity remain editable data, without a signed
-human-approval service. A hash binding cannot prove who approved the work.
+human-approval service. Approver identity requires authenticated authority evidence in addition to the hash binding.
 
 ## Version-2 approval binding
 
-Native execution also requires an `execution_plan` object with a portable run-relative `path` and lowercase 64-character `sha256` of the exact saved plan bytes. Pin the actual model, analysis, cards, seeds, budget and stage outputs before presenting the plan. The executor verifies this pin and the current approval before every stage; a status view or `--go` flag alone cannot authorize it. A changed execution plan requires recording the actual renewed authorization for its scope. Artifact-bound comparison policies use the separate `certification_plans` pins described in [scientific results](scientific-results.md).
+Native execution also requires an `execution_plan` object with a portable run-relative `path` and lowercase 64-character `sha256` of the exact saved plan bytes. Pin the actual model, analysis, cards, seeds, budget and stage outputs before presenting the plan. The executor verifies this pin and the current approval before every stage; a status view or `--go` flag alone must not authorize it. A changed execution plan requires recording the actual renewed authorization for its scope. Artifact-bound comparison policies use the separate `certification_plans` pins described in [scientific results](scientific-results.md).
 
 Task contracts remain version 1. Newly recorded `inputs/checkin1_approval.json` artifacts
 use version 2 and require exactly these fields:
@@ -180,20 +180,20 @@ an altered rung, or an invalid cost/check-in source also fail. Re-record approva
 revised inputs through the normal CHECK-IN process; do not update fingerprints by hand.
 
 Existing version-1 approval files remain untouched as historical records. They do not
-bind their source bytes and cannot authorize new compute. Live reuse requires a new
-version-2 approval. The lifecycle's existing pre-epoch archival reporting concession may
+bind their source bytes and must not authorize new compute. Live reuse requires a new
+version-2 approval. The lifecycle's existing pre-epoch archival reporting concession can
 report incomplete historical approval as a warning; strict lifecycle checks and the live
 Bash guard never apply that concession.
 
 Regression tests reproduce the old bug using the real Bash guard: both an empty approval
 object and a file containing `not JSON` previously returned exit 0. Tests now verify that
 both fail, that edits to each of the three sources invalidate approval, that re-recording
-restores validity, and that a planned scan can still have a valid smoke-rung approval.
+restores validity, and that a declared scan can still have a valid smoke-rung approval.
 
 ## Explicit archive compatibility
 
 `validate_task_contract.py --legacy CONTRACT.json` and `validate(contract, legacy=True)`
-are archive-audit interfaces. They may waive only a missing `cost_estimate.points` for
+are archive-audit interfaces. They can waive only a missing `cost_estimate.points` for
 `full`/`scan` when a valid `disk_gb_peak` and nonblank `note` exist. Each waiver emits an
 `ARCHIVE ONLY` warning. CLI success is labeled **NOT live-compute validation**. No point
 count is inferred, and versions, malformed fields, non-finite values, scope, and approval

@@ -109,7 +109,7 @@ def plan(rundir, spec_path):
         checkin = {"schema_version": 1, "kind": "checkin1", "sections": {
             "i": {"request": contract["prompt"], "source": spec["source"], "scope": spec["mode"], **parent_projection},
             "i-b": {"recipe": frozen, "execution_plan_sha256": execution.file_hash(rd / PLAN),
-                    **({key: proposal[key] for key in ("generator_selection", "beam_content", "pdf", "model_origin",
+                    **({key: proposal[key] for key in ("generator_selection", "beam_content", "pdf", "model_origin", "model_validation",
                                                        "lhe_transform", "spec_reconciliation", "generation_convention") if proposal.get(key)}
                        if spec["mode"] == "generate" else {}),
                     **({"placement": placement.checkin(rd)} if "execution" in spec else {})},
@@ -350,13 +350,36 @@ def prepare_generation(rd, g, base, inputs, *, lease_cpus=1):
         {"path": str(process_card), "sha256": execution.file_hash(process_card)},
         {"identifier": g["model"], "pin": plan["model_source_sha256"], "restriction": restriction or "default"},
         g.get("conventions"))
+    from ravel.physics import model_admission
+    for point in g.get("parameter_points") or [None]:
+        evidence = (point or g).get("model_validation")
+        if isinstance(evidence, dict):
+            for pin in evidence.values():
+                if isinstance(pin, dict) and "path" in pin:
+                    pin["path"] = str(_resolve(pin["path"], base))
+    validations = model_admission.scoped_generation_evidence(g, rd, files)
+    for point in g.get("parameter_points") or [None]:
+        identity = point["id"] if point else "single"
+        validation = validations[identity]
+        inputs += validation["inputs"]
+        for pin in (point or g)["model_validation"].values():
+            pin["path"] = str(_resolve(pin["path"], base))
+        destination = rd / "inputs" / ("point-" + identity + "-param.dat")
+        shutil.copyfile(validation["parameter_card"]["path"], destination)
+        inputs.append(str(destination.relative_to(rd)))
+        (point if point is not None else g)["parameter_card"] = str(destination.relative_to(rd))
+    plan["model_validation"] = validations
+    if not g.get("parameter_points"):
+        param_text = (rd / g["parameter_card"]).read_text()
     from ravel.physics.scoped import run_card
     settings = run_card("\n".join(f"{v} = {k}" for k, v in g["run_settings"].items()))
     sim = spec_reconciliation.simulation_from_cards(proc_lines, settings, param_text)
     records = {}
     for point in g.get("parameter_points") or [None]:
         overrides = (point or {}).get("overrides", [])
-        view = dict(sim, param=spec_reconciliation.apply_overrides(sim["param"], overrides) if sim["param"] else None)
+        point_sim = (spec_reconciliation.simulation_from_cards(proc_lines, settings,
+            (rd / point["parameter_card"]).read_text()) if point else sim)
+        view = dict(point_sim, param=spec_reconciliation.apply_overrides(point_sim["param"], overrides))
         record = spec_reconciliation.reconcile(spec_reconciliation.intent_for(g, overrides), view, stage="pre-launch")
         records[point["id"] if point else "single"] = record
         if not record["satisfied"]:
@@ -402,6 +425,8 @@ def generation_notes(proposal):
     if beams.get("lepton_or_photon_partons"):
         notes.append(f"Lepton or photon partons from the proton: {beams['lepton_or_photon_partons']} "
                      f"through LHAPDF set {proposal['pdf'].get('name')} ({proposal['pdf']['lhaid']}).")
+    for identity, receipt in proposal.get("model_validation", {}).items():
+        notes.append("Model validation at " + identity + ": " + receipt["origin"] + "; " + "; ".join(receipt["qualifications"]))
     if proposal.get("model_origin"):
         notes.append("Model: reviewed derived UFO from " + proposal["model_origin"]["handoff"]["path"] + ".")
     if proposal.get("generation_resources"):
@@ -682,6 +707,25 @@ def evaluate(rundir, contract, stage_limit=None):
             "compute_plan": contract["compute_plan"], "legacy": False, "stages": stages, "invariants": [],
             "verdict": "PASS" if passed else "FAIL", "exit": 0 if passed else 1,
             "scope": "scoped workflow delivery; no detector/coverage/paper-reproduction certification"}
+
+
+def controller_products(rundir):
+    """Expose the original scope's audited products after all ordinary gates."""
+    rd = root_path(rundir)
+    contract = read_json(rd / 'inputs/task_contract.json')
+    state = evaluate(rd, contract)
+    if state.get('verdict') != 'PASS':
+        raise ValueError('scoped execution, recipe or result evidence is incomplete')
+    verify_plan(rd, require_approval=True)
+    folder = rd / 'outputs'
+    result = read_json(folder / 'result.json')
+    pins = []
+    for path in sorted(folder.rglob('*')):
+        if path.is_symlink():
+            raise ValueError('scoped product tree contains a symbolic link')
+        if path.is_file():
+            pins.append({'path': str(path), 'sha256': execution.file_hash(path), 'size': path.stat().st_size})
+    return {'result': result, 'artifacts': pins, 'packet': state}
 
 
 def differences(left, right, path="recipe"):

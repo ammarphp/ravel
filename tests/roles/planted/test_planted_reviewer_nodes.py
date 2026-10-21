@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'unit'))
 
 from ravel.workflow import agent_worker, graph_nodes, rdj_custody  # noqa: E402
 
+from inert_dispatch import inert_dispatch  # noqa: E402, F401
 from planted_fixtures import HEADLINE, write  # noqa: E402
 from test_agent_worker import put  # noqa: E402
 
@@ -85,7 +86,7 @@ def run_review(root, monkeypatch, workers, at='checkin2:C1'):
         graph_nodes.forget_handled()
 
 
-def test_worker_receipt_carries_the_dispatcher_review_subject(root, monkeypatch):
+def test_worker_receipt_carries_the_dispatcher_review_subject(root, monkeypatch, inert_dispatch):
     """A governed receipt's review_subject comes from the code-computed packet."""
     plan(root, {'id': 'C1', 'kind': 'agreement', 'absolute_yield': True})
     from ravel.workflow import review_points
@@ -95,7 +96,10 @@ def test_worker_receipt_carries_the_dispatcher_review_subject(root, monkeypatch)
         receipt = json.loads(path.read_text())
         subjects[receipt['review_point_id']] = receipt['review_subject']
     facts = review_points._facts(root)
-    points = {p['id']: p for p in review_points.derive(facts)}
+    # The dispatched population is the core points and the conditional staffing the absolute-yield claim
+    # derives (K5: re-derivers and a second normalization auditor; K6: a comparative reviewer).
+    points = {p['id']: p for p in review_points.population(facts)}
+    assert {'RP5:C1', 'K5:C1', 'K6:C1'} <= set(subjects), sorted(subjects)
     assert subjects and all(v['sha256'] == review_points.subject_digest(facts, points[k]) for k, v in subjects.items())
     for path in sorted((root / 'agent-work').glob('review-*/1/receipt.json')):
         # The transport registers its receipts; here the real receipt itself is registered, unmodified.
@@ -119,32 +123,41 @@ def test_review_item_workspace_holds_the_card_projection_and_never_the_headline(
         assert not Path(seen['packet']['path']).resolve().is_relative_to(root)
 
 
-def test_finding_citing_a_non_receipt_pin_is_refused_and_recorded(root, monkeypatch):
+def test_finding_citing_a_non_receipt_pin_is_refused_and_recorded(root, monkeypatch, inert_dispatch):
     plan(root, {'id': 'C1', 'kind': 'agreement', 'absolute_yield': True})
     bad = {'summary': 'cites a run file', 'materiality': 'A', 'evidence_class': 'code_check',
            'evidence_locators': ['outputs/yields.json']}
-    run_review(root, monkeypatch, Workers(root, findings={'normalization-auditor': [bad]}))
-    refused = [json.loads(p.read_text()) for p in (root / 'review/refused-findings').glob('*.json')]
-    assert len(refused) == 1
-    assert refused[0]['findings'][0]['refusal'][0]['code'] == 'non_receipt_pin'
+    workers = Workers(root, findings={'normalization-auditor': [bad]})
+    run_review(root, monkeypatch, workers)
+    refused = [json.loads(p.read_text()) for p in sorted((root / 'review/refused-findings').glob('*.json'))]
+    # One refusal record for each normalization-auditor seat that cited the run file: the core RP5 point and
+    # the conditional K5 staffing of the absolute-yield claim each dispatched one auditor.
+    seats = [s for s in workers.seen if s['role'] == 'normalization-auditor']
+    assert len(seats) == 2 and len(refused) == len(seats)
+    points = {json.loads((root / 'agent-work' / r['node_id'] / str(r['attempt']) / 'receipt.json').read_text())
+              ['review_point_id'] for r in refused}
+    assert points == {'RP5:C1', 'K5:C1'}
+    for record in refused:
+        assert [f['refusal'][0]['code'] for f in record['findings']] == ['non_receipt_pin'], record
 
 
 AUTHORED = {'id': 'C1', 'kind': 'measurement', 'basis_declared': ['authored_code']}
 
 
-def test_divergent_analysis_authors_raise_an_a_finding_routed_to_rca(root, monkeypatch):
+def test_divergent_analysis_authors_raise_an_a_finding_routed_to_rca(root, monkeypatch, inert_dispatch):
     plan(root, AUTHORED)
     regions = [{'SRA': {'yield': 10.0, 'stat': 0.1}}, {'SRA': {'yield': 15.0, 'stat': 0.1}}]
     observation = run_review(root, monkeypatch, Workers(root, regions=regions))
-    assert observation['terminal']['reason'] == 'rca_ticket_required', observation
+    # The A finding holds the review for a recorded correction (the rca seam became a correction hold).
+    assert observation['terminal']['reason'] == 'review_correction_required', observation
     records = list((root / 'review/divergence').glob('*.json'))
     assert len(records) == 1 and json.loads(records[0].read_text())['status'] == 'failed'
 
 
-def test_consistent_analysis_authors_do_not_block(root, monkeypatch):
+def test_consistent_analysis_authors_do_not_block(root, monkeypatch, inert_dispatch):
     plan(root, AUTHORED)
     regions = [{'SRA': {'yield': 10.0, 'stat': 0.3}}, {'SRA': {'yield': 10.3, 'stat': 0.3}}]
     observation = run_review(root, monkeypatch, Workers(root, regions=regions))
-    assert (observation['terminal'] or {}).get('reason') != 'rca_ticket_required', observation
+    assert (observation['terminal'] or {}).get('reason') != 'review_correction_required', observation
     records = list((root / 'review/divergence').glob('*.json'))
     assert len(records) == 1 and json.loads(records[0].read_text())['status'] == 'passed'

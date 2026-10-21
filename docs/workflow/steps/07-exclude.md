@@ -1,5 +1,32 @@
 # Step 7 — Exclusion (pyhf)  ·  [judgment — script-assisted: the mode table in `docs/workflow/checklists/exclusion-model.md` + what HEPData provides decide; `pyhf_exclude.py` runs it]  · CHECK-IN
 
+## On the controller
+
+On a controller run the statistic is computed inside `run.full` (or each `scan.point.<tag>`) and written with the
+result (`statistic`, `confidence_level`, `limits`, `detector_mode`). The route adapter checks it before the step is
+accepted: a statistic the request prescribes is the primary result, written as the request states it; an exclusion
+request without one delivers 95% CLs; limits carry their typed numerical status (`ravel.limits`); and the detector
+fidelity is not below the request. The result also carries the engine's `statistics` record, which the adapter
+recomputes, and its `uncertainty` statement. A held record fails the step. Every label of a qualified record must
+appear in the result's `limitations`. `pyhf_exclude.py` writes all three, and the statistics catalogue arrives
+as a pinned input. A failed check fails the step; nothing is smoothed or substituted.
+
+Every delivered region binds to its recorded main-bin counts. The route, scan harvest,
+result pack and final sink compare each observed count with the sum of uniquely identified
+bins for that region. The uncertainty statement carries the headline's exact observed and
+expected values and their recorded numerical status.
+
+Unknown-correlation endpoint studies report the weakest expected limit over the complete
+finite set of fully correlated and independent per-region assignments. Their records name
+the sources, assignments and resolved roots. The result and uncertainty statement carry
+the qualification **endpoint sensitivity**. Coverage over intermediate correlations or a
+continuous correlation domain requires a separately justified domain assessment.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
 Before inference with a constructed signal model and a released patchset, run
 `python -m ravel.validation.patch_parity --background <background.json>
 --patchset <patchset.json> --produced <workspace.json> --patch-name <name>
@@ -24,6 +51,33 @@ When reproducing a published analysis, follow the [reproduction diagnosis
 checklist](../checklists/reproduction-closure.md) before attributing disagreement
 to detector simulation. Begin with fixed-workspace numerical and published-signal
 closure, then isolate normalization, sampling, truth selection and detector effects.
+
+## Choosing the mode: the coded ladder
+The statistical model follows what the analysis published, strongest first: published likelihood,
+simplified likelihood (a covariance with a recorded source), constructed likelihood (per-region
+yields plus a declared systematics registry), then counting (`best-sr-counting`, or
+`combined-counting` only when the regions are recorded mutually exclusive). Assess a published
+likelihood before relying on it; the record goes to `inputs/likelihood_appropriateness.json`:
+```bash
+$CONDA run -n rivet python scripts/run.py ravel.validation.likelihood_appropriateness \
+  --bkg <bkg_only>.json --patch <signal_patch>.json \
+  [--channel-map <map>.json | --shipped-channel-map <id>] \
+  [--declared <declared>.json] [--selection <selection>.json] [--signal-yields <cr_yields>.json] \
+  --out <rundir>/inputs/likelihood_appropriateness.json
+#   verdict appropriate | appropriate-with-cautions (exit 0) | inappropriate (exit 1)
+```
+Then record the decision from the acquired evidence and check it against the task contract:
+```bash
+$CONDA run -n rivet python scripts/run.py ravel.workflow.stat_mode_decision \
+  --rundir <rundir> --evidence <evidence>.json --write
+$CONDA run -n rivet python scripts/run.py ravel.workflow.stat_mode_decision --rundir <rundir> --check
+```
+The record `inputs/stat_mode_decision.json` lists every rung with its status and reason. Each rung
+passed over is a downgrade; pass the record to the result pack with `--stat-mode-decision`, which
+adds the `stat-mode-downgrade` qualification. An unresolved decision delivers no limit. The
+`stat-mode-decision-recorded` and `likelihood-appropriateness` invariants of
+`validate_run_state.py` enforce the record, the selected mode, the delivered label and a
+non-`inappropriate` verdict for runs dated from 2026-10-20.
 
 ## Mode A — serialized likelihood (preferred when published)
 A `stat_mode=published-likelihood` run pairs the chain's signal patch against the published
@@ -56,6 +110,69 @@ Both write `exclusion.json` (observed + expected ±1,2σ limits, the CLs-vs-µ s
 (CLs vs µ with the 0.05 line and the limit). **The result is the verdict on this model point:
 excluded if the observed µ₉₅ < 1, otherwise allowed** — the model under test is typically one the
 analysis's authors never considered, so this limit stands on its own.
+
+## Which CLs calculator (recorded on every mode)
+`pyhf_exclude` records the calculator that produced the headline limit. `--cls-calculator auto`
+(the default) runs pyhf's toy calculator when any main bin has fewer than five observed or
+background-only expected counts and asymptotics otherwise; `asymptotic` and `toybased` are
+honoured as requested, with the small-count triggers still recorded. `--toys` (2000), `--toy-seed`
+(1), `--toy-max-fits` (200000) and `--toy-max-seconds` (1800, projected from a measured pilot of a
+few toys) bound an automatic calibration; a budget refusal keeps the asymptotic
+headline and records `calculator.recommended = toybased` with the estimate. When toys run, the
+asymptotic limits stay in `asymptotic_reference`, the toy points with their MC errors are drawn on
+the figure and `limit_mc_interval` carries the crossing interval. Toys calibrate the crossing of
+the supplied model; they do not validate coverage or acceptance.
+
+## Mode C — simplified likelihood (per-region yields + a published background covariance)
+When the analysis publishes the covariance (or correlation matrix) of its background predictions
+but no full likelihood, set the limit from a simplified likelihood through spey. The
+`background-covariance` document (schema 1) names the regions in matrix order, carries
+`covariance` or `correlation` (the published `db` of `sr_yields.json` are then the errors),
+optional `third_moments`, optional independent `blocks` (zero cross-covariance, combined through
+spey's uncorrelated combiner) and a required `source` citation:
+```bash
+$CONDA run -n rivet python scripts/run.py ravel.physics.pyhf_exclude simplified \
+  --srs <rundir>/outputs/sr_yields.json --covariance <rundir>/inputs/background_covariance.json \
+  --out <rundir>/outputs/pyhf_exclusion --label "<model> vs <analysis>"
+```
+`exclusion.json` carries `stat_mode: simplified-likelihood`, typed `limits` (every root bracketed
+and re-evaluated by brentq on spey's confidence levels; a cap is a bound), the numerical evidence,
+the covariance source and `model_scope` (control regions and signal uncertainties are not
+represented in a simplified likelihood). `--sigma-scale k` divides the signal-strength limits by k.
+
+## Mode D — constructed likelihood (per-region yields + a declared systematics breakdown)
+When the analysis publishes no likelihood and no covariance but does publish the per-region
+background yields with an uncertainty breakdown, build the full HistFactory model from
+`sr_yields.json` and a systematics registry (`docs/reference/inference-engines.md`, "Systematic-
+uncertainty registry": one source per published component, `relative_by_region` for per-region
+magnitudes, `applies_to.samples: ["background"]`, every source cited). Each component is one
+correlated parameter across the regions it lists; the remainder of the published total
+uncertainty per region is added as an uncorrelated per-region component and recorded; declared
+components that exceed the published total are refused, never rescaled. The model fits all
+regions simultaneously, so pass `--regions-exclusive` only after checking the published region
+definitions; the declaration is recorded, never inferred.
+```bash
+$CONDA run -n rivet python scripts/run.py ravel.physics.pyhf_exclude constructed \
+  --srs <rundir>/outputs/sr_yields.json --systematics <rundir>/inputs/background_systematics.json \
+  --regions-exclusive --builder cabinetry \
+  --out <rundir>/outputs/pyhf_exclusion --label "<model> vs <analysis>"
+```
+`exclusion.json` carries `stat_mode: constructed-likelihood`, the `construction` record (builder,
+cabinetry version, the native-builder parity record, the residuals, the registry summary) and
+`model_scope`. Signal MC-statistical uncertainties are not in the yield record and therefore not
+in the model; the record says so.
+
+### Closure against published limits (Modes C and D)
+A simplified or constructed likelihood stands in for the analysis's own likelihood. With
+`--stat-mode-decision <rundir>/inputs/stat_mode_decision.json`, these two rungs owe closure
+against the analysis's published limits. Pass them with
+`--reference-limits <rundir>/inputs/reference_limits.json`, a document of kind `reference-limits`.
+It lists the published signal-strength limits of benchmark signals, with each benchmark's yields
+in every region and the source. When the analysis publishes no such limits, the document instead
+states `available: false` with the reason and the evidence searched. Each benchmark is recomputed
+through the same likelihood: the same builder, registry and reported correlation variant. A
+benchmark more than 20% from its published limit holds the result. Without the document the
+result is qualified: `closure against the published limits is not evaluated`.
 
 ## Cross-section convention and normalization
 
@@ -165,7 +282,7 @@ likelihood; quote it as such, and prefer the published likelihood when one exist
 **Enforced (D12/G14):** `validate_run_state.py`'s `certify-before-limit` invariant hard-BLOCKS any
 limit-shipping run (incl. a scan) whose acc×eff cert verdict is FAIL — or that carries **no**
 discoverable cert at all — before `exclusion.json`/`scan.json`/the result-pack ships. Only a PASS/WARN
-cert may feed a limit; the analysis STAGE merely WARNs on a FAIL cert (records the pointer), but this
+cert can feed a limit; the analysis STAGE merely WARNs on a FAIL cert (records the pointer), but this
 invariant is the hard block. A complete scan's per-point `scan.json` attestation does **not** waive the
 cert: the aggregator must carry a discoverable (aggregate or per-point) acc×eff cert — otherwise the
 scan hard-FAILs.
@@ -216,7 +333,7 @@ SimpleAnalysis/Delphes vs particle-level path, are explicit rather than buried i
 ```bash
 $CONDA run -n rivet python scripts/run.py ravel.workflow.result_pack \
   --rundir <rundir> \
-  --stat-mode <published-likelihood|simplified-likelihood|best-sr-counting|combined-counting|stability-only|blocked-shape-fit> \
+  --stat-mode <published-likelihood|simplified-likelihood|constructed-likelihood|best-sr-counting|combined-counting|stability-only|blocked-shape-fit> \
   --detector-mode <rivet-smearing|simpleanalysis-delphes|particle-level> \
   --m-parent <M> --m-lsp <M> --lumi-fb <L> \
   --normalization-ledger <rundir-relative ledger> \   # required when SR yields are delivered

@@ -61,7 +61,7 @@ def config(base, scheme='unmerged_lo', *, variations=False, decay=False):
     if decay:cards['madspin']=write(base/'madspin.dat','set spinmode madspin\nset seed 101\ndecay t > b w+\ndecay t~ > b~ w-\nlaunch\n')
     group=[{'name':'scale_variation','combine':'envelope','ids':['1001','1002']}] if variations else []
     vsource=write(base/'scale-source.json',{'synthetic':True,'literal_mur':[.5,2]})
-    return {'schema_version':1,'source':'Synthetic source/API controls only; no physics sample',
+    c = {'schema_version':1,'source':'Synthetic source/API controls only; no physics sample',
         'runtime':{'madgraph_tree':mg,'python':py,'python_manifest':support,'dependencies':[{'role':'compiler','tree':deps}],
             'options':{'fortran_compiler':str(base/'deps/fc'),'cpp_compiler':str(base/'deps/cxx'),'pythia8_path':str(base/'deps') if shower_on else None,
                        'mg5amc_py8_interface_path':str(base/'deps') if shower_on and order=='LO' else None,'lhapdf':None}},
@@ -75,6 +75,9 @@ def config(base, scheme='unmerged_lo', *, variations=False, decay=False):
         'outputs':{'lhe_relative':'Events/ravel/unweighted_events.lhe','hepmc_relative':'Events/ravel/tag_1_pythia8_events.hepmc' if shower_on else None,'max_decoded_lhe_bytes':1000000,
                    'shower_weight_map':[{'hepmc_name':'nominal','lhe_id':None},*([{'hepmc_name':'scale_'+identity,'lhe_id':identity} for identity in ['1001','1002']] if variations else [])] if shower_on else []},
         'max_seconds':60,'max_ram_mib':512,'assumptions':['Synthetic API control; matching stability, source amplitudes and physical validity unknown.']}
+    from model_validation_fixture import supplied_evidence
+    c['model_validation'] = supplied_evidence(base / 'validation', base / 'ufo', process, base / 'param.dat')
+    return c
 
 
 def texts(c):return {name:Path(ref['path']).read_text() for name,ref in c['cards'].items() if ref is not None}
@@ -248,6 +251,11 @@ def parameter_reweight(c,base,mode='LO'):
                          'ufo_mapping':[{'coefficient':'c','component':'real','block':'MASS','codes':[6],'factor':1,'unit':'GeV'}]}}
     c['weights']['groups'].append({'name':'reweight','combine':None,'ids':[identity]})
     c['weights']['variation_points'].append(point)
+    from model_validation_fixture import supplied_evidence
+    selected = base / 'reweight-parameter.dat'
+    selected.write_text(Path(c['cards']['parameter']['path']).read_text().replace('172.5', '180'))
+    point['model_validation'] = supplied_evidence(base / 'reweight-validation', Path(c['model_tree']['root']),
+        Path(c['cards']['process']['path']).read_text(), selected)
     if c['shower']['backend']!='OFF':c['outputs']['shower_weight_map'].append({'hepmc_name':identity,'lhe_id':identity})
     return point
 

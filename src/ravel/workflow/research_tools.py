@@ -134,6 +134,13 @@ def prepare_model_proposals(root, request_pin, *, premise_map, reason):
     return cycle.bind_knowledge(root, request_pin, premise_map=premise_map, reason=reason)
 
 
+def retrieve_literature(broker, operation, arguments):
+    """A controller step uses its admitted attempt broker, never a provider directly."""
+    from . import literature_serving
+    reply = literature_serving.call(broker, operation, arguments)
+    return reply, (literature_serving.load(broker.rundir, reply) if reply['status'] == 'ok' else None)
+
+
 def prepare_literature_context(root, request_pin, output_dir, *, premise_map=None, reason):
     """Prepare complete located sources after the selecting Graph releases its lock.
 
@@ -913,9 +920,359 @@ def host_backend(parameters, pins, control, presented_pins, binding):
     return value
 
 
+# ---- governed literature query expansion and evidence scoring (explicit campaign operations)
+
+# Role-dispatcher transports that carry one structured model call through the ordinary Host.
+LITERATURE_ADAPTERS = {'http-responses': 'responses', 'http-anthropic': 'anthropic', 'http-gemini': 'gemini',
+                       'http-chat': 'chat_completions', 'external-relay': 'external'}
+EXPANSION_KIND = 'literature-query-expansion-operation'
+SCORING_KIND = 'literature-evidence-scoring-operation'
+
+
+def _literature_card(role, roles):
+    from . import role_registry
+    if roles is not None:
+        entry = (roles.get('roles') or {}).get(role) if isinstance(roles, dict) else None
+        return entry.get('card') if isinstance(entry, dict) else None
+    try:
+        return role_registry.load(role)
+    except (KeyError, ValueError, OSError):
+        return None
+
+
+def _literature_dispatch(role, roles, preferences, probes, executables=None):
+    """The role dispatcher's selection for a literature role card, or the reason it refuses.
+
+    In a controller scope the existing governed host runs these model nodes as seats. Selection
+    uses that scope's frozen preferences and protected qualifications; the seat repeats admission
+    at its enforcing action. Outside it, only the ordinary Host's one-shot adapters are carried.
+    """
+    from . import research_controller, role_registry, transport_registry
+    card = _literature_card(role, roles)
+    if not isinstance(card, dict) or not isinstance(card.get('model'), dict) or not card.get('family'):
+        return None, {'reason': 'role_card_unavailable'}
+    current = research_controller.active()
+    if current is not None:
+        from ravel.controller.step import seats
+        from ravel.controller.step.services import StepHold
+        # A caller's synthetic card or probe may never change a governed seat's installed duties.
+        if card != role_registry.load(role):
+            return None, {'reason': 'role_card_changed'}
+        store, context = current
+        try:
+            prefs, _, _ = seats.preferences(context, card)
+            selection = seats.select(card, prefs, store=store)
+        except StepHold as exc:
+            missing = list((exc.evidence or {}).get('missing') or [])
+            tier = any(str(m).startswith(('model:', 'tier:')) for m in missing)
+            return None, {'reason': 'model_tier_unavailable' if tier else exc.reason, 'missing': missing}
+        return {**deepcopy(selection), 'adapter': 'model', 'tier': selection.get('tier') or card['model']['tier']}, None
+    try:
+        selection = transport_registry.select(card, preferences, probes=probes, executables=executables)
+    except transport_registry.TransportRefusal as exc:
+        missing = list(getattr(exc, 'missing', []) or [])
+        tier = any(str(m).startswith(('model:', 'tier:')) for m in missing)
+        return None, {'reason': 'model_tier_unavailable' if tier else 'transport_unavailable', 'missing': missing}
+    adapter = LITERATURE_ADAPTERS.get(selection['transport_id'])
+    if adapter is None:
+        return None, {'reason': 'transport_unsupported', 'missing': [selection['transport_id']]}
+    return {**deepcopy(selection), 'adapter': adapter, 'tier': card['model']['tier']}, None
+
+
+def _literature_graph(root, graph_root, spec, host):
+    """Run one literature Graph under the campaign reservation; return the refusal reason or None."""
+    from . import graph_substrate
+    try:
+        # The shared role-dispatch boundary: the campaign reserves, charges and records the Graph.
+        graph_substrate.execute_role_graph(root, graph_root, spec, host, prepared=False, workers=1)
+    except cycle.OperationalBoundaryError as exc:
+        return {'reason': 'allowance_exhausted', 'error': str(exc)[:512]}
+    except (ValueError, agent_graph.GraphError) as exc:
+        exhausted = 'exhausted' in str(exc) or 'ceiling' in str(exc)
+        return {'reason': 'allowance_exhausted' if exhausted else 'graph_failed',
+                'error': type(exc).__name__ + ': ' + str(exc)[:512]}
+    return None
+
+
+def _operation_record(out, record):
+    path = out / 'operation.json'
+    _write(path, record)
+    return record
+
+
+def expand_literature_query(root, query, output_dir, host, *, preferences, max_wall_seconds=300,
+                            max_output_tokens=1024, limits=None, known_tokens=None, vocabulary=None, roles=None,
+                            probes=None, executables=None):
+    """Governed query expansion: the deterministic expansion, plus at most one dispatched, charged choice.
+
+    The deterministic expansion is always returned and never depends on a model.
+    The registered expander card is dispatched through the role dispatcher; its
+    one Graph call is reserved and charged by the campaign. A missing card, an
+    unserved model tier, an exhausted allowance or a refused reply is recorded
+    with its reason, and only the deterministic terms stand.
+    """
+    from . import literature_query as q
+    out = _destination(root, output_dir)
+    out.mkdir()
+    deterministic = q.expand(query, limits=limits, vocabulary=vocabulary, known_tokens=known_tokens)
+    record = {'schema_version': 1, 'kind': EXPANSION_KIND, 'query': query, 'role': q.ROLE, 'status': 'refused',
+              'reason': None, 'dispatch': None, 'request': None, 'graph': None, 'error': None,
+              'deterministic': deterministic, 'expansion': deterministic, 'search_hints_only': True,
+              'physics_verified': False}
+    try:
+        document = q.request_document(query, limits=limits, vocabulary=vocabulary, roles=roles)
+    except ValueError as exc:
+        record['reason'] = 'role_card_unavailable' if 'role_card_unavailable' in str(exc) else 'invalid_request'
+        return _operation_record(out, record)
+    selection, refusal = _literature_dispatch(q.ROLE, roles, preferences, probes, executables)
+    if refusal:
+        record.update(refusal)
+        return _operation_record(out, record)
+    pin = q.write_request(out / 'request.json', document, vocabulary=vocabulary, roles=roles)
+    spec = q.graph_spec(pin, graph_id='literature-query-expansion-' + pin['sha256'][:16], model=selection['model'],
+                        reasoning_effort=selection['effort'] or 'low', adapter=selection['adapter'],
+                        max_output_tokens=max_output_tokens, max_wall_seconds=max_wall_seconds,
+                        vocabulary=vocabulary, roles=roles)
+    graph_root = out / 'graph'
+    record.update(dispatch=selection, request=pin, graph=str(graph_root))
+    failed = _literature_graph(root, graph_root, spec, host)
+    if failed:
+        record.update(failed)
+        return _operation_record(out, record)
+    expansion = q.expand(query, governed={'request': pin, 'graph_root': str(graph_root)}, limits=limits,
+                         vocabulary=vocabulary, known_tokens=known_tokens, roles=roles, campaign_root=root)
+    admitted = expansion['model']['status'] == 'admitted'
+    record.update(expansion=expansion, status='admitted' if admitted else 'refused',
+                  reason=None if admitted else expansion['model'].get('reason'))
+    return _operation_record(out, record)
+
+
+def served_envelope(rundir, serving_id, *, node_id, attempt):
+    """The search envelope serving delivered to one worker attempt, from supervisor custody.
+
+    The located bytes must equal their recorded digest and output pin; the
+    measured time comes from the same served record. Anything else is stale.
+    """
+    from . import broker as core, literature_serving
+    admitted, served, withdrawn = None, None, False
+    for row in core.ledger(rundir, literature_serving.LEDGER):
+        value = row['record']
+        if value.get('action') != literature_serving.ACTION:
+            continue
+        if 'serving_id' not in value and value['event'] == 'admitted' and 'serving:%d' % row['n'] == serving_id:
+            admitted = value
+        elif value.get('serving_id') == serving_id:
+            if value['event'] == 'served':
+                served = value
+            elif value['event'] == 'denied':
+                withdrawn = True
+    if admitted is None or served is None or withdrawn:
+        raise ValueError('no delivered literature result has this serving identity')
+    binding = served['binding']
+    if (binding['node_id'], binding['attempt']) != (node_id, attempt) or admitted['request']['operation'] != 'search':
+        raise ValueError('the served search belongs to another worker attempt or operation')
+    raw = None
+    for row in core.ledger(rundir, 'broker'):
+        value = row['record']
+        receipt = core.verify_broker_receipt(rundir, {'path': value['path'], 'sha256': value['sha256']},
+                                             verify_outputs=False)
+        reply = receipt['reply']
+        if (receipt['action'] == literature_serving.ACTION and reply.get('status') == 'ok'
+                and literature_serving._reply_serving_id(reply) == serving_id):
+            # The broker receipt and its output pin authenticate the delivered bytes.
+            raw = literature_serving.load(rundir, reply)
+            break
+    if raw is None or hashlib.sha256(raw).hexdigest() != served['located_sha256']:
+        raise ValueError('the served literature bytes are missing or changed after custody')
+    envelope = json.loads(raw)
+    envelope['usage'] = {**envelope['usage'], 'elapsed_seconds': served['usage']['elapsed_seconds']}
+    return deepcopy(admitted['request']), envelope
+
+
+def score_literature_evidence(root, rundir, serving_id, question, output_dir, host, *, node_id, attempt,
+                              preferences, limits=None, max_wall_seconds=600, max_output_tokens=None, roles=None,
+                              probes=None, executables=None):
+    """Batched evidence scoring of one served search, dispatched under the scorer card and charged.
+
+    The envelope comes from serving custody (``served_envelope``), never from the
+    caller. Every original passage is returned beside its assessment; a refused
+    dispatch, an exhausted allowance or a failed batch leaves its candidates with
+    the reason and no score. Scores and summaries are reading aids, never evidence.
+    """
+    from . import literature_evidence_scoring as s
+    out = _destination(root, output_dir)
+    out.mkdir()
+    record = {'schema_version': 1, 'kind': SCORING_KIND, 'question': question, 'role': s.ROLE,
+              'serving_id': serving_id, 'status': 'refused', 'reason': None, 'dispatch': None, 'request': None,
+              'graph': None, 'error': None, 'scoring': None, 'summaries_are_evidence': False,
+              'physics_verified': False}
+    try:
+        search_request, envelope = served_envelope(rundir, serving_id, node_id=node_id, attempt=attempt)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        record.update(reason='stale_envelope', error=str(exc)[:512])
+        return _operation_record(out, record)
+    try:
+        document = s.request_document(question, search_request, envelope, limits=limits, roles=roles)
+    except ValueError as exc:
+        record['reason'] = 'role_card_unavailable' if 'role_card_unavailable' in str(exc) else 'invalid_request'
+        return _operation_record(out, record)
+    pin = s.write_request(out / 'request.json', document, roles=roles)
+    record['request'] = pin
+    graph_root = None
+    if document['batches']:
+        selection, refusal = _literature_dispatch(s.ROLE, roles, preferences, probes, executables)
+        if refusal:
+            record.update(refusal)
+        else:
+            spec = s.graph_spec(pin, graph_id='literature-evidence-scoring-' + pin['sha256'][:16],
+                                model=selection['model'], reasoning_effort=selection['effort'] or 'low',
+                                adapter=selection['adapter'], max_output_tokens=max_output_tokens,
+                                max_wall_seconds=max_wall_seconds, roles=roles)
+            candidate = out / 'graph'
+            record.update(dispatch=selection, graph=str(candidate))
+            failed = _literature_graph(root, candidate, spec, host)
+            if failed:
+                record.update(failed)
+            else:
+                graph_root = candidate
+    scoring = s.assemble(pin, graph_root, roles=roles, campaign_root=root)
+    record['scoring'] = s.write_record(out / 'record.json', scoring)
+    if record['reason'] is None:
+        complete = scoring['status'] in ('complete', 'nothing_to_score')
+        record.update(status='scored' if complete else scoring['status'],
+                      reason=None if complete else 'batch_failed')
+    record['outcome'] = {'status': scoring['status'], 'scored': sum(e['assessment']['status'] == 'scored'
+                                                                    for e in scoring['evidence']),
+                         'candidates': len(scoring['evidence'])}
+    return _operation_record(out, record)
+
+
+CRAWL_KIND = 'literature-discovery-crawl-operation'
+
+
+def _crawl_record_path(out):
+    # Beside the agent's ledger directory, which owns its own population.
+    return out.parent / (out.name + '.operation.json')
+
+
+def _crawl_record(out, record):
+    from . import state_io
+    state_io.atomic_json(_crawl_record_path(out), record)
+    return record
+
+
+def crawl_literature(root, scope_pin, output_dir, host, *, preferences=None, probes=None, max_output_tokens=2048,
+                     max_wall_seconds=60, max_advances=None, graph=None, roles=None, executables=None):
+    """Discovery as the bounded selector loop: start, advance, admitted selections, report and consume.
+
+    A fresh ``output_dir`` starts the ledger; an existing one resumes it, after
+    the ledger, scope and products are recomputed (a tampered or stale crawl is
+    refused). With ``preferences`` the registered selector card is dispatched
+    through the role dispatcher; each selector Graph runs through the shared
+    role-dispatch boundary, so the campaign reserves and charges it, and a refused
+    call is declined, which stops selection. Without ``preferences`` the crawl is
+    deterministic. ``max_advances`` pauses the loop (resume continues it). A
+    budget exhaustion halts with a qualified, dated lower-bound report. The
+    single-query ``discover_literature`` call stays separate and cannot satisfy
+    this receipt (``admit_crawl``).
+    """
+    from . import literature_discovery_agent as agent
+    out = cycle._ordinary(Path(output_dir))
+    record = {'schema_version': 1, 'kind': CRAWL_KIND, 'output': str(out), 'role': agent.ROLE, 'status': 'refused',
+              'reason': None, 'dispatch': None, 'advances': 0, 'report': None, 'counts': None, 'error': None,
+              'claims': deepcopy(agent.CLAIMS)}
+    if (max_advances is not None and (type(max_advances) is not int or max_advances < 1)):
+        raise ValueError('max_advances must be a positive integer or None')
+    resumed = (out / 'ledger').is_dir()
+    if resumed:
+        try:
+            current = agent.status(root, out, roles=roles)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            record.update(reason='stale_crawl', error=str(exc)[:512])
+            return record
+        record['resumed_from'] = current.get('status')
+    else:
+        selector = None
+        if preferences is not None:
+            selection, refusal = _literature_dispatch(agent.ROLE, roles, preferences, probes, executables)
+            if refusal:
+                record.update(refusal)
+                return record
+            record['dispatch'] = selection
+            selector = {'model': selection['model'], 'reasoning_effort': selection['effort'] or 'low',
+                        'adapter': selection['adapter'], 'max_output_tokens': max_output_tokens,
+                        'max_wall_seconds': max_wall_seconds}
+        agent.start(root, scope_pin, out, selector=selector, graph=graph, roles=roles)
+    record['resumed'] = resumed
+
+    def step_once(**kwargs):
+        record['advances'] += 1
+        return agent.advance(root, out, host, roles=roles, **kwargs)
+    step = step_once()
+    while step['status'] == 'select':
+        if max_advances is not None and record['advances'] >= max_advances:
+            record.update(status='paused', pending=step['graph_root'])
+            return _crawl_record(out, record)
+        graph_root = Path(step['graph_root'])
+        if not graph_root.exists():
+            failed = _literature_graph(root, graph_root, step['graph_spec'], host)
+            if failed and not graph_root.is_dir():
+                step = step_once(decline=('selector call refused: ' + failed['reason'])[:500])
+                continue
+        step = step_once(selection=str(graph_root))
+    report = agent.consume(root, out, roles=roles)
+    record.update(status=step['status'], reason='halted: ' + str(report.get('halt_reason'))[:400]
+                  if step['status'] == 'halted' else None, report=deepcopy(step['report']),
+                  counts=deepcopy(report.get('counts')), usage=deepcopy(report.get('usage')))
+    return _crawl_record(out, record)
+
+
+def admit_crawl(root, output_dir, *, roles=None):
+    """The selector-loop receipt: the recomputed report of an ended crawl and its operation record.
+
+    Only a hash-chained crawl ledger that ended and whose report recomputes
+    exactly satisfies it; a single discovery query's product does not.
+    """
+    from . import literature_discovery_agent as agent
+    out = cycle._ordinary(Path(output_dir))
+    if not (out / 'ledger').is_dir():
+        raise ValueError('no selector-loop ledger: a single discovery query is not a crawl')
+    report = agent.consume(root, out, roles=roles)
+    path = _crawl_record_path(out)
+    record = json.loads(path.read_text()) if path.is_file() else None
+    if (not isinstance(record, dict) or record.get('kind') != CRAWL_KIND or record.get('status') not in
+            ('complete', 'halted') or record.get('output') != str(out)
+            or {k: (record.get('report') or {}).get(k) for k in ('sha256', 'size')}
+            != {k: cycle._pin(out / 'report.json')[k] for k in ('sha256', 'size')}):
+        raise ValueError('the crawl operation record does not match its recomputed report')
+    return {'record': record, 'report': report}
+
+
+def literature_operations():
+    """Explicit controller operations above literature search; search itself never calls a model."""
+    return {'literature-query-expansion': {'entrypoint': 'research_tools.expand_literature_query',
+                                           'cli_operation': 'literature-expand', 'role': 'literature-query-expander'},
+            'literature-evidence-scoring': {'entrypoint': 'research_tools.score_literature_evidence',
+                                            'cli_operation': 'literature-score', 'role': 'literature-evidence-scorer'},
+            'literature-discovery-crawl': {'entrypoint': 'research_tools.crawl_literature',
+                                           'cli_operation': 'literature-crawl', 'role': 'literature-discovery-selector',
+                                           'receipt': 'research_tools.admit_crawl'},
+            'deterministic_expansion': {'entrypoint': 'literature_query.expand', 'governed': None,
+                                        'model_calls': 0},
+            'new_scheduler': False, 'execution_authorized': False, 'physics_validated': False}
+
+
+def _literature_cli(operation, value):
+    from .agent_host import AgentHost
+    function = {'literature-expand': expand_literature_query, 'literature-score': score_literature_evidence,
+                'literature-crawl': crawl_literature}[operation]
+    return function(host=AgentHost(), **value)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('operation', choices=('prepare', 'model-proposals', 'choice-spec', 'materialization-spec', 'admission-spec', 'plan', 'plan-workflow', 'recovery', 'data-prepare', 'data-result-context', 'backend-spec', 'backend-execution-spec', 'backend-result-context', 'backend-recovery'))
+    parser.add_argument('operation', choices=('prepare', 'model-proposals', 'choice-spec', 'materialization-spec', 'admission-spec', 'plan', 'plan-workflow', 'recovery', 'data-prepare', 'data-result-context', 'backend-spec', 'backend-execution-spec', 'backend-result-context', 'backend-recovery',
+        'literature-expand', 'literature-score', 'literature-crawl'))
     parser.add_argument('--request', required=True, help='bounded exact JSON arguments; pins include path/sha256/size')
     args = parser.parse_args(argv)
     value = cycle._cli_document(args.request)
@@ -923,6 +1280,7 @@ def main(argv=None):
         'admission-spec': admission_spec, 'plan': plan, 'plan-workflow': plan_workflow, 'recovery': recovery_context,
         'data-prepare':prepare_data_acquisition,'data-result-context':data_result_context,
         'backend-spec': backend_spec, 'backend-execution-spec': backend_execution_spec, 'backend-result-context': backend_result_context, 'backend-recovery': backend_recovery}
-    result = operations[args.operation](**value)
+    result = (_literature_cli(args.operation, value) if args.operation.startswith('literature-')
+              else operations[args.operation](**value))
     print(json.dumps(result, sort_keys=True, allow_nan=False))
     return 0

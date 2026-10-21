@@ -23,7 +23,7 @@ verification panel greps.
 `name_plots.py` takes `--labels <rundir>/inputs/plot_labels.json`, a dict keyed by `origID`:
 ```json
 { "d08-x01-y01": { "label": "meff-incl_SR-5j",
-                   "shows": "m_eff(incl) distribution, signal vs ATLAS data (5-jet SR)",
+                   "shows": "m_eff(incl) distribution, signal and supplied data (region A)",
                    "definition": ">=5 jets; aplanarity>0.04; MET/m_eff(5j)>0.25; m_eff>1600 GeV",
                    "source": "REF d08-x01: y01=observed, y02=SM background" } }
 ```

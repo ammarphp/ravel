@@ -204,6 +204,7 @@ def test_removing_any_trigger_condition_is_detected():
     # Every trigger fires on at least one fixture above; this guards the catalogue itself.
     fired = set()
     fixtures = [record({'quantity': 'mc-adequacy', 'flags': [{'flags': ['nonpositive_total_background']}]}),
+                record({'quantity': 'statistics', 'role': 'diagnostic', 'record': None}),
                 record(morph([12.0])), record(morph([0.0])), record(fitted([1.2], pulls=[4.0])),
                 record(gof(0.01)), record(region({'status': 'beyond_scan', 'value': None, 'scan_edge': 2.0}), grid=SCAN),
                 record(fitted([1.1], status=None)),

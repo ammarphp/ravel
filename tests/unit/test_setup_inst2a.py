@@ -245,25 +245,45 @@ def test_feynrules_probe_uses_namespace_shim(tmp_path, messages, unchanged, load
     assert result["status"] == ("ready" if not messages and unchanged and loaded else "unconfigured")
 
 
+LOGGED_IN = json.dumps({"loggedIn": True, "authMethod": "claude.ai"})
+
+
+def owner_login(tmp_path):
+    """The owner's dedicated, file-backed Claude worker login, which the doctor checks before qualification."""
+    login = tmp_path / "claude-login"
+    login.mkdir(mode=0o700, exist_ok=True)
+    (login / ".credentials.json").write_text("opaque-owner-fixture")
+    (login / ".credentials.json").chmod(0o600)
+    return {"CLAUDE_CONFIG_DIR": str(login)}
+
+
 @pytest.mark.parametrize("name,version,status", [("claude", "2.1.100", "version_mismatch"),
-    ("claude", "2.1.296", "ready"), ("claude", "2.2.0", "ready"), ("codex", "1.0", "ready"), (None, "", "missing")])
-def test_agent_cli_check(tmp_path, name, version, status):
+    ("claude", "2.1.296", "unconfigured"), ("claude", "2.2.0", "unconfigured"), ("codex", "1.0", "unconfigured"), (None, "", "missing")])
+def test_agent_cli_check(tmp_path, monkeypatch, name, version, status):
+    from ravel.controller.step import seats
+    monkeypatch.setattr(seats, 'wired_transports', lambda: {
+        'wired': [name + '-cli-worker'] if name else [], 'excluded': [], 'kinds': ['cli-worker']})
     if name:
-        fake(tmp_path, name, f"echo '{version}'")
-    d = make_doctor(tmp_path, which=lambda n: str(tmp_path / n) if n == name else None)
+        # The CLI reports its version and, for the login preflight, a prompt-free logged-in status.
+        fake(tmp_path, name, f"if [ \"$1\" = auth ]; then echo '{LOGGED_IN}'; else echo '{version}'; fi")
+    d = make_doctor(tmp_path, environ=owner_login(tmp_path),
+                    which=lambda n: str(tmp_path / n) if n == name else None)
     result = d.evaluate_check(dict(id="research-host"), dict(id="agent", kind="agent_cli"))
     assert result["status"] == status
     if status == "version_mismatch":
         assert result["fix"] == "claude update"
-    if status == "ready":
+    if status == "unconfigured":
         assert result["transport_qualified"] is False
         assert f"ravel transport qualify {name}-cli-worker" in result["detail"]
 
 
 @pytest.mark.parametrize("name", ["claude", "codex"])
-@pytest.mark.parametrize("change,qualified", [(None, True), ("binary", False), ("declaration", False), ("probe", False), ("qualification", False)])
+@pytest.mark.parametrize("change,qualified", [(None, True), ("binary", False), ("declaration", False), ("probe", False), ("qualification", False), ("steps", False), ("model", False)])
 def test_agent_cli_stored_qualification(tmp_path, monkeypatch, name, change, qualified):
     from ravel.workflow import transport_registry as registry
+    from ravel.controller.step import seats
+    monkeypatch.setattr(seats, 'wired_transports', lambda: {
+        'wired': [name + '-cli-worker'], 'excluded': [], 'kinds': ['cli-worker']})
     monkeypatch.setenv("RAVEL_STATE_DIR", str(tmp_path / "state"))
     path = tmp_path / name
     path.write_text("#!/bin/sh\necho 2.1.296\n")
@@ -278,7 +298,12 @@ def test_agent_cli_stored_qualification(tmp_path, monkeypatch, name, change, qua
     receipt = {key: None for key in registry.QUALIFICATION_RECORD_KEYS}
     receipt.update(schema_version=1, kind="transport-qualification", transport_id=document["id"], status="live_qualified",
                    declaration_sha256=registry.declaration_sha256(document), probe_sha256=registry.digest(probe),
-                   executable_sha256=probe["executable_sha256"], executable_path=str(path))
+                   executable_sha256=probe["executable_sha256"], executable_path=str(path),
+                   record_path=str(registry.qualification_path(document['id'])),
+                   observed={'session_id': 'synthetic-session', 'requested_model': 'synthetic-model', 'model': 'synthetic-model'},
+                   steps=[{'step': step, 'passed': True} for step in sorted(registry.QUALIFICATION_STEPS)],
+                   receipt={'path': '/synthetic/receipt.json', 'sha256': 'c'*64, 'digest': 'd'*64},
+                   rundir='/synthetic/qualification', qualified_utc='2026-01-01T00:00:00Z')
     if change == "binary":
         path.write_text("#!/bin/sh\necho changed\n")
     if change == "declaration":
@@ -287,13 +312,18 @@ def test_agent_cli_stored_qualification(tmp_path, monkeypatch, name, change, qua
         probe["cli_version"] = "changed"
     if change == "qualification":
         receipt["status"] = "failed"
+    if change == "steps":
+        receipt['steps'][0]['passed'] = False
+    if change == "model":
+        receipt['observed']['model'] = 'different-model'
     registry.probe_path(document["id"]).parent.mkdir(parents=True)
     registry.probe_path(document["id"]).write_text(json.dumps(probe))
     registry.qualification_path(document["id"]).write_text(json.dumps(receipt))
-    d = make_doctor(tmp_path, which=lambda n: str(path) if n == name else None)
-    d.run_probe = lambda *a, **k: (0, "2.1.296")
+    d = make_doctor(tmp_path, environ=owner_login(tmp_path), which=lambda n: str(path) if n == name else None)
+    d.run_probe = lambda argv, **k: (0, LOGGED_IN if argv[1:] == ["auth", "status", "--json"] else "2.1.296")
     result = d.evaluate_check(dict(id="research-host"), dict(id="agent", kind="agent_cli"))
-    assert result["status"] == "ready" and result["transport_qualified"] is qualified
+    assert result["status"] == ("ready" if qualified else "unconfigured")
+    assert result["transport_qualified"] is qualified
     if not qualified:
         assert f"ravel transport qualify {document['id']}" in result["detail"]
 

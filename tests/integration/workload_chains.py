@@ -258,7 +258,8 @@ def derived(root):
     inside, outside = {'coordinator'}, []
     for node in executor.production_nodes(facts):
         inside.add(executor.role_for(node))
-    for point in review_points.derive(facts):
+    # The merged rows: the core review points and the conditional staffing rows the dispatcher also routes.
+    for point in review_points.population(facts):
         at = point['when']['at']
         names = [entry['role'] for entry in point['roles']]
         if any(at == prefix or (prefix.endswith(':') and at.startswith(prefix)) for prefix in LIFECYCLE_ATS):

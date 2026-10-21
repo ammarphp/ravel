@@ -1,0 +1,293 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "kind": {
+      "const": "literature-relations"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "kind": {
+            "enum": [
+              "inspire",
+              "arxiv",
+              "hepdata",
+              "catalogue",
+              "models",
+              "coverage"
+            ]
+          },
+          "uri": {
+            "type": "string",
+            "pattern": "^https://",
+            "maxLength": 2048
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "lineage": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "maxItems": 4096,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "uri",
+          "version",
+          "sha256",
+          "lineage"
+        ]
+      },
+      "maxItems": 4096
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "kind": {
+            "enum": [
+              "paper",
+              "paper_version",
+              "analysis",
+              "hepdata_record",
+              "table",
+              "resource",
+              "code",
+              "workspace",
+              "implementation",
+              "backend",
+              "model",
+              "topology",
+              "coverage"
+            ]
+          },
+          "attributes": {
+            "type": "object"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2048
+                },
+                "pointer": {
+                  "type": "string",
+                  "maxLength": 8192,
+                  "pattern": "^(|/.*)$"
+                }
+              },
+              "required": [
+                "source_id",
+                "pointer"
+              ]
+            },
+            "maxItems": 4096,
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "conflicted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "attributes",
+          "evidence",
+          "conflicted"
+        ]
+      },
+      "maxItems": 100000
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^edge:[0-9a-f]{64}$"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "relation": {
+            "enum": [
+              "same_publication",
+              "version_of",
+              "cites",
+              "describes",
+              "contains",
+              "implements",
+              "runs_on",
+              "has_code",
+              "has_workspace",
+              "has_topology",
+              "candidate_for",
+              "covers"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2048
+                },
+                "pointer": {
+                  "type": "string",
+                  "maxLength": 8192,
+                  "pattern": "^(|/.*)$"
+                }
+              },
+              "required": [
+                "source_id",
+                "pointer"
+              ]
+            },
+            "maxItems": 4096,
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "relation",
+          "target",
+          "evidence"
+        ]
+      },
+      "maxItems": 300000
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "conflicting_node",
+              "conflicting_alias"
+            ]
+          },
+          "node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "maxItems": 100000,
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2048
+                },
+                "pointer": {
+                  "type": "string",
+                  "maxLength": 8192,
+                  "pattern": "^(|/.*)$"
+                }
+              },
+              "required": [
+                "source_id",
+                "pointer"
+              ]
+            },
+            "maxItems": 4096
+          }
+        },
+        "required": [
+          "kind",
+          "node_ids",
+          "evidence"
+        ]
+      },
+      "maxItems": 100000
+    },
+    "physics_verified": {
+      "const": false
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "graph_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "sources",
+    "nodes",
+    "edges",
+    "issues",
+    "physics_verified",
+    "execution_authorized",
+    "graph_sha256"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Source-pinned deterministic literature navigation graph"
+}

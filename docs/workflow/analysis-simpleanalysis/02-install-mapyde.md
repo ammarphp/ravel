@@ -32,6 +32,6 @@ done
 ```bash
 "$PIPE_PODMAN_REAL" images | grep -E "mapyde|simple-analysis"   # 4 images present
 ```
-All four registries are public (no CERN/GitHub auth required).
+All four registries provide public pulls.
 
 **Next:** `docs/workflow/analysis-simpleanalysis/03-configure.md`

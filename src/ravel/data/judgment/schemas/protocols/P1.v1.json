@@ -1,0 +1,44 @@
+{
+  "title": "P1 look-first: figure grammar record",
+  "type": "object",
+  "required": ["artifact", "looked_at", "grammar"],
+  "additionalProperties": false,
+  "properties": {
+    "artifact": {
+      "type": "object",
+      "required": ["source", "path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "path": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "looked_at": {"type": "boolean", "const": true},
+    "grammar": {
+      "type": "object",
+      "required": ["axes", "binning", "markers", "bands", "panels"],
+      "additionalProperties": false,
+      "properties": {
+        "axes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "scale", "range"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {"type": "string", "minLength": 1, "pattern": "\\S"},
+              "scale": {"type": "string", "enum": ["linear", "log", "categorical", "other"]},
+              "range": {"type": "string", "minLength": 1, "pattern": "\\S"}
+            }
+          }
+        },
+        "binning": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "markers": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "bands": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "panels": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

@@ -68,7 +68,8 @@ def historical_episode(root,monkeypatch):
 def rewrite_history(campaign, change):
     """Adversarial honestly rehashed chain; never an alternative production API."""
     head=read_json(campaign/'head.json');current=read_json(head['path'])
-    records=[read_json(campaign/'history'/f'{i:04d}.json') for i in range(current['revision']+1)]
+    # Records may be authenticated deltas; rewrite the replayed states as a full-snapshot chain.
+    records=[cycle.historical_state(campaign,i) for i in range(current['revision']+1)]
     change(records)
     prior=None
     for record in records:

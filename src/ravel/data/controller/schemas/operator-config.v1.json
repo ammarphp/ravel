@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operator-config.v1",
+  "title": "Controller operator configuration",
+  "description": "The operator's configuration in the operator ledger (ravel operator init|set): one operating mode for every run and route, the budget envelope, machine-delegable bounds and check-ins, the R3 policy, the wait bound, the notification command, the unconfined-execution policy, request-stated delegation, the store root and the grant (expiry, project scope, deadline, instruction document, free-space floor). A run freezes it at intake.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "schema", "mode", "budgets", "bounds", "machine_checkins", "r3_policy",
+               "wait_bound_seconds", "notify_command", "allow_unconfined", "allow_request_delegation", "store_root",
+               "harness", "engagement", "restricted_sources", "remote_job_ceiling", "procedure_byte_ceiling",
+               "agent_preferences", "site_resource_ceilings"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "schema": {"const": "operator-config.v1"},
+    "mode": {"enum": ["physicist-in-the-loop", "autonomous"]},
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wall_seconds", "model_calls", "tokens", "cost_usd", "core_hours", "events", "children",
+                   "concurrency", "review_rounds", "replans", "max_redos"],
+      "properties": {
+        "wall_seconds": {"type": "integer", "minimum": 0},
+        "model_calls": {"type": "integer", "minimum": 0},
+        "tokens": {"type": "integer", "minimum": 0},
+        "cost_usd": {"type": ["number", "null"], "minimum": 0},
+        "core_hours": {"type": "number", "minimum": 0},
+        "events": {"type": "integer", "minimum": 0},
+        "children": {"type": "integer", "minimum": 0},
+        "concurrency": {"type": "integer", "minimum": 0},
+        "review_rounds": {"type": "integer", "minimum": 0},
+        "replans": {"type": "integer", "minimum": 0},
+        "max_redos": {"type": "integer", "minimum": 0},
+        "input_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "input_files": {"type": ["integer", "null"], "minimum": 0},
+        "batch_cpu_hours": {"type": ["number", "null"], "minimum": 0},
+        "batch_jobs": {"type": ["integer", "null"], "minimum": 0},
+        "stage_wall_seconds": {"type": ["integer", "null"], "minimum": 0},
+        "recoveries": {"type": "integer", "minimum": 0},
+        "retained_disk_bytes": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rungs", "allowed_stages"],
+      "properties": {
+        "rungs": {"type": "array", "uniqueItems": true,
+                  "items": {"enum": ["none", "dry", "smoke", "pilot", "full", "scan"]}},
+        "allowed_stages": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9_*.-]+$"}}
+      }
+    },
+    "machine_checkins": {"type": "array", "uniqueItems": true,
+                         "items": {"enum": ["approve_plan", "go", "deviation", "final"]}},
+    "r3_policy": {"enum": ["escalate_and_wait", "conservative_default"]},
+    "wait_bound_seconds": {"type": "integer", "minimum": 0, "maximum": 2592000},
+    "notify_command": {"type": ["array", "null"], "minItems": 1, "maxItems": 32, "items": {"type": "string", "minLength": 1}},
+    "allow_unconfined": {"type": "boolean"},
+    "allow_request_delegation": {"type": "boolean"},
+    "store_root": {"type": "string", "pattern": "^/"},
+    "harness": {
+      "type": ["object", "null"],
+      "default": null,
+      "additionalProperties": false,
+      "required": ["executable", "executable_sha256", "model", "effort", "session_record", "results_file"],
+      "properties": {
+        "executable": {"type": "string", "pattern": "^/"},
+        "executable_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "model": {"type": "string", "minLength": 1, "maxLength": 200},
+        "effort": {"type": "string", "minLength": 1, "maxLength": 64},
+        "session_record": {"type": "string", "pattern": "^/"},
+        "results_file": {"type": "string", "pattern": "^/"}
+      }
+    },
+    "engagement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum_tier"],
+      "properties": {"minimum_tier": {"enum": [null, "lean", "standard", "full"]}},
+      "default": {"minimum_tier": null}
+    },
+    "restricted_sources": {"type": ["string", "null"], "pattern": "^/", "default": null},
+    "compute_policy": {
+      "type": "object", "additionalProperties": false, "required": ["mode"],
+      "properties": {"mode": {"enum": ["bounded", "generous", "adaptive"]}},
+      "default": {"mode": "bounded"}
+    },
+    "remote_job_ceiling": {"type": "integer", "minimum": 0, "default": 0},
+    "procedure_byte_ceiling": {"type": "integer", "minimum": 0, "default": 1048576},
+    "agent_preferences": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["kind", "schema_version", "transport_preference"],
+      "properties": {
+        "kind": {"const": "agent-preferences"},
+        "schema_version": {"const": 1},
+        "transport_preference": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "families": {"type": "object"},
+        "tier_models": {"type": "object"},
+        "model_families": {"type": "object"}
+      },
+      "default": null
+    },
+    "site_resource_ceilings": {
+      "type": ["object", "null"],
+      "additionalProperties": {"type": "number", "minimum": 0},
+      "default": null
+    },
+    "expires_at": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                   "default": null},
+    "project_scope": {"type": ["array", "null"], "minItems": 1, "maxItems": 64, "uniqueItems": true,
+                      "items": {"type": "string", "pattern": "^/"}, "default": null},
+    "deadline": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["at", "margin_seconds"],
+      "properties": {"at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+                     "margin_seconds": {"type": "integer", "minimum": 0, "maximum": 2592000}},
+      "default": null
+    },
+    "instruction_document": {"type": ["string", "null"], "pattern": "^/", "default": null},
+    "disk_free_floor_bytes": {"type": ["integer", "null"], "minimum": 0, "default": null},
+    "r3_delegation": {"type": "array", "uniqueItems": true, "items": {"enum": ["final_task"]}, "default": []},
+    "review_sandbox_fallback": {"enum": ["none", "restricted-unsandboxed"], "default": "none"}
+  }
+}

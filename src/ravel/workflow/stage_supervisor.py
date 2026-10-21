@@ -18,7 +18,10 @@ if not __package__:
     __package__ = "ravel.workflow"
 
 import argparse, hashlib, json, os, signal, subprocess, sys, time
+from contextlib import contextmanager
+import threading
 from pathlib import Path
+from datetime import datetime, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
@@ -138,7 +141,9 @@ CONTAINER_CLEANUP_SECS = 60.0  # Separate source-declared guest reserve, not hos
 CLEANUP_CENSUS_SCOPE = "non-zombie process-group members reported by ps; zombies excluded"
 MUST_PRODUCE = ("madgraph", "pythia", "delphes", "analysis", "simpleanalysis", "sa2json", "pyhf")
 
-def _resolve_timestamp():
+def _resolve_timestamp(rundir=None):
+    if rundir is not None and _controller_run(rundir) is not None:
+        return datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
     ov = os.environ.get("GATE_TIMESTAMP")
     return ov if ov else execution.utc_now()
 
@@ -158,7 +163,7 @@ def _fingerprint(cmd):
 def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel, *, cleanup=None):
     rec = {
         "schema_version": SCHEMA_VERSION, "generated_by": "stage_supervisor.py",
-        "generator": "stage_supervisor.py", "generated_utc": _resolve_timestamp(),
+        "generator": "stage_supervisor.py", "generated_utc": _resolve_timestamp(rundir),
         "input_fingerprint": _fingerprint(cmd), "stage": stage, "status": "open",
         "reason": reason, "elapsed_s": round(elapsed, 1), "kill_threshold_s": round(kill_secs, 1),
         "logfile": logrel,
@@ -176,7 +181,11 @@ def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel, *, cle
     # FALLBACK (`workflow_state.py status` -> open_failure_records) sees it. Best-effort: never let a
     # ledger hiccup (missing/older run_state, CLI drift) mask the stage failure the caller surfaces.
     ws = os.path.join(HERE, "workflow_state.py")
-    if os.path.isfile(ws):
+    controller_run = _controller_run(rundir)
+    if controller_run is not None:
+        from ravel.controller.confine import runs
+        runs.store(controller_run).append('stage-failure', rec)
+    elif os.path.isfile(ws):
         try:
             subprocess.run([sys.executable, ws, "record", "--kind", "failure",
                             "--rundir", rundir, "--what", os.path.relpath(path, rundir)],
@@ -190,9 +199,63 @@ def _cleanup_error(result, operation, exc):
                              "message": str(exc)})
 
 
-def _observe_group(result,observer=None):
+_REAPER_LOCK = threading.RLock()
+_REAPER_USERS = 0
+_REAPER_PREVIOUS = 0
+
+
+@contextmanager
+def _child_reaper():
+    """Adopt orphaned grandchildren on Linux so cleanup can actually wait for them."""
+    global _REAPER_USERS, _REAPER_PREVIOUS
+    if not sys.platform.startswith('linux'):
+        yield
+        return
+    import ctypes
+    libc = ctypes.CDLL(None, use_errno=True)
+    with _REAPER_LOCK:
+        if not _REAPER_USERS:
+            previous = ctypes.c_int()
+            if libc.prctl(37, ctypes.byref(previous), 0, 0, 0) or libc.prctl(36, 1, 0, 0, 0):
+                raise ValueError('cannot establish descendant reaping; stage held')
+            _REAPER_PREVIOUS = previous.value
+        _REAPER_USERS += 1
+    try:
+        yield
+    finally:
+        with _REAPER_LOCK:
+            _REAPER_USERS -= 1
+            if not _REAPER_USERS:
+                if libc.prctl(36, _REAPER_PREVIOUS, 0, 0, 0):
+                    raise ValueError('cannot restore descendant reaper state')
+
+
+def _reap_group(result, proc=None):
+    reaped = result.setdefault('reaped_descendants', [])
+    while True:
+        try:
+            pid, status = os.waitpid(-result['process_group'], os.WNOHANG)
+        except ChildProcessError:
+            return False
+        except OSError as exc:
+            _cleanup_error(result, 'reap_descendant', exc)
+            result['reaping_error'] = True
+            return True
+        if not pid:
+            return True
+        if pid == result['process_group']:
+            result['leader_returncode'] = os.waitstatus_to_exitcode(status)
+            if proc is not None:
+                proc.returncode = result['leader_returncode']
+        elif pid not in reaped:
+            reaped.append(pid)
+
+
+def _observe_group(result,observer=None,proc=None):
     # execution's census excludes zombies. "empty" means no active members in
     # this group, not proof that every OS process-table entry has disappeared.
+    if observer is None:
+        _reap_group(result, proc)
     try:
         members = (execution.process_group_members(result["process_group"]) if observer is None
                    else observer(result["process_group"]))
@@ -201,7 +264,8 @@ def _observe_group(result,observer=None):
         members = None
     result["remaining_group_members"] = members
     result["group_state"] = "unknown" if members is None else ("active" if members else "empty")
-    result["requires_recovery"] = members is None or bool(members)
+    pending = _reap_group(result, proc) if observer is None else False
+    result["requires_recovery"] = members is None or bool(members) or pending or result.get('reaping_error', False)
     return members
 
 
@@ -226,7 +290,7 @@ def _terminate_owned_group(pid, grace, proc=None, *, observer=None, cleanup_dead
     # Reap our own exited child before each census, while still inspecting any
     # surviving descendants. Reaping a wrapper cannot establish an empty group.
     poll_leader()
-    members = _observe_group(result,observer)
+    members = _observe_group(result,observer,proc)
     for sig in (signal.SIGTERM, signal.SIGKILL):
         if not members:  # Empty is finished; unknown is held without blind escalation.
             break
@@ -245,13 +309,13 @@ def _terminate_owned_group(pid, grace, proc=None, *, observer=None, cleanup_dead
             action["outcome"] = "error"
             _cleanup_error(result, sig.name, exc)
         if action["outcome"] != "sent":
-            _observe_group(result,observer)
+            _observe_group(result,observer,proc)
             break
         deadline = time.monotonic() + grace
         if cleanup_deadline is not None:deadline=min(deadline,cleanup_deadline)
         while True:
             poll_leader()
-            members = _observe_group(result,observer)
+            members = _observe_group(result,observer,proc)
             remaining = deadline - time.monotonic()
             if not members or remaining <= 0:
                 break
@@ -270,7 +334,7 @@ def _terminate_owned_group(pid, grace, proc=None, *, observer=None, cleanup_dead
             wait_failed = True
         # The bounded wait can change group membership. Report this later observed
         # state without retroactively claiming that a denied signal succeeded.
-        _observe_group(result,observer)
+        _observe_group(result,observer,proc)
         result["requires_recovery"] |= wait_failed
     return result
 
@@ -812,11 +876,15 @@ def _cancel_backend_job(root, record, grace):
     if not (directory / eb.HANDLE_NAME).is_file():
         return None
     handle = eb.read_handle(directory)
-    if handle.get('remote') is None or handle.get('resolution') in eb.TERMINAL or handle.get('state') == 'fetched':
+    if eb.handle_resolved(handle):
         return None
     plan = eb.load_plan(directory / 'plan.json', verify_inputs=False)
+    if handle.get('remote') is None:
+        eb.recover(plan, handle)
+        if handle.get('remote') is None:
+            return {'state': 'unknown', 'tag': handle['tag'], 'requires_recovery': not eb.handle_resolved(handle)}
     observation = eb.cancel(plan, handle, wait_seconds=max(1.0, grace))
-    return {'state': observation['state'], 'tag': handle['tag']}
+    return {'state': observation['state'], 'tag': handle['tag'], 'requires_recovery': not eb.handle_resolved(handle)}
 
 
 def _authorized_branch(root, required_plan, authorization_plan, scoped_likelihood):
@@ -831,6 +899,138 @@ def _authorized_branch(root, required_plan, authorization_plan, scoped_likelihoo
     return physics_review.active(root)
 
 
+def _research_child_study(root):
+    """A derived task contract keeps the scientific-study route only for its authenticated campaign child.
+
+    Any other contracted run still declares an explicit compute rung. A forged or stale
+    campaign origin raises here, before anything is started.
+    """
+    from . import physics_review, research_cycle
+    if not (physics_review._science_run(root) and (root / research_cycle.CHILD_CONTRACT_ORIGIN).exists()):
+        return False
+    research_cycle.verify_experiment_contract(root)
+    return True
+
+
+def _controller_run(root):
+    """The run id when ``root`` lies in a run the controller owns, else None."""
+    from ravel.controller.confine import runs
+    found = runs.owner_of(Path(root))
+    return found[0] if found else None
+
+
+def _controller_check(root, action='stage dispatch'):
+    from ravel.controller import authority
+    from ravel.controller.confine import runs
+    found = runs.owner_of(root)
+    return authority.check(runs.store(found[0]), action) if found else None
+
+
+def _controller_drain(root, record, proc):
+    """A request triggers observation; it is never itself evidence of termination."""
+    from ravel.controller import authority
+    from ravel.controller.confine import runs
+    found = runs.owner_of(root)
+    if not found or proc is None:
+        return False
+    store = runs.store(found[0])
+    view = authority.control(store)  # includes authenticated ancestor controls
+    if view['state'] == 'running':
+        return False
+    if 'controller_stop' not in record:
+        members = execution.process_group_members(proc.pid)
+        record['controller_stop'] = view
+        authority.observe_stop(store, 'draining', {'stage': record['stage'], 'process_group': proc.pid,
+            'remaining_group_members': members, 'verified_gone': False})
+    return True
+
+
+def _controller_stopped(root, record, proc):
+    if not record.get('controller_stop') or proc is None:
+        return
+    cleanup = record.get('cleanup')
+    if not cleanup or cleanup.get('requires_recovery'):
+        return
+    _observe_group(cleanup, proc=proc)
+    if cleanup['requires_recovery'] or proc.poll() is None:
+        return
+    for key in ('registered_helper_cleanup', 'operation_extra_group_cleanup'):
+        values = record.get(key) or []
+        if isinstance(values, dict) or any(v.get('requires_recovery') for v in values):
+            return
+    for key in ('backend_cancel', 'container_cleanup', 'confinement_finish'):
+        value = record.get(key) or {}
+        if value.get('requires_recovery') or value.get('errors'):
+            return
+        if key == 'backend_cancel' and value and value.get('state') not in ('succeeded', 'failed', 'cancelled'):
+            return
+    # A stage cannot certify a whole run stopped while another recorded producer is running.
+    if any(v.get('status') == 'running' for k, v in execution.load_execution(root)['stages'].items()
+           if k != record['stage']):
+        return
+    from . import execution_backend as backend, machine_lease
+    for path in backend.stage_handles(root):
+        handle = execution.read_json(path)
+        if (not backend.handle_resolved(handle) or handle.get('resolution') == 'operator-cleared'
+                and handle.get('state') not in (*backend.TERMINAL, 'fetched')):
+            return  # Clearing a capacity fence is not observation of remote termination.
+    reservation = record.get('reservation')
+    if reservation and machine_lease.job_processes(reservation):
+        return
+    from ravel.controller import authority
+    from ravel.controller.confine import runs
+    authority.observe_stop(runs.store(_controller_run(root)), 'stopped', {
+        'stage': record['stage'], 'process_group': proc.pid, 'remaining_group_members': [],
+        'reaped_descendants': cleanup.get('reaped_descendants', []), 'verified_gone': True})
+
+
+def _controller_launch(root, stage, cmd, context, cwd, *, legacy_science):
+    """How a stage of a controller-owned run starts, decided before anything is reserved.
+
+    A registered controller-side entry point (a RAVEL broker whose payloads are confined where
+    they start) keeps the controller's environment; every other command gets a confined launch
+    plan. A version-one study does not run in a controller-owned run.
+    """
+    from ravel.controller import confine
+    if legacy_science:
+        raise confine.ConfinementRefused('a version-one scientific study does not run in a controller-owned run; '
+                                         'nothing was started')
+    broker = confine.entry_point(root, cmd)
+    if broker is not None:
+        return broker
+    return confine.prepare(confine.spec_for_stage(root, cmd, context=context, cwd=cwd))
+
+
+
+def _controller_launch_context(context, specification, kill_secs, operation_resources=None):
+    """Carry actual committed stage facts into the controller launch, without inventing limits."""
+    runtime = {name: value for name, value in execution.runtime_environment().items()
+               if isinstance(value, str)}
+    context.update(environment_capsule=runtime, input_snapshot=specification['input_snapshot'],
+                   max_seconds=kill_secs)
+    declared = operation_resources if isinstance(operation_resources, dict) else {}
+    limits = {name: declared[name] for name in ('cpus', 'memory_mib', 'wall_seconds') if name in declared}
+    if 'cpus' not in limits:
+        threads = runtime.get('OMP_NUM_THREADS')
+        if threads and threads.isdecimal() and int(threads) > 0:
+            limits['cpus'] = int(threads)
+    if limits:
+        context['limits'] = limits
+    return context
+
+
+def _refresh_controller_grant(launch):
+    """Rebind CPU affinity to the grant held after lease acquisition, before any attempt."""
+    from ravel.controller import confine
+    if isinstance(launch, confine.Plan) and 'cpus' in launch.limits:
+        grant = confine.machine_grant()
+        cpus = launch.limits['cpus']
+        if cpus > len(grant):
+            raise confine.ConfinementRefused(
+                f'the launch asks for {cpus} CPUs; the acquired machine grant has {len(grant)}')
+        launch.limits['cpu_set'] = grant[:cpus]
+
+
 def _approved_plan_location(root, backend_plan):
     """Backend plans that CHECK-IN 1 approval binds (workflow_state.approval_input_paths)."""
     path = Path(backend_plan).resolve()
@@ -841,7 +1041,7 @@ def _approved_plan_location(root, backend_plan):
 def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_secs=None,
               poll=POLL_SECS, grace=GRACE_SECS, *, inputs=None, outputs=None,
               depends_on=None, resume=False, cwd=None, authorization_plan=None, required_plan=None, output_policy=None, helper_declaration=None, operation_resources=None,
-              backend_plan=None, lease_wait=None, nested_under=None, node_id=None, _engineering_only=False):
+              backend_plan=None, lease_wait=None, nested_under=None, node_id=None, science_rung=None, _engineering_only=False):
     """Run one declared stage; resume only a content-identical successful attempt.
 
     Log silence is not a default failure signal. A caller may supply stall_secs only
@@ -859,11 +1059,15 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
     stage name. ``node_id`` is the node a production launch names; it must agree with the plan.
     """
     root = Path(rundir).resolve()
+    _controller_check(root)
     from . import method_selection, physics_review, wms_policy
     # Every approval route is governed; only a stage with no approval route is outside this check.
     if physics_review._science_run(root) or _authorized_branch(
             root, required_plan, authorization_plan, (root / 'inputs/scoped-plan.json').exists()):
         wms_policy.require_dispatch(root)
+    controller_run = _controller_run(root)
+    if _engineering_only and controller_run is not None:
+        raise ValueError('engineering-only dispatch is unavailable for a controller-owned run; nothing was started')
     if _engineering_only:
         from .approval_authority import AGENT_MARKERS
         inert_selftest = _engineering_only is _ENGINEERING_SELFTEST and tuple(cmd or ()) in _ENGINEERING_SELFTEST_COMMANDS
@@ -928,9 +1132,19 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
     if backend_plan is not None and parent_authority is None and not _approved_plan_location(root, backend_plan):
         raise ValueError(f"backend plan {backend_plan} is not an approved input: pin it as inputs/backend-plan.json "
                          "or under inputs/backend-plans/ before CHECK-IN 1 approval; nothing was started")
+    approved_science_rung = False
+    if science_rung is not None:
+        from . import science
+        from ravel.controller.routes.study.child_contract import compute_rung, ComputeRungUnavailable
+        if (stage != 'science' or events != 0 or not physics_review._science_run(root) or not science.review_enabled(root)
+                or required_plan is not None or authorization_plan is not None or scoped_likelihood
+                or compute_rung(root, max_seconds=kill_secs) != science_rung):
+            raise ComputeRungUnavailable('scientific stage differs from its approved ordinary compute rung')
+        approved_science_rung = True
     if (required_plan is None and authorization_plan is None
             and (root / "inputs/task_contract.json").exists()
-            and not (root / "inputs/native_execution_plan.json").exists() and not scoped_likelihood):
+            and not (root / "inputs/native_execution_plan.json").exists() and not scoped_likelihood
+            and not _research_child_study(root) and not approved_science_rung):
         raise ValueError("a contracted generic stage requires an explicit compute rung (--required-plan smoke|full|scan)")
     if not execution.NAME.fullmatch(stage):
         raise ValueError("invalid stage name")
@@ -938,6 +1152,8 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
     logpath.parent.mkdir(parents=True, exist_ok=True)
     from contextlib import ExitStack
     with file_lock(root / "logs/execution" / f"{stage}.lock", blocking=False), ExitStack() as lease_scope:
+        if controller_run is not None:
+            lease_scope.enter_context(_child_reaper())
         if output_policy is not None:
             from . import physics_review, science
             if not physics_review._science_run(root) or not science.review_enabled(root):
@@ -1002,13 +1218,29 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
             operation_authority = resources.authority(root, operation_resources, stage=stage, command=cmd,
                 cwd=specification["cwd"], inputs=specification["inputs"], outputs=specification["outputs"], events=events, max_seconds=kill_secs)
             review_context.update(events=events, max_seconds=kill_secs, operation_authority=operation_authority)
+        if controller_run is not None:
+            _controller_launch_context(review_context, specification, kill_secs, operation_resources)
+        controller_launch = (_controller_launch(root, stage, cmd, review_context, specification['cwd'],
+                                                legacy_science=legacy_science)
+                             if controller_run is not None else None)
         binding = None if parent_authority is not None else _stage_binding(
             root, stage, required_plan=required_plan, authorization_plan=authorization_plan,
             scoped_likelihood=scoped_likelihood, science_review=science_review)
         lease = lease_scope.enter_context(_machine_lease(root, stage, backend_plan,
                                                          lease_wait_seconds(lease_wait, kill_secs),
                                                          nested=parent_authority is not None, binding=binding))
+        if controller_launch is not None:
+            _refresh_controller_grant(controller_launch)
         record = execution.begin_attempt(root, stage, specification, logrel)
+        if controller_launch is not None:
+            # The custody digest is in the attempt record before the child can look for it.
+            from ravel.controller import confine
+            if isinstance(controller_launch, confine.Plan):
+                controller_launch.attempt_dir = root / "logs/execution" / stage / record["attempt_id"]
+                record["confinement"] = controller_launch.record
+            else:
+                record["confinement"] = controller_launch
+            execution._update(root, stage, record)
         if lease is not None:
             from . import machine_lease
             allocation = machine_lease.allocation_identity()
@@ -1057,6 +1289,9 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                     root/"logs/execution"/stage/record["attempt_id"]/"helper-registration",
                     deadline=t0+worker_limit)
                 launch_env=os.environ.copy();launch_env[helper_registration.ENV]=helper_owner.descriptor_pin["path"]
+                if controller_launch is not None and not isinstance(controller_launch, dict):
+                    controller_launch.channels.append(Path(helper_owner.socket_path))
+                    controller_launch.record["channels"] = [str(c) for c in controller_launch.channels]
                 record["helper_owner_descriptor"]=helper_owner.descriptor_pin
                 execution._update(root,stage,record)
             launch_kwargs={"env":launch_env} if helper_owner is not None else {}
@@ -1068,9 +1303,18 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                     machine_lease.take_hold(log)
                     job_token = machine_lease.reserve(lease.lease_id, hold=logpath,
                                                       label=f'{root}:{stage} supervised stage')
+                    record['reservation'] = {'token': job_token, 'lease_id': lease.lease_id, 'hold': str(logpath)}
+                    execution._update(root, stage, record)
                     launch_env = launch_env if launch_env is not None else os.environ.copy()
                     launch_env[machine_lease.JOB_ENV] = job_token
                     launch_kwargs = {"env": launch_env}
+                if controller_launch is not None and not isinstance(controller_launch, dict):
+                    # Late channel variables (helper owner, job token) of this attempt join the capsule.
+                    from ravel.controller.confine import environment as confine_environment
+                    controller_launch.env.update({name: value for name, value in (launch_env or {}).items()
+                                                  if name in confine_environment.channels()})
+                # A run the controller does not own keeps the legacy launch call unchanged.
+                confined_kwargs = {"confinement": controller_launch} if controller_launch is not None else {}
                 if authorization_plan is None and (root / "inputs/native_execution_plan.json").is_file():
                     from ravel.physics.native_pipeline import load_plan
                     authorization_plan = load_plan(root / "inputs/native_execution_plan.json")
@@ -1078,15 +1322,18 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                     method_selection.require_launch(root, required_plan)
                     if parent_authority is not None:
                         method_selection.require_launch(parent_authority['rundir'], parent_authority.get('required_plan'))
+                _controller_check(root, 'stage dispatch before process creation')
                 if science_review:
                     from .launch_authorization import authorized_popen
                     proc = authorized_popen(root, "science", cmd, context={"kind": "science-stage", **review_context},
-                        stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True, **launch_kwargs)
+                        stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True,
+                        **confined_kwargs, **launch_kwargs)
                     record["authorization_receipt"] = proc.ravel_authorization
                 elif scoped_likelihood:
                     from .launch_authorization import authorized_popen
                     proc = authorized_popen(root, 'full', cmd, context={'kind': 'scoped-likelihood-stage', **review_context},
-                        stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True, **launch_kwargs)
+                        stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True,
+                        **confined_kwargs, **launch_kwargs)
                     record['authorization_receipt'] = proc.ravel_authorization
                 elif legacy_science or _engineering_only or (
                         parent_authority is not None and authorization_plan is None and required_plan is None
@@ -1104,8 +1351,18 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                         Path(parent_authority['rundir']),
                         gate_wiring.launch_node(parent_authority['rundir'], parent_authority['stage']) or parent_authority['stage'])
                     with gate_wiring.steering_dispatch(steering_root, steering_node):
-                        proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT,
-                                                cwd=cwd, start_new_session=True, **launch_kwargs)
+                        if controller_launch is None:
+                            proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT,
+                                                    cwd=cwd, start_new_session=True, **launch_kwargs)
+                        elif isinstance(controller_launch, dict):
+                            from ravel.controller.confine import brokers
+                            proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, cwd=cwd,
+                                                    start_new_session=True,
+                                                    env=brokers.environment(launch_kwargs.get('env')))
+                        else:
+                            from ravel.controller import confine
+                            proc = confine.start(controller_launch, subprocess.Popen, stdout=log,
+                                                 stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True)
                         gate_wiring.register_steering_process(steering_root, proc, review_context)
                 elif authorization_plan is None:
                     from .launch_authorization import authorized_popen
@@ -1115,7 +1372,8 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                     review_context.setdefault("events", events)
                     review_context.setdefault("max_seconds", kill_secs)
                     proc = authorized_popen(root, approved, cmd, context={"kind": "scientific-stage", **review_context},
-                        stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True, **launch_kwargs)
+                        stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True,
+                        **confined_kwargs, **launch_kwargs)
                     record["authorization_receipt"] = proc.ravel_authorization
                 else:
                     from ravel.physics.native_pipeline import verify_execution_approval
@@ -1126,8 +1384,10 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                     from .launch_authorization import authorized_popen
                     proc = authorized_popen(root, authorization_plan["required_compute_plan"], cmd,
                                             context={"kind": "native-stage", **review_context,
+                                                     "max_seconds": kill_secs, "events": events,
                                                      "plan_sha256": authorization_plan["plan_sha256"]},
-                                            stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True, **launch_kwargs)
+                                            stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True,
+                                            **confined_kwargs, **launch_kwargs)
                     record["authorization_receipt"] = proc.ravel_authorization
                 if operation_owner is not None:
                     # Publish owner/worker identity once, before registration
@@ -1141,6 +1401,9 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                 execution.record_process(root, record, proc.pid)
                 if helper_owner is not None:helper_owner.attach_worker(proc.pid)
                 while proc.poll() is None:
+                    if controller_run is not None and _controller_drain(root, record, proc):
+                        reason = 'controller-' + record['controller_stop']['state']
+                        break
                     if helper_owner is not None:helper_owner.service()
                     if operation_owner is not None:operation_owner.sample()
                     elapsed = time.monotonic() - t0
@@ -1155,7 +1418,10 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                     if operation_owner is not None:
                         delay=min(delay,.1,max(0.,operation_owner.clock['deadline_monotonic']-time.monotonic()))
                     time.sleep(delay)
-            code = 124 if reason else (proc.returncode if proc.returncode >= 0 else 128 - proc.returncode)
+            if controller_run is not None and _controller_drain(root, record, proc):
+                reason = reason or 'controller-' + record['controller_stop']['state']
+            code = (130 if record.get('controller_stop') else 124) if reason else (
+                proc.returncode if proc.returncode >= 0 else 128 - proc.returncode)
             if code and not reason:
                 reason = f"exit-{code}"
             if code == 0 and execution.process_group_members(proc.pid):
@@ -1178,8 +1444,13 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
             if proc is None and getattr(exc, 'launch_refused', False):
                 # Steering refused at the serialized launch boundary: no process of this attempt
                 # exists, so a caller may treat its reserved attempt as unspent.
-                record["prelaunch_refusal"] = {"by": "steering", "reason": str(exc)}
+                record["prelaunch_refusal"] = {"by": getattr(exc, "refused_by", "steering"), "reason": str(exc)}
         finally:
+            if controller_run is not None and proc is not None:
+                try:
+                    _controller_drain(root, record, proc)
+                except (OSError, ValueError) as exc:
+                    record['controller_observation_error'] = str(exc)
             if job_token is not None and proc is None:
                 # Authorization or Popen failed after the reservation: nothing started and the hold
                 # closed with the log, so this live supervisor must not keep the machine reserved.
@@ -1219,6 +1490,18 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                         record["backend_cancel"] = _cancel_backend_job(root, record, grace)
                     except (Exception, KeyboardInterrupt) as exc:
                         record["backend_cancel"] = {"requires_recovery": True, "error": str(exc)}
+            if proc is not None and getattr(proc, "ravel_confinement", None) is not None:
+                # After the process is gone and before the outputs are snapshotted: adopt the declared
+                # outputs, quarantine every other file the stage created, remove its scratch.
+                try:
+                    from ravel.controller import confine
+                    record["confinement_finish"] = confine.finish(proc)
+                    if record["confinement_finish"].get("errors") and not code:
+                        code, reason = 3, "confined outputs could not be adopted or quarantined"
+                except (Exception, KeyboardInterrupt) as exc:
+                    record["confinement_finish"] = {"requires_recovery": True, "error": str(exc)}
+                    if not code:
+                        code, reason = 3, "confined launch could not be finished"
             if record.get("container_recovery_plan"):
                 try:
                     observed = _recover_container(root, record, "final")
@@ -1233,6 +1516,11 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                     gate_wiring.observe_steering_process(steering_root, proc)
                 except (OSError, ValueError) as exc:
                     record['steering_observation_error'] = str(exc)
+            if controller_run is not None and not record.get('controller_observation_error'):
+                try:
+                    _controller_stopped(root, record, proc)
+                except (OSError, ValueError) as exc:
+                    record['controller_observation_error'] = str(exc)
             for sig, handler in previous_handlers.items():
                 try:
                     signal.signal(sig, handler)
@@ -1251,6 +1539,11 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                           cleanup={"host": record.get("cleanup"), "container": record["container_cleanup"]}
                           if record.get("container_recovery_plan") else record.get("cleanup"))
         else:
+            # Successful supervision, not a bare library finish, owns the
+            # immutable receipt registration consumed by decision anchors.
+            from . import rdj_custody
+            if not rdj_custody.stage_receipt_registered(root, stage, record['attempt_id'], record):
+                rdj_custody.register_stage_receipt(root, stage, record['attempt_id'])
             failure = root / "logs" / f"{stage}.failure.json"
             if failure.exists():
                 # Preserve the original failed receipt, then record how it was resolved.

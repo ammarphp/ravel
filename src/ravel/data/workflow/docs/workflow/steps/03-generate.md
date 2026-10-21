@@ -1,5 +1,32 @@
 # Step 3 — Generate events  ·  [judgment] cards / [agent] run
 
+## On the controller
+
+On a controller run, generation is never a free-standing command. It runs as governed plan steps of the analysis
+route, only after the CHECK-IN 1 authority for the current plan exists:
+
+- `recast.smoke` (rung `smoke`): operation `lifecycle-routine-recast` through its executor role
+  (`analysis-author`), from the route analysis's bound routine and detector mode. It writes
+  `outputs/smoke/recast.json` (`samples`, `events`, `lhe_check`, `cutflow`, `qualification`, `detector_mode`). The
+  route adapter refuses a record without a produced sample, with a failing pre-shower check, without a current
+  routine qualification or below the requested detector fidelity.
+- `run.full` (rung `full`) or one `scan.point.<tag>` per approved grid point (rung `scan`): operation
+  `analysis-lifecycle`. These wait for the CHECK-IN 2 GO bound to the executed waypoint; the authority service
+  refuses a full or scan rung without it, and the plan never places a bulk rung above a skipped waypoint.
+
+Budgets come from the plan step and are reserved before the effect; a launch runs confined, writes only its
+declared outputs and is adopted by digest.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
+The analysis execution adapter delegates to `controller.step.run`; it never starts a scientific process.
+The step service checks the approved task and point, obtains authority, records the effect, and sends native argv
+through the confinement service (`confine.popen`). The launch journal remains a receipt of the point even when no
+worker session was needed.
+
 Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
 this selects the native build and binary paths, including an existing local toolchain.
 `CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda` — every `$CONDA` below.
@@ -64,11 +91,10 @@ pin the selected LHE, process, run and shower cards. The consumer checks the
 declared multiplicities and actual `xqcut` and fills the complete matching block
 from the recorded shower card. Missing explicit settings refuse; a hand-typed
 `shower.merging` block must agree. This handoff requires the original LHE and
-currently uses LHE-init normalization; multiweight analysis, transformed MLM
-receipts and native matching validation need their own qualified route.
+ uses LHE-init normalization.
 
 **Pre-generate recipe gate ([judgment — script-assisted: resource_census.py], mandatory before any
-`generate_events`).** For a BSM/HV model you may NOT run the hard process until the model's external
+`generate_events`).** For a BSM/HV model run the hard process only after the model's external
 generation recipe (UFO / restrict card / process syntax) has been fetched and recorded. Fetch it with
 `resource_census.py --debug recipe-search --tool madgraph --model <model>` (writes
 `inputs/recipe_search.json`) or hand-record `inputs/generation_recipe.json`, then assert:
@@ -104,7 +130,7 @@ generation recipe (UFO / restrict card / process syntax) has been fetched and re
    changes with their uncertainties. Follow [the merging checklist](../checklists/merging.md)
    for the separate MLM and CKKW-L requirements. Do not reuse the historical example's scale
    or its 5% inclusive-rate comparison as a universal gate. The explicit-card native adapter
-   currently rejects merged samples pending audited veto/weight accounting; do not bypass it.
+    rejects merged samples pending audited veto/weight accounting; do not bypass it.
    **Pre-shower guard (always, before any shower time):**
    `$CONDA run -n rivet python scripts/run.py ravel.validation.lhe_check <procdir>/Events/run01/unweighted_events.lhe.gz --expect-mass <PDG>:<mass> …`
    — asserts the generated particle masses (first event + banner MASS block; catches the
@@ -150,7 +176,7 @@ generation recipe (UFO / restrict card / process syntax) has been fetched and re
   stitch by σ-weight, and put the slice plan + event counts through `cost_preflight.py` BEFORE
   CHECK-IN 1 promises a background curve. Record slice definitions in the run's config.
 - **Pythia-internal (non-MadGraph) generation.** For processes generated directly in
-  Pythia (QCD dijets, minimum bias): there is NO LHE, so the `lhe_check.py` gate cannot run —
+  Pythia (QCD dijets, minimum bias): there is NO LHE, so the `lhe_check.py` gate must not run —
   state that explicitly in `DEVIATIONS.md` (gate skipped: no LHE exists), verify the process
   switches + phase-space cuts in the .cmnd against the intent, and sanity-check the FIRST HepMC
   events (process id, σ estimate) before full statistics.
@@ -161,12 +187,12 @@ generation recipe (UFO / restrict card / process syntax) has been fetched and re
   comes out empty/degenerate (undecayed sparticles → empty SRs, an env-trap zero-event run, a merge
   that vetoes every event), run the `stage-recovery` skill: local diagnosis AND an external
   recipe/fix search run **CO-PRIMARY** (`resource_census.py --debug recipe-search`), never search-last.
-  A diagnosed generator-model failure cannot be closed until `inputs/recipe_search.json` exists
+  A diagnosed generator-model failure must not be closed until `inputs/recipe_search.json` exists
   (`resource_census.py --assert-recipe-search` must exit 0 — the Stop-dispatcher enforces this).
 
 **Specialist failure advice.** `ravel.workflow.failure_router.classify(observations)`
 uses recorded exit/signal, stderr, supervisor/provisioning fields, missing outputs,
-failed checks and quantity witnesses. A model suggestion cannot select the class.
+failed checks and quantity witnesses. A model suggestion must not select the class.
 `from_supervisor(record, ...)` translates a retained supervisor failure;
 `recovery_packet(observations, evidence=..., rca_ticket=...)` retains its evidence
 and proposes the next diagnostic action without authorizing retry or closing it.
@@ -206,7 +232,7 @@ The Stop branch `stop_dispatch.py` `branch_drive` enforces this: at turn-end it 
 delivery/human-gate turn **and** no live/recent background job exists (no `compute_launched[].logfile`
 whose mtime is within `DRIVE_RECENT_SECS=600` s, and no matching pipeline process in `ps`). The
 `workflow_state.py next` command is the non-hook FALLBACK the agent runs itself when the hook is
-unavailable. A legitimate stop — a check-in awaiting approval — is exempt (delivery turn); a launched
+missing. A legitimate stop — a check-in awaiting approval — is exempt (delivery turn); a launched
 long job clears the gate structurally (its live/recent logfile).
 
 **Detached background jobs (DETACH/N6).** Background long jobs (generation, shower, scan) via the
@@ -216,7 +242,7 @@ harness (and this run) blind to whether it is alive, done, or dead. A detached j
 AND a live heartbeat (its `logfile` mtime within `DETACH_HEARTBEAT_SECS=600` s). The Stop dispatcher
 `stop_dispatch.py` `branch_detach` refuses turn-end (exit **2**) otherwise — any `compute_launched`
 entry with `bg_kind=="detached"` that is missing one of those fields or has no live heartbeat BLOCKS.
-Harness-tracked (`bg_kind!="detached"`) jobs are unaffected. FALLBACK when the hook is unavailable:
+Harness-tracked (`bg_kind!="detached"`) jobs are unaffected. FALLBACK when the hook is missing:
 `python3 scripts/run.py ravel.workflow.workflow_state status` lists the detached entries so the agent
 can check them itself.
 
@@ -244,10 +270,10 @@ A plan node's production worker carries that node's sealed work order. The
 dispatcher refuses one without it (or with another order) before anything is
 created, and the production gate counts a worker receipt only when the
 dispatcher's record binds the sealed order as it is now. A worker dispatched
-through `ravel work dispatch --spec` outside the production executor may carry no
+through `ravel work dispatch --spec` outside the production executor can carry no
 order or a pinned order in the same format: the order is validated at dispatch
 (node and role), the worker's broker takes it as the check input the dispatcher
-pinned, the role alone decides which checks it may run, and its receipt never
+pinned, the role alone decides which checks it can run, and its receipt never
 counts as production credit for a plan node.
 
 Trap knowledge references such as `trap:T6` resolve to

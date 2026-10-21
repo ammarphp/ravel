@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import Run, Roles, PROPOSER, PROMPT, escalate, prepare_case
 from ravel.validation.validate_task_contract import validate
 from ravel.workflow import decision_gate as dg, gate_wiring as gw, rdj_anchor, rdj_custody as custody
@@ -145,13 +146,28 @@ def test_response_path_records_reopen(run):
     rdj.open_case(run.root, "launch", run.action(), PROPOSER)
 
 
-def test_response_path_records_approve(run):
+def test_response_path_records_caller_text_but_no_approval(run):
     case_id = prepare_case(run, "launch", "bulk_launch")
     digest = run.action_pin["sha256"]
     with pytest.raises(ValueError):
         gw.respond(run.root, "Looks fine to me.", approve=[case_id])  # the text must name the case
-    gw.respond(run.root, f"I approve {case_id}.", approve=[case_id])
+    result = gw.respond(run.root, f"I approve {case_id}.", approve=[case_id])
+    # Caller text is retained as unattested evidence and records no approval.
+    assert custody.approvals(run.root, case_id, digest) == []
+    assert result["decisions"][0]["effective"] is False and result["decisions"][0]["human_authority"] is False
+    kept = [r["record"] for r in custody.rows(run.root, "approvals") if r["record"]["decision"] == "unattested_approve"]
+    assert [r["case_id"] for r in kept] == [case_id]
+
+
+def test_response_path_records_approve_only_with_a_terminal_confirmation(run, monkeypatch):
+    from operator_capture import operator_at_terminal
+    case_id = prepare_case(run, "launch", "bulk_launch")
+    digest = run.action_pin["sha256"]
+    calls = operator_at_terminal(monkeypatch)
+    result = gw.respond(run.root, f"I approve {case_id}.", approve=[case_id], confirm=True)
+    assert [c["purpose"] for c in calls] == ["case_approval"]
     assert [a["decision"] for a in custody.approvals(run.root, case_id, digest)] == ["approve"]
+    assert result["decisions"][0]["human_authority"] is True
 
 
 def test_response_cli(run, capsys):
@@ -288,7 +304,7 @@ def test_screen_launch_without_r1_receipt_refused(run, lease):
     assert "rdj_receipt_missing" in codes(errors, "rdj")
 
 
-def test_screen_launch_receipt_for_other_lease_or_bare_action_refused(run, lease):
+def test_screen_launch_receipt_for_other_lease_or_bare_action_refused(run, lease, inert_dispatch):
     bare = run.action("single_point_launch", node_id="N1")
     case_id = prepare_case(run, "launch", "single_point_launch", "R2", action=bare)
     assert rdj.authorize(run.root, case_id)["outcome"] == "authorize"
@@ -299,7 +315,7 @@ def test_screen_launch_receipt_for_other_lease_or_bare_action_refused(run, lease
     assert "lease_not_held" in codes(gw.delegated_dispatch_errors(run.root, bare, other), "gate_wiring")
 
 
-def test_screen_launch_with_matching_receipt_passes(run, lease):
+def test_screen_launch_with_matching_receipt_passes(run, lease, inert_dispatch):
     """F3: the positive P15 path passes; the executor's share stays with the launch authorization."""
     action = screen(run, lease)
     case_id = prepare_case(run, "launch", "single_point_launch", "R2", action=action)
@@ -339,7 +355,7 @@ def test_delegated_physics_value_without_anchored_receipt_refused(delegated_run)
     assert "rdj_receipt_missing" in codes(errors, "rdj")
 
 
-def test_delegated_physics_value_with_anchored_receipt_accepted(delegated_run):
+def test_delegated_physics_value_with_anchored_receipt_accepted(delegated_run, inert_dispatch):
     action = gw.physics_value_action(delegated_run.root, VALUE)
     case_id = prepare_case(delegated_run, "approve_plan", "physics_value", action=action)
     assert rdj.authorize(delegated_run.root, case_id)["outcome"] == "authorize"
@@ -347,7 +363,7 @@ def test_delegated_physics_value_with_anchored_receipt_accepted(delegated_run):
     assert gw.physics_value_errors(delegated_run.root, {**VALUE, "value": 1.3})  # another value is not covered
 
 
-def test_physics_value_receipt_without_external_anchor_refused(delegated_run, monkeypatch):
+def test_physics_value_receipt_without_external_anchor_refused(delegated_run, monkeypatch, inert_dispatch):
     action = gw.physics_value_action(delegated_run.root, VALUE)
     case_id = prepare_case(delegated_run, "approve_plan", "physics_value", action=action)
     rdj.authorize(delegated_run.root, case_id)
@@ -389,7 +405,7 @@ def test_refusal_on_impossible_fixture_is_not_a_gaming_event(run):
 
 # ---------------------------------------------------------------- T13 cost reporting
 
-def test_cost_report_counts_rdj_calls_and_tokens(run):
+def test_cost_report_counts_rdj_calls_and_tokens(run, inert_dispatch):
     case_id = prepare_case(run, "launch", "bulk_launch")
     rdj.authorize(run.root, case_id)
     report = gw.cost_report(run.root)
@@ -516,7 +532,7 @@ def test_checkin1_vouches_against_the_latest_run_init(run):
     assert "inputs/task_contract.json" not in row["record"]["unvouched"]
 
 
-def test_phys_rdj_pass_on_impossible_fixture_is_a_gaming_event(delegated_run, monkeypatch):
+def test_phys_rdj_pass_on_impossible_fixture_is_a_gaming_event(delegated_run, monkeypatch, inert_dispatch):
     """F13: the tripwire also covers PHYS-RDJ."""
     action = gw.physics_value_action(delegated_run.root, VALUE)
     case_id = prepare_case(delegated_run, "approve_plan", "physics_value", action=action)

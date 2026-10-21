@@ -12,7 +12,7 @@ The contract declares its source `routine`, `native_analysis_alias`,
 `reference`, `native_object_inventory`, `same_process_pid`, `native_weight_cap:0`,
 `group_rule:"independent_single_subevent"`, `schema_version:2`, and `fill_schema`.
 Missing `fill_schema` raises `NativeGroupFillError` with `reason="missing_input"`.
-No source roster, namespace suffix, experimental mode, unit conversion or geometry
+No source roster, namespace suffix, measurement mode, unit conversion or geometry
 is selected by a routine identity.
 
 The fill schemas of the three released routines whose fill sites were source-reviewed
@@ -32,7 +32,7 @@ The supplied fill schema has `schema_version:1`, the same `routine` and
 and `max_per_event`. Each output supplies its site, native path, id, ordered edges,
 reference path, quantity/axis units, source fill weight/fraction, and the grouping
 interval when its site has two coordinates. Source fill weight and fraction are
-currently restricted to one; other fill weighting laws must be represented by a
+restricted to one; other fill weighting laws must be represented by a
 qualified extension rather than silently approximated.
 
 The output list must equal the supplied whole booking list, its edges must match

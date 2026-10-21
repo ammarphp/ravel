@@ -1,0 +1,583 @@
+{
+  "schema_version": 1,
+  "kind": "route-spec",
+  "id": "calculation",
+  "version": 1,
+  "match": {
+    "row": 7,
+    "order": 10,
+    "when": {
+      "all": [
+        {
+          "field": "task_mode",
+          "eq": "calculation"
+        },
+        {
+          "field": "operation_kind",
+          "empty": true
+        }
+      ]
+    }
+  },
+  "adapter": "study",
+  "description": "Typed controller study with confined ordinary planning and execution, original scope, prospective review and bounded completion.",
+  "parameters": [],
+  "steps": [
+    {
+      "id": "inspect",
+      "kind": "author",
+      "inputs": [],
+      "outputs": [
+        {
+          "path": "outputs/inspection.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "depends_on": [],
+      "waypoint": false,
+      "rung": "dry",
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md"
+      ],
+      "obligations": [
+        "R02",
+        "R04",
+        "R08",
+        "R09"
+      ],
+      "parameters": {
+        "phase": "prepare"
+      },
+      "role": "coordinator"
+    },
+    {
+      "id": "design",
+      "kind": "subgraph",
+      "inputs": [],
+      "outputs": [],
+      "depends_on": [
+        "inspect"
+      ],
+      "waypoint": false,
+      "rung": "dry",
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md"
+      ],
+      "obligations": [
+        "R02",
+        "R04",
+        "R08",
+        "R09"
+      ],
+      "parameters": {
+        "phase": "prepare"
+      },
+      "graph": {
+        "id": "intake.plan",
+        "instance": {
+          "graph_root": "intake/planner"
+        }
+      }
+    },
+    {
+      "id": "specify",
+      "kind": "author",
+      "inputs": [
+        {
+          "artifact": "inspect:outputs/inspection.json",
+          "kind": "document"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/specification.json",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/scope.json",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/trap_sweep.json",
+          "kind": "validation:trap-sweep",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "inspect",
+        "design"
+      ],
+      "waypoint": false,
+      "rung": "dry",
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md",
+        "docs/workflow/steps/cosmology-solvers.md",
+        "docs/workflow/steps/eft-conventions.md",
+        "docs/workflow/steps/sfitter.md"
+      ],
+      "obligations": [
+        "R02",
+        "R04",
+        "R08",
+        "R09"
+      ],
+      "parameters": {
+        "phase": "prepare"
+      },
+      "role": "coordinator"
+    },
+    {
+      "id": "prepare-child",
+      "kind": "operate",
+      "operation": "ordinary-study-prepare",
+      "role": "coordinator",
+      "inputs": [
+        {
+          "artifact": "specify:outputs/specification.json",
+          "kind": "document"
+        },
+        {
+          "artifact": "specify:outputs/scope.json",
+          "kind": "document"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/preparation.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "specify"
+      ],
+      "waypoint": false,
+      "rung": "dry",
+      "budget": {
+        "wall_seconds": 120,
+        "attempts": 1,
+        "events": 0
+      },
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md",
+        "docs/workflow/steps/cosmology-solvers.md",
+        "docs/workflow/steps/eft-conventions.md",
+        "docs/workflow/steps/sfitter.md"
+      ],
+      "obligations": [
+        "R02",
+        "R04",
+        "R08",
+        "R09"
+      ],
+      "parameters": {
+        "phase": "prepare",
+        "action": "prepare",
+        "adapter": "ravel.controller.routes.study.runtime",
+        "launch": {
+          "adapter": "ravel.controller.routes.study.runtime"
+        },
+        "task": {
+          "max_seconds": 120
+        }
+      }
+    },
+    {
+      "id": "operate",
+      "kind": "operate",
+      "inputs": [
+        {
+          "artifact": "specify:outputs/specification.json",
+          "kind": "document"
+        },
+        {
+          "artifact": "specify:outputs/scope.json",
+          "kind": "document"
+        },
+        {
+          "artifact": "prepare-child:outputs/preparation.json",
+          "kind": "document"
+        },
+        {
+          "artifact": "specify:outputs/trap_sweep.json",
+          "kind": "validation:trap-sweep",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/result.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "specify",
+        "prepare-child"
+      ],
+      "waypoint": false,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [
+        "physics-critic"
+      ],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md",
+        "docs/workflow/steps/cosmology-solvers.md",
+        "docs/workflow/steps/eft-conventions.md",
+        "docs/workflow/steps/sfitter.md"
+      ],
+      "obligations": [
+        "R02",
+        "R04",
+        "R08",
+        "R09",
+        "P05",
+        "E07",
+        "E08",
+        "E09",
+        "E10",
+        "E13",
+        "E17",
+        "E18"
+      ],
+      "parameters": {
+        "phase": "execute",
+        "requires_ordinary_child_authority": true,
+        "adapter": "ravel.controller.routes.study.runtime",
+        "check_inputs": {
+          "check:physics.normalization_ledger.check": {
+            "ledger": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+              "type": "path"
+            }
+          },
+          "check:validation.validate_cutflow": {
+            "signal": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+              "type": "path"
+            },
+            "routine": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+              "type": "string"
+            },
+            "sigma_pb": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+              "type": "number"
+            },
+            "lumi_fb": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+              "type": "number"
+            },
+            "tables_dir": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+              "type": "path"
+            },
+            "grid": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+              "type": "string"
+            },
+            "m_parent": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+              "type": "number"
+            },
+            "m_lsp": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+              "type": "number"
+            },
+            "srs": {
+              "source": "output",
+              "step": "operate",
+              "path": "outputs/result.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+              "type": "string"
+            }
+          },
+          "check:validation.validate_run_state.check_trap_sweep": {
+            "sweep": {
+              "source": "output",
+              "step": "specify",
+              "path": "outputs/trap_sweep.json",
+              "type": "path"
+            }
+          }
+        },
+        "validator_exports": {
+          "outputs/result.json": {
+            "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+            "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+            "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+            "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+            "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+            "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+            "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+            "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+            "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+            "/validator_inputs/check:validation.validate_cutflow/srs": "string"
+          }
+        }
+      },
+      "role": "analysis-author"
+    },
+    {
+      "id": "operation-review",
+      "kind": "subgraph",
+      "graph": {
+        "id": "review.points",
+        "instance": {
+          "at": "checkin2",
+          "attempt": 1
+        }
+      },
+      "depends_on": [
+        "operate"
+      ],
+      "inputs": [
+        {
+          "artifact": "operate:outputs/result.json",
+          "kind": "document"
+        }
+      ],
+      "outputs": [],
+      "waypoint": true,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md",
+        "docs/workflow/steps/cosmology-solvers.md",
+        "docs/workflow/steps/eft-conventions.md",
+        "docs/workflow/steps/sfitter.md"
+      ],
+      "obligations": [
+        "P05",
+        "E08"
+      ],
+      "parameters": {
+        "phase": "execute",
+        "ordinary_review": true
+      }
+    },
+    {
+      "id": "synthesize",
+      "kind": "synthesize",
+      "inputs": [
+        {
+          "artifact": "operate:outputs/result.json",
+          "kind": "document"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/report.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "operate",
+        "operation-review"
+      ],
+      "waypoint": false,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [
+        "physics-critic"
+      ],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md"
+      ],
+      "obligations": [
+        "R02",
+        "R04",
+        "R08",
+        "R09"
+      ],
+      "parameters": {
+        "phase": "execute",
+        "check_inputs": {
+          "check:physics.normalization_ledger.check": {
+            "ledger": {
+              "source": "output",
+              "step": "synthesize",
+              "path": "outputs/report.json",
+              "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+              "type": "path"
+            }
+          }
+        },
+        "validator_exports": {
+          "outputs/report.json": {
+            "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path"
+          }
+        }
+      },
+      "role": "coordinator"
+    }
+  ],
+  "checkins": [
+    {
+      "id": "checkin1",
+      "sections": [
+        "complete request",
+        "numbered assumptions",
+        "original scope",
+        "budget and ceiling",
+        "prospective review"
+      ],
+      "seats": [
+        "plan-critic"
+      ]
+    },
+    {
+      "id": "checkin2",
+      "sections": [
+        "executed evidence",
+        "operation review",
+        "bounded correction",
+        "remaining obligations"
+      ],
+      "seats": [
+        "physics-critic"
+      ]
+    },
+    {
+      "id": "checkin3",
+      "sections": [
+        "whole-task disposition",
+        "limitations",
+        "unresolved obligations"
+      ],
+      "seats": [
+        "physics-critic",
+        "skeptical-verifier",
+        "synthesizer"
+      ]
+    }
+  ],
+  "obligations": [
+    "R02",
+    "R04",
+    "R08",
+    "R09"
+  ],
+  "deliverables": [
+    {
+      "match": {
+        "any": true
+      },
+      "step": "synthesize",
+      "output": "outputs/report.json"
+    }
+  ],
+  "instruction_sources": [
+    "docs/workflow/reference/scientific-studies.md"
+  ]
+}

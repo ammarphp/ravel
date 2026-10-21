@@ -273,7 +273,7 @@ def test_real_repository_join_identity_profiles_and_digest():
     assert {k: v for k, v in base.items() if k != 'default'} == {k: v for k, v in view.items() if k != 'default'}
     assert merged['default'] == main['default']
     assert merged['profiles'] == main['profiles'] and set(merged['profiles']) == {'site'}
-    assert len(merged['profiles']['site']['groups']) == 6
+    assert len(merged['profiles']['site']['groups']) == 7
     result = subprocess.run([sys.executable, '-B', '-m', 'ravel.setup.manifest', 'view',
                              '--canonical-sha256', '--root', str(ROOT)], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr

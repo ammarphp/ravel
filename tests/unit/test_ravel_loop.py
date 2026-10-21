@@ -335,7 +335,12 @@ def test_loop_workflow_doc_has_no_internal_work_package_labels():
 def test_loop_route_serves_blind_roles_only_through_registry_admission():
     from ravel.workflow import transport_registry as registry
     loops = [d for d in registry.all_declarations() if d['transport_kind'] == 'ravel-loop']
-    assert loops and all(registry.executor_available(d) for d in loops)
+    assert loops
+    # Selection must report an unwired endpoint or absent sandbox before blind credit.
+    for document in loops:
+        if not registry.executor_available(document):
+            assert registry.executor_problem(document) is not None
+            assert registry.blind_admissible(document) is False
     for document in loops:
         qualified = document['qualification']['status'] == 'live_qualified' and registry.sandbox_available()
         assert registry.blind_admissible(document) is (qualified and document['capabilities']['blind_capable'])

@@ -24,7 +24,7 @@ args=sys.argv[1:];assert args[:2]==['--connection','test'];args=args[2:]
 root=Path(os.environ['HOME']);p=root/'state.json';s=json.loads(p.read_text()) if p.exists() else {}
 cid='a'*64;op=args[0]
 with (root/'calls.jsonl').open('a') as f:f.write(json.dumps(args)+'\\n')
-def save():p.write_text(json.dumps(s))
+def save():t=p.with_name('state.json.%d'%os.getpid());t.write_text(json.dumps(s));os.replace(t,p)
 if op=='create':
     labels={}
     for i,x in enumerate(args):

@@ -299,7 +299,10 @@ def project(root, state, *, completion=None, utility_declaration=None):
     evidence = _Evidence()
     root = rc._ordinary(root)
     head = evidence.document(root / 'head.json')
-    current = evidence.document(Path(head['path']), head)
+    evidence.document(Path(head['path']), head)
+    current = rc._load_history(root)[1]
+    for revision in range(current['revision'] + 1):
+        evidence.document(root / 'history' / f'{revision:04d}.json')
     if current != state: raise ValueError('metrics state differs from current cycle head')
     graphs, calls, graph_events = _graphs(state, evidence)
     attempts, approvals, unavailable_attempts = _attempts(state, evidence)

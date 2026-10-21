@@ -57,7 +57,7 @@ source fingerprints. CSV columns are the point tag, supplied axes and requested 
 its `.metadata.json` sidecar retains the full result and custody. JSON writes the full
 result directly. A quantity from an inference artifact also retains typed limit status,
 brackets and eligibility. Review and execution-custody checks apply before harvesting.
-An invalid preferred limit artifact cannot silently fall back to another file.
+An invalid preferred limit artifact must not silently fall back to another file.
 
 Use a renderer whose declared axes and quantity schema match the result. Supply plot
 labels, comparison sources, projection and output names. A mass-plane renderer is only
@@ -109,7 +109,7 @@ For native preparation, supply `[ravel.native.rendering]` with `parameters`, `bi
 `pythia_card` under `[ravel.native.inputs]`. The plan's count, seed and beam energies must
 agree with any duplicate recipe controls. Each `expected_masses` entry must equal the rendered card's
 `MASS` value, and the declared model's produced parents must be heavier than its LSP;
-both are checked before any stage is planned. Configured run options are applied or refused;
+both are checked before any stage is declared. Configured run options are applied or refused;
 no configured cut is silently omitted. The recipe's selected launch template reaches the
 effective-card manifest and its hash-bound downstream stages.
 
@@ -173,7 +173,7 @@ The plotting reader rechecks each used artifact digest and dotted field against 
 harvest. It masks absent or unsuccessful cells and disables contour corner filling around
 holes; it never estimates missing values. The source receipt records the selected scenario,
 fixed coordinates and missing-cell coverage. Preserve those holes in comparisons and
-report the complete planned population alongside results.
+report the complete declared population alongside results.
 
 ## Per-point setting overrides
 
@@ -201,7 +201,7 @@ Supply an override JSON record with these fields:
 - `diagnostics`: nonempty `{path, sha256}` evidence pins with absolute file paths.
 - `approval`: `{rundir, route, rung, approval_files}` referencing a verified existing
   compute approval. Use the parent run's delegated scope, separately from the
-  point's executable proposal. A planning-only approval cannot authorize a repair.
+  point's executable proposal. A planning-only approval must not authorize a repair.
 - `amendment`, when needed: another approval reference whose approved input has
   `point_override_amendment: {context_sha256, point_id, changes, physics_fields}` for exactly this
   point and change set. Out-of-scope values require this amendment. Undeclared
@@ -248,7 +248,7 @@ The native report stage declares these files as inputs. Harvest accepts a native
 quantity only when its selected attempt's report lists the file and its hash
 matches. A missing report, unlisted file, missing file or hash mismatch produces
 an explicit failed cell. Older native reports without this manifest require a
-new approved execution; a receipt alone cannot authenticate an output.
+new approved execution; a receipt alone must not authenticate an output.
 
 Study grids write a separate effective study specification and retain it in the
 ledger. The cell's agent argv must contain its absolute `study_spec` path as an
@@ -262,7 +262,7 @@ remote agent starts. The agent receives `RAVEL_POINT_SETTINGS` and
 sidecar also supports binary outputs. Harvest treats missing or stale receipts as
 holes even when the allocation completed. The agent must use this supplied specification through the
 ordinary study preparation and approval route. A running or ambiguous allocation
-cannot be overridden. After a terminal failure use `resume --supersede <cell-id>`;
+must not be overridden. After a terminal failure use `resume --supersede <cell-id>`;
 the new attempt reuses the stored override, keeps the previous attempt and consumes
 the existing grid budget. A proposed repair never relabels an earlier result.
 
@@ -272,4 +272,4 @@ rows for holes, with full provenance in its metadata sidecar. Native JSON retain
 `point_population`, including missing points. Both plot paths mark overridden
 points with open orange diamonds; the study-grid plot also labels the regime.
 Plot receipts preserve the marked population. Missing values remain masked; lines,
-bands and contours cannot bridge declared holes.
+bands and contours must not bridge declared holes.

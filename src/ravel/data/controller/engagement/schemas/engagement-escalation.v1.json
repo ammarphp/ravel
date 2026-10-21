@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "correction_bound": {
+      "type": "integer"
+    },
+    "correction_count": {
+      "type": "integer"
+    },
+    "correction_exhausted": {
+      "type": "boolean"
+    },
+    "decision_id": {
+      "type": "string"
+    },
+    "event_sha256": {
+      "type": "string"
+    },
+    "evidence": {},
+    "new_tier": {
+      "enum": [
+        "lean",
+        "standard",
+        "full"
+      ]
+    },
+    "notify": {
+      "type": "boolean"
+    },
+    "old_tier": {
+      "enum": [
+        "lean",
+        "standard",
+        "full"
+      ]
+    },
+    "plan_deviation": {
+      "const": false
+    },
+    "remaining_steps": {},
+    "requires_authority": {
+      "type": "boolean"
+    },
+    "requires_rdj": {
+      "type": "boolean"
+    },
+    "rereview": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "engagement-escalation.v1"
+    },
+    "scope": {
+      "enum": [
+        "step",
+        "run"
+      ]
+    },
+    "seat_addition_class": {
+      "const": "R1"
+    },
+    "seat_plan": {
+      "type": "object"
+    },
+    "seats_added": {
+      "type": "array"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "step_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subject_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "triggers": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "sha256",
+    "event_sha256",
+    "decision_id",
+    "triggers",
+    "evidence",
+    "scope",
+    "step_id",
+    "subject_sha256",
+    "old_tier",
+    "new_tier",
+    "seats_added",
+    "seat_plan",
+    "rereview",
+    "remaining_steps",
+    "requires_rdj",
+    "requires_authority",
+    "correction_count",
+    "correction_bound",
+    "correction_exhausted",
+    "seat_addition_class",
+    "plan_deviation",
+    "notify"
+  ],
+  "title": "engagement-escalation.v1",
+  "type": "object"
+}

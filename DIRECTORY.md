@@ -52,7 +52,7 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `docs/` | User documentation; start at `docs/README.md` |
 | `docs/workflow/` | Physics workflow instructions |
 | `docs/reference/` | Capabilities, contracts, and tool reference |
-| `docs/architecture/` | How a calculation is planned, run and checked, one figure per page |
+| `docs/architecture/` | How a calculation is set up, run and checked, one figure per page |
 | `docs/figures/` | Documentation figures, their sources and the shared style |
 | `.claude/` | Agent skills, rules, and enforcement hooks |
 | `.agents/` | Mirrored skills |

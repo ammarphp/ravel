@@ -6,6 +6,7 @@ Run only against a stable source tree because approval binds the whole package.
 """
 
 from method_decision_fixture import admit_method
+from bound_review import bound_review
 import pytest
 
 from ravel import cli
@@ -88,10 +89,11 @@ def test_real_new_capability_pending_review_then_scoped_negative_acceptance(tmp_
         for name, status in (('integrity', 'pass'), ('scientific', 'fail'))]})
     review.open_cycle(rd, effective_settings=science.review_effective_settings(rd),
                       stage_receipts=[record['attempt_record']], check_results=str(checks))
-    for role, actor in (('physics_critic', 'critic'), ('skeptical_verifier', 'skeptic'), ('physics_decider', 'decider')):
-        review.submit_review(rd, role=role, actor_id=actor, verdict='accept',
-                             summary='Synthetic control verifies custody; the negative scientific check is retained',
-                             claim_scope='diagnostic')
+    # Recorded votes are bound responses of dispatched roles; a declared reviewer name is advice only.
+    for role in ('physics_critic', 'skeptical_verifier', 'physics_decider'):
+        bound_review(rd, role=role, verdict='accept',
+                     summary='Synthetic control verifies custody; the negative scientific check is retained',
+                     claim_scope='diagnostic')
     assert science.packet(rd)['lifecycle_verdict'] == 'PASS'
     assert cli.main(['status', '--rundir', str(rd), '--write']) == 0
     assert read_json(rd / 'current_state.json')['lifecycle_verdict'] == 'PASS'

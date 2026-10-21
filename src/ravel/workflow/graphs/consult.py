@@ -2,6 +2,24 @@
 from .. import broker, consults, graph_nodes as nodes
 
 
+def resource_contract(graph_id):
+    """The consultation reserves its direct advisory worker before dispatch."""
+    if graph_id != 'consult.case':
+        raise ValueError('consult resource contract belongs to consult.case')
+    return {'starts_launches': False, 'budget_builder': 'reservation_budget'}
+
+
+def reservation_budget(root, instance):
+    request = consults.load_request(root, instance['request'])
+    budgets = request['budgets']
+    required = request['failure']['agent_required']
+    amounts = {'wall_seconds': budgets['max_wall_seconds'] if required else 0,
+               'model_calls': budgets['max_turns'] if required else 0, 'children': 1}
+    if budgets['max_cost_usd'] is not None:
+        amounts['cost_usd'] = budgets['max_cost_usd'] if required else 0
+    return amounts
+
+
 class State(nodes.BaseState, total=False):
     request: dict
     consult_spec: dict

@@ -1,0 +1,23 @@
+{
+ "schema_version": 1,
+ "kind": "canary-worker-script",
+ "rules": [
+  {"name": "frame", "when": {"step": "judgment-frame-[0-9]+"},
+   "outputs": {"outputs/question-frame.json": {"$gen": "question_frame"}},
+   "final": {"decisions": [{"statement": "Framed every reading deliverable with its acceptance criterion.",
+                            "cites": ["final_record#/instruction_ack/manifest_sha256"]}]}},
+  {"name": "attacks", "when": {"step": "judgment-attack-.*|kill_the_result"},
+   "outputs": {"outputs/judgment-attacks.json": {"$gen": "attacks"}},
+   "attacks": [
+    {"axis": "basis", "attack": "The comparison could rest on the wrong power basis.", "test": "Refit both powers on the same points.", "outcome": "survives", "evidence": ["final_record#/instruction_ack/manifest_sha256"]},
+    {"axis": "acceptance", "attack": "The tolerance could accept either power.", "test": "Check separation at the largest coupling.", "outcome": "survives", "evidence": ["final_record#/instruction_ack/manifest_sha256"]},
+    {"axis": "statistics", "attack": "The uncertainties could be underestimated.", "test": "Double them and repeat.", "outcome": "survives", "evidence": ["final_record#/instruction_ack/manifest_sha256"]}]},
+  {"name": "assumption-audit", "when": {"kind": "review", "role": "assumption-auditor"}, "verdict": "pass",
+   "output": {"$gen": "assumption_audit"}},
+  {"name": "review", "when": {"kind": "review"}, "verdict": "pass",
+   "output": {"schema_version": 1, "kind": "canary-review", "verdict": "accept", "findings": []}},
+  {"name": "default", "when": {}, "output": {"$gen": "toy_table"},
+   "final": {"decisions": [{"statement": "Computed the fictional toy observable from the supplied inputs.",
+                            "cites": ["final_record#/instruction_ack/manifest_sha256"]}]}}
+ ]
+}

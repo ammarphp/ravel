@@ -1,4 +1,14 @@
-"""Light shared-filesystem HTCondor submit and cached status clients."""
+"""Light shared-filesystem HTCondor submit and cached status clients.
+
+The ``ravel-wms-condor-submit`` console script submits only for a live governed launch: it
+must present that launch's capability (``wms_policy.CAPABILITY_ENV``) and descend from the
+process that holds the launch record, as the executor the launch starts does; the job must
+belong to a task the launch authorizes and the profile must be the launch's frozen pin. A
+controller run's capability is also checked against the run's store (scope, job count,
+revocation). A direct invocation, a stale or foreign capability, a job outside the launch or
+a changed profile submits nothing. The in-process ``submit`` function is the executor's
+implementation, not a separate entry point.
+"""
 import argparse
 import base64
 import binascii
@@ -10,6 +20,8 @@ import os
 from pathlib import Path
 import re
 import selectors
+import shlex
+import sys
 import subprocess
 import tempfile
 import time
@@ -71,7 +83,8 @@ def _submit_invoke(descriptor, record_dir):
     error, code = None, None
     try:
         with subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              stdin=subprocess.DEVNULL) as proc:
+                              stdin=subprocess.DEVNULL,
+                              env={k: v for k, v in os.environ.items() if k != 'RAVEL_WMS_CAPABILITY'}) as proc:
             try:
                 with selectors.DefaultSelector() as selector:
                     selector.register(proc.stdout, selectors.EVENT_READ, 'stdout')
@@ -176,6 +189,8 @@ def _environment(options):
     values = {'PATH': options['analysis_bin'] + ':/usr/bin:/bin',
               'HOME': os.environ.get('HOME', str(Path.home()))}
     for name in options['ravel_env']:
+        if name == 'RAVEL_WMS_CAPABILITY':
+            raise ValueError('a launch capability cannot be exported to batch workers')
         if name in os.environ:
             values[name] = os.environ[name]
     if options['lease_scope'] == 'batch-slot':
@@ -189,13 +204,100 @@ def _environment(options):
     return _quote(' '.join(words))
 
 
-def submit(jobscript, *, profile=None):
+def _publish_script(admission, options):
+    """Trusted byte copy to the shared filesystem, never an export of the run store.
+
+    Workers need read access only to the published leaf, with no write grant to its
+    directory. Actual remote shared-filesystem delivery remains a site policy obligation;
+    mode bits alone cannot stop the owning Unix user from modifying a file.
+    """
+    source = Path(admission['snapshot_path'])
+    captured = source.read_bytes()
+    expected = admission['jobscript_sha256']
+    if hashlib.sha256(captured).hexdigest() != expected:
+        raise ValueError('captured job script digest changed; nothing was submitted')
+    root = workflow_dir(options).resolve().parent / '.ravel-controller-submissions'
+    store_root = Path(admission['store_path'])
+    if root.resolve().is_relative_to(store_root) or store_root.is_relative_to(root.resolve()):
+        raise ValueError('controller submission publication must not overlap the run store; nothing was submitted')
+    root.mkdir(mode=0o700, exist_ok=True)
+    if root.is_symlink() or root.stat().st_uid != os.geteuid() or root.stat().st_mode & 0o777 != 0o700:
+        raise ValueError('private controller submission directory required; nothing was submitted')
+    folder = Path(tempfile.mkdtemp(prefix='job-', dir=root))
+    path = folder / 'job.sh'
+    with path.open('xb') as stream:
+        stream.write(captured)
+        stream.flush()
+        os.fsync(stream.fileno())
+    path.chmod(0o400)
+    if path.stat().st_nlink != 1 or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+        raise ValueError('published job script digest changed; nothing was submitted')
+    from ravel.controller.confine.locations import package_root
+    resources = admission['resources']
+    output = workflow_dir(options).resolve() / '.ravel-job-output' / (
+        admission['launch_id'] + '-' + str(admission['submissions']).zfill(6))
+    descriptor = {'schema_version': 1, 'script_path': str(path), 'script_sha256': expected,
+                  'reads': admission['input_digests'], 'output_dir': str(output),
+                  'resources': {'cpus': resources['threads'], 'memory_mib': resources['mem_mb'],
+                                'wall_seconds': resources['runtime'] * 60}}
+    job_descriptor = folder / 'job.json'
+    job_descriptor.write_text(json.dumps(descriptor, sort_keys=True, allow_nan=False) + '\n')
+    job_descriptor.chmod(0o400)
+    code = ('import sys;sys.path.insert(0,' + repr(str(package_root())) + ');'
+            'from ravel.controller.confine.job import main;raise SystemExit(main(sys.argv[1:]))')
+    wrapper = folder / 'run.sh'
+    wrapper.write_text('#!/bin/sh\nexec ' + shlex.join([str(Path(sys.executable).absolute()), '-I', '-c', code,
+                                                      str(job_descriptor)]) + '\n')
+    wrapper.chmod(0o400)
+    folder.chmod(0o500)
+    admission['published_script_path'] = str(path)
+    admission['job_descriptor_path'] = str(job_descriptor)
+    return wrapper
+
+
+def check_credential(profile=None):
+    """Inspect an opted-in proxy immediately before its submission admission."""
+    _, options = unpack(profile)
+    name = options['x509userproxy_env']
+    from ..wms_policy import CAPABILITY_ENV
+    if name == CAPABILITY_ENV:
+        raise ValueError('a launch capability cannot be exported as a credential')
+    if name or options['use_x509userproxy']:
+        path = os.environ.get(name) if name else None
+        if name and not path:
+            raise ValueError('credential path environment variable is absent')
+        from ravel.controller.routes.study.site import require_credential
+        require_credential(path)
+
+
+def submit(jobscript, *, profile=None, _admission=None):
+    check_credential(profile)
     project, options = unpack(profile)
+    from .. import wms_policy
+    from ravel.controller.confine import runs
+    token = os.environ.get(wms_policy.CAPABILITY_ENV, '')
+    controlled = runs.owner_of(workflow_dir(options)) is not None
+    index = workflow_dir(options) / 'index.json'
+    if index.exists():
+        for row in wms_policy._rows(index, True):
+            if runs.owner_of(row['rundir']) is not None:
+                controlled = True
+    if _admission is None and (controlled or token.startswith('rwc1.')):
+        _admission = bind_submission(jobscript, profile)
+    admitted = (_admission or {}).get('admission')
+    if admitted is not None:
+        effective = hashlib.sha256(json.dumps(profile, sort_keys=True, allow_nan=False).encode()).hexdigest()
+        if admitted['submission_profile_sha256'] != effective:
+            raise ValueError('effective submission profile changed after admission; nothing was submitted')
+        jobscript = _publish_script(admitted, options)
     jobscript = Path(jobscript).absolute()
     if not jobscript.is_file() or jobscript.is_symlink():
         raise ValueError('ordinary job script required')
     properties = {}
-    for line in jobscript.read_text().splitlines():
+    script_bytes = Path(admitted['published_script_path']).read_bytes() if admitted is not None else jobscript.read_bytes()
+    if admitted is not None and hashlib.sha256(script_bytes).hexdigest() != admitted['jobscript_sha256']:
+        raise ValueError('published job script changed after admission; nothing was submitted')
+    for line in script_bytes.decode('utf-8').splitlines():
         if line.startswith('# properties = '):
             properties = json.loads(line[len('# properties = '):])
             break
@@ -213,7 +315,8 @@ def submit(jobscript, *, profile=None):
         amounts['disk_mb'] = resources['disk_mb']
     if any(type(v) is not int or v <= 0 for v in amounts.values()):
         raise ValueError('positive integer job resources required')
-    directory = _directory(options, 'log_dir', jobscript.parent / '.ravel-condor')
+    default_log = workflow_dir(options) / '.ravel-condor' if admitted is not None else jobscript.parent / '.ravel-condor'
+    directory = _directory(options, 'log_dir', default_log)
     output = _directory(options, 'output_dir', directory)
     error = _directory(options, 'error_dir', directory)
     stem = hashlib.sha256(str(jobscript).encode()).hexdigest()
@@ -238,6 +341,8 @@ def submit(jobscript, *, profile=None):
         lines.append('+JobFlavour = ' + json.dumps(options['flavour']))
     if options['use_x509userproxy']:
         lines.append('use_x509userproxy = true')
+    if options['x509userproxy_env'] == wms_policy.CAPABILITY_ENV:
+        raise ValueError('a launch capability cannot be exported as a credential')
     if options['x509userproxy_env']:
         path = os.environ.get(options['x509userproxy_env'])
         if not path:
@@ -264,6 +369,12 @@ def submit(jobscript, *, profile=None):
         attempt = Path(tempfile.mkdtemp(prefix='submit-', dir=records))
     descriptor = attempt / 'job.sub'
     descriptor.write_bytes(content)
+    if admitted is not None:
+        _atomic_json(attempt / 'script.json', {'path': str(jobscript),
+                     'sha256': admitted['jobscript_sha256'],
+                     'captured_script_path': admitted['published_script_path'],
+                     'job_descriptor_path': admitted['job_descriptor_path'], 'run_id': admitted['run_id'],
+                     'launch_id': admitted['launch_id']})
     job_id = _submit_invoke(descriptor, attempt)
     state_dir = workflow_dir(options) / '.ravel-condor'
     with _lock(state_dir, project) as key:
@@ -378,6 +489,63 @@ def status(job_id, *, project_id=None, now=None, profile=None):
         return result
 
 
+def bind_submission(jobscript, profile, profile_path=None):
+    """The governed launch admitting this job, or a ValueError; nothing is submitted on refusal."""
+    from .. import wms_policy
+    project, options = unpack(profile)
+    record = wms_policy.governed_submission(workflow_dir(options))
+    pinned = record.get('site_profile')
+    current = None
+    if pinned is not None or profile_path:
+        from .. import wms_site
+        folder = Path(profile_path).absolute().parent if profile_path else None
+        try:
+            current = wms_site.profile_pin(folder) if folder is not None else None
+        except ValueError:
+            current = None
+        if current is not None and json.loads(Path(profile_path).read_text()) != profile:
+            raise ValueError('effective options differ from the frozen site profile; nothing was submitted')
+        if pinned is not None and (current is None or str(folder) != str(Path(pinned['path'])) or current != pinned):
+            raise ValueError('the submit profile is not the launch\'s frozen site profile; nothing was submitted')
+    admission = None
+    if record.get('controller_run') is not None:
+        from ravel.controller.routes.study import site
+        from ravel.controller.confine import verify_capability
+        options_for_admission = {
+            'profile_sha256': current['sha256'] if current else None,
+            'resource_defaults': {k: options[k] for k in ('mem_mb', 'runtime')},
+            'authorized_tasks': record.get('exports') or {}}
+        # These are alternative final guards. Each calls the consuming verifier
+        # once; submission below uses its captured script without re-verifying.
+        if site.active_launch(run_id=record['controller_run']):
+            admission = site.require_capability(Path(jobscript).absolute(),
+                run_id=record['controller_run'], **options_for_admission)
+        else:
+            admission = verify_capability(os.environ.get(wms_policy.CAPABILITY_ENV),
+                Path(jobscript).absolute(), **options_for_admission)
+        admission['submission_profile_sha256'] = hashlib.sha256(
+            json.dumps(profile, sort_keys=True, allow_nan=False).encode()).hexdigest()
+        properties = admission['properties']
+    else:
+        path = Path(jobscript).absolute()
+        if not path.is_file() or path.is_symlink():
+            raise ValueError('ordinary job script required; nothing was submitted')
+        from ravel.controller.confine.capability import job_properties
+        properties = job_properties(path)
+    tags = _tags(properties, project, options) if isinstance(properties, dict) else None
+    task = tags[0] if tags else None
+    if task is None and project is None and isinstance(properties, dict):
+        match = re.fullmatch(r'(?:task_|ravel_verify_)([A-Za-z0-9_.-]{1,64})', str(properties.get('rule', '')))
+        task = match.group(1) if match else None
+    if task is None or task not in (record.get('exports') or {}):
+        raise ValueError(f'the job of task {task!r} is outside the live launch of task {record.get("task")!r}; '
+                         'nothing was submitted')
+    record = {**record, 'task': task}
+    if admission is not None:
+        record['admission'] = admission
+    return record
+
+
 def _cli(command, argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project-id')
@@ -396,7 +564,8 @@ def _cli(command, argv=None):
             if profile.get('project_id') not in (None, args.project_id):
                 raise ValueError('command project differs from profile')
             profile['project_id'] = args.project_id
-        print(submit(args.target, profile=profile) if command == 'submit'
+        admission = bind_submission(args.target, profile, args.profile) if command == 'submit' else None
+        print(submit(args.target, profile=profile, _admission=admission) if command == 'submit'
               else status(args.target, project_id=args.project_id, profile=profile))
         return 0
     except (OSError, ValueError, binascii.Error, subprocess.SubprocessError) as exc:

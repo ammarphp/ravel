@@ -188,13 +188,14 @@ def test_rehashed_application_action_is_refused_before_cycle_charge(tmp_path, mo
     application_selection(monkeypatch)
     _, _, _, goal, session = app_controls.fixture(tmp_path)
     cycle_root = app_controls.cycle_fixture(tmp_path, goal)
+    prior_ledger = deepcopy(app_controls.cycle._load(cycle_root)[1]['resource_ledger'])
     gp = a.skill_graph(session, tmp_path, tmp_path/'skill-plan', actors=['lead'], skill='sf-deep-verify',
                        graph_id='wrong-skill', max_wall_seconds=30)
     spec = read_json(gp['path']); spec['nodes'][0]['action'] = 'gemini'; gp = save(Path(gp['path']), spec)
     host, seen = mocked_host(monkeypatch, 'gemini', {}, 'explicit-mock')
     with pytest.raises(ValueError, match='contract'):
         a.execute_skill_graph(session, tmp_path, cycle_root, tmp_path/'refused', gp, host)
-    assert seen == [] and app_controls.cycle._load(cycle_root)[1]['resource_ledger'] == []
+    assert seen == [] and app_controls.cycle._load(cycle_root)[1]['resource_ledger'] == prior_ledger
 
 
 @pytest.mark.parametrize('change', [None, '', True, 'undeclared', ['anthropic']])

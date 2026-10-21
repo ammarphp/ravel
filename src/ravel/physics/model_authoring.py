@@ -1313,17 +1313,35 @@ def inputs(task, base):
                                         package_data_path('model_templates', 'catalogue.json')])
 
 
-def run(task, base, output):
+def _run(task, base, output):
     path, request, spec, _ = _request(task, base)
     native = request.get('native')
     out = Path(output) / 'model-authoring'
     record = author(spec, out, feynrules=(native or {}).get('feynrules'))
+    result = None
     if native and record['status'] == 'authored':
         _keys(native, ('wolframscript',), ('feynrules', 'max_seconds', 'mg5'), 'native settings')
         result = run_native(out, wolframscript=native['wolframscript'], max_seconds=native.get('max_seconds', 600),
                             mg5=native.get('mg5'), process=request.get('process'))
         record = {**record, 'native_status': result['status'], 'native_passed': result['passed']}
-    return record
+    return record, result
+
+
+def run(task, base, output):
+    """Return the source-authoring record for direct adapter callers."""
+    return _run(task, base, output)[0]
+
+
+def run_in_worker(task, base, output, *, worker_started=None):
+    """Carry source and native postconditions through the common worker contract."""
+    record, native = _run(task, base, output)
+    passed = (record['status'] == 'authored'
+              and (native is None or native['status'] == 'checked' and native['passed'] is True))
+    return {'schema_version': 1, 'status': 'passed' if passed else 'failed',
+            'physics_validated': False,
+            'scope': SCOPE if native is not None else 'Generated model source, static lint and exact charge census',
+            'authoring': record, 'native_run_performed': native is not None,
+            'native_result': native, 'limitations': list(LIMITATIONS)}
 
 
 def main(argv=None):

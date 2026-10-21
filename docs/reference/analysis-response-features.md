@@ -33,7 +33,7 @@ pins a JSON package with these fields:
 | `normalization_scale` | Positive source normalization factor, supplied with its scientific basis |
 | `beam_pdg`, `beam_energy_gev` | Source applicability domain |
 | `coordinate_fields` | Axis names mapped to literal field paths in each retained producer task |
-| `limitations` | Source-specific scientific limitations |
+| `limitations` | Source-specific scientific scope conditions |
 | `study` | `{study_id, parameter_grid, datasets, output:{stem, formats}}`; formats select `json` and/or `markdown` |
 
 Every edit checks its forward occurrence count, its inverse occurrence count and
@@ -61,7 +61,7 @@ arithmetic, length, float32 cast, conditional choice, supplied score-bin labels,
 and bounded `map`, `all_items`, `any_items`, `sum_items` expressions over complete
 object lists. Collection expressions bind the current `item` in the data context.
 A per-expression operation budget refuses excess work without truncating objects.
-Expressions cannot import code or launch programs. No selection is inferred from
+Expressions use the closed declarative arithmetic grammar. No selection is inferred from
 an analysis identity; the selected source package must state every required check.
 
 Consumption supplies `schema_version`, `instrumentation`, `prepared`, `events`,

@@ -25,7 +25,7 @@ is partial when the request requires a larger domain.
 
 This generation-based route uses a Rivet routine (https://rivet.hepforge.org) or a supported
 SimpleAnalysis implementation. Both are first-class — step 4 chooses between them. Other
-admitted operations follow their own contracts; planned backends are not executable support.
+admitted operations follow their own contracts.
 
 **Physicist-facing sessions enter via `docs/workflow/start.md`** (the "Initiate:" prompt forms + the promised
 check-in sequence); every message a physicist sees follows `docs/workflow/checklists/check-ins.md`.
@@ -33,27 +33,94 @@ check-in sequence); every message a physicist sees follows `docs/workflow/checkl
 ## Roles — the model-tier policy (binding)
 Each step is tagged **[judgment]** (a physics-judgment point) or **[agent]** (mechanical — safe
 to delegate to a lower-cost agent). **A weak/cheap model never silently takes a [judgment]
-step.** Use the decision mode recorded through [start](start.md):
-- **manual decision** (default): present the options and recommendation as a numbered
-  CHECK-IN flag (`docs/workflow/checklists/check-ins.md`) and wait for the physicist's response.
-- **delegated scientific decision**: when the user has explicitly delegated the applicable
-  scope, the authorized reviewers and coordinator decide through the existing scientific
-  review and approval path. Preserve independent CI2/CI3 review, resource and correction
-  bounds, and revocation checks. Identify machine decisions accurately. Escalate an action
-  outside delegation or unavailable required expertise; do not request renewed human assent
-  for an action already covered by valid delegation.
-- **script-assisted** (site says `script-assisted: <tool>`): run the named harness script and
-  follow its output — the judgment is encoded in the tool, not improvised.
-- **proceed-with-flag** (site says `proceed-with-flag`): a safe default exists — take it AND
-  log it in the run's `DEVIATIONS.md` (+ its deviation check-in).
+step.** In a controller run every [judgment] site is a `decide` step with a judgment record
+(question, options, protocol evidence, consequence class). The site's mode, under the operating
+mode recorded through [start](start.md), fixes what the controller requires before the effect:
+- **manual decision** (default): an authority node presents the options and recommendation as a
+  numbered CHECK-IN flag (`docs/workflow/checklists/check-ins.md`) and waits for the physicist's
+  answer at their own terminal, or for the operator's configuration in an unattended run. No
+  worker can write that answer; machine approval is never labelled human.
+- **delegated scientific decision**: when the operator or physicist has delegated the applicable
+  scope, an independent review is credited before the effect, within the delegation's resource
+  and correction bounds and its revocation checks. CI2 and CI3 review remain independent and
+  machine decisions are identified as such. An action outside the delegation, or one needing
+  missing expertise, escalates; an action already covered by valid delegation needs no
+  renewed human assent.
+- **script-assisted** (site says `script-assisted: <tool>`): an `operate` step runs the named
+  harness tool — the judgment is encoded in the tool, not improvised.
+- **proceed-with-flag** (site says `proceed-with-flag`): the controller takes the safe default,
+  records it with its expected sign and size (protocol P7), and writes the deviation entry
+  (`DEVIATIONS.md`) and its deviation check-in.
 At EVERY [judgment] site, first run the matching operating protocol from
 **`docs/workflow/checklists/judgment-protocols.md`** (the `judgment-protocols` skill routes by situation:
 look-first / basis-manifest / trap-sweep / anchor-chain / discrepancy-decomposition /
 source-ladder / conservative-default / kill-the-result) — the protocol is what makes the flag or
 escalation SHARP (structured evidence + named options) instead of a shrug.
-Tier-B verification (step 9) is its own case: a STRONG-model, fresh-context subagent runs the
-adversary; a weak session that cannot spawn one escalates to the physicist rather than
-reviewing its own work.
+Tier-B verification (step 9) is its own case: a fresh, independent review seat (a STRONG model in
+a fresh session, a different actor, a packet RAVEL builds) runs the adversary; a session that
+lacks one escalates to the physicist for an independent reviewer.
+
+### Instructions reach workers through nodes
+A model session is a worker that a controller node starts. The node delivers every instruction
+the step needs, verbatim: the common preamble (`AGENTS.md`, this section and
+`docs/workflow/session-guide.md`), the role's whole effective card and its must-read knowledge,
+the step's instruction sources, the protocols its kind and triggers name, the check-in template
+of an authority node and the governing skill of its stage. Each heading, paragraph, list item,
+table row or card entry is an instruction unit with a stable id (`<path>#<heading-slug>/<n>`)
+and a SHA-256 digest, compiled into the installed catalogue by
+`scripts/maintenance/build_instruction_catalogue.py`. A project-local copy of an instruction
+file never changes what a worker receives. The project instruction document a run pins
+(`ravel project-instructions pin`) is not such a copy: it still reaches every worker verbatim,
+ahead of RAVEL's instructions, and the worker receipt records its digest. Before dispatch the
+controller rebuilds the packet and refuses any altered, dropped or added unit, and it records an
+instruction-delivery receipt (manifest digest, unit ids, packet digest, worker session).
+
+Every worker seat also receives the complete code-generated capability catalogue as data in
+bounded `capabilities-*.json` data shards, with a complete index in its instruction packet.
+Ordinary workers receive pinned input files; projected workers receive the same catalogue
+inside their code-computed role projection. The sole raw controller-instruction exception
+and every raw scientific-input refusal remain enforced. This covers
+intake, planning, research coordination, experiment design, recovery and judgment, including new
+seat kinds. The controller retains the data and its digest in the instruction-packet record,
+checks the shards against that record before dispatch and records its catalogue digest in
+the delivery receipt. `ravel.workflow.capability_catalogue.for_seat(seat_kind)` supplies the same
+JSON-safe interface to separate packet builders. Its entries join capability routing, operation
+signatures, the generated knowledge atlas, tool census, installer declarations and route specs;
+prerequisite references resolve through `catalogue.prerequisite_sets` and source paths through
+`catalogue.sources`. Historical qualification remains separate from current installation,
+license and qualification evidence. Missing metadata stays explicit. `capability_catalogue.shards(context)` splits the data
+below the broker read bound; fragment paths preserve every value and `assemble(parts)` refuses
+incomplete or changed data. Research comparison arms keep their own restricted source contracts.
+
+Select capabilities from the whole request and their applicability before considering cost.
+Cost guides placement, staging and approval; a needed capability remains an obligation when a
+prerequisite is missing. Inspect its declared general alternative or acquire and qualify
+its prerequisites, preserving the original scope. The metadata-only `capability_catalogue.recall`
+interface exercises these suggestions on inert requests; it grants no execution authority and
+its tests establish deterministic routing behavior, without measuring model recall.
+
+Unreviewed units default to duties. Context exemptions live in reviewed catalogue input data,
+with a unit id, exact digest, reviewer and reason; each exemption requires this reviewed record.
+Must-read knowledge resolves to its complete source record, including nested obligations, or
+packet construction refuses. Census citations require the pinned source or one unique quoted
+match; a changed citation needs an explicit reviewed migration with new source and unit pins.
+
+Instruction credit reads controller-held session, current-attempt, delivery and completion
+records. The controller uses `instructions.observed_completion(store, session=..., completion_id=...)`
+around `check_ack(manifest, final_record, outputs)`. Evidence resolves only inside that scope,
+against copied observed output bytes and their digests, including the referenced JSON Pointer
+fragment. `record_delivery` validates the observed packet and session before writing its receipt;
+`discharge` recomputes acknowledgement and schema checks from the stored completion. Caller-supplied
+error lists never grant credit. Delivery of another mechanism's card field does not discharge it.
+
+The worker's final record echoes the manifest digest in `instruction_ack` and answers every
+duty unit in `checklist[]`: `done` with an evidence pointer into an output written in this
+attempt, `not_applicable` with a note, or `blocked` with the reason, which holds the step. A
+missing row, a duplicate, or a pointer that resolves to nothing or into the acknowledgement
+itself fails the step. Reviewers receive
+their card's `must_check` items and the producer's review-required rows, and give each a
+verdict with evidence. Delivery and acknowledgement are enforced; obedience to the delivered
+text remains the worker's responsibility, and the review judges it.
 
 ## Steps (work from the repo root; paths are relative to it)
 | # | File | Role | What |
@@ -74,15 +141,17 @@ Run a single point for a point request or validation; run a **scan** when the re
 requires a parameter region. Neither output alone establishes publication-grade fidelity.
 
 **Required skill per stage (SKILL-COVERAGE/G2).** A stage must not end with its governing skill
-un-invoked. The bindings are keyed on the `run_state.current_step` stage names that
-`workflow_state.py advance` writes: **`route` → `route-analysis`**, **`analysis` → `certify`**,
-**`verification` → `verification-panel`**; and — because `scan` is a **task_mode**, not a stage —
-a **scan-mode** run must have invoked **`run-scan`** by the **`statistics`** stage (the step-8 outer
-loop that produces the exclusion contour). The Stop branch `stop_dispatch.py branch_skill_coverage`
-(SKILL-COVERAGE/G2) BLOCKS turn-end (exit 2) when the stage maps to a required skill and
-`run_state.skills_invoked` carries no matching entry — invoke the skill before advancing. Non-hook
-FALLBACK: `workflow_state.py require --kind skill --what <skill>` returns nonzero when the stage's
-skill is absent from the ledger.
+un-invoked. The bindings are keyed on the stage names: **`route` → `route-analysis`**,
+**`analysis` → `certify`**, **`verification` → `verification-panel`**; and — because `scan` is a
+**task_mode**, not a stage — a **scan-mode** run must have invoked **`run-scan`** by the
+**`statistics`** stage (the step-8 outer loop that produces the exclusion contour). In a controller
+run the governing skill's units are part of the stage's node manifest, so stage closure requires their delivery receipt and acknowledged checklist rows. In a run the controller does not
+own, the bindings are keyed on the `run_state.current_step` stage names that `workflow_state.py
+advance` writes; the Stop branch `stop_dispatch.py branch_skill_coverage` (SKILL-COVERAGE/G2)
+BLOCKS turn-end (exit 2) when the stage maps to a required skill and `run_state.skills_invoked`
+carries no matching entry — invoke the skill before advancing. Non-hook FALLBACK:
+`workflow_state.py require --kind skill --what <skill>` returns nonzero when the stage's skill is
+absent from the ledger.
 
 Open each step file when you reach it. Make choices with `docs/workflow/checklists/`; on failure see
 `docs/workflow/checklists/troubleshooting.md`. Filled-in examples are in `docs/workflow/reference/`.
@@ -101,7 +170,7 @@ physicist sessions enter via `docs/workflow/start.md`. The sequence:
 - **DEVIATION check-ins** (immediate, own message, never batched): any mid-run change of course —
   reasoning + alternatives + impact, mirrored into the run's `DEVIATIONS.md` ledger.
 - **FINAL "RESULTS DECK"** (after step 7/8, gated by the step-9 panel): headline figures with
-  captions, key numbers with artifact provenance, limitations, deviations, the panel verdict, next
+  captions, key numbers with artifact provenance, qualifications, deviations, the panel verdict, next
   steps.
 Every displayed figure carries a physics-judgment caption (the caption rule); every decision is
 narrated question→options→choice→reason (the "why" rule). Incorporate feedback by revisiting only
@@ -133,7 +202,7 @@ Campaign callers pass `--campaign DIR --campaign-charge VECTOR.json`, an explici
 per-call vector of `calls`, `output_tokens`, `wall_seconds`, and `native_attempts` against
 their original campaign. Standalone cases charge the run. Until full-tool reviewers
 are integrated, the dispatcher uses one receipted agent call per role batch. Authorization
-remains `rdj_loop.authorize`: a resume value or reviewer verdict cannot override a failing edge.
+remains `rdj_loop.authorize`: every resume and verdict passes the same edge checks.
 
 Python helpers live in `src/ravel/`, grouped by workflow, physics, plotting, and validation.
 Run a helper from the repository root with `python3 scripts/run.py ravel.<group>.<module>`.
@@ -161,14 +230,14 @@ build and binary directories.
 **Rigour + readiness:** `scripts/audit.py`
 evaluates readiness (`--write --out PATH` writes the report). Cutflow/fidelity certifications
 and SModelS cross-check artifacts stay in the run directory; known limits are in
-`docs/reference/limitations.md`. See `docs/workflow/checklists/validation.md` and
+`docs/reference/scope.md`. See `docs/workflow/checklists/validation.md` and
 `docs/workflow/checklists/complex-analysis.md`.
 
 ## Mechanized enforcement (hooks) — the belt, with a non-hook fallback for each
 
 The worktree `.claude/settings.json` wires the workflow's hard gates as Claude Code hooks. Hook governance covers Claude Code only; other hosts call `ravel gate` and rely on
 the delivery-side checks (`docs/workflow/hooks.md`). Hooks resolve the session's own run through
-the run registry, never the newest run. A hook is the *belt*; when a hook cannot run (a different harness, a fail-open crash,
+the run registry, never the newest run. A hook is the *belt*; when a hook is inactive (a different harness, a fail-open crash,
 a bare shell), the **non-hook FALLBACK** — a script or rule the step docs tell the agent to run by
 hand — is the *suspenders*. Both enforce the same gate; neither is the sole line of defence.
 
@@ -195,3 +264,26 @@ The Stop dispatcher's branches (evaluated in priority order), each with its own 
 completeness test pins that every one of the 30 gates G0a–G27 has a case.
 
 > **Delivery detection is artifact-keyed:** a freshly written `inputs/checkin2.json` / `outputs/results_deck.*` / `RESULT.md` makes the turn a DELIVERY turn (the D18 umbrella + open-defect gates fire) regardless of the prose; SessionStart injects the active run's state summary on every session start.
+
+### Non-compliance suite evidence
+
+The enforcement suite compares installed dimensions, the production obligation catalogue and coverage-backed
+bindings before running. Refresh the source census with
+`python3 scripts/maintenance/build_case_bindings.py --refresh-census <original.jsonl.gz> --census-out <distinct-current.jsonl.gz>`.
+It preserves every original record and appends declarations derived from installed roles, signatures and
+executors; stale identifiers refuse refresh. Rebuild the canonical controller-spec coverage table through
+its generator, then run `scripts/maintenance/build_obligation_catalogue.py --census <current.jsonl.gz> --coverage <coverage.csv>`
+and `scripts/maintenance/build_case_bindings.py --coverage <coverage.csv>`. Both builders and the canonical
+coverage generator must pass their own `--check` commands against the same actual chain.
+
+Run every enforcement file on the cluster and retain passed, failed, errors, skipped and unfinished counts
+per file. A declared case, an inert public-consumer control, an actual full graph trajectory and scientific
+acceptance are separate evidence. No fake ledger/sink publication or skipped case establishes enforcement.
+Real-store fixtures model explicitly unqualified transport/custody observations; candidate P03/P18
+input bindings must be reported separately from installed product support. Transport conformance against
+a fixed inert executable does not qualify a vendor CLI or a model.
+
+Mutation adequacy requires each unmodified catching control to pass and an assertion on its independent
+oracle to fail with the real guard disabled. An unrelated exception, an invalid replacement interface,
+a secondary guard holding the launch, or a failed baseline is not mutation detection. Keep real enforcement
+gaps and blocked mutation controls with their exact obligation IDs and owning packages; never hide them.

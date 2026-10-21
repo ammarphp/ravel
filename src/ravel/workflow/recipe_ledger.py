@@ -192,7 +192,8 @@ def _authorization(root, row, checkin):
     allowed = RECIPE_TUNING_CLASSES + (('calibration',) if row['layer'] == 'detector' else ())
     if point.get('action_kind') != 'tuning_change' or tuning not in allowed:
         return None
-    if not (accepted['receipt'].get('attestation_summary') or {}).get('human_approver'):
+    # The current recomputed human credit, never the receipt's historical summary.
+    if (accepted.get('review_independence') or {}).get('human_approver') is not True:
         return None
     return {'kind': 'rdj', 'id': accepted['receipt']['receipt_id'],
             'receipt_sha256': accepted['receipt_sha256'], 'case_sha256': accepted['case_sha256'],

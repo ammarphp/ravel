@@ -55,6 +55,22 @@ def _rank(rows,text):
     return sorted(ranked,key=lambda item:(-item[0],item[1]['id']))
 
 
+def rank_literature(rows, text):
+    """Score already policy-projected located units with the unchanged scorer.
+
+    ``indexed_text`` contains the title, section path and exact source passage.
+    Empty title/summary fields avoid introducing the atlas's field weighting a
+    second time. This additive adapter does not change legacy query results.
+    """
+    projected = [{'id': row['id'], 'title': '', 'summary': '',
+                  'search_context': row['indexed_text']} for row in rows]
+    originals = {row['id']: row for row in rows}
+    if len(originals) != len(projected):
+        raise ValueError('unique literature scoring IDs required')
+    return [(score, originals[row['id']], matches)
+            for score, row, matches in _rank(projected, text)]
+
+
 def _node(by_id,args):
     facts=args.get('node',args.get('node_facts',args)); operation=facts.get('operation',facts.get('mode'))
     identity=str(operation) if str(operation).startswith('op:') else 'op:'+str(operation)

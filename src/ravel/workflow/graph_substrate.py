@@ -445,6 +445,41 @@ def scope_runner(root, graph_id, tid):
                           f"drain it with: ravel graph stop --scope-root {root} --reason <why>", found) from None
 
 
+# ---- controller-owned scopes ---------------------------------------------------------------
+
+def controller_scope(scope_root):
+    """The run id when a controller run owns this scope (its store's graph scope or its run directory)."""
+    from ..controller.store import controller_owned
+    return controller_owned(scope_root)
+
+
+def refuse_controller_switches(scope_root, *, clear_stop=False, gate_check=None, gate_providers=None):
+    """Refuse, for a controller-owned scope, the switches its run never takes from a caller.
+
+    ``--clear-stop`` (SW05): a controller run's stop is cleared by the operator or the physicist through
+    the authority service, never as a side effect of continuing. The gate seams (SW30): ``gate_check``,
+    ``gate_providers``, the ``GATE_CHECK``/``GATE_PROVIDERS`` context variables and the machine lease's
+    ``_LOCATION`` substitute decisions; they are refused unless the test harness enabled them.
+    """
+    owner = controller_scope(scope_root)
+    if clear_stop and owner is not None:
+        raise GraphError(f"--clear-stop is refused for the controller-owned run {owner}; the operator "
+                         "releases a stop with `ravel operator resume`, the physicist at the controller's terminal")
+    seams = [name for name, value in (("gate_check", gate_check), ("gate_providers", gate_providers),
+                                      ("GATE_CHECK", graph_nodes.GATE_CHECK.get()),
+                                      ("GATE_PROVIDERS", graph_nodes.GATE_PROVIDERS.get())) if value is not None]
+    from . import machine_lease
+    if getattr(machine_lease, "_LOCATION", None) is not None:
+        seams.append("machine_lease._LOCATION")
+    if seams:
+        from ..controller.testing import SeamRefused, refuse_for_controller
+        try:
+            refuse_for_controller("the in-process seam(s) " + ", ".join(seams), owned=owner is not None)
+        except SeamRefused as exc:
+            raise GraphError(str(exc)) from None
+    return owner
+
+
 # ---- runner ------------------------------------------------------------------------------
 
 _CONTROLS: list = []
@@ -487,6 +522,7 @@ def run(scope_root, graph_id, instance, *, input=None, respond=None, workers=Non
         if forged:
             raise GraphError(f"run input cannot carry framework channel(s) {forged}")
     location = Path(scope_root).expanduser().absolute()
+    refuse_controller_switches(location, clear_stop=clear_stop, gate_check=gate_check, gate_providers=gate_providers)
     created = not location.exists() or (location.is_dir() and not location.is_symlink() and not any(location.iterdir()))
     root = _scope_root(scope_root)
     from . import gate_wiring
@@ -661,6 +697,8 @@ def respond(scope_root, graph_id, instance, responses, *, workers=None, gate_che
     environment()
     if type(responses) is not dict or not responses:
         raise GraphError("responses must be a non-empty map of interrupt id to value")
+    refuse_controller_switches(Path(scope_root).expanduser().absolute(), clear_stop=clear_stop,
+                               gate_check=gate_check, gate_providers=gate_providers)
     if (Path(scope_root) / STOP).exists() and not clear_stop:
         raise GraphError("scope is stopped; answer with --clear-stop to resume, or clear the stop first")
     root, tid, snapshot = _pending(scope_root, graph_id, instance)

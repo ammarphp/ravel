@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "question": "Can grouping two signed records change the conditional variance while preserving their sum?",
+  "selection_rule": {
+    "direction": "minimize",
+    "metric": "conditional variance",
+    "k": 1,
+    "alpha": 0.05,
+    "confirmation_criterion": {"op": "le", "value": 1.0}
+  },
+  "stop_rule": {
+    "successes": 2,
+    "max_rounds": 2,
+    "budget": 1000,
+    "coverage_floor": 1,
+    "families": ["signed-records"]
+  },
+  "expected_stages": ["limitation_census", "ideas", "baseline", "screen", "validate", "critique_to_experiments", "acceptance", "meta_review", "integrity"]
+}

@@ -88,7 +88,7 @@ def calibration_authorization(rundir, spec, *, response_sha256=None, floor='R2',
     case=result['case'];receipt=result['receipt']
     if case.get('decision_point',{}).get('tuning',{}).get('class') != 'calibration':
         raise ValueError('RDJ decision must be calibration')
-    if human and not receipt.get('attestation_summary',{}).get('human_approver'):
+    if human and (result.get('review_independence') or {}).get('human_approver') is not True:
         raise ValueError('out-of-band calibration requires R3 human approval')
     return {'receipt_sha256':result['receipt_sha256'],'case_sha256':result['case_sha256'], 'action':action}
 

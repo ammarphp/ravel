@@ -274,7 +274,7 @@ def test_first_qualifying_preference_wins_and_unmet_effort_refuses(user_dir, stu
     assert refused.value.missing == ['preferences:production']
 
 
-def test_per_role_models_and_distinct_family_refusal(user_dir):
+def test_per_role_models_and_same_family_selection(user_dir):
     declare(user_dir, 'stub-anthropic', kind='http-model', isolation='ravel-sandbox', blind=True, billing='api',
             auth_kind='env', env_names=['STUB_A_KEY'], family='anthropic', endpoint='https://a.invalid/v1/messages')
     declare(user_dir, 'stub-openai', kind='http-model', isolation='ravel-sandbox', blind=True, billing='api',
@@ -283,16 +283,10 @@ def test_per_role_models_and_distinct_family_refusal(user_dir):
               'agent': {'stub-anthropic': 'claude-y'}}
     producer = tr.select(card(id='producer', family='production', model={'tier': 'agent', 'effort': None}),
                          preferences(['stub-anthropic'], models, family='production'))
-    critic_card = card(model={'distinct_family_from': ['producer'], 'effort': None})
-    critic = tr.select(critic_card, preferences(['stub-anthropic', 'stub-openai'], models),
-                       assigned={'producer': producer})
-    assert (producer['model'], critic['model']) == ('claude-y', 'gpt-x')
-    with pytest.raises(tr.TransportRefusal) as refused:
-        tr.select(critic_card, preferences(['stub-anthropic'], models), assigned={'producer': producer})
-    assert refused.value.missing == ['distinct_family_from:producer']
-    tr.check_distinct_families(critic_card, {'synthetic-critic': 'gpt-x', 'producer': 'claude-y'})
-    with pytest.raises(tr.TransportRefusal):
-        tr.check_distinct_families(critic_card, {'synthetic-critic': 'claude-z', 'producer': 'claude-y'})
+    critic_card = card(model={'effort': None})
+    critic = tr.select(critic_card, preferences(['stub-anthropic', 'stub-openai'], models))
+    assert (producer['model'], critic['model']) == ('claude-y', 'claude-x')
+    assert producer['family'] == critic['family'] == 'anthropic'
 
 
 def test_local_only_selection_refuses_remote_and_unlisted_models(user_dir):
@@ -336,3 +330,80 @@ def test_transport_command_lists_shows_and_probes(user_dir, stub_cli, capsys):
     assert tr.main(['show', 'stub-oneshot']) == 0
     shown = json.loads(capsys.readouterr().out)
     assert shown['probe']['transport_id'] == 'stub-oneshot' and shown['declaration']['id'] == 'stub-oneshot'
+
+
+def _catalogue_stub(monkeypatch, known):
+    """A stand-in model catalogue listing ``known``; None removes the catalogue module."""
+    import types
+    if known is None:
+        monkeypatch.setitem(sys.modules, 'ravel.workflow.model_catalogue', None)
+        return
+    module = types.ModuleType('ravel.workflow.model_catalogue')
+    module.problem = lambda model_id: None if model_id in known else 'model:uncatalogued'
+    module.remedy = lambda model_id: f'add {model_id} to the catalogue'
+    module.lookup = lambda model_id: {'id': model_id, 'tiers': list(tr.TIERS),
+                                     'efforts': ['low', 'medium', 'high', 'xhigh', 'max']} if model_id in known else None
+    monkeypatch.setitem(sys.modules, 'ravel.workflow.model_catalogue', module)
+
+
+def _http_route(user_dir, identity='stub-route'):
+    declare(user_dir, identity, kind='http-model', isolation='ravel-sandbox', blind=True, billing='api',
+            auth_kind='env', env_names=['STUB_KEY'], family='anthropic', endpoint='https://a.invalid/v1/messages')
+    return identity
+
+
+def test_cheap_ok_card_selects_the_cheap_model_mapped_to_the_transport(user_dir, monkeypatch):
+    _catalogue_stub(monkeypatch, {'claude-small'})
+    route = _http_route(user_dir)
+    models = {'agent': {route: 'claude-mid'}, 'cheap': {route: 'claude-small'}}
+    mechanical = card(model={'tier': 'agent', 'effort': None, 'cheap_ok': True})
+    selection = tr.select(mechanical, preferences([route], models))
+    assert (selection['model'], selection['tier'], selection['card_tier']) == ('claude-small', 'cheap', 'agent')
+    assert selection['catalogue'] == 'catalogued'
+    for key in ('transport_id', 'family', 'effort', 'declaration_sha256', 'declaration_origin', 'probe_sha256'):
+        assert key in selection
+
+
+def test_cheap_ok_card_without_a_cheap_mapping_keeps_its_card_tier(user_dir, monkeypatch):
+    _catalogue_stub(monkeypatch, set())
+    route = _http_route(user_dir)
+    other = _http_route(user_dir, 'stub-other')
+    mechanical = card(model={'tier': 'agent', 'effort': None, 'cheap_ok': True})
+    for models in ({'agent': {route: 'claude-mid'}},
+                   {'agent': {route: 'claude-mid'}, 'cheap': {other: 'claude-small'}}):
+        selection = tr.select(mechanical, preferences([route], models))
+        assert (selection['model'], selection['tier'], selection['card_tier']) == ('claude-mid', 'agent', 'agent')
+        assert selection['catalogue'] == 'uncatalogued'
+
+
+def test_a_card_without_cheap_ok_ignores_the_cheap_mapping(user_dir, monkeypatch):
+    _catalogue_stub(monkeypatch, {'claude-mid'})
+    route = _http_route(user_dir)
+    models = {'agent': {route: 'claude-mid'}, 'cheap': {route: 'claude-small'}}
+    for spec in ({'tier': 'agent', 'effort': None}, {'tier': 'agent', 'effort': None, 'cheap_ok': False}):
+        selection = tr.select(card(model=spec), preferences([route], models))
+        assert (selection['model'], selection['tier'], selection['card_tier']) == ('claude-mid', 'agent', 'agent')
+        assert selection['catalogue'] == 'catalogued'
+
+
+def test_catalogue_label_is_unavailable_without_a_catalogue_and_never_refuses(user_dir, monkeypatch):
+    route = _http_route(user_dir)
+    models = {'judgment': {route: 'claude-unlisted'}}
+    _catalogue_stub(monkeypatch, None)
+    assert tr.select(card(model={'effort': None}), preferences([route], models))['catalogue'] == 'unavailable'
+    _catalogue_stub(monkeypatch, set())
+    selection = tr.select(card(model={'effort': None}), preferences([route], models))
+    assert (selection['model'], selection['catalogue']) == ('claude-unlisted', 'uncatalogued')
+
+
+def test_catalogue_capabilities_refuse_unsupported_effort_and_cheap_falls_back():
+    assert tr.catalogue_requirement_problem('gpt-5.4-mini', 'cheap', 'max') == 'model:effort'
+    assert tr.catalogue_requirement_problem('claude-fable-5-1', 'cheap', 'high') == 'model:tier'
+    assert tr.catalogue_requirement_problem('gpt-6.1-sol', 'agent', 'max') is None
+    route = tr.load('codex-cli-worker')
+    role = card(model={'tier': 'agent', 'effort': 'max', 'cheap_ok': True})
+    prefs = {'tier_models': {'cheap': {route['id']: 'gpt-5.4-mini'},
+                             'agent': {route['id']: 'gpt-6.1-sol'}}}
+    assert tr.effective_tier(role, route, prefs) == 'agent'
+    prefs['tier_models']['cheap'][route['id']] = 'gpt-6-luna'
+    assert tr.effective_tier(role, route, prefs) == 'cheap'

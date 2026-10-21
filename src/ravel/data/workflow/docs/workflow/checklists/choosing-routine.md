@@ -48,7 +48,7 @@ dependencies rather than assuming an installed routine name selects the right co
 Declare every requested histogram, profile, counter and derived observable with
 its axes, units, flows and normalization. Preserve ordered named weights, the
 chosen nominal weight, original event groups and full exposure. An adapter that
-cannot transport a required native output leaves that obligation open; a nearby
+lacks a required native output binding leaves that obligation open; a nearby
 histogram is not a substitute. Compilation and registration qualify a source/API
 step, not event physics, detector response or the paper's result.
 
@@ -57,7 +57,7 @@ step, not event physics, detector response or the paper's result.
 Read actual table and column labels, plot annotations, booking source, paper
 captions and provenance. A `/REF/` object or a `y01`/`y02` suffix does not identify
 data or SM background by itself: column numbering is not a statistical model.
-Matching bin edges alone also cannot establish those meanings.
+Check those meanings alongside the bin edges.
 
 Distinguish observed counts, differential or normalized measurements,
 efficiencies/cutflows, and prefit versus postfit predictions. A normalized shape,
@@ -93,13 +93,13 @@ not the universal destination of every Rivet output.
 
 ## 5. Construct only the genuinely missing source operation
 
-When reuse cannot answer the question, retain the compatible original source and
+When reuse requires additional scientific inputs, retain the compatible original source and
 add the missing operation explicitly. The
 [particle](../../reference/rivet-particle-component.md) and
 [shape](../../reference/rivet-shape-components.md) components feed native source
 construction; [AgentRivet source delivery](../../reference/agentrivet-source.md)
 is another construction route. Each must preserve the required selection,
-normalization, assets and full output population. Unsupported constructors can
+normalization, assets and full output population. Unverified constructors can
 remain supplied native C++ through the build route. Generated source is a
 candidate for dependency review, compilation and event checks, not a certified
 implementation of a paper.

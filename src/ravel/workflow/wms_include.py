@@ -67,7 +67,7 @@ def checked_include(workflow, record):
         if not isinstance(source, sources.LocalSourceFile):
             raise ValueError(f'include refused: {source} is not an adopted local file')
         try:
-            path = Path(source.get_path_or_uri()).resolve(strict=True)
+            path = Path(_source_path(source)).resolve(strict=True)
             if not any(path == root or root in path.parents for root in roots):
                 raise ValueError(f'include refused: {path} is outside the allowed roots')
             expected = allowed.get(str(path))
@@ -84,6 +84,18 @@ def checked_include(workflow, record):
         return original(self, sources.infer_source_file(str(path)), *args, **kwargs)
 
     return checked
+
+
+def _source_path(source):
+    """The local path of a source file across workflow-manager releases (a newer one asks whether
+    secrets may be dropped from a URI; a local file has none)."""
+    import inspect
+    method = source.get_path_or_uri
+    try:
+        parameters = inspect.signature(method).parameters
+    except (TypeError, ValueError):
+        parameters = {}
+    return method(False) if 'secret_free' in parameters else method()
 
 
 def include_boundary(record):

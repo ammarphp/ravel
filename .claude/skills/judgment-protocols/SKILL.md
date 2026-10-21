@@ -35,7 +35,7 @@ check + route consequence).
 | "This analysis is like the last one, same route" | T1/T2/T3 hits change the route entirely; sweep, don't pattern-match (P3). |
 | "It ran clean / the fit converged, so the number is right" | A clean exit or a converged fit does not establish a correct number. Anchor it to an independent value (P4). |
 | "It's probably statistics" | A residual's cause is unknown until a test discriminates it. Run the cheapest discriminating test first (P5). |
-| "The paper doesn't provide it, so it's unavailable" | Inputs often live in record resources, auxiliary material, theses or code repositories. Walk the source ladder before declaring anything unavailable (P6). |
+| "The paper doesn't provide it, so it's missing" | Inputs often live in record resources, auxiliary material, theses or code repositories. Walk the source ladder before declaring anything missing (P6). |
 | "Lower-order/simpler is automatically conservative" | A correction below one makes the simpler number exclude more, not less; conservative means you checked the SIGN (P7). |
 | "It matches, ship it" | A comparison against an input derived from the same source is circular and matches by construction. Try to kill the result (P8). |
 
@@ -73,12 +73,12 @@ judgments go to the physicist. Under the explicit delegation recorded through
 `docs/workflow/start.md`, the authorized scientific reviewers and coordinator decide within
 the recorded scope and budgets. Keep independent CI2 and CI3 review; identify machine
 decisions as such. This skill never grants delegation or substitutes a mechanical PASS for
-scientific review. Unavailable required expertise or an action outside delegation is escalated.
+scientific review. Missing required expertise or an action outside delegation is escalated.
 
 ## Stop conditions
 - A required artifact or independent anchor is missing → hold the dependent claim, document
   the gap and pursue source recovery or a bounded discriminating experiment. Novel hypotheses
-  may be tested without an established expected answer; do not invent inputs or certify the
+  can be tested without an established expected answer; do not invent inputs or certify the
   resulting number by repeating the same derivation. Continue independent work within scope.
 - Two protocols disagree (the conservative default would violate the basis manifest) → escalate
   with both writeups; never pick silently.
@@ -89,13 +89,13 @@ New review findings use `findings.v2`; it also accepts unchanged version 1 docum
 Version 1 findings remain unclassified and retain their prior routing. For a defect,
 `classification` contains `kind: defect`, the reviewed `artifact_sha256`, one `target`
 step or node, and `rework_evidence` explaining why its repair changes the result.
-For a limitation it contains `kind: limitation`, the reviewed `artifact_sha256`, and
+For a qualification it contains `kind: limitation`, the reviewed `artifact_sha256`, and
 `claims` with each `claim_id`, `effect` (`bounds` or `invalidates`) and `bound` (or
 `unbounded`). Severity and evidence authority remain separate from classification.
 
 `ravel agent-graph rework --graph <graph> --findings <document> --reason <reason>`
 repairs exactly the named defect nodes and their descendants. `--nodes` must match
-those targets if supplied. Limitations enter the retained limitation census and
+those targets if supplied. Qualifications enter the retained qualification census and
 claim disposition without spending rework budget, even when the budget is exhausted.
 The old `--nodes` interface is reserved for legacy unclassified/manual repairs.
 Repeated objections against unchanged artifact bytes do not spend another repair.
@@ -105,12 +105,12 @@ journal evidence; a defect names its owning execution stage or a domain-mapped p
 Use `ravel review --rundir <run> reclassify --request <json>` for an open journal finding: the declared
 decider supplies a reason and replacement classification; the original vote and
 classification remain in the hash-chained journal. Reclassification grants no new
-execution authority. A limitation-only send-back does not authorize correction;
+execution authority. A qualification-only send-back does not authorize correction;
 the decider must explicitly accept a permitted supported scope before delivery.
-A decider send-back must carry a defect, and no reclassification may leave an
+A decider send-back must carry a defect, and no reclassification can leave an
 acceptance carrying a defect or a decider send-back without one.
-Acceptance may carry limitations. Each bounded affected claim must be qualified
+Acceptance can carry qualifications. Each bounded affected claim must be qualified
 or withdrawn; invalidated or unbounded claims are withdrawn. The actual manuscript
 claim census and its visible reasons must retain these effects. Honest withdrawal
 of a headline claim permits delivery of the negative result without regeneration.
-Research methodology status and its census handoff include these journal limitations.
+Research methodology status and its census handoff include these journal qualifications.

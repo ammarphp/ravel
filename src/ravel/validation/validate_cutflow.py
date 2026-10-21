@@ -11,6 +11,11 @@ normalization basis on both sides.
 generated sample; otherwise this is conditional acceptance. This tool cannot
 verify that semantic assumption from anonymous bin values. auto chooses by the
 YODA object interface (.val() for counter, otherwise .bins() for cutflow).
+JSON artifacts use the columnar engine's schema-version-1 measured cutflows;
+auto and cutflow compare last/first sumw, while counter refuses the type mismatch.
+Their recipe must match --routine and their first cut must be 'all events' with
+a null expression. JSON does not require YODA. An unavailable YODA import or an
+invalid JSON cutflow writes a typed FAIL/refused report and returns exit code 2.
 
 Published reference lookup uses a 1e-6 GeV numerical tolerance, then local 1-D linear
 interpolation across at most --interp-max-span. Interpolation is an approximation
@@ -219,6 +224,91 @@ def read_sr_axe(obj, sr_reader, sigma_fb, lumi_fb):
     return None, None
 
 
+def read_json_cutflow(path, routine, sigma_fb, lumi_fb):
+    """Read the columnar engine's measured cutflow schema, without YODA objects.
+
+    Validate every region before exposing any comparisons. The explicit first-row
+    contract records the generated-sample denominator; it cannot prove the event
+    selection that produced those measurements.
+    """
+    with open(path) as stream:
+        doc = json.load(stream, object_pairs_hook=unique_json_object)
+    if not isinstance(doc, dict):
+        raise ValueError("cutflow must be a JSON object")
+    if type(doc.get("schema_version")) is not int or doc["schema_version"] != 1:
+        raise ValueError("cutflow schema_version must be 1")
+    if doc.get("kind") != "cutflow":
+        raise ValueError("JSON artifact kind must be cutflow")
+    quantity = doc.get("quantity")
+    if not isinstance(quantity, dict) or quantity.get("weight_convention") != "signed":
+        raise ValueError("cutflow quantity.weight_convention must be signed")
+    if doc.get("recipe") != routine:
+        raise ValueError("cutflow recipe must match --routine")
+    if not isinstance(doc.get("unit"), str) or not doc["unit"].strip():
+        raise ValueError("cutflow unit must be nonempty")
+    scale = finite_nonnegative(doc.get("normalization_scale"), "normalization_scale", positive=True)
+    regions = doc.get("regions")
+    if not isinstance(regions, list) or not regions:
+        raise ValueError("cutflow regions must be a nonempty list")
+    denominator = finite_nonnegative(sigma_fb * lumi_fb, "sigma*lumi", positive=True)
+    measurements = {}
+    required = {"name", "expression", "raw", "sumw", "sumw2", "yield", "yield_uncertainty"}
+    for region in regions:
+        if not isinstance(region, dict):
+            raise ValueError("cutflow region must be an object")
+        name = region.get("name")
+        if not isinstance(name, str) or not name.strip() or name in measurements:
+            raise ValueError("cutflow region names must be distinct and nonempty")
+        cuts = region.get("cuts")
+        if not isinstance(cuts, list) or len(cuts) < 2:
+            raise ValueError(f"{name}: cutflow needs at least two cuts")
+        names, weights = set(), []
+        for index, cut in enumerate(cuts):
+            if not isinstance(cut, dict) or not required.issubset(cut):
+                raise ValueError(f"{name}: cut must contain all measured fields")
+            cut_name = cut["name"]
+            if not isinstance(cut_name, str) or not cut_name.strip() or cut_name in names:
+                raise ValueError(f"{name}: cut names must be distinct and nonempty")
+            names.add(cut_name)
+            if index == 0:
+                if cut_name != "all events" or cut["expression"] is not None:
+                    raise ValueError(f"{name}: first cut must be 'all events' with null expression")
+            elif not isinstance(cut["expression"], str) or not cut["expression"].strip():
+                raise ValueError(f"{name}: selected cut expression must be nonempty text")
+            if type(cut["raw"]) is not int or cut["raw"] < 0:
+                raise ValueError(f"{name}/{cut_name}: raw must be a nonnegative integer")
+            values = {field: finite_nonnegative(cut[field], f"{name}/{cut_name}.{field}")
+                      for field in ("sumw", "sumw2", "yield", "yield_uncertainty")}
+            for field, expected in (("yield", scale * values["sumw"]),
+                                    ("yield_uncertainty", scale * math.sqrt(values["sumw2"]))):
+                finite_nonnegative(expected, f"{name}/{cut_name}: normalized {field}")
+                if not math.isclose(values[field], expected, rel_tol=1e-10, abs_tol=1e-12):
+                    raise ValueError(f"{name}/{cut_name}: inconsistent {field}")
+            weights.append(values["sumw"])
+        if weights[0] == 0:
+            raise ValueError(f"{name}: generated sumw denominator must be positive")
+        axe = finite_nonnegative(weights[-1] / weights[0], f"{name}: A×ε")
+        events = finite_nonnegative(axe * denominator, f"{name}: events at luminosity")
+        measurements[name] = (axe, events)
+    return measurements
+
+
+def write_input_refusal(args, reason, detail):
+    """Persist a failed boundary decision, never a successful empty comparison."""
+    report = {"routine": args.routine, "label": args.label, "verdict": "FAIL",
+              "status": "refused", "reason": reason, "artifact": args.signal,
+              "detail": str(detail), "rows": [], **comparison_metadata([])}
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
+    with open(args.out, "w") as stream:
+        stream.write(f"# A×ε certification — {args.routine}\n\n**Verdict: FAIL.**\n\n"
+                     f"Status: refused\n\nReason: {reason}\n\nArtifact: {args.signal}\n\n"
+                     f"{detail}\n\nNo acceptance comparisons were evaluated.\n")
+    with open(os.path.splitext(args.out)[0] + ".json", "w") as stream:
+        json.dump(report, stream, indent=2, allow_nan=False)
+    print(f"FAIL: {reason}: {args.signal}: {detail} -> {args.out}")
+    return 2
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--signal", required=True)
@@ -234,7 +324,8 @@ def main(argv=None):
                     help="how to read each /routine/<SR> object: 'counter' (scalar Estimate0D, the "
                          "historic path), 'cutflow' (Cutflow BinnedEstimate1D → A×ε=last/first bin, "
                          "e.g. recursive-jigsaw EWK searches), or 'auto' (default: .val()⇒counter "
-                         "else .bins()⇒cutflow, resolved per object). Both feed the same cert below.")
+                         "else .bins()⇒cutflow, resolved per object). JSON measured cutflows use "
+                         "auto or cutflow without YODA. Both feed the same cert below.")
     ap.add_argument("--label", default="")
     ap.add_argument("--exclusion", help="the run's exclusion.json (per-SR µ → SR roles)")
     ap.add_argument("--driving-sr-override", default="",
@@ -264,9 +355,23 @@ def main(argv=None):
     if not srs or len(srs) != len(set(srs)):
         ap.error("--srs must contain distinct nonempty signal regions")
 
-    import yoda
-    sig = yoda.read(args.signal)
     sigma_fb = args.sigma_pb * 1000.0
+    json_measurements = None
+    if os.path.splitext(args.signal)[1].lower() == ".json":
+        if args.sr_reader == "counter":
+            return write_input_refusal(args, "cutflow_reader_mismatch",
+                                       "JSON cutflows require --sr-reader auto or cutflow")
+        try:
+            json_measurements = read_json_cutflow(args.signal, args.routine, sigma_fb, args.lumi_fb)
+        except (ValueError, OSError, OverflowError) as exc:
+            return write_input_refusal(args, "cutflow_input_invalid", exc)
+    else:
+        try:
+            import yoda
+        except ImportError as exc:
+            return write_input_refusal(args, "yoda_reader_unavailable", exc)
+        # Keep artifact parsing errors distinct from an unavailable reader.
+        sig = yoda.read(args.signal)
     override = {s.strip() for s in args.driving_sr_override.split(",") if s.strip()}
 
     # SR roles from the exclusion: driving = best-expected SR + any within 1.5x its expected µ
@@ -303,8 +408,11 @@ def main(argv=None):
 
     rows = []
     for sr in srs:
-        o = sig.get(f"/{args.routine}/{sr}")
-        mine, norm = read_sr_axe(o, args.sr_reader, sigma_fb, args.lumi_fb)       # A×ε, signal events at lumi
+        if json_measurements is not None:
+            mine, norm = json_measurements.get(sr, (None, None))
+        else:
+            o = sig.get(f"/{args.routine}/{sr}")
+            mine, norm = read_sr_axe(o, args.sr_reader, sigma_fb, args.lumi_fb)
         pub, node = published_axe(args.tables_dir, sr, args.grid, args.m_parent, args.m_lsp,
                                   interp_max_span=args.interp_max_span)
         ratio = comparison_ratio(mine, pub)
@@ -404,4 +512,4 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

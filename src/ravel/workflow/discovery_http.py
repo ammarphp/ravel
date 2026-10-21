@@ -29,16 +29,33 @@ try:
 except Exception:                                   # no certifi: the system default store
     SSL_CONTEXT = None
 
-_urlopen = urllib.request.urlopen                   # replaced by recorded responses in tests
+def _urlopen(request, *, timeout, context=None):
+    """Transport seam, replaceable by recorded responses in tests."""
+    from . import acquisition_http
+    if acquisition_http.current() is None:
+        return urllib.request.urlopen(request, timeout=timeout, context=context)
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),
+                                        acquisition_http.PinnedHTTPSHandler(context=context),
+                                        acquisition_http.RedirectHandler())
+    return opener.open(request, timeout=timeout)
 
 
-def open_url(url, *, accept=JSON, timeout=30):
+def _open_url(url, *, accept=JSON, timeout=30):
     """Open `url` as a plain client; a 403 is retried with the next client agent."""
     blocked = None
     for agent in CLIENT_AGENTS:
         req = urllib.request.Request(url, headers={"User-Agent": agent, "Accept": accept})
         try:
-            return _urlopen(req, timeout=timeout, context=SSL_CONTEXT)
+            from . import acquisition_http
+            state = acquisition_http.current()
+            if state is not None:
+                req._ravel_destination = state.admit(url)
+                req._ravel_url = req.full_url
+                request_timeout = min(timeout, state.remaining())
+            else:
+                request_timeout = timeout
+            response = _urlopen(req, timeout=request_timeout, context=SSL_CONTEXT)
+            return acquisition_http.Response(response, state) if state is not None else response
         except urllib.error.HTTPError as e:
             if e.code != 403:
                 raise
@@ -51,6 +68,11 @@ def open_url(url, *, accept=JSON, timeout=30):
                     "bypassed.") from e
             raise
     raise blocked
+
+
+def open_url(url, *, accept=JSON, timeout=30):
+    """Open through the scoped admission/bounds when controller acquisition is active."""
+    return _open_url(url, accept=accept, timeout=timeout)
 
 
 def get_json(url, timeout=30):

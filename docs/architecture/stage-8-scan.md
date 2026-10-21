@@ -16,9 +16,9 @@ Step 8 repeats steps 3 to 7 over a grid of model points and draws the exclusion 
 
 ## What happens
 
-1. The grid is planned, one run per point.
+1. The grid is declared, one run per point.
 2. The parameters that vary are validated before launch.
-3. The points run on the native toolchain, in parallel where possible.
+3. The points run on the native toolchain, in parallel within the approved resource scope.
 4. The finished points are assembled into one scan record.
 5. The contour is drawn, over the published one when it exists, with a map of the differences.
 

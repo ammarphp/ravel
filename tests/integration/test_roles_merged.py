@@ -110,12 +110,8 @@ def truth_table_rows(registry, transport):
     extra = {'executables': {identity: EXECUTABLE_SHA256 for identity in probes}}
     rows = []
     for card in registry.all_cards():
-        # Previously assigned families are controlled independently; no receipt
-        # or scientific independence is credited by these selection controls.
-        assigned = {role: {'family': 'openai', 'transport_id': 'http-responses', 'model': 'gpt-fixture'}
-                    for role in card['model'].get('distinct_family_from', [])}
         try:
-            selected = transport.select(card, preferences, assigned=assigned, **extra)
+            selected = transport.select(card, preferences, **extra)
         except transport.TransportRefusal as exc:
             rows.append({'role': card['id'], 'voting': card['independence']['kind'] == 'voting',
                          'route': 'refused', 'missing': sorted(set(exc.missing))})

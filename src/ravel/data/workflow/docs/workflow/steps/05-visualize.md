@@ -1,5 +1,24 @@
 # Step 5 — Visualize  ·  [judgment] selects + reads · [agent] renders
 
+## On the controller
+
+On a controller run the figures are three governed plan steps of the analysis route:
+
+- `visualize.waypoint` (rung `smoke`, the plan's waypoint): operation `figure-comparison`, reviewed by
+  `figure-critic`. It writes `outputs/waypoint.json` (`summary`, `element`, `expectation`, `evidence`). When it
+  completes, the controller renders CHECK-IN 2 from this evidence, pinned by digest, and the GO binds it.
+- `visualize.final`: operation `figure-comparison`, reviewed by `figure-critic`; `outputs/figures.json` lists every
+  declared target with its lint result, and a figure that fails the lint fails the step.
+- `compare.reference` (kind `compare`, worker `discrepancy-attributor`, protocols P2 and P5): one pinned comparator,
+  two basis manifests with matching quantity, basis and unit, an approved lattice and tolerance; residual
+  diagnosis only from registered output and distinct replicas; a cause attributed only above an approved noise
+  model. For blinded references, compare after sealing the result.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
 Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
 this selects the native build and binary paths, including an existing local toolchain.
 `CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda` — every `$CONDA` below.
@@ -18,7 +37,7 @@ numbers per renderer:
   Rivet-native `.yoda` so the yields are re-plottable and hand-off-able **without re-running** the
   pipeline. Rivet's native interchange format.
 - **ROOT = colleague-facing MIRROR (on request)** — `root_figures.py` mirrors the two key figures in
-  ROOT (TGraph/THStack) in ATLAS ROOT style, for colleagues whose norm is ROOT. A **mirror** of the
+  ROOT (TGraph/THStack) in the inline ROOT mirror style, for colleagues whose norm is ROOT. A **mirror** of the
   mplhep figures from the same source, not a re-derivation.
 
 The manifest (5.0) prints this `renderers` block alongside the archetype recipe, so the chosen figure
@@ -72,14 +91,14 @@ module) draws the publication figure for the form 5.0 selected.
 $CONDA run -n rivet python scripts/run.py ravel.plotting.overlay_on_data \
   --signal <rundir>/outputs/<sig>.yoda --ref <…>/envs/rivet/share/Rivet/<RIVET_ID>.yoda.gz \
   --routine <RIVET_ID> --table <dNN-x01> --label "<model>" --xlabel "<obs> [GeV]" \
-  --experiment <ATLAS|CMS> --com 13 --lumi <fb⁻¹> \
+  --experiment <EXPERIMENT_STYLE> --com 13 --lumi <fb⁻¹> \
   --stack <rundir>/outputs/bkg_components.json \   # optional per-process stack (hepdata_fetch.py --tables)
   --sig-scale <k> \                                # NLO k-factor if the YODA is LO + the label claims NLO
   --out <rundir>/plots/<RIVET_ID>/named/<RIVET_ID>__<dNN-x01>__overlay-sigbkg-vs-data.png
 ```
 Draws the published background (filled, with its uncertainty — stacked per-process if `--stack`), the
 data (black points), and signal+background (line), plus a ratio-to-background panel — the experiment's
-own view. `--experiment` applies the **mplhep ATLAS/CMS house style** (Helvetica / TeX-Gyre-Heros, the
+own view. `--experiment` applies the **selected mplhep house style** (Helvetica / TeX-Gyre-Heros, the
 bold-italic experiment label, the "√s, L" header, four-side inward ticks). Writes PDF (vector,
 Type-42 fonts) + PNG.
 
@@ -87,7 +106,7 @@ Type-42 fonts) + PNG.
 figure is the **per-SR-yield overlay** (data points + background band + signal+background across the
 SRs) via `overlay_on_data.py` (per-SR mode) / `plot_simpleanalysis.py`, from `outputs/sr_yields.json`.
 
-**For a Rivet routine** you may also generate the raw per-observable `rivet-mkhtml` panels first
+**For a Rivet routine** you can also generate the raw per-observable `rivet-mkhtml` panels first
 (`rivet-mkhtml <rundir>/build/analysis.yoda:'Title=<model>' -o <rundir>/plots`); note that draws the
 model against the **data only** (no SM background — 5.1's `overlay_on_data.py` adds it). For the
 **SimpleAnalysis** path the SR ntuple holds yields, not differential distributions, so only the per-SR
@@ -117,7 +136,7 @@ a later re-plot) reads the `.yoda` back with `yoda` / `rivet-mkhtml` and reconst
 
 ## 5.3 ROOT mirror — colleague-facing (on request) ([agent])
 For colleagues whose norm is ROOT, mirror the two key figures in ROOT, from the **same source of
-truth**, in ATLAS ROOT style. Two subcommands, run in the **`recast`** env (ROOT 6.40); each writes
+truth**, in the inline ROOT mirror style. Two subcommands, run in the **`recast`** env (ROOT 6.40); each writes
 `STEM.pdf` (vector) + `STEM.png` + `STEM.root` (a live canvas a colleague can open in a ROOT session):
 ```bash
 # (a) per-SR-yield overlay mirror — same source of truth as 5.1 (sr_yields.json)
@@ -135,8 +154,8 @@ $CONDA run -n recast python scripts/run.py ravel.plotting.root_figures massplane
   --lsp-label 'm(#tilde{#chi}_{1}^{0})' \
   --out <rundir>/plots/named/<RIVET_ID>__massplane__root
 ```
-A minimal ATLAS-like `TStyle` is set inline (no external `rootlogon`): four-side **inward** ticks, **no
-stat box**, no title box, the `#bf{#it{ATLAS}}` + √s + lumi header; the mass-plane carries the explicit
+A minimal experiment `TStyle` is set inline (no external `rootlogon`): four-side **inward** ticks, **no
+stat box**, no title box, the supplied experiment label + √s + lumi header; the mass-plane carries the explicit
 **"95% CL exclusion (CLs), not a discovery"** line and the point is starred green/red by obs µ₉₅.
 Colours are the Okabe-Ito hexes mirrored from `mplhep_style.py`, so a series is the same colour in both
 renderers. This is a **mirror** of the mplhep figures for a ROOT-native audience — it reads the same
@@ -159,7 +178,7 @@ $CONDA run -n rivet python scripts/run.py ravel.plotting.mass_plane_overlay \
   --contour expected=<rundir>/outputs/hepdata/tables/<…>/<combined-expected>.yaml \
   [--contour observed_aux=<per-channel-obs>.yaml ...] \      # optional thin per-channel lines
   --point <m_parent,m_lsp> --mu95-obs <obs> --mu95-exp <exp> \
-  --analysis <RIVET_ID> --experiment <ATLAS|CMS> --com 13 --lumi <fb⁻¹> \
+  --analysis <RIVET_ID> --experiment <EXPERIMENT_STYLE> --com 13 --lumi <fb⁻¹> \
   --parent-label '<TeX, e.g. m(#tilde{#chi}_{1}^{#pm}/#tilde{#chi}_{2}^{0})>' \
   --lsp-label '<TeX, e.g. m(#tilde{#chi}_{1}^{0})>' --model-label '<model>' \
   [--plane dm] \                                             # compressed plane: m(sparticle) vs Δm, no diagonal
@@ -173,10 +192,11 @@ m(sparticle)-vs-Δm plane (no m_LSP=m_parent diagonal — a y=x line is meaningl
 splitting); `--plane auto` (default) detects a "Δm" axis header. The tested point is a **star, GREEN if
 obs µ₉₅ < 1 (excluded by this reproduction) else RED (allowed)**; an annotation box states µ₉₅
 obs/exp, the verdict, and that this is a **95% CL exclusion (CLs), not a 5σ discovery**. The
-kinematically-forbidden region is shaded. Writes both `.pdf` (vector, Type-42 fonts) and `.png`. The
-±1σ expected **band** is often NOT shipped in HEPData; if so it is omitted from the curve and noted
-honestly from the pyhf expected band via `--exp-band-lo/--exp-band-hi` (do **not** fabricate a
-mass-plane band). Get the contour-table assignment + µ₉₅ values from steps 6–7 (HEPData fetch + pyhf).
+kinematically-forbidden region is shaded. Writes both `.pdf` (vector, Type-42 fonts) and `.png`.
+Display the supplied ±1σ expected **band** when its source tables provide it. Label
+pyhf-derived expected intervals with their calculation source via `--exp-band-lo/--exp-band-hi`;
+do **not** fabricate a mass-plane band. Get the contour-table assignment + µ₉₅ values
+from steps 6–7 (HEPData fetch + pyhf).
 
 ## 5.5 Read + verify ([judgment])
 The layout-hygiene half of this check is now MACHINE-GATED: the house renderers run
@@ -195,7 +215,7 @@ confirm each figure **resembles the published figure's FORM**:
 - the YODA persistence (5.2) re-plots to the same yields as 5.1 (it is the same numbers, just
   persisted);
 - the ROOT mirror (5.3), where produced, matches the mplhep figure (same source, same numbers) in
-  ATLAS ROOT style;
+  the inline ROOT mirror style;
 - the mass plane (5.4) re-plots the published contour numbers correctly, with the point coloured by
   this run's µ₉₅ verdict.
 
@@ -252,11 +272,9 @@ $CONDA run -n rivet python scripts/run.py ravel.plotting.figure_target attach-ge
 ```
 (For a scan run the counterpart is the step-8 contour — attach there with `--step 08-scan`.)
 
-**Gap to the official figure:** these are faithful re-plots of the *same numbers* the experiment
-published (the REF is digitised from HEPData), not the exact published figure — they lack the full
-background decomposition, the experiment's exact styling, and systematic-band detail. The
-SimpleAnalysis path has no differential distributions at all (yields only), so its statistical power
-comes from the likelihood in step 7, not from a distribution overlay. A figure ships into `RESULT.md`
-or the paper only after it passes `docs/workflow/checklists/plot-criteria.md`.
+These plots display the published numerical reference, digitised from HEPData,
+with the generated counterpart. The SimpleAnalysis yield path uses its likelihood
+in step 7 for statistical inference. A figure ships into `RESULT.md` or the paper
+after it passes `docs/workflow/checklists/plot-criteria.md`.
 
 **Next:** `docs/workflow/steps/06-acquire-data.md`

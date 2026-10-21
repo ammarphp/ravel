@@ -15,6 +15,13 @@ variable authorize nothing. The authorized-launch boundary and the executable
 payload entries call ``require_custody``: the step's process passes through the
 context, and a worker it started passes while the step holds its dispatch grant. This is discipline, not a security boundary against
 code that rewrites these functions.
+
+A run the controller owns is stricter: absence of a workflow policy is not permission.
+Its launches pass only inside the controller's own dispatch context (``controller_dispatch``)
+or from a process that carries the confinement custody token of a running attempt of that
+run. Every governed ``ravel wms launch`` also holds a launch capability: a secret its
+executor's submit command presents (``CAPABILITY_ENV``) and whose digest the live launch
+record keeps, so a facility submission outside a live governed launch submits nothing.
 """
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -35,6 +42,8 @@ LIVE = 'workflow/.live'
 ROUTE = '`ravel wms add --project <project> --rundir <rundir>` then `ravel wms launch --project <project> --task <task>`'
 
 _DISPATCH = ContextVar('ravel_wms_dispatch', default=frozenset())
+_CONTROLLER = ContextVar('ravel_controller_dispatch', default=frozenset())
+CAPABILITY_ENV = 'RAVEL_WMS_CAPABILITY'
 _HELD, _HELD_GUARD = set(), threading.Lock()
 
 
@@ -143,6 +152,33 @@ def require_dispatch(rundir):
     raise _refusal(rundir, project)
 
 
+def _controller_custody(rundir):
+    """None for a run the controller does not own; False when this process holds custody; else the refusal."""
+    from ravel.controller.confine import runs
+    owner = runs.owner_of(Path(_key(rundir)))
+    if owner is None:
+        return None
+    key = _key(rundir)
+    if any(Path(key).is_relative_to(entered) for entered in _CONTROLLER.get()):
+        return False
+    from ravel.controller.confine import custody
+    if custody.for_run(owner[1]):
+        return False
+    return ValueError(f'run dir {key} is owned by the controller: a launch or executable payload of it runs only '
+                      'inside the controller\'s dispatch, or confined under one of its running attempts; the '
+                      'absence of a workflow policy is not permission')
+
+
+@contextmanager
+def controller_dispatch(rundir):
+    """Entered by the controller around the launches of a controller-owned run."""
+    token = _CONTROLLER.set(_CONTROLLER.get() | {_key(rundir)})
+    try:
+        yield
+    finally:
+        _CONTROLLER.reset(token)
+
+
 def require_custody(rundir):
     """Refuse a process launch or an executable payload of a governed run outside its dispatched step.
 
@@ -150,6 +186,11 @@ def require_custody(rundir):
     started is another process: it has custody while the step holds its dispatch
     grant for this run dir, and loses it when the step ends or dies.
     """
+    refusal = _controller_custody(rundir)
+    if refusal is False:
+        return
+    if refusal is not None:
+        raise refusal
     governors = _scan(rundir)
     key = _key(rundir)
     if not governors or key in _DISPATCH.get():
@@ -205,18 +246,144 @@ def _hold(path, document):
 
 
 @contextmanager
-def launch_authorization(workflow, task, number, exports, **governed):
+def launch_authorization(workflow, task, number, exports, *, capability=None, controller_run=None,
+                         capability_scope=None, **governed):
     """Held by ``ravel wms launch`` while Snakemake runs.
 
     ``exports`` maps each task this launch may run (the target and the tasks it
     depends on) to its indexed export digest. run-step is admitted only while
     this record is held, so a Snakemake lock, an earlier launch or a record left
     by a launcher that died authorizes nothing.
+
+    The launch's capability is exported to its executor in ``CAPABILITY_ENV`` while the
+    record is held; the record keeps only its digest. A controller run passes the token
+    it minted into its store (``confine.mint_capability``) as ``capability`` with its
+    ``controller_run`` id. Alternatively ``capability_scope`` supplies an explicitly
+    approved cumulative job count and resource maxima and this adapter mints/revokes
+    through the binding RunStore. A controller-owned workflow never falls back to a
+    local token. Trusted WMS script generation remains a prerequisite; scope alone is
+    not approval, and an optional script digest pins exact generated contents.
     """
-    with _hold(Path(workflow) / LIVE.split('/', 1)[1] / f'launch-{task}-{number:06d}.json',
-               {'schema_version': 1, 'kind': 'launch', 'task': task, 'launch': number, 'pid': os.getpid(),
-                'exports': dict(exports), **governed}) as path:
-        yield path
+    import secrets
+    from ravel.controller.confine import capability as capabilities, runs
+    workflow = Path(workflow).resolve()
+    owners = set()
+    owner = runs.owner_of(workflow)
+    if owner is not None:
+        owners.add(owner[0])
+    index = workflow / 'index.json'
+    if os.path.lexists(index):
+        for row in _rows(index, True):
+            if row.get('id') in exports:
+                owner = runs.owner_of(row['rundir'])
+                if owner is not None:
+                    owners.add(owner[0])
+    if len(owners) > 1 or (owners and controller_run is not None and owners != {controller_run}):
+        raise ValueError('a controller launch must name the controller run that owns its workflow tasks')
+    if owners and controller_run is None:
+        controller_run = next(iter(owners))
+    if capability is not None and controller_run is None:
+        raise ValueError('a controller launch capability needs its controller run id')
+    if capability is not None and capability_scope is not None:
+        raise ValueError('pass an existing capability or an approved capability_scope, not both')
+    minted_store, launch_id = None, f'wms-{task}-{number:06d}'
+    if controller_run is not None:
+        if capability is None:
+            if capability_scope is None:
+                raise ValueError('a controller-owned workflow needs its controller capability or approved capability_scope')
+            # No job-count or resource approval is inferred from concurrency or a profile.
+            if not {'resource_maxima', 'max_jobs'} <= set(capability_scope):
+                raise ValueError('controller capability_scope requires approved resource_maxima and cumulative max_jobs')
+            scope = dict(capability_scope)
+            if scope.get('workflow_dir', str(workflow)) != str(workflow):
+                raise ValueError('controller capability_scope workflow differs from this launch')
+            if 'tasks' in scope and not set(scope['tasks']) <= set(exports):
+                raise ValueError('controller capability_scope tasks exceed this launch')
+            scope.update(workflow_dir=str(workflow), tasks=scope.get('tasks', sorted(exports)))
+            pin = governed.get('site_profile')
+            if pin is not None:
+                if scope.get('profile_sha256', pin['sha256']) != pin['sha256']:
+                    raise ValueError('controller capability_scope profile differs from this launch')
+                scope['profile_sha256'] = pin['sha256']
+            minted_store = runs.store(controller_run)
+            capability = capabilities.mint_capability(minted_store, launch_id, scope)
+        match = capabilities.TOKEN.fullmatch(capability) if isinstance(capability, str) else None
+        if match is None or match.group(1) != controller_run:
+            raise ValueError('controller launch requires a capability for its own run')
+    elif capability_scope is not None:
+        raise ValueError('an approved capability_scope needs a controller run')
+    token = capability or ('rwl1.' + secrets.token_urlsafe(32))
+    document = {'schema_version': 1, 'kind': 'launch', 'task': task, 'launch': number, 'pid': os.getpid(),
+                'exports': dict(exports), 'capability_sha256': capabilities.digest(token), **governed}
+    if controller_run is not None:
+        document['controller_run'] = controller_run
+    previous = os.environ.get(CAPABILITY_ENV)
+    try:
+        with _hold(workflow / LIVE.split('/', 1)[1] / f'launch-{task}-{number:06d}.json', document) as path:
+            os.environ[CAPABILITY_ENV] = token
+            try:
+                yield path
+            finally:
+                if previous is None:
+                    os.environ.pop(CAPABILITY_ENV, None)
+                else:
+                    os.environ[CAPABILITY_ENV] = previous
+    finally:
+        if minted_store is not None:
+            capabilities.revoke_capability(minted_store, launch_id)
+
+
+def _ancestors(pid=None):
+    """This process and its ancestors up to init, from /proc or the system ``ps``; never the caller's PATH."""
+    import shutil
+    import subprocess
+    pid = os.getpid() if pid is None else pid
+    chain, parents = [], None
+    for _ in range(512):
+        chain.append(pid)
+        if pid <= 1:
+            break
+        try:
+            with open(f'/proc/{pid}/stat', encoding='utf-8') as stream:
+                parent = int(stream.read().rsplit(')', 1)[1].split()[1])
+        except (OSError, ValueError, IndexError):
+            if parents is None:
+                ps = shutil.which('ps', path='/bin:/usr/bin')
+                if ps is None:
+                    raise ValueError('process ancestry is unavailable; nothing was submitted')
+                done = subprocess.run([ps, '-A', '-o', 'pid=', '-o', 'ppid='], capture_output=True, text=True,
+                                      timeout=20, check=False, stdin=subprocess.DEVNULL)
+                if done.returncode:
+                    raise ValueError('process ancestry is unavailable; nothing was submitted')
+                parents = {int(a): int(b) for a, b in (line.split() for line in done.stdout.splitlines() if line.strip())}
+            parent = parents.get(pid)
+        if parent is None or parent == pid:
+            break
+        pid = parent
+    return chain
+
+
+def governed_submission(workflow):
+    """The live governed launch of ``workflow`` whose capability this process presents, else refuse.
+
+    The process must carry the launch's capability (``CAPABILITY_ENV``) and descend from the
+    process that holds the launch record, as the executor the launch starts does.
+    """
+    from ravel.controller.confine.capability import digest as capability_digest
+    token = os.environ.get(CAPABILITY_ENV)
+    if not token:
+        raise ValueError('no launch capability was presented: a facility submission runs only from the executor '
+                         'of a live governed `ravel wms launch`; nothing was submitted')
+    expected = capability_digest(token)
+    live = Path(workflow) / LIVE.split('/', 1)[1]
+    ancestry = set(_ancestors())
+    for path in sorted(live.glob('launch-*.json')) if live.is_dir() else ():
+        record = _live(path)
+        if (type(record) is dict and record.get('kind') == 'launch' and record.get('capability_sha256') == expected
+                and record.get('pid') in ancestry):
+            return record
+    raise ValueError('the presented capability belongs to no live governed launch of this workflow that this '
+                     'process descends from; nothing was submitted')
 
 
 def _admit(rundir, export, export_sha256, task):

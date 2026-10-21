@@ -44,10 +44,18 @@ def text_action(text, *, call_id):
         {'id': call_id, 'name': value['action'], 'args': value['args']}]}
 
 
+# Adapters whose request carries a reasoning effort, and the request field that carries it. The
+# Messages and Gemini requests here have no effort field, so an effort for them is refused.
+EFFORT_FIELDS = {'chat_completions': 'reasoning_effort', 'responses': 'reasoning.effort'}
+
+
 def render(adapter, envelope, *, model, max_output_tokens, text_protocol=False,
-           token_limit_field='max_completion_tokens'):
+           token_limit_field='max_completion_tokens', reasoning_effort=None):
     if adapter not in ADAPTERS:
         raise ProtocolError('unknown_adapter', 'explicit provider adapter required')
+    if reasoning_effort is not None and (adapter not in EFFORT_FIELDS or type(reasoning_effort) is not str
+                                         or not reasoning_effort):
+        raise ProtocolError('effort_unsupported', f'the {adapter} request carries no reasoning effort')
     messages, tools = deepcopy(envelope['messages']), deepcopy(envelope['tools'])
     stream = envelope.get('stream', False)
     choice = envelope.get('tool_choice', 'auto')
@@ -116,6 +124,8 @@ def render(adapter, envelope, *, model, max_output_tokens, text_protocol=False,
                 turns.extend({'type': 'function_call', 'call_id': c['id'], 'name': c['name'], 'arguments': json.dumps(c['args'])}
                              for c in m.get('tool_calls', []))
         body = {'model': model, 'input': turns, 'max_output_tokens': max_output_tokens, 'stream': stream}
+        if reasoning_effort is not None:
+            body['reasoning'] = {'effort': reasoning_effort}
         if tools:
             body['tools'] = [{'type': 'function', 'name': t['name'], 'description': t['description'], 'parameters': t['args_schema']} for t in tools]
             body['tool_choice'] = {'type': 'function', 'name': 'submit_final'} if choice == 'submit_final' else choice
@@ -132,6 +142,8 @@ def render(adapter, envelope, *, model, max_output_tokens, text_protocol=False,
                                   for c in m['tool_calls']]
         turns.append(item)
     body = {'model': model, 'messages': turns, token_limit_field: max_output_tokens, 'n': 1, 'stream': stream}
+    if reasoning_effort is not None:
+        body['reasoning_effort'] = reasoning_effort
     if tools:
         body['tools'] = [{'type': 'function', 'function': {'name': t['name'], 'description': t['description'], 'parameters': t['args_schema']}} for t in tools]
         body['tool_choice'] = {'type': 'function', 'function': {'name': 'submit_final'}} if choice == 'submit_final' else choice

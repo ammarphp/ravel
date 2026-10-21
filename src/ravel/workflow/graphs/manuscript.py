@@ -151,18 +151,50 @@ def manuscript(ctx):
     add('meta_reviewer', shared.agent('meta_reviewer', 'research-meta-reviewer', ctx, get_services=active))
     add('report_integrity', nodes.gate('report_integrity', lambda s: active().integrity_action(s)))
     add('disclosure', effect('disclosure', _disclosure, to_state=lambda s, r: {'disclosure': r}, gate='report_integrity'))
-    add('procedure_note', effect('procedure_note', _procedure, kind='external',
-                                 to_state=lambda s, r: {'procedure': r}, gate='report_integrity'))
+    legacy_procedure = effect('procedure_note', _procedure, kind='external',
+                              to_state=lambda s, r: {'procedure': r}, gate='report_integrity')
+    def procedure_note(state):
+        from ...controller.sink import procedure
+        binding = note_services.active()
+        if binding is None:
+            return {}
+        if Path(state['meta']['scope_root']).resolve() != Path(binding.run_dir).resolve():
+            raise nodes.RecoveryHold('manuscript_controller_services_wrong_run')
+        return {'procedure': procedure.request(binding)}
+    add('procedure_note', nodes.Node(kind='guard', function=procedure_note))
+    add('procedure_export', legacy_procedure)
     add('checkin3', nodes.interrupt('checkin3_response', lambda s: {'record': s['record'],
                                    'disclosure': s['disclosure'], 'procedure': s['procedure']}))
     add('final_task', nodes.gate('final_task', lambda s: active().final_action(s)))
-    builder.add_edge(START, 'story'); builder.add_edge('story', 'sections')
+    from ...controller.routes.manuscript import staged as note_services
+    add('profile', nodes.Node(kind='guard', function=lambda state: {}))
+    def note_assembly(state):
+        binding = note_services.active()
+        if binding is None:
+            raise nodes.RecoveryHold('manuscript_controller_services_missing')
+        try:
+            if Path(state['meta']['scope_root']).resolve() != Path(binding.run_dir).resolve():
+                raise ValueError('the controller note binding belongs to another run')
+            record = note_services.assemble(binding)
+        except (ValueError, OSError, KeyError) as exc:
+            raise nodes.RecoveryHold('manuscript_assembly_prerequisites_missing', str(exc)) from None
+        return {'results': {'note_assembly': record}}
+    add('note_assembly', nodes.Node(kind='guard', function=note_assembly))
+    builder.add_edge(START, 'profile')
+    nodes.connect(builder, 'profile', nodes.route(lambda state: 'note' if note_services.active() is not None else 'full',
+                                                 {'note': 'note_assembly', 'full': 'story'}))
+    builder.add_edge('note_assembly', 'procedure_note')
+    builder.add_edge('story', 'sections')
     nodes.connect(builder, 'sections', edge)
     builder.add_edge('section_writes', 'writer'); builder.add_edge('writer', 'record')
     builder.add_edge('record', 'integrity_auditor'); builder.add_edge('integrity_auditor', 'meta_reviewer')
     builder.add_edge('meta_reviewer', 'report_integrity')
     nodes.connect(builder, 'report_integrity', nodes.gate_route('report_integrity', passed='disclosure', refused='hold'))
-    builder.add_edge('disclosure', 'procedure_note'); builder.add_edge('procedure_note', 'checkin3')
+    builder.add_edge('disclosure', 'procedure_note')
+    nodes.connect(builder, 'procedure_note', nodes.route(
+        lambda state: 'controller' if note_services.active() is not None else 'full',
+        {'controller': END, 'full': 'procedure_export'}))
+    builder.add_edge('procedure_export', 'checkin3')
     builder.add_edge('checkin3', 'final_task')
     nodes.connect(builder, 'final_task', nodes.gate_route('final_task', passed=END, refused='hold'))
     return builder

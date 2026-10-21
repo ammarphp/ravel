@@ -83,10 +83,260 @@ def _digest(value):
 
 def tree_digest(root):
     """Digest of the {relative path: sha256} map of every regular file outside caches."""
-    root = Path(root)
-    files = {p.relative_to(root).as_posix(): _sha(p) for p in sorted(root.rglob('*'))
-             if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc'}
-    return _digest(files)
+    from ravel.physics.model_tool_bridge import source_tree
+    return _digest(source_tree(root)['files'])
+
+
+class ModelEvidenceError(ValueError):
+    """Typed generation prerequisite with an actionable repair."""
+
+    def __init__(self, reason, detail):
+        self.reason = 'model_evidence_' + reason
+        self.remedy = ('Record accepted admission and width evidence for the current model, complete process '
+                       'card and explicit parameter card; renew changed evidence through its original validator '
+                       'or supply attributed external validation for that exact point.')
+        super().__init__(f'{self.reason}: {detail}; remedy={self.remedy}')
+
+
+def _evidence_pin(pin, base, files):
+    from ravel.physics import model_tool_bridge as custody
+    if not isinstance(pin, dict) or not {'path', 'sha256'} <= set(pin):
+        raise ModelEvidenceError('absent', 'a pinned evidence record is required')
+    try:
+        path = custody._pin(pin, base)
+    except (ValueError, OSError) as exc:
+        raise ModelEvidenceError('stale', str(exc)) from exc
+    files.append(path)
+    return path
+
+
+def _evidence_record(path):
+    from ravel.physics.model_tool_bridge import _read
+    try:
+        record = _read(path)
+    except (OSError, ValueError) as exc:
+        raise ModelEvidenceError('invalid', 'readable evidence JSON required') from exc
+    if not isinstance(record, dict):
+        raise ModelEvidenceError('invalid', 'evidence record must be an object')
+    return record
+
+
+def _process_commands(raw):
+    commands = [' '.join(line.split('#', 1)[0].split()) for line in raw.splitlines()]
+    commands = [line for line in commands if line and not line.startswith('import model ')]
+    if (not commands or sum(line.startswith('generate ') for line in commands) != 1
+            or any(not line.startswith(('define ', 'set ', 'generate ', 'add process ')) for line in commands)
+            or any(any(c in line for c in (';', '\\', '\r', '\x00')) for line in commands)):
+        raise ValueError('complete literal definition/generate/add-process card required')
+    active, cases = [], []
+    for line in commands:
+        if line.startswith('define '):
+            if not re.fullmatch(r'define [A-Za-z0-9_+~\-]+ = [A-Za-z0-9_+~\- ]+', line):
+                raise ValueError('literal particle definition required')
+            active.append(line)
+        elif line.startswith('set '):
+            if not re.fullmatch(r'set [A-Za-z0-9_]+ [A-Za-z0-9_./:+~\- ]+', line):
+                raise ValueError('literal process setup setting required')
+            active.append(line)
+        else:
+            cases.append((_process_line(line.removeprefix('generate ').removeprefix('add process ')),
+                          list(active)))
+    if not cases or not next(line for line in commands if line.startswith(('generate ', 'add process '))).startswith('generate '):
+        raise ValueError('generate must precede additional processes')
+    return commands, cases
+
+
+def generation_binding(ufo, process, card, *, restriction='full'):
+    """Content identity of the model, effective aliases/processes and selected card."""
+    if not isinstance(restriction, str) or not re.fullmatch(r'[A-Za-z0-9_\-]+', restriction):
+        raise ValueError('literal model restriction identity required')
+    imports = [' '.join(line.split('#', 1)[0].split()).removeprefix('import model ')
+               for line in process.splitlines() if line.strip().startswith('import model ')]
+    suffix = '' if restriction == 'default' else '-' + restriction
+    if imports and (len(imports) != 1 or imports[0] not in
+                    (Path(ufo).name + suffix, str(Path(ufo).absolute()) + suffix)):
+        raise ModelEvidenceError('foreign', 'process card imports another model or restriction')
+    commands, _ = _process_commands(process)
+    from ravel.physics.model_events import parameter_values
+    parameter_values(Path(card).read_text())
+    return {'ufo_digest': tree_digest(ufo), 'process_commands': commands,
+            'restriction': restriction, 'parameter_card_sha256': _sha(card)}
+
+
+def _binding(record, expected):
+    binding = record.get('generation_binding', record.get('binding'))
+    if not isinstance(binding, dict):
+        raise ModelEvidenceError('absent', 'receipt requires its model/process/card binding')
+    if binding != expected:
+        raise ModelEvidenceError('foreign', 'receipt belongs to another model, process, restriction or card')
+
+
+def accepted_admission(record, expected, base, files):
+    """Consume the existing admission verdict and its required-check evidence."""
+    if record.get('decision') != 'admitted':
+        raise ModelEvidenceError('failed', 'model admission requires an admitted decision')
+    _binding(record, expected)
+    if record.get('kind') == 'external-model-admission':
+        return _external_evidence(record, base, files)
+    if record.get('kind') != KIND or type(record.get('schema_version')) is not int or record['schema_version'] != SCHEMA:
+        raise ModelEvidenceError('invalid', 'model-admission schema1 required')
+    rows = record.get('checks')
+    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+        raise ModelEvidenceError('absent', 'required admission checks are required')
+    ids = [row.get('id') for row in rows]
+    if any(not isinstance(identity, str) for identity in ids):
+        raise ModelEvidenceError('invalid', 'admission check identities must be strings')
+    if len(set(ids)) != len(ids) or not set(REQUIRED) <= set(ids):
+        raise ModelEvidenceError('absent', 'every REQUIRED admission check must occur once')
+    if record.get('ufo_digest') != expected['ufo_digest']:
+        raise ModelEvidenceError('foreign', 'admission UFO differs from generation')
+    if (record.get('refusals') or set(record.get('not_evaluated', ())) & set(REQUIRED)
+            or any(row.get('status') == 'fail' or (row.get('id') in REQUIRED and row.get('status') != 'pass') for row in rows)):
+        raise ModelEvidenceError('failed', 'required admission checks must pass')
+    for row in rows:
+        if row['id'].startswith('mg5-check-'):
+            cases = row.get('cases', [row])
+            if not isinstance(cases, list) or any(not isinstance(case, dict) for case in cases):
+                raise ModelEvidenceError('invalid', 'native process check records required')
+            if not cases or any(case.get('status') != 'pass' for case in cases):
+                raise ModelEvidenceError('failed', 'each process check must pass')
+            intended = _process_commands('\n'.join(expected['process_commands']))[1]
+            if len(cases) != len(intended):
+                raise ModelEvidenceError('foreign', 'admission check population differs from generation')
+            for case, (expression, aliases) in zip(cases, intended):
+                if not {'process', 'definitions', 'ufo_digest', 'parameter_card_sha256', 'restriction', 'log', 'script', 'parameter_card'} <= set(case):
+                    raise ModelEvidenceError('absent', 'native check requires its complete process/card evidence')
+                if (case.get('process') != expression or case.get('definitions') != aliases
+                        or case.get('ufo_digest') != expected['ufo_digest']
+                        or case.get('parameter_card_sha256') != expected['parameter_card_sha256']
+                        or case.get('restriction') != expected['restriction']):
+                    raise ModelEvidenceError('foreign', 'native check used another process, alias, restriction or card')
+                _evidence_pin(case.get('log'), base, files)
+                _evidence_pin(case.get('script'), base, files)
+                card = _evidence_pin(case.get('parameter_card'), base, files)
+                if _sha(card) != expected['parameter_card_sha256']:
+                    raise ModelEvidenceError('foreign', 'native check card differs from generation')
+    return 'local'
+
+
+def _external_evidence(record, base, files):
+    if type(record.get('schema_version')) is not int or record['schema_version'] != 1:
+        raise ModelEvidenceError('invalid', 'external validation schema1 required')
+    if not isinstance(record.get('qualification'), str) or not record['qualification'].strip():
+        raise ModelEvidenceError('absent', 'external validation requires an explicit qualification')
+    provenance = record.get('provenance')
+    if not isinstance(provenance, list) or not provenance:
+        raise ModelEvidenceError('absent', 'external validation requires original provenance')
+    for pin in provenance:
+        _evidence_pin(pin, base, files)
+    return 'external'
+
+
+def evidence_request(evidence):
+    """Require both receipt pins before expanding native runtime inputs."""
+    if not isinstance(evidence, dict) or not {'admission', 'widths'} <= set(evidence):
+        raise ModelEvidenceError('absent', 'generation requires admission and width receipt pins')
+    if set(evidence) != {'admission', 'widths'}:
+        raise ModelEvidenceError('invalid', 'model_validation requires exactly admission and widths')
+    return evidence
+
+
+def generation_evidence(evidence, base, *, ufo, process, card, restriction='full'):
+    """Bind admitted model and width records at each generation consumer."""
+    from ravel.physics import model_derivation_bridge
+    evidence_request(evidence)
+    files = []
+    try:
+        expected = generation_binding(ufo, process, card, restriction=restriction)
+    except ModelEvidenceError:
+        raise
+    except OSError as exc:
+        raise ModelEvidenceError('stale', 'current model or parameter card is unavailable') from exc
+    except ValueError as exc:
+        raise ModelEvidenceError('invalid', str(exc)) from exc
+    admission_path = _evidence_pin(evidence['admission'], base, files)
+    record = _evidence_record(admission_path)
+    origin = accepted_admission(record, expected, admission_path.parent, files)
+    width_path = _evidence_pin(evidence['widths'], base, files)
+    widths = _evidence_record(width_path)
+    if not isinstance(widths, dict) or widths.get('status') != 'passed':
+        raise ModelEvidenceError('failed', 'width consistency requires a passed receipt')
+    _binding(widths, expected)
+    parameter = _evidence_pin(widths.get('parameter_card'), width_path.parent, files)
+    if _sha(parameter) != expected['parameter_card_sha256']:
+        raise ModelEvidenceError('foreign', 'width receipt selects another parameter card')
+    if widths.get('kind') == 'external-model-widths':
+        width_origin = _external_evidence(widths, width_path.parent, files)
+    elif (widths.get('kind') == 'model-width-consistency' and type(widths.get('schema_version')) is int
+          and widths['schema_version'] == 1):
+        handoff = _evidence_pin(widths.get('derivation_handoff'), width_path.parent, files)
+        try:
+            current = model_derivation_bridge.generation_width_receipt(handoff, expected, input_files=files)
+        except ModelEvidenceError:
+            raise
+        except (OSError, ValueError, KeyError) as exc:
+            raise ModelEvidenceError('stale', str(exc)) from exc
+        if any(widths.get(key) != current[key] for key in ('binding', 'parameter_card', 'widths', 'scope')):
+            raise ModelEvidenceError('stale', 'width receipt differs from its current derivation')
+        width_origin = 'local'
+    else:
+        raise ModelEvidenceError('invalid', 'qualified local or external width record required')
+    combined = origin if origin == width_origin else 'mixed'
+    return {'binding': expected, 'origin': combined, 'checked_here': combined == 'local',
+            'admission_origin': origin, 'width_origin': width_origin,
+            'admission_scope': record.get('scope', record.get('qualification')),
+            'width_scope': widths.get('scope', widths.get('qualification')),
+            'receipts': evidence, 'qualifications': [r['qualification'] for r in (record, widths)
+                if 'qualification' in r], 'inputs': sorted(set(map(str, files)))}
+
+
+def scoped_generation_evidence(g, base, model):
+    """Consume every scoped point's explicit card, admission and width provenance."""
+    from ravel.physics import model_tool_bridge as custody, model_events
+    process = '\n'.join([*[f'define {k} = {v}' for k, v in g['definitions'].items()],
+                         'generate ' + g['process']])
+    restriction = g['model'][len(Path(model).name):].lstrip('-') or 'default'
+    reports, files = {}, []
+    for point in g.get('parameter_points') or [None]:
+        evidence = (point or g).get('model_validation')
+        if not isinstance(evidence, dict) or 'widths' not in evidence:
+            raise ModelEvidenceError('absent', 'every generated point requires model_validation')
+        width_path = _evidence_pin(evidence['widths'], base, files)
+        width_record = _evidence_record(width_path)
+        selected = _evidence_pin(width_record.get('parameter_card'), width_path.parent, files)
+        current = (point or {}).get('parameter_card', g.get('parameter_card') if point is None else None)
+        card = custody._regular(current, base) if current is not None else selected
+        report = generation_evidence(evidence, base, ufo=model, process=process, card=card,
+                                     restriction=restriction)
+        effective = model_events.parameter_values(card.read_text())
+        for row in (point or {}).get('overrides', []):
+            address = (row['block'].lower(), tuple(row['code']))
+            if address not in effective or (row['value'] != 'Auto' and effective[address] != model_events.number(row['value'])):
+                raise ModelEvidenceError('foreign', 'point override differs from its admitted effective card')
+        # Preserve the complete original point while applying its declared edits.
+        # Auto selects the independently recorded effective width/branching population.
+        if point is not None and 'parameter_card' in g:
+            original = model_events.parameter_values(custody._regular(g['parameter_card'], base).read_text())
+            effective = model_events.parameter_values(card.read_text())
+            auto = set()
+            for row in point['overrides']:
+                address = (row['block'].lower(), tuple(row['code']))
+                if address not in original:
+                    raise ModelEvidenceError('foreign', 'override address differs from original card')
+                if row['value'] == 'Auto':
+                    if address[0] != 'decay':
+                        raise ModelEvidenceError('invalid', 'Auto requires a decay address')
+                    auto.add(address[1][0]); original.pop(address)
+                else:
+                    original[address] = model_events.number(row['value'])
+            def retained(rows):
+                return {k: v for k, v in rows.items() if not
+                    ((k[0] in ('decay', '@branch')) and k[1][0] in auto)}
+            if retained(original) != retained(effective) or any(('decay', (pdg,)) not in effective for pdg in auto):
+                raise ModelEvidenceError('foreign', 'validated point differs from declared card overrides')
+        report['parameter_card'] = {'path': str(card), 'sha256': _sha(card)}
+        reports[point['id'] if point else 'single'] = report
+    return reports
 
 
 def _row(check_id, status, **detail):
@@ -233,7 +483,8 @@ def _process_line(process):
     return process.strip()
 
 
-def mg5_check(ufo, kind, process, *, mg5, workdir, runner=None, timeout=900):
+def mg5_check(ufo, kind, process, *, mg5, workdir, runner=None, timeout=900,
+              parameter_card=None, definitions=(), restriction='full'):
     """``import model`` then ``check <kind> <process>`` in a fresh MadGraph session on a copy of the UFO."""
     if kind not in MG5_CHECKS:
         raise ValueError(f'MadGraph check must be one of {", ".join(MG5_CHECKS)}')
@@ -243,17 +494,35 @@ def mg5_check(ufo, kind, process, *, mg5, workdir, runner=None, timeout=900):
     model = workdir / Path(ufo).name
     shutil.copytree(ufo, model)  # MadGraph writes caches next to the model; keep the admitted tree untouched
     script = workdir / 'check.mg5'
-    script.write_text(f'set auto_update 0\nset automatic_html_opening False\nimport model {model}\n'
-                      f'check {kind} {process}\n')
+    card_arg = ''
+    if parameter_card is not None:
+        card = workdir / 'param_card.dat'
+        shutil.copyfile(parameter_card, card)
+        card_arg = str(card) + ' '
+    selected_model = str(model) + ('-' + restriction if parameter_card is not None and restriction != 'default' else '')
+    script.write_text(f'set auto_update 0\nset automatic_html_opening False\nimport model {selected_model}\n'
+                      + ''.join(line + '\n' for line in definitions) + f'check {kind} {card_arg}{process}\n')
+    model_before = tree_digest(model)
+    if model_before != tree_digest(ufo):
+        raise ModelEvidenceError('stale', 'native check copy differs from the source UFO')
+    card_before = _sha(card) if parameter_card is not None else None
+    script_before = _sha(script)
     command = [str(c) for c in (*(mg5 if isinstance(mg5, (list, tuple)) else [mg5]), script)]
     run = runner or (lambda cmd: subprocess.run(cmd, cwd=workdir, capture_output=True, text=True, timeout=timeout))
     completed = run(command)
+    if (model_before != tree_digest(model) or script_before != _sha(script)
+            or (parameter_card is not None and card_before != _sha(card))):
+        raise ModelEvidenceError('stale', 'model, card or command changed during native admission')
     output = (completed.stdout or '') + '\n' + (completed.stderr or '')
     log = workdir / 'mg5.log'
     log.write_text(output)
     found = SUMMARY.findall(output)
-    detail = {'process': process, 'command': command, 'returncode': completed.returncode,
+    detail = {'process': process, 'command': command, 'returncode': completed.returncode, 'ufo_digest': model_before,
               'log': {'path': str(log), 'sha256': _sha(log)}}
+    if parameter_card is not None:
+        detail.update(parameter_card={'path': str(card), 'sha256': card_before},
+                      parameter_card_sha256=card_before, definitions=list(definitions), restriction=restriction,
+                      script={'path': str(script), 'sha256': script_before})
     if not found:
         return _row(f'mg5-check-{kind}', 'error', reason='MadGraph printed no check summary', **detail)
     passed, total, failed, _ = (int(x) for x in found[-1])
@@ -276,6 +545,8 @@ def _decide(rows, required):
 
 
 def _reason(row):
+    if 'cases' in row:
+        return '; '.join(case['process'] + ': ' + _reason(case) for case in row['cases'] if case['status'] != 'pass')
     if row['id'] == 'ufo-static':
         return '; '.join(row.get('errors') or [])
     if row['id'] == 'vertex-quantum-numbers':
@@ -327,10 +598,23 @@ def static_admission(ufo, *, spec=None):
     return record
 
 
-def admit(ufo, *, spec=None, native=None, mg5=None, process=None, workdir=None, mg5_runner=None, timeout=900):
+def admit(ufo, *, spec=None, native=None, mg5=None, process=None, workdir=None, mg5_runner=None, timeout=900,
+          parameter_card=None, definitions=(), restriction='full', process_card=None):
     """Run every admission check with available evidence; return the admission record."""
+    binding = None
+    if process_card is not None:
+        if process is not None or definitions:
+            raise ValueError('supply process_card or process/definitions')
+        raw = Path(process_card).read_text()
+    else:
+        raw = '\n'.join([*definitions, 'generate ' + process]) if process is not None else None
+    cases = _process_commands(raw)[1] if raw is not None else [(process, definitions)]
+    if parameter_card is not None:
+        if raw is None:
+            raise ValueError('explicit process card required with a parameter card')
+        binding = generation_binding(ufo, raw, parameter_card, restriction=restriction)
     if mg5 is not None:
-        _process_line(process)
+        for expression, _ in cases: _process_line(expression)
         if workdir is None:
             raise ValueError('a fresh MadGraph work directory is required')
     rows = _static_rows(ufo, spec)
@@ -342,10 +626,23 @@ def admit(ufo, *, spec=None, native=None, mg5=None, process=None, workdir=None, 
         elif static_failed:
             rows.append(_row(f'mg5-check-{kind}', 'not_evaluated', reason='static admission already refused the UFO'))
         else:
-            rows.append(mg5_check(ufo, kind, process, mg5=mg5, workdir=Path(workdir) / kind, runner=mg5_runner,
-                                  timeout=timeout))
+            checked = [mg5_check(ufo, kind, expression, mg5=mg5,
+                workdir=Path(workdir) / kind / str(index), runner=mg5_runner, timeout=timeout,
+                parameter_card=parameter_card, definitions=aliases, restriction=restriction)
+                for index, (expression, aliases) in enumerate(cases)]
+            row = checked[0] if len(checked) == 1 else _row(f'mg5-check-{kind}',
+                'fail' if any(r['status'] == 'fail' for r in checked) else
+                'pass' if all(r['status'] == 'pass' for r in checked) else 'error', cases=checked)
+            rows.append(row)
     rows.append(_row('ward-identity', 'not_evaluated', reason='not part of minimal admission'))
-    return _record(ufo, rows, REQUIRED, process=process)
+    if binding is not None and binding != generation_binding(ufo, raw, parameter_card, restriction=restriction):
+        raise ModelEvidenceError('stale', 'model or card changed during admission')
+    if binding is not None and any(case['ufo_digest'] != binding['ufo_digest']
+            for row in rows if row['id'].startswith('mg5-check-') and row['status'] == 'pass'
+            for case in row.get('cases', [row])):
+        raise ModelEvidenceError('stale', 'native process checks used another source UFO')
+    return _record(ufo, rows, REQUIRED, process=process,
+                   **({'generation_binding': binding} if binding is not None else {}))
 
 
 def add_arguments(parser):
@@ -355,6 +652,9 @@ def add_arguments(parser):
                         help='FeynRules receipt with two-gauge checks or physical checks (CheckHermiticity)')
     parser.add_argument('--mg5', help='MadGraph executable for check gauge, lorentz and permutation')
     parser.add_argument('--process', help='the requested process, one MadGraph process line')
+    parser.add_argument('--process-card', type=Path, help='complete definition/generate/add-process card')
+    parser.add_argument('--parameter-card', type=Path, help='explicit card used by every process check')
+    parser.add_argument('--restriction', default='full', help='exact model restriction, or full')
     parser.add_argument('--workdir', type=Path, help='fresh directory for the MadGraph sessions')
     parser.add_argument('--out', type=Path, help='write the admission record here (a new file)')
 
@@ -362,10 +662,11 @@ def add_arguments(parser):
 def command(args):
     spec = json.loads(args.spec.read_text()) if args.spec else None
     native = json.loads(args.native_checks.read_text()) if args.native_checks else None
-    if args.mg5 and not args.process:
-        raise SystemExit('--mg5 needs --process')
+    if args.mg5 and not (args.process or args.process_card):
+        raise SystemExit('--mg5 needs --process or --process-card')
     record = admit(args.ufo, spec=spec, native=native, mg5=args.mg5, process=args.process,
-                   workdir=args.workdir or (args.mg5 and Path(args.ufo).absolute().parent / 'admission-mg5'))
+                   workdir=args.workdir or (args.mg5 and Path(args.ufo).absolute().parent / 'admission-mg5'),
+                   process_card=args.process_card, parameter_card=args.parameter_card, restriction=args.restriction)
     text = json.dumps(record, indent=2, default=str) + '\n'
     if args.out:
         with Path(args.out).open('x') as handle:

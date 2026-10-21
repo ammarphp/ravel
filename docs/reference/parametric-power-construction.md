@@ -4,8 +4,7 @@
 complete candidate population. `write_native_population` prepares the ordinary
 `background-discrete-profile` study; individual regional laws also use
 `statistical_construction.write_native_bundle` and ordinary `native-likelihood`.
-There is no new optimizer, fit runner, arbitrary function language or sampling law.
-Preparation does not execute or approve a fit.
+Preparation emits the source-bound fit request for ordinary approval and execution.
 
 For a supplied positive finite domain `[a,b]`, dimensionless exponent `p`,
 component yield `Y` and bin `[u,v]`, the contribution before explicit transfers is
@@ -61,7 +60,7 @@ rational arithmetic. The admitted domain requires `0<L<=50` and binary64-distinc
 positive physical and mapped endpoints. The complete physical/auxiliary box
 must satisfy `abs((p_effective+1)*L)<=50`, with a conservative positive-bin
 probability floor still representable. These are numerical envelopes, not
-physical priors or an asserted applicability domain. Unsupported/unrepresentable
+physical priors or an asserted applicability domain. Out-of-domain or unrepresentable
 positive windows refuse without clipping.
 
 The existing normalized exponential integral kernel evaluates fractions in t:
@@ -95,8 +94,8 @@ This extends the C26 regional/exponential construction source. Fixed integer,
 Bernstein, template, exponential and HistFactory laws are preserved. Formula
 controls independently differentiate physical-x antiderivatives with Decimal
 precision 150, compare complete partitions and unobserved mass, and exercise
-the generated ordinary mean graph using an inert formula evaluator. They do
-not import ROOT or certify native numerical behavior.
+the generated ordinary mean graph using an inert formula evaluator. Native
+numerical behavior requires its own runtime qualification.
 
 ## Scope and remaining qualification
 

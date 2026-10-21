@@ -8,7 +8,7 @@ The primary output retains rational coefficients, inverse map, source/target coo
 
 Use an ordinary version2 science specification, one attempt/zero redos, scope `eft-convention-algebra-delivery` with action `delivery` only. The usual plan/approval/run/status lifecycle applies. Completion delivers the supplied coordinate calculation. Physical basis equivalence, EFT applicability and downstream execution authority remain unknown/false. No automatic fit or accepted-result reuse is authorized.
 
-SFitter specialist convention handoffs may additionally bind `transport_request` and `transport_result` pins alongside `semantic_manifest`. Intake freshly recomputes the complete exact result. Ready-native verifies basis/order/scale/flavour/units, full bin identities and the actual native card against the recorded binary64 projection. Every nonzero transformed term must be present; absent exactly zero cross terms are explicit structural zeros. The original fixed top score, RFit, correlation/shrinkage and width-weighted polynomial ratio remain unchanged. Host handoff custody enumerates the nested map/polynomial/evidence inputs as exact current Graph inputs. This computed transport remains a draft scientific convention artifact, subject to independent physical review and fresh native admission.
+SFitter specialist convention handoffs can additionally bind `transport_request` and `transport_result` pins alongside `semantic_manifest`. Intake freshly recomputes the complete exact result. Ready-native verifies basis/order/scale/flavour/units, full bin identities and the actual native card against the recorded binary64 projection. Every nonzero transformed term must be present; absent exactly zero cross terms are explicit structural zeros. The original fixed top score, RFit, correlation/shrinkage and width-weighted polynomial ratio remain unchanged. Host handoff custody enumerates the nested map/polynomial/evidence inputs as exact current Graph inputs. This computed transport remains a draft scientific convention artifact, subject to independent physical review and fresh native admission.
 
 Only source and software controls have run. Artificial sign/rotation examples earn no SMEFT-domain, native-fit, measurement or benchmark credit. General RGE, complex/chiral/flavour matching and arbitrary model-to-EFT equivalence require separate source-backed scientific methods.
 
@@ -57,6 +57,6 @@ bound by the ordinary fit approval; they confer no physical validation.
 Kind `convention_transport` additionally binds `approval_run`, `transport_request`
 and `transport_result`. The checker verifies the current ordinary approval for
 mode `eft-convention-transport`, the exact request/output identity, freshly
-recomputed algebra, source/target bases and complete term populations. It cannot
+recomputed algebra, source/target bases and complete term populations. It must not
 change the electroweak scheme or validity cutoff, or fill missing declarations.
 This preserves the existing independent review and native execution requirements.

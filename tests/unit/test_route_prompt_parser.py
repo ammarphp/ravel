@@ -122,6 +122,18 @@ def test_collision_energy_is_recorded_separately():
     assert c["targets"]["sqrt_s_gev"] == 13000.0
 
 
+@pytest.mark.parametrize('energy', [13, 27, 100, 42.75])
+@pytest.mark.parametrize('context', ['sqrt(s) = {energy} TeV', 'at {energy} TeV',
+                                      '{energy} TeV collision data',
+                                      'beam energy = {energy} TeV', 'collision energy of {energy} TeV',
+                                      'centre-of-mass energy of {energy} TeV'])
+def test_collision_energy_uses_quantity_local_syntax(energy, context):
+    prompt = ('Calculate the rate for a 13 TeV scalar with a 27 TeV partner, '
+              + context.format(energy=energy) + ' and a 100 TeV mediator.')
+    assert rp.extract_masses(prompt) == [13000.0, 27000.0, 100000.0]
+    assert rp.extract_sqrt_s(prompt) == energy * 1000
+
+
 def test_luminosity_list_does_not_become_masses():
     c = _route("Reinterpret a 2 TeV Z' with 139 fb^-1 and 13 TeV data.")
     assert c["targets"]["lumi_fb"] == 139.0

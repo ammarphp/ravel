@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Literature corpus plan, exclusion list, document outcome and census",
+  "description": "Installation data for building a located literature corpus through the existing acquisition, extraction and location tools. A plan selects documents by recorded metadata criteria; it is not a corpus, a relevance judgement or a licence grant. Pins are relative to the directory the caller supplies as the corpus base.",
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 2048},
+    "label": {"type": "string", "minLength": 1, "maxLength": 200},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "identity": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,47}$"},
+    "https": {"type": "string", "minLength": 9, "maxLength": 4096, "pattern": "^https://[^\\s]+$"},
+    "pin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {
+          "type": "string", "minLength": 1, "maxLength": 4096,
+          "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)(?!.*[\\x00-\\x1f\\x7f])[^\\\\]+(?<!/)$"
+        },
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size": {"type": "integer", "minimum": 1, "maximum": 16777216}
+      }
+    },
+    "identifier_list": {
+      "type": "array", "maxItems": 64, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^\\S+$"}
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "inspire": {"$ref": "#/$defs/identifier_list"},
+        "arxiv": {"$ref": "#/$defs/identifier_list"},
+        "doi": {"$ref": "#/$defs/identifier_list"},
+        "analysis": {"$ref": "#/$defs/identifier_list"},
+        "hepdata": {"$ref": "#/$defs/identifier_list"}
+      }
+    },
+    "terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["licence", "provenance", "redistribution", "derivatives", "attribution", "basis"],
+      "properties": {
+        "licence": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "object", "additionalProperties": false, "required": ["statement", "url"],
+             "properties": {"statement": {"type": "string", "minLength": 1, "maxLength": 512},
+                            "url": {"anyOf": [{"type": "null"}, {"type": "string", "minLength": 1, "maxLength": 512}]}}}
+          ]
+        },
+        "provenance": {"type": "string", "minLength": 1, "maxLength": 512},
+        "redistribution": {"enum": ["permitted", "local-only"]},
+        "derivatives": {"enum": ["permitted", "local-only"]},
+        "attribution": {"type": "boolean"},
+        "basis": {"$ref": "#/$defs/text"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "format", "sha256"],
+      "properties": {
+        "url": {"type": "string", "minLength": 9, "maxLength": 2048, "pattern": "^https://[^\\s]+$"},
+        "format": {"enum": ["pdf", "html", "text", "tex", "markdown"]},
+        "sha256": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]}
+      }
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "inspire"],
+      "properties": {
+        "status": {"enum": ["provider-list", "unknown"]},
+        "inspire": {"$ref": "#/$defs/reference_list"}
+      }
+    },
+    "reference_list": {
+      "type": "array", "maxItems": 5000, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[1-9][0-9]{0,15}$"}
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "identifiers", "version", "source", "source_reason", "terms", "metadata", "references", "labels"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identity"},
+        "title": {"$ref": "#/$defs/text"},
+        "identifiers": {"$ref": "#/$defs/identifiers"},
+        "version": {"anyOf": [{"type": "null"}, {"type": "string", "minLength": 1, "maxLength": 256}]},
+        "source": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/source"}]},
+        "source_reason": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/text"}]},
+        "terms": {"$ref": "#/$defs/terms"},
+        "metadata": {
+          "type": "object", "additionalProperties": false, "required": ["response", "pointer"],
+          "properties": {"response": {"$ref": "#/$defs/identity"}, "pointer": {"type": "string", "minLength": 1, "maxLength": 512, "pattern": "^(/[^/]*)+$"}}
+        },
+        "references": {"$ref": "#/$defs/references"},
+        "labels": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/label"}}
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "url", "purpose", "response"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identity"},
+        "url": {"$ref": "#/$defs/https"},
+        "purpose": {"$ref": "#/$defs/text"},
+        "response": {"$ref": "#/$defs/pin"}
+      }
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "min_interval_seconds", "terms_url"],
+      "properties": {
+        "origin": {"type": "string", "pattern": "^https://[A-Za-z0-9.-]+$", "maxLength": 512},
+        "min_interval_seconds": {"type": "number", "minimum": 0, "maximum": 600},
+        "terms_url": {"$ref": "#/$defs/https"}
+      }
+    },
+    "service_terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "url", "statement"],
+      "properties": {
+        "source": {"$ref": "#/$defs/label"},
+        "url": {"$ref": "#/$defs/https"},
+        "statement": {"$ref": "#/$defs/text"}
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_source_bytes", "max_seconds", "max_pages", "max_text_bytes", "documents_per_campaign"],
+      "properties": {
+        "max_source_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216},
+        "max_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+        "max_pages": {"type": "integer", "minimum": 1, "maximum": 1024},
+        "max_text_bytes": {"type": "integer", "minimum": 1, "maximum": 2097152},
+        "documents_per_campaign": {"type": "integer", "minimum": 1, "maximum": 30,
+                                   "description": "Each document uses up to two tool graphs and four campaign revisions; a campaign history holds 127."}
+      }
+    },
+    "screen_census": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exclusion_sha256", "screened", "admitted", "refused_documents", "refused"],
+      "properties": {
+        "exclusion_sha256": {"$ref": "#/$defs/sha256"},
+        "screened": {"type": "integer", "minimum": 0},
+        "admitted": {"type": "integer", "minimum": 0},
+        "refused_documents": {"type": "integer", "minimum": 0},
+        "refused": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 1},
+          "propertyNames": {"type": "string", "minLength": 1, "maxLength": 200}
+        }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "kind", "id", "statement", "selection", "origins", "service_terms", "limits", "screen", "documents"],
+      "properties": {
+        "schema_version": {"type": "integer", "const": 1},
+        "kind": {"const": "literature-corpus-plan"},
+        "id": {"$ref": "#/$defs/identity"},
+        "statement": {"$ref": "#/$defs/text"},
+        "selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider", "retrieved_utc", "criteria", "responses", "order", "target_size"],
+          "properties": {
+            "provider": {"$ref": "#/$defs/label"},
+            "retrieved_utc": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+            "criteria": {
+              "type": "array", "minItems": 1, "maxItems": 64,
+              "items": {"type": "object", "additionalProperties": false, "required": ["id", "statement"],
+                        "properties": {"id": {"$ref": "#/$defs/identity"}, "statement": {"$ref": "#/$defs/text"}}}
+            },
+            "responses": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/response"}},
+            "order": {"$ref": "#/$defs/text"},
+            "target_size": {"type": "integer", "minimum": 1, "maximum": 5000}
+          }
+        },
+        "origins": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/origin"}},
+        "service_terms": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/service_terms"}},
+        "limits": {"$ref": "#/$defs/limits"},
+        "screen": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/screen_census"}]},
+        "documents": {"type": "array", "maxItems": 5000, "items": {"$ref": "#/$defs/document"}}
+      }
+    },
+    "exclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "kind", "id", "statement", "rules", "closure", "evidence"],
+      "properties": {
+        "schema_version": {"type": "integer", "const": 1},
+        "kind": {"const": "literature-corpus-exclusion"},
+        "id": {"$ref": "#/$defs/identity"},
+        "statement": {"type": "string", "minLength": 1, "maxLength": 8000},
+        "rules": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"type": "object"}},
+        "closure": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cited", "text", "unknown_references"],
+          "properties": {
+            "cited": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identity"}},
+            "text": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identity"}},
+            "unknown_references": {"enum": ["refuse", "admit"]}
+          }
+        },
+        "evidence": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/response"}}
+      }
+    },
+    "binding": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"],
+         "properties": {"path": {"type": "string", "minLength": 1, "maxLength": 4096}, "sha256": {"$ref": "#/$defs/sha256"},
+                        "size": {"type": "integer", "minimum": 1}}}
+      ]
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "kind", "plan_sha256", "exclusion_sha256", "document", "status", "stage", "reason",
+                   "acquisition", "extraction", "product", "unresolved"],
+      "properties": {
+        "schema_version": {"type": "integer", "const": 1},
+        "kind": {"const": "literature-corpus-outcome"},
+        "plan_sha256": {"$ref": "#/$defs/sha256"},
+        "exclusion_sha256": {"$ref": "#/$defs/sha256"},
+        "document": {"$ref": "#/$defs/document"},
+        "status": {"enum": ["located", "located-partial", "failed", "unsupported", "deferred"]},
+        "stage": {"enum": ["complete", "acquisition", "extraction", "location", "campaign"]},
+        "reason": {"anyOf": [{"type": "null"}, {"type": "string", "minLength": 1, "maxLength": 8000}]},
+        "acquisition": {"$ref": "#/$defs/binding"},
+        "extraction": {"$ref": "#/$defs/binding"},
+        "product": {"$ref": "#/$defs/binding"},
+        "unresolved": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "$ref": "#/$defs/plan"
+}

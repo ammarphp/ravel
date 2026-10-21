@@ -17,10 +17,10 @@ run(task, base_dir, output_dir)       # writes a new domain-result.json and retu
 Every task has exactly `{"domain": "...", "config": {...}}`. Unknown fields are
 errors. Input file paths resolve relative to `base_dir`. Symlink inputs and output
 directories, duplicate JSON keys and nonfinite numeric inputs are rejected.
-Input hashes are checked again after execution. Existing results cannot be
+Input hashes are checked again after execution. Existing results must not be
 overwritten. A result with `status: "passed"` means the requested arithmetic and
 supplied checks passed. Every result retains `physics_validated: false` and
-branch-specific limitations. A failed supplied comparison is retained as
+branch-specific scope conditions. A failed supplied comparison is retained as
 `status: "failed"`; it is not converted to a successful scientific result.
 
 ## Exported UFO model checks
@@ -72,8 +72,7 @@ executed by this branch. The format follows the structure described in
 ## Fixed-phase-space matrix-element probe
 
 The `model-probe` branch executes a supplied MG5 runtime only inside the approved
-supervised scientific worker. `validate` and `inputs` do not execute MG5, build
-source, or generate events. Its first implemented operation is deliberately
+supervised scientific worker. `validate` and `inputs` prepare input validation and discovery. Its first implemented operation is deliberately
 restricted to the massless Standard Model pure-photon tree process
 `e+ e- > mu+ mu- / z h QED=2`. It exports and compiles a standalone amplitude
 driver for finite supplied phase-space points; it does not integrate a cross
@@ -126,17 +125,16 @@ average for distinct color-singlet fermions,
 oracle convention before comparing the generated amplitude. A boosted-point
 check provides a separate Lorentz consistency test of the same implementation.
 Four-vector conservation and mass-shell residuals use energy-normalized vectors,
-so low-energy inputs cannot pass through an arbitrary absolute scale floor.
+so low-energy inputs must not pass through an arbitrary absolute scale floor.
 Amplitude comparisons enforce the declared relative residual as well as the
-absolute tolerance; `atol` cannot exceed `rtol` times the smallest positive
+absolute tolerance; `atol` must not exceed `rtol` times the smallest positive
 analytic reference or relax the relative check.
 
 `model-probe-result.json` and the enclosing `domain-result.json` retain effective
 compiled parameters, measured amplitudes, oracle comparisons, commands, logs,
-runtime identities and the compiled binary identity. A missing, failed,
-unsupported or inapplicable *required* check cannot pass. Ward, gauge-pair,
+runtime identities and the compiled binary identity. A required check must have a passing result within its declared applicability. Ward, gauge-pair,
 partial-width, resonance, permutation and spin-decay coverage retain explicit
-statuses; naming one in `required_checks` does not implement it. A failed build
+statuses. Every named `required_checks` entry requires its actual check implementation. A failed build
 or comparison retains its evidence and consumes its approved attempt.
 
 A passing result is a finite-point numerical witness for this process and
@@ -289,10 +287,10 @@ entire domain supported.
 |---|---|---|
 | `heavy-ion` | `beam_mass_numbers` (two positive integers, at least one greater than one), `sqrt_sNN_GeV`, `centrality_percent` (increasing pair within 0–100), `centrality_definition`, positive `event_exposure`, `observable_unit`, `source`, `bins` | Per-event differential yield `sumw / (event_exposure * bin_width)` and conditional fixed-exposure variance `sumw2 / (event_exposure * bin_width)^2`. Each ordered, nonoverlapping bin has `low`, `high`, `sumw`, `sumw2`. No nuclear generator, centrality calibration, nuclear PDF, R_AA reference or exposure uncertainty is supplied automatically. |
 | `forward` | `plane_z_mm`, positive `radius_mm`, `transport: "neutral-straight-line-vacuum"`, `source`, `events` | Straight-line neutral propagation to a plane and circular-aperture selection. Each event has `event_id`, `weight`, `x_mm`, `y_mm`, `z_mm`, `px_GeV`, `py_GeV`, `pz_GeV`, `charge`. Charge must be zero. Backward or parallel trajectories do not reach the plane. No beam optics, material transport or detector efficiency is supplied. |
-| `neutrino` | `flavor_pdg` (one of ±12, ±14, ±16), `target`, `target_basis` (`nucleon`, `nucleus` or `electron`), `n_targets`, `flux_unit: "cm^-2/bin"`, matching `cross_section_unit: "cm^2/<target_basis>"`, `flux_exposure: "integrated"`, `cross_section_averaging: "flux-weighted-per-bin"`, `source`, `bins` | Expected count per bin is `flux * cross_section * n_targets * efficiency`. Ordered nonoverlapping energy bins have `energy_low_GeV`, `energy_high_GeV`, `flux`, `cross_section`, `efficiency` (fraction 0–1). Already integrated flux is never multiplied by bin width again. Thin-target folding uses supplied flavor, material and target basis; it does not generate flux, nuclear interactions, oscillations, migration or uncertainties. |
+| `neutrino` | `flavor_pdg` (one of ±12, ±14, ±16), `target`, `target_basis` (`nucleon`, `nucleus` or `electron`), `n_targets`, `flux_unit: "cm^-2/bin"`, matching `cross_section_unit: "cm^2/<target_basis>"`, `flux_exposure: "integrated"`, `cross_section_averaging: "flux-weighted-per-bin"`, `source`, `bins` | Expected count per bin is `flux * cross_section * n_targets * efficiency`. Ordered nonoverlapping energy bins have `energy_low_GeV`, `energy_high_GeV`, `flux`, `cross_section`, `efficiency` (fraction 0–1). Already integrated flux is never multiplied by bin width again. Thin-target folding uses supplied flavor, material, target basis, flux, cross sections and efficiency. |
 
 For neutrino inputs, the [PDG review of neutrino cross-section measurements](https://pdg.web.cern.ch/pdg/2020/reviews/rpp2020-rev-nu-cross-sections.pdf)
-explains why a nuclear target and energy-dependent interaction model cannot be
+explains why a nuclear target and energy-dependent interaction model must not be
 borrowed silently from ordinary proton-proton analysis assumptions.
 
 ## Exact-node topology and efficiency-map folding
@@ -310,7 +308,7 @@ borrowed silently from ordinary proton-proton analysis assumptions.
 This branch executes a supplied event-selection probability map at exact nodes.
 It requires NumPy and admits at most 256 map nodes in one bounded fold. It does
 not extrapolate, interpolate, clamp probabilities or assign zero to an uncovered
-point. A per-object efficiency cannot silently become an event-selection map.
+point. A per-object efficiency must not silently become an event-selection map.
 The map file has this structure:
 
 ```json
@@ -404,7 +402,7 @@ response covariance, alternative-hypothesis isolation, uncovered coordinates,
 inconsistent units/topology, covariance ordering and nonphysical probabilities.
 
 These tests establish software behavior in the stated domain. They are not
-published ATLAS/CMS closure, classifier-efficiency validation, nuclear-response
+published detector and analysis closure, classifier-efficiency validation, nuclear-response
 validation or an RS1 acceptance repair. Each scientific application still needs
 the matching reference inputs, reviewed assumptions and target-specific closure.
 

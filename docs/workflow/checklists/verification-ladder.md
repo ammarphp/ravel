@@ -1,7 +1,7 @@
 # Checklist — the verification ladder  ·  how a gap claim becomes ATTRIBUTED, not asserted
 
 Every run writes `VERIFICATION-LADDER.md` (run root) at close — the table below, one row per
-rung. The ladder answers the question a RESULT.md alone cannot: *how do we KNOW the recorded gaps
+rung. The ladder records the evidence answering: *how do we KNOW the recorded gaps
 were the actual failure points?* The run's close-out includes it; step 9's Tier-A checks the
 table exists and its statuses match the artifacts.
 
@@ -23,7 +23,7 @@ table exists and its statuses match the artifacts.
 - `unavailable-published` — no published checkpoint exists at this rung (say what you looked for:
   the resource census + source-ladder rungs walked).
 - `not-checked` — a checkpoint EXISTS but was not compared. This row is the debt: every
-  `not-checked` carries a one-line reason and survives into the RESULT.md limitations.
+  `not-checked` carries a one-line reason and survives into the RESULT.md qualifications.
 
 ## The bracketing rule (what "confirmed failure point" means)
 A recorded gap is **CONFIRMED** at rung Rn iff R(n−1) is `checked-pass` and Rn is `checked-fail`

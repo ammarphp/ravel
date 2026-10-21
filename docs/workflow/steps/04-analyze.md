@@ -1,5 +1,18 @@
 # Step 4 — Analyze  ·  [judgment] choose · [agent] run
 
+## On the controller
+
+On a controller run the selection runs inside the generation steps (`recast.smoke`, then `run.full` or each
+`scan.point.<tag>`), whose operations apply the preserved routine. Routine presence and engineering checks are not
+qualification: the smoke record must bind a current routine qualification report (`qualification.routine`,
+`qualification.status` of `qualified` or `qualified-with-limits`), or the step fails. The choice between the
+options below is the route analysis's (`inputs.route`), shown at CHECK-IN 1 and bound into the plan before approval.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
 Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
 this selects the native build and binary paths, including an existing local toolchain.
 `CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda` — every `$CONDA` below.
@@ -8,7 +21,7 @@ Run the analysis's selection on the showered events. Two routine types are suppo
 the target analysis provides (`docs/workflow/checklists/choosing-routine.md`). Both apply the analysis selection and
 feed the same exclusion in step 7, but they handle **detector effects differently**: the Rivet routine
 applies **Rivet's own smearing functions** (no Delphes); SimpleAnalysis consumes **Delphes**-reconstructed
-objects (the reference paper's chain). Neither is full Geant4 — see `docs/reference/limitations.md`.
+objects (the reference paper's chain). Neither is full Geant4 — see `docs/reference/scope.md`.
 
 **Run the detector-fidelity gate first (step 3.5, `docs/workflow/checklists/detector-fidelity.md`).** Because the two
 paths model the detector differently, the detector model must be *verified/matched* before its yields
@@ -17,7 +30,7 @@ The gate is path-specific: **verify** the Rivet routine's smearing (era-appropri
 Delphes card to the analysis's published performance **then certify** the per-SR acc×eff. Do this once
 per routine + detector setup, alongside the cutflow certification (`docs/workflow/checklists/validation.md` §B).
 
-## Option A — Rivet routine (native; ATLAS + CMS; default)
+## Option A — Rivet routine (native; default)
 A Rivet routine reads HepMC directly, applies the selection + smearing, and fills observables
 (distributions and/or signal-region counts) into a YODA file. It also bundles the published
 reference data, so steps 5–7 need no download for the core case.
@@ -63,7 +76,7 @@ nonzero rather than emitting NaN yields): the per-SR **A×ε is the last/first b
 bundled REF **distribution** tables, not a per-SR yield table. See
 `docs/workflow/reference/example-rivet-ewk-path.md`.
 
-## Option B — SimpleAnalysis routine (ATLAS/CMS SR ntuples)
+## Option B — SimpleAnalysis routine (signal-region ntuples)
 SimpleAnalysis is the SR-yield framework many SUSY analyses publish a routine for. It reads a
 detector-level (Delphes) input and writes per-SR yields; `sa2json` turns those into a signal patch for a
 published pyhf likelihood.
@@ -77,7 +90,7 @@ Inspect the selected package's source, cuts, overlaps, normalization conventions
 qualification scope before admitting yields or inference.
 
 A declarative `native_sa_generic.py` contract supplies object selections, regions and luminosity.
-Unsupported observables require source development and qualification. If an upstream executable
+Unverified observables require source development and qualification. If an upstream executable
 interface is required, discover it from supplied source metadata and prepare it through the same
 method-decision and compute-admission workflow. Outputs and populations come from the request;
 engineering checks alone do not establish experimental acceptance.
@@ -90,7 +103,7 @@ TRACKED — they regenerate everything), on truth-level objects (`detector_mode=
 Every output carries the **particle-level-proxy** fidelity label (`docs/reference/scope.md` §5) and
 the no-routine caps are CHECK-IN-1 flags: no detector model, no published acc×eff cert, no
 exclusion of record — sensitivity statements only (`stat_mode=sensitivity-expected-only`).
-When the custom selection instead runs on **Delphes fast-sim output** (a stock ATLAS/CMS card,
+When the custom selection instead runs on **Delphes fast-sim output** (a supplied detector card,
 e.g. a τ_h+MET recast), declare `detector_mode=delphes-custom-uncertified` — NOT particle-level, and never buried in an assumptions note: the route
 gate WARNs with the no-exclusion-of-record obligation, CHECK-IN 1 must surface the uncertified
 status (`validate_checkin` FAILs otherwise), and the upgrade path is per-SR acc×eff
@@ -116,14 +129,13 @@ Fold PUBLISHED efficiency maps over the model point instead of simulating recons
   `--data-types efficiencyMap` only for an explicitly restricted per-SR map fold.
   Executed evidence defines validation scope. Try D1 BEFORE Option C when no routine exists and the model
   decomposes into simplified-model topologies.
-- **D2 (`effmap_fold.py`; the reader and the statistics half are validated, the truth-event maker
-  is not built):** per-object efficiency maps from
+- **D2 (`effmap_fold.py`, supplied truth events):** per-object efficiency maps from
   HEPData resources (the LLP/displaced standard — trap T2's route; vanilla Delphes silently fails
   those objects). Build plan + validation gate in the reference doc.
 
 ## Option E — SHAPE/TEMPLATE FIT (`shape-fit`; the scoped engine)
 When the analysis's result is a binned **shape / bump / template fit** (dijet/dilepton/diphoton
-invariant-mass, template morphs — trap T-shape), the counting/likelihood machinery cannot
+invariant-mass, template morphs — trap T-shape), the counting/likelihood machinery must not
 reproduce it, but the scoped engine `shape_fit.py` can: generate the signal at particle level →
 build the invariant-mass distribution → the engine refits the paper's own background shape (a
 chosen family × a flexible polynomial transfer function) + the signal template and brackets the

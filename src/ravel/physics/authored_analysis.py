@@ -316,11 +316,26 @@ def execute(code_path, workdir, task, base, *, python=None):
     (workdir / 'step-inputs.json').write_text(json.dumps(step_inputs, indent=2) + '\n')
     shutil.copyfile(code_path, workdir / 'code.py')
     references = [_resolve(base, r) for r in task.get('reference_paths', [])]
-    command = sandbox_command(workdir, references) + [python or sys.executable, '-B', '-s', 'code.py']
+    argv = [python or sys.executable, '-B', '-s', 'code.py']
     timeout = task.get('timeout_seconds', 600)
+    confined = None
     try:
-        proc = subprocess.Popen(command, cwd=workdir, env=_environment(workdir), stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, start_new_session=True)
+        from ravel.controller.confine import runs
+        owner = runs.owner_of(base)
+        if owner is not None:
+            # Controller mode: the confined launcher reads only the step's inputs and the runtime,
+            # never the withheld references, and writes only the attempt directory.
+            from ravel.controller.confine import popen
+            reads = [str(workdir), *step_inputs['inputs'].values()]
+            proc = popen({'argv': argv, 'env': _environment(workdir), 'reads': reads, 'writes': [str(workdir)],
+                          'withheld': [str(r) for r in references], 'cwd': str(workdir),
+                          'limits': {'wall_seconds': timeout}, 'label': 'authored-analysis',
+                          'controller': {'run_id': owner[0]}},
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+            confined = proc
+        else:
+            proc = subprocess.Popen(sandbox_command(workdir, references) + argv, cwd=workdir, env=_environment(workdir),
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
     except OSError as exc:
         return {'exit_code': None, 'timed_out': False, 'stderr_tail': f'could not start: {exc}', 'started': False}
     try:
@@ -332,7 +347,11 @@ def execute(code_path, workdir, task, base, *, python=None):
         _, err = proc.communicate()
         timed_out = True
     text = err.decode('utf8', errors='replace')
-    return {'exit_code': proc.returncode, 'timed_out': timed_out, 'stderr_tail': text[-STDERR_TAIL:], 'started': True}
+    observation = {'exit_code': proc.returncode, 'timed_out': timed_out, 'stderr_tail': text[-STDERR_TAIL:], 'started': True}
+    if confined is not None:
+        from ravel.controller.confine import finish
+        observation['confinement'] = {'launch': confined.ravel_confinement.record, 'finish': finish(confined)}
+    return observation
 
 
 # ---------------------------------------------------------------- postconditions and classes

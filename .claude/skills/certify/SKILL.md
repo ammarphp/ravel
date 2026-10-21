@@ -44,13 +44,13 @@ $CONDA run -n rivet python scripts/run.py ravel.validation.validate_cutflow \
 ```
 `--srs` is a **comma list of SR names**, not a json path. Pass `--exclusion <exclusion.json>`
 so it can tag the driving SR from the best expected CLs (else everything is "contributing" and
-the verdict can't reach PASS). Optional tiers: `--driving-tol 0.15 --contributing-tol 0.25
+the verdict must not reach PASS). Optional tiers: `--driving-tol 0.15 --contributing-tol 0.25
 --mu95-bound 0.10`.
 
 ## Read the verdict (both engines share the tiering)
-These reports diagnose a comparison. Before they support a **live** result, bind them to an approved comparison plan with `ravel.validation.certificates`. Follow `docs/reference/scientific-results.md`: pin the policy, references, dependencies, point identities and served outputs; create the certificate; verify with `--live`. Use `--certification-context` when producing the report so its operands carry explicit identity, units and basis. A legacy PASS/WARN label or sibling run cannot substitute for this binding. Changing inputs or outputs requires rechecking the certificate; changing the plan requires a new actual approval.
+These reports diagnose a comparison. Before they support a **live** result, bind them to an approved comparison plan with `ravel.validation.certificates`. Follow `docs/reference/scientific-results.md`: pin the policy, references, dependencies, point identities and served outputs; create the certificate; verify with `--live`. Use `--certification-context` when producing the report so its operands carry explicit identity, units and basis. A legacy PASS/WARN label or sibling run must not substitute for this binding. Changing inputs or outputs requires rechecking the certificate; changing the plan requires a new actual approval.
 
-- **PASS**: driving SR within tier **and** worst |Δµ₉₅| ≤ bound **and** the verdict can't flip.
+- **PASS**: driving SR within tier **and** worst |Δµ₉₅| ≤ bound **and** the verdict must not flip.
 - **WARN/FAIL**: read the attribution rows — each over-tier residual names its `cause_class`
   and bounded µ₉₅-impact. A WARN with a bounded, attributed cause on a non-driving SR is an
   honest, reportable result; an un-remediated FAIL on the driving SR is not.
@@ -62,7 +62,7 @@ These reports diagnose a comparison. Before they support a **live** result, bind
   ratio — a global σ-basis fingerprint, not per-SR selection physics (see trap table).
 
 Tier tolerances: driving ≤12–15%, contributing ≤25%, tail report-only. A tolerance bounds what a
-residual may be before it needs an attributed cause; it is not a target to optimise.
+residual can be before it needs an attributed cause; it is not a target to optimise.
 Record the verdict in `RESULT.md`. This certification is one gate of several: DELIVERY is
 gated by the step-9 panel — `verify_pack.py`
 plus the adversary (`verification-panel` skill) — which audits this cert's presence too.
@@ -71,17 +71,17 @@ plus the adversary (`verification-panel` skill) — which audits this cert's pre
 | Claim | Requires | Not sufficient |
 |---|---|---|
 | "acceptance comparison certified" | This run's valid live artifact-bound certificate, declared comparison scope and report from the right engine | A bare report label, a sibling certificate, or a central-value comparison described as detector/coverage certification |
-| "PASS" | driving SR tagged (pass `--exclusion`) and within tier, worst \|Δµ₉₅\| ≤ bound, verdict can't flip | every SR merely "contributing" because no driving SR was tagged |
+| "PASS" | driving SR tagged (pass `--exclusion`) and within tier, worst \|Δµ₉₅\| ≤ bound, verdict must not flip | every SR merely "contributing" because no driving SR was tagged |
 | "WARN, reportable" | attribution rows: each over-tier residual's `cause_class` + bounded µ₉₅ impact | an unattributed residual, or any residual on the driving SR |
 
 | Thought | Reality |
 |---|---|
-| "The routine is certified; this run inherits it" | A per-run input (a generation cut, a card value) can change silently between runs and shift the tagged cross-section; a routine-level certificate cannot see it. Certify every run against its own effective inputs. |
+| "The routine is certified; this run inherits it" | A per-run input (a generation cut, a card value) can change silently between runs and shift the tagged cross-section; certification must therefore use each run's effective inputs. Certify every run against its own effective inputs. |
 | "It's a WARN, basically a PASS" | A WARN is reportable ONLY with its attribution rows; an un-remediated FAIL on the driving SR is not a reportable reproduction. |
 | "Every SR is ~the same factor off — the detector model is uniformly bad" | A UNIFORM ratio is the σ-basis fingerprint: a tagged-sample denominator compared with a published INCLUSIVE denominator gives a uniform excess ≈ σ_incl/σ_tag. Heed the cert's `BASIS SUSPICION` line and establish both bases from their cards before touching efficiencies. |
 
 ## Stop conditions
-- No published acc×eff map / cutflow covers the point → the cert cannot run; that is a
+- No published acc×eff map / cutflow covers the point → the cert must not run; that is a
   detector-fidelity finding (`docs/workflow/checklists/detector-fidelity.md`) for the CHECK-IN
   flags — never certify against interpolated or invented reference values.
 - Un-remediated FAIL on the driving SR → the yields do not feed a delivered limit; read the

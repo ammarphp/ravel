@@ -1,117 +1,103 @@
-# Tool status
+# Tool checks
 
 Generated from `src/ravel/data/backends/census.json`; do not edit this table.
 
-These statuses report the pinned historical census. They do not inspect this machine or certify a new result. Tools are required for their selected operation/profile; excluded tools have no execution route. Doctor readiness is reported separately by `ravel doctor --census`.
+Tools are required by their selected operation/profile. Run `ravel doctor --census`
+for readiness checks on the selected machine.
 
-| Tool | Status | Requirement | Doctor check | Evidence scope |
-|---|---|---|---|---|
-| AgentRivet (`e4d12ecc`) | not installed | required for profile | agent-sources/agentrivet | Reported historical census status; no current installation or physics certification inferred. |
-| AnalysisBase 21.2 (inside the SA image) | qualified | required for profile | simpleanalysis/simpleanalysis-image | Reported historical census status; no current installation or physics certification inferred. |
-| ATLAS SimpleAnalysis (image `sha256:3156f065…`, source `5a33033d`) | qualified | required for profile | simpleanalysis/simpleanalysis-image; simpleanalysis/simpleanalysis-wrapper | Reported historical census status; no current installation or physics certification inferred. |
-| CAMB 1.6.5, CLASS (classy) 3.4.1.0, Cobaya 3.6.2 | built but unqualified | required for profile | cosmology/cosmology-python | Reported historical census status; no current installation or physics certification inferred. |
-| CheckMATE 2 (`bacf9d17`) with ONNX Runtime C++ 1.30.0 | built but unqualified | required for profile | checkmate/checkmate; checkmate/pythia82-config; checkmate/checkmate-python | Reported historical census status; no current installation or physics certification inferred. |
-| CMS Combine 9.2.1 on ROOT 6.22 (image `sha256:5da96967…`) | qualified | required for profile | root-combine/combine-image; root-combine/combine; root-combine/text2workspace; root-combine/combine-root-config | Reported historical census status; no current installation or physics certification inferred. |
-| coffea, cabinetry, vector, boost-histogram, pyarrow | not installed | required for profile | site-root-wms/site-analysis-python | Reported historical census status; no current installation or physics certification inferred. |
-| Collier or LoopTools | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| Contur 3.1.5 (`contur[spey]`) + data | qualified | required for profile | contur/contur; contur/contur-data | Reported historical census status; no current installation or physics certification inferred. |
-| CVMFS, X.509 grid proxy, Kerberos, HTCondor, apptainer, agent CLI | not installed | required for profile | site-access/cvmfs; site-access/grid-proxy; site-access/kerberos; site-access/htcondor; site-access/apptainer; site-access/agent-cli | Reported historical census status; no current installation or physics certification inferred. |
-| Delphes 3.5.1 | qualified | required for profile | recast-base/delphes | Reported historical census status; no current installation or physics certification inferred. |
-| docker / apptainer / podman on Linux | not installed | required for profile | container-runtime/podman; container-runtime/podman-machine; container-runtime/rosetta; container-runtime/container-engine | Reported historical census status; no current installation or physics certification inferred. |
-| DsixTools | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| EasyScan_HEP (`2dee5ede`) | not installed | required for profile | easyscan/easyscan-source; easyscan/easyscan-engines-manifest; easyscan/gm2calc | Reported historical census status; no current installation or physics certification inferred. |
-| emcee 3.1.6, dynesty 2.1.5 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| FastJet 3.5.1 | qualified | required for profile | recast-base/fastjet-config | Reported historical census status; no current installation or physics certification inferred. |
-| FeynArts 3.12 (patched with FAPatch) | not installed | required for profile | wolfram/wolfram-kernel; wolfram/feynarts-original; wolfram/feynarts-patched | Reported historical census status; no current installation or physics certification inferred. |
-| FeynCalc (`fe664511`) | not installed | required for profile | wolfram/wolfram-kernel; wolfram/feyncalc | Reported historical census status; no current installation or physics certification inferred. |
-| FeynGraph (`15afe2f2`) | not installed | required for profile | feyngraph/diagram-python; feyngraph/diagram-rust; feyngraph/feyngraph-source | Reported historical census status; no current installation or physics certification inferred. |
-| FeynRules 2.3.49 | built but unqualified | required for profile | wolfram/wolfram-kernel; wolfram/feynrules | Reported historical census status; no current installation or physics certification inferred. |
-| FlexibleSUSY 2.9.0 (CMSSM, lowMSSM, NMSSM) | not installed | required for profile | spectrum/flexiblesusy-CMSSM; spectrum/flexiblesusy-lowMSSM; spectrum/flexiblesusy-NMSSM | Reported historical census status; no current installation or physics certification inferred. |
-| FORM (standalone) | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| Geant4 / GDML | excluded | excluded | excluded: Full simulation; GRACE detector design | Reported historical census status; no current installation or physics certification inferred. |
-| GM2Calc 2.3.1, PhaseTracer (`a68b2fd2`) | not installed | required for profile | easyscan/easyscan-source; easyscan/easyscan-engines-manifest; easyscan/gm2calc | Reported historical census status; no current installation or physics certification inferred. |
-| HEPData (API and `hepdata-cli` 0.3.1), INSPIRE, arXiv, Zenodo, CERN GitLab | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| HepMC2 2.06.11 | built but unqualified | required for profile | checkmate/checkmate; checkmate/pythia82-config; checkmate/checkmate-python | Reported historical census status; no current installation or physics certification inferred. |
-| HepMC3 3.3.1 | qualified | required for profile | rivet-shower/hepmc3-config | Reported historical census status; no current installation or physics certification inferred. |
-| HEPTAPOD v2.1.0 (`705b03cc`) and EDA epoch (`cb771f8c`): NDA and Diagrammatica EDA | not installed | required for profile | diagram-consumers/heptapod-nda; diagram-consumers/heptapod-eda; wolfram/wolfram-kernel; wolfram/feynrules; wolfram/sarah; wolfram/feyncalc; wolfram/feynarts-original; wolfram/feynarts-patched; wolfram/heptapod | Reported historical census status; no current installation or physics certification inferred. |
-| Herwig 7.3.0, ThePEG 2.3.0 | not installed | required for profile | contur/herwig | Reported historical census status; no current installation or physics certification inferred. |
-| hi_class | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| HTCondor, SLURM | not installed | required for profile | nyx/nyx; nyx/srun; nyx/scontrol; nyx/scancel; site-access/cvmfs; site-access/grid-proxy; site-access/kerberos; site-access/htcondor; site-access/apptainer; site-access/agent-cli | Reported historical census status; no current installation or physics certification inferred. |
-| iminuit 2.32.0 | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| JAX 0.4.35 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| LangGraph 1.2.14 (+ checkpoint 4.2.0, SQLite saver 3.1.1), LangChain Core 1.6.7, pydantic 2.14.0 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| LHAPDF 6.5.6 | qualified | required for profile | lhapdf-sets/pdfsets-index; lhapdf-sets/pdf-NNPDF30_nlo_as_0118; lhapdf-sets/pdf-LUXlep-NNPDF31_nlo_as_0118_luxqed; lhapdf-sets/pdf-cteq6l1; lhapdf-sets/pdf-NNPDF23_lo_as_0130_qed; lhapdf-sets/pdf-NNPDF23_nlo_as_0119; lhapdf-sets/pdf-CT14lo; lhapdf-sets/pdf-CT18NNLO; madgraph/mg-python; madgraph/mg5; madgraph/mg5-lhapdf-config; madgraph/mg5-options; madgraph/mg5-3; madgraph/mg5-3-lhapdf-config | Reported historical census status; no current installation or physics certification inferred. |
-| LHAPDF sets: NNPDF30_nlo_as_0118, LUXlep-NNPDF31_nlo_as_0118_luxqed, cteq6l1, NNPDF23_lo_as_0130_qed, NNPDF23_nlo_as_0119, CT14lo, CT18NNLO | qualified | required for profile | lhapdf-sets/pdfsets-index; lhapdf-sets/pdf-NNPDF30_nlo_as_0118; lhapdf-sets/pdf-LUXlep-NNPDF31_nlo_as_0118_luxqed; lhapdf-sets/pdf-cteq6l1; lhapdf-sets/pdf-NNPDF23_lo_as_0130_qed; lhapdf-sets/pdf-NNPDF23_nlo_as_0119; lhapdf-sets/pdf-CT14lo; lhapdf-sets/pdf-CT18NNLO | Reported historical census status; no current installation or physics certification inferred. |
-| MadAnalysis 5 v1.11.1 (`e25937ba`) with SampleAnalyzer | built but unqualified | required for profile | ma5/ma5; ma5/sampleanalyzer | Reported historical census status; no current installation or physics certification inferred. |
-| MadGraph 3.7.0 (`adf3d62d`) | not installed | required for profile | madgraph/mg5-3; madgraph/mg5-3-lhapdf-config | Reported historical census status; no current installation or physics certification inferred. |
-| MadGraph5_aMC@NLO 2.9.27 (`eb76cab7`) | qualified | required for profile | madgraph/mg-python; madgraph/mg5; madgraph/mg5-lhapdf-config; madgraph/mg5-options | Reported historical census status; no current installation or physics certification inferred. |
-| mapyde 0.5.0 | qualified | required for profile | simpleanalysis/mapyde | Reported historical census status; no current installation or physics certification inferred. |
-| matplotlib 3.9.4, mplhep 0.3.59, contourpy | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| MCFM per-point helicity amplitudes for interfering resonances | not installed | required for profile | mcfm-amplitudes/mcfm-amplitudes | Reported historical census status; no current installation or physics certification inferred. |
-| MG5aMC_PY8_interface (`5d82df1b`) | not installed | required for profile | mg5-py8-interface/mg5-py8-interface | Reported historical census status; no current installation or physics certification inferred. |
-| micrOMEGAs 7.1, SUSY-HIT, FeynHiggs, HiggsBounds | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| micrOMEGAs (as a general DM tool) | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| Model providers: Anthropic Messages, OpenAI Responses, Gemini, OpenAI-compatible chat completions | built but unqualified | required for profile | research-host/research-host-config | Reported historical census status; no current installation or physics certification inferred. |
-| MultiNest | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| Nyx 26.09, AMReX 26.09, SUNDIALS 7.6.0; CosmicIC (supplied) | not installed | required for profile | nyx/nyx; nyx/srun; nyx/scontrol; nyx/scancel | Reported historical census status; no current installation or physics certification inferred. |
-| ONNX 1.23.0, ONNX Runtime 1.30.0 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| Podman 5.8.2 (macOS client), vfkit 0.6.3, gvproxy 0.8.9, Podman VM `ravel`; Rosetta 2 | qualified | required for profile | container-runtime/podman; container-runtime/podman-machine; container-runtime/rosetta; container-runtime/container-engine | Reported historical census status; no current installation or physics certification inferred. |
-| poppler (`pdftoppm`, `pdfinfo`), Graphviz (`neato`), librsvg (`rsvg-convert`) | not installed | required for profile | publication/pdftoppm; publication/pdfinfo; publication/neato; publication/rsvg-convert | Reported historical census status; no current installation or physics certification inferred. |
-| Powheg | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| pyhf 0.7.6 (+ `[minuit]`), jsonpatch | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| pypdfium2 5.14.0 / PDFium, pypdf, Pillow | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| pySecDec 1.6.6 with bundled FORM | built but unqualified | required for profile | finite-integrals/integral-python; finite-integrals/integrals-make; finite-integrals/form | Reported historical census status; no current installation or physics certification inferred. |
-| PySLHA 3.3.2, `particle` 0.26.2 | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| Pythia 8.244 | built but unqualified | required for profile | checkmate/pythia82-config | Reported historical census status; no current installation or physics certification inferred. |
-| Pythia 8.312 | qualified | required for profile | rivet-shower/pythia83-config; rivet-shower/shower; rivet-shower/shower-merged | Reported historical census status; no current installation or physics certification inferred. |
-| Python numerical core | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| QGRAF model format | not installed | required for profile | source: src/ravel/physics/feyn_graph.py | Reported historical census status; no current installation or physics certification inferred. |
-| RestFrames (from SA tarball, sha256 pinned) | qualified | required for profile | restframes/restframes; restframes/restframes-library; restframes/restframes-library-linux; restframes/rjr | Reported historical census status; no current installation or physics certification inferred. |
-| Rivet 4.1.3, YODA 2.1.3 | qualified | required for profile | rivet-shower/rivet; rivet-shower/rivet-build | Reported historical census status; no current installation or physics certification inferred. |
-| RooFit / XRooFit (ROOT ≥6.32.14 for HS3) | built but unqualified | required for profile | recast-base/recast-root-config | Reported historical census status; no current installation or physics certification inferred. |
-| ROOT 6.40 | qualified | required for profile | recast-base/recast-root-config | Reported historical census status; no current installation or physics certification inferred. |
-| SARAH 4.15.4 | not installed | required for profile | wolfram/wolfram-kernel; wolfram/sarah | Reported historical census status; no current installation or physics certification inferred. |
-| ServiceX 3.3.1, func-adl-servicex-xaodr25 | built but unqualified | required for profile | iris/servicex | Reported historical census status; no current installation or physics certification inferred. |
-| SFitterAgents/SFitter (`6072a79e`) + PyTorch 2.14.0 | not installed | required for profile | sfitter/sfitter-venv; sfitter/sfitter-source | Reported historical census status; no current installation or physics certification inferred. |
-| Sherpa | excluded | excluded | excluded: Only recognised in intake and refused as a shower stage | Reported historical census status; no current installation or physics certification inferred. |
-| SModelS 3.1.1 + database `official311.pcl` (Zenodo 18478920) | qualified | required for profile | smodels/smodels-311-version; smodels/smodels-311-database | Reported historical census status; no current installation or physics certification inferred. |
-| Snakemake 9.27.0 | not installed | required for profile | site-root-wms/site-snakemake | Reported historical census status; no current installation or physics certification inferred. |
-| SoftSUSY | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| Spey 0.2.6 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| SPheno 4.0.5 | not installed | required for profile | spectrum/spheno | Reported historical census status; no current installation or physics certification inferred. |
-| Supplied tree-to-array column layout | not installed | required for profile | source: src/ravel/physics/tree_array_export.py | Reported historical census status; no current installation or physics certification inferred. |
-| SUSY cross-section tables (LHC SUSY XS WG: NNLL-fast, Resummino) via HEPi JSON | qualified | required for profile | source: src/ravel/physics/cross_sections.py | Reported historical census status; no current installation or physics certification inferred. |
-| TeX Live or MacTeX with `pdflatex`, BibTeX, REVTeX | built but unqualified | required for profile | tex/pdflatex; tex/revtex | Reported historical census status; no current installation or physics certification inferred. |
-| TMVA | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| uproot 5.3.12, awkward 2.6.7, hist 2.8.0, pandas 2.2.3 | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| WCxf / wilson 2.5.2, flavio 2.7.1, smelli 2.4.3 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| Wolfram kernel (Mathematica or Wolfram Engine), `wolframscript` | qualified | required for profile | wolfram/wolfram-kernel | Reported historical census status; no current installation or physics certification inferred. |
-| XRootD 6.2.0, fsspec-xrootd 0.5.5, Rucio clients 35.0.0, fsspec | not installed | required for profile | site-root-wms/site-analysis-python | Reported historical census status; no current installation or physics certification inferred. |
-| boost-histogram | not installed | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| cabinetry | not installed | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| certifi | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| coffea | not installed | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| hatchling | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| jsonschema | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| mpmath | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| numpy | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| packaging | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| pyarrow | not installed | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| pytest | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| PyYAML | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| scipy | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| sympy | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-| vector | not installed | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
-
-## Analysis coverage
-
-| Engine | Metadata/source mapping entries | Executed scientific entries |
+| Tool | Requirement | Doctor check |
 |---|---|---|
-| checkmate | unmeasured | unmeasured |
-| contur | unmeasured | unmeasured |
-| ma5 | unmeasured | unmeasured |
-| rivet | 554 | unmeasured |
-| simpleanalysis | 79 | unmeasured |
-| smodels | unmeasured | unmeasured |
-
-Mapping denotes catalogued metadata/source entries, not complete recasting implementations. Execution coverage is unmeasured; no percentage is inferred from historical tool status.
+| AgentRivet (`e4d12ecc`) | required for profile | agent-sources/agentrivet |
+| AnalysisBase 21.2 (inside the SA image) | required for profile | simpleanalysis/simpleanalysis-image |
+| SimpleAnalysis (image `sha256:3156f065…`, source `5a33033d`) | required for profile | simpleanalysis/simpleanalysis-image; simpleanalysis/simpleanalysis-wrapper |
+| CAMB 1.6.5, CLASS (classy) 3.4.1.0, Cobaya 3.6.2 | required for profile | cosmology/cosmology-python |
+| CheckMATE 2 (`bacf9d17`) with ONNX Runtime C++ 1.30.0 | required for profile | checkmate/checkmate; checkmate/pythia82-config; checkmate/checkmate-python |
+| Combine 9.2.1 on ROOT 6.22 (image `sha256:5da96967…`) | required for profile | root-combine/combine-image; root-combine/combine; root-combine/text2workspace; root-combine/combine-root-config |
+| coffea, cabinetry, vector, boost-histogram, pyarrow | required for profile | site-root-wms/site-analysis-python |
+| Collier or LoopTools | required for profile | no doctor check declared |
+| Contur 3.1.5 (`contur[spey]`) + data | required for profile | contur/contur; contur/contur-data |
+| CVMFS, X.509 grid proxy, Kerberos, HTCondor, apptainer, agent CLI | required for profile | site-access/cvmfs; site-access/grid-proxy; site-access/kerberos; site-access/htcondor; site-access/apptainer; site-access/agent-cli |
+| Delphes 3.5.1 | required for profile | recast-base/delphes |
+| docker / apptainer / podman on Linux | required for profile | container-runtime/podman; container-runtime/podman-machine; container-runtime/rosetta; container-runtime/container-engine |
+| DsixTools | required for profile | no doctor check declared |
+| EasyScan_HEP (`2dee5ede`) | required for profile | easyscan/easyscan-source; easyscan/easyscan-engines-manifest; easyscan/gm2calc |
+| emcee 3.1.6, dynesty 2.1.5 | required for profile | python-host/host-python |
+| FastJet 3.5.1 | required for profile | recast-base/fastjet-config |
+| FeynArts 3.12 (patched with FAPatch) | required for profile | wolfram/wolfram-kernel; wolfram/feynarts-original; wolfram/feynarts-patched |
+| FeynCalc (`fe664511`) | required for profile | wolfram/wolfram-kernel; wolfram/feyncalc |
+| FeynGraph (`15afe2f2`) | required for profile | feyngraph/diagram-python; feyngraph/diagram-rust; feyngraph/feyngraph-source |
+| FeynRules 2.3.49 | required for profile | wolfram/wolfram-kernel; wolfram/feynrules |
+| FlexibleSUSY 2.9.0 (CMSSM, lowMSSM, NMSSM) | required for profile | spectrum/flexiblesusy-CMSSM; spectrum/flexiblesusy-lowMSSM; spectrum/flexiblesusy-NMSSM |
+| FORM (standalone) | required for profile | no doctor check declared |
+| GM2Calc 2.3.1, PhaseTracer (`a68b2fd2`) | required for profile | easyscan/easyscan-source; easyscan/easyscan-engines-manifest; easyscan/gm2calc |
+| HEPData (API and `hepdata-cli` 0.3.1), INSPIRE, arXiv, Zenodo, GitLab | required for profile | python-host/host-python |
+| HepMC2 2.06.11 | required for profile | checkmate/checkmate; checkmate/pythia82-config; checkmate/checkmate-python |
+| HepMC3 3.3.1 | required for profile | rivet-shower/hepmc3-config |
+| HEPTAPOD v2.1.0 (`705b03cc`) and EDA epoch (`cb771f8c`): NDA and Diagrammatica EDA | required for profile | diagram-consumers/heptapod-nda; diagram-consumers/heptapod-eda; wolfram/wolfram-kernel; wolfram/feynrules; wolfram/sarah; wolfram/feyncalc; wolfram/feynarts-original; wolfram/feynarts-patched; wolfram/heptapod |
+| Herwig 7.3.0, ThePEG 2.3.0 | required for profile | contur/herwig |
+| hi_class | required for profile | no doctor check declared |
+| HTCondor, SLURM | required for profile | nyx/nyx; nyx/srun; nyx/scontrol; nyx/scancel; site-access/cvmfs; site-access/grid-proxy; site-access/kerberos; site-access/htcondor; site-access/apptainer; site-access/agent-cli |
+| iminuit 2.32.0 | required for profile | python-host/host-python |
+| JAX 0.4.35 | required for profile | python-host/host-python |
+| LangGraph 1.2.14 (+ checkpoint 4.2.0, SQLite saver 3.1.1), LangChain Core 1.6.7, pydantic 2.14.0 | required for profile | python-host/host-python |
+| LHAPDF 6.5.6 | required for profile | lhapdf-sets/pdfsets-index; lhapdf-sets/pdf-NNPDF30_nlo_as_0118; lhapdf-sets/pdf-LUXlep-NNPDF31_nlo_as_0118_luxqed; lhapdf-sets/pdf-cteq6l1; lhapdf-sets/pdf-NNPDF23_lo_as_0130_qed; lhapdf-sets/pdf-NNPDF23_nlo_as_0119; lhapdf-sets/pdf-CT14lo; lhapdf-sets/pdf-CT18NNLO; madgraph/mg-python; madgraph/mg5; madgraph/mg5-lhapdf-config; madgraph/mg5-options; madgraph/mg5-3; madgraph/mg5-3-lhapdf-config |
+| LHAPDF sets: NNPDF30_nlo_as_0118, LUXlep-NNPDF31_nlo_as_0118_luxqed, cteq6l1, NNPDF23_lo_as_0130_qed, NNPDF23_nlo_as_0119, CT14lo, CT18NNLO | required for profile | lhapdf-sets/pdfsets-index; lhapdf-sets/pdf-NNPDF30_nlo_as_0118; lhapdf-sets/pdf-LUXlep-NNPDF31_nlo_as_0118_luxqed; lhapdf-sets/pdf-cteq6l1; lhapdf-sets/pdf-NNPDF23_lo_as_0130_qed; lhapdf-sets/pdf-NNPDF23_nlo_as_0119; lhapdf-sets/pdf-CT14lo; lhapdf-sets/pdf-CT18NNLO |
+| MadAnalysis 5 v1.11.1 (`e25937ba`) with SampleAnalyzer | required for profile | ma5/ma5; ma5/sampleanalyzer |
+| MadGraph 3.7.0 (`adf3d62d`) | required for profile | madgraph/mg5-3; madgraph/mg5-3-lhapdf-config |
+| MadGraph5_aMC@NLO 2.9.27 (`eb76cab7`) | required for profile | madgraph/mg-python; madgraph/mg5; madgraph/mg5-lhapdf-config; madgraph/mg5-options |
+| mapyde 0.5.0 | required for profile | simpleanalysis/mapyde |
+| matplotlib 3.9.4, mplhep 0.3.59, contourpy | required for profile | python-host/host-python |
+| MCFM per-point helicity amplitudes for interfering resonances | required for profile | mcfm-amplitudes/mcfm-amplitudes |
+| MG5aMC_PY8_interface (`5d82df1b`) | required for profile | mg5-py8-interface/mg5-py8-interface |
+| micrOMEGAs 7.1, SUSY-HIT, FeynHiggs, HiggsBounds | required for profile | no doctor check declared |
+| micrOMEGAs (as a general DM tool) | required for profile | no doctor check declared |
+| Model providers: Anthropic Messages, OpenAI Responses, Gemini, OpenAI-compatible chat completions | required for profile | research-host/research-host-config |
+| MultiNest | required for profile | no doctor check declared |
+| Nyx 26.09, AMReX 26.09, SUNDIALS 7.6.0; CosmicIC (supplied) | required for profile | nyx/nyx; nyx/srun; nyx/scontrol; nyx/scancel |
+| ONNX 1.23.0, ONNX Runtime 1.30.0 | required for profile | python-host/host-python |
+| Podman 5.8.2 (macOS client), vfkit 0.6.3, gvproxy 0.8.9, Podman VM `ravel`; Rosetta 2 | required for profile | container-runtime/podman; container-runtime/podman-machine; container-runtime/rosetta; container-runtime/container-engine |
+| poppler (`pdftoppm`, `pdfinfo`), Graphviz (`neato`), librsvg (`rsvg-convert`) | required for profile | publication/pdftoppm; publication/pdfinfo; publication/neato; publication/rsvg-convert |
+| Powheg | required for profile | no doctor check declared |
+| pyhf 0.7.6 (+ `[minuit]`), jsonpatch | required for profile | python-host/host-python |
+| pypdfium2 5.14.0 / PDFium, pypdf, Pillow | required for profile | python-host/host-python |
+| pySecDec 1.6.6 with bundled FORM | required for profile | finite-integrals/integral-python; finite-integrals/integrals-make; finite-integrals/form |
+| PySLHA 3.3.2, `particle` 0.26.2 | required for profile | python-host/host-python |
+| Pythia 8.244 | required for profile | checkmate/pythia82-config |
+| Pythia 8.312 | required for profile | rivet-shower/pythia83-config; rivet-shower/shower; rivet-shower/shower-merged |
+| Python numerical core | required for profile | python-host/host-python |
+| QGRAF model format | required for profile | source: src/ravel/physics/feyn_graph.py |
+| RestFrames (from SA tarball, sha256 pinned) | required for profile | restframes/restframes; restframes/restframes-library; restframes/restframes-library-linux; restframes/rjr |
+| Rivet 4.1.3, YODA 2.1.3 | required for profile | rivet-shower/rivet; rivet-shower/rivet-build |
+| RooFit / XRooFit (ROOT ≥6.32.14 for HS3) | required for profile | recast-base/recast-root-config |
+| ROOT 6.40 | required for profile | recast-base/recast-root-config |
+| SARAH 4.15.4 | required for profile | wolfram/wolfram-kernel; wolfram/sarah |
+| ServiceX 3.3.1, func-adl-servicex-xaodr25 | required for profile | iris/servicex |
+| SFitterAgents/SFitter (`6072a79e`) + PyTorch 2.14.0 | required for profile | sfitter/sfitter-venv; sfitter/sfitter-source |
+| SModelS 3.1.1 + database `official311.pcl` (Zenodo 18478920) | required for profile | smodels/smodels-311-version; smodels/smodels-311-database |
+| Snakemake 9.27.0 | required for profile | site-root-wms/site-snakemake |
+| SoftSUSY | required for profile | no doctor check declared |
+| Spey 0.2.6 | required for profile | python-host/host-python |
+| SPheno 4.0.5 | required for profile | spectrum/spheno |
+| Supplied tree-to-array column layout | required for profile | source: src/ravel/physics/tree_array_export.py |
+| SUSY cross-section tables (LHC SUSY XS WG: NNLL-fast, Resummino) via HEPi JSON | required for profile | source: src/ravel/physics/cross_sections.py |
+| TeX Live or MacTeX with `pdflatex`, BibTeX, REVTeX | required for profile | tex/pdflatex; tex/revtex |
+| TMVA | required for profile | no doctor check declared |
+| uproot 5.3.12, awkward 2.6.7, hist 2.8.0, pandas 2.2.3 | required for profile | python-host/host-python |
+| WCxf / wilson 2.5.2, flavio 2.7.1, smelli 2.4.3 | required for profile | python-host/host-python |
+| Wolfram kernel (Mathematica or Wolfram Engine), `wolframscript` | required for profile | wolfram/wolfram-kernel |
+| XRootD 6.2.0, fsspec-xrootd 0.5.5, Rucio clients 35.0.0, fsspec | required for profile | site-root-wms/site-analysis-python |
+| boost-histogram | required for profile | python-host/host-python |
+| cabinetry | required for profile | python-host/host-python |
+| certifi | required for profile | python-host/host-python |
+| coffea | required for profile | python-host/host-python |
+| hatchling | required for profile | python-host/host-python |
+| jsonschema | required for profile | python-host/host-python |
+| mpmath | required for profile | python-host/host-python |
+| numpy | required for profile | python-host/host-python |
+| packaging | required for profile | python-host/host-python |
+| pyarrow | required for profile | python-host/host-python |
+| pytest | required for profile | python-host/host-python |
+| PyYAML | required for profile | python-host/host-python |
+| scipy | required for profile | python-host/host-python |
+| sympy | required for profile | python-host/host-python |
+| vector | required for profile | python-host/host-python |

@@ -125,12 +125,16 @@ def advice(actor,wf,skill='sf-deep-verify'):
 
 def test_actual_cycle_graph_budget_own_wiki_and_fork_carryover(tmp_path):
     wf,_,wp,goal,session=fixture(tmp_path);cycle_root=cycle_fixture(tmp_path,goal)
+    prior_ledger=deepcopy(cycle._load(cycle_root)[1]['resource_ledger'])
     gp=a.skill_graph(session,tmp_path,tmp_path/'advice-plan',actors=['lead'],skill='sf-deep-verify',
                      graph_id='application-advice',max_wall_seconds=30)
     host=SuppliedHost(advice('lead',wf));gr=tmp_path/'advice-graph'
     status=a.execute_skill_graph(session,tmp_path,cycle_root,gr,gp,host)
     assert status['complete'] and status['usage']['calls']==1
-    _,state=cycle._load(cycle_root);assert state['resource_ledger'][0]['ceiling']['output_tokens']==4096
+    _,state=cycle._load(cycle_root)
+    assert state['resource_ledger'][:-1]==prior_ledger
+    assert state['resource_ledger'][-1]['id']=='graph:'+str(gr)
+    assert state['resource_ledger'][-1]['ceiling']['output_tokens']==4096
     context=read_json(tmp_path/'advice-plan/lead.json');source=next(iter(context['sources'].values()))
     citation={'pin':source['pin'],'line':1,'text':source['text'].splitlines()[0]}
     child=a.add_note(session,tmp_path,tmp_path/'learned',actor='lead',graph_root=gr,node_id='lead',
@@ -151,6 +155,7 @@ def test_actual_cycle_graph_budget_own_wiki_and_fork_carryover(tmp_path):
 @pytest.mark.parametrize('change',['model','role','authority_schema','instructions','retry','budget'])
 def test_rehashed_advice_graph_cannot_change_actual_model_actor_or_ceilings(tmp_path,change):
     _,_,_,goal,session=fixture(tmp_path);root=cycle_fixture(tmp_path,goal)
+    prior_ledger=deepcopy(cycle._load(root)[1]['resource_ledger'])
     gp=a.skill_graph(session,tmp_path,tmp_path/'graph-plan',actors=['lead'],skill='sf-deep-verify',
                      graph_id='bad-advice',max_wall_seconds=30)
     spec=read_json(gp['path']);node=spec['nodes'][0]
@@ -162,7 +167,7 @@ def test_rehashed_advice_graph_cannot_change_actual_model_actor_or_ceilings(tmp_
     if change=='budget':spec['budget']['max_calls']=2
     gp=save(Path(gp['path']),spec)
     with pytest.raises(ValueError):a.execute_skill_graph(session,tmp_path,root,tmp_path/'bad-graph',gp,SuppliedHost({}))
-    _,state=cycle._load(root);assert state['resource_ledger']==[]
+    _,state=cycle._load(root);assert state['resource_ledger']==prior_ledger
 
 
 def test_ordinary_host_application_context_and_all_explicit_input_dependencies(tmp_path):

@@ -6,6 +6,11 @@ routing, to the node bodies of model work, or to requests; ``structure_sha256``
 makes a routing change without a bump fail at build. An edit that keeps behaviour
 keeps the version and stays resumable. Response schemas for
 typed interrupts live beside the registry under ``responses/<schema_id>.json``.
+
+A package that owns a graph may register it as a fragment, ``registration/<graph id>.json``
+(``{"schema_version": 1, "kind": "graph-registration", "graphs": [<row>, ...]}``), instead of
+editing ``registry.json``. Fragment rows are validated against the same schema; an id that
+appears twice anywhere is refused.
 """
 from __future__ import annotations
 
@@ -22,9 +27,11 @@ DATA = Path(__file__).resolve().parents[1] / "data" / "graphs"
 REGISTRY = DATA / "registry.json"
 SCHEMA = DATA / "registry.schema.json"
 RESPONSES = DATA / "responses"
+REGISTRATION = DATA / "registration"
 SCHEMA_ID = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 PIN = "pin-on-first-build"  # fixture rows only (``registered``): the first build records the digest
 _EXTRA: list[dict] = []
+_REPLACED: set = set()
 _BUILDERS: dict = {}
 
 
@@ -37,12 +44,35 @@ def _schema_errors(value, schema):
     return errors(value, schema, "$")
 
 
+def fragments(directory=None):
+    """Rows of the registration fragments (``registration/*.json``), validated, in file order."""
+    rows = []
+    directory = Path(directory) if directory is not None else REGISTRATION
+    if not directory.is_dir():
+        return rows
+    schema = read_json(SCHEMA)
+    for path in sorted(directory.glob("*.json")):
+        document = read_json(path)
+        if (type(document) is not dict or document.get("schema_version") != 1
+                or document.get("kind") != "graph-registration" or type(document.get("graphs")) is not list
+                or set(document) != {"schema_version", "kind", "graphs"}):
+            raise RegistryError(f"graph registration {path.name} must be "
+                                '{"schema_version": 1, "kind": "graph-registration", "graphs": [...]}')
+        problems = _schema_errors({"schema_version": 1, "kind": "graph-registry", "graphs": document["graphs"]},
+                                  schema)
+        if problems:
+            raise RegistryError(f"graph registration {path.name} invalid: " + "; ".join(problems))
+        rows.extend(document["graphs"])
+    return rows
+
+
 def load(path=None):
     document = read_json(path or REGISTRY)
     problems = _schema_errors(document, read_json(SCHEMA))
     if problems:
         raise RegistryError("graph registry invalid: " + "; ".join(problems))
-    rows = document["graphs"] + deepcopy(_EXTRA)
+    installed = document["graphs"] + (fragments() if path is None else [])
+    rows = [row for row in installed if row["id"] not in _REPLACED] + deepcopy(_EXTRA)
     ids = [row["id"] for row in rows]
     if len(ids) != len(set(ids)):
         raise RegistryError("graph registry has a duplicate id")
@@ -86,11 +116,22 @@ def check_instance(row, instance):
 
 
 @contextmanager
-def registered(*rows, builders=None):
-    """Add rows (and optional in-process builders) for a block; tests and fixtures only."""
-    before, before_builders = list(_EXTRA), dict(_BUILDERS)
+def registered(*rows, builders=None, replace=False):
+    """Add rows (and optional in-process builders) for a block; tests and fixtures only.
+
+    ``replace`` lets the rows stand in for installed rows with the same ids. A controller process
+    refuses this seam unless the test harness enabled it (SW30).
+    """
+    from ..controller.testing import SeamRefused, refuse_for_controller
+    try:
+        refuse_for_controller("graph registration")
+    except SeamRefused as exc:
+        raise RegistryError(str(exc)) from None
+    before, before_builders, before_replaced = list(_EXTRA), dict(_BUILDERS), set(_REPLACED)
     _EXTRA.extend(deepcopy(list(rows)))
     _BUILDERS.update(builders or {})
+    if replace:
+        _REPLACED.update(row["id"] for row in rows)
     try:
         load()
         yield
@@ -98,6 +139,8 @@ def registered(*rows, builders=None):
         _EXTRA[:] = before
         _BUILDERS.clear()
         _BUILDERS.update(before_builders)
+        _REPLACED.clear()
+        _REPLACED.update(before_replaced)
 
 
 def response_schema(schema_id):

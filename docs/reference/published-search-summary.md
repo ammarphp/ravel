@@ -47,7 +47,7 @@ sample is drawn as a marker, not an interpolated curve.
 ## Rendering and delivery
 
 `summary_overlay` draws every panel with the `mplhep` house style of the first requested
-experiment that has one (ATLAS, CMS, LHCb or ALICE), and the neutral ROOT style otherwise.
+experiment when the plotting library provides it, and the neutral ROOT style otherwise.
 The header names the requested experiments and collision energies. The figure needs
 source-pinned fonts, four-side inward major and minor ticks and the geometric lint.
 Reviewers inspect the final PNG and PDF content as well.

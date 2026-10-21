@@ -82,7 +82,7 @@ def installed(tmp_path, monkeypatch):
     home = tmp_path / 'home'; home.mkdir()
     monkeypatch.setenv('HOME', str(home))
     monkeypatch.delenv('PYTHONPATH', raising=False)
-    monkeypatch.setattr(sd, '_agent_cli_readiness', lambda host, prefix: {
+    monkeypatch.setattr(sd, '_agent_cli_readiness', lambda host, prefix, environ=None: {
         'status': 'ready', 'transport_qualified': True, 'transport': 'synthetic-cli-worker', 'detail': 'stored qualification'})
     monkeypatch.setattr(sd, '_lease_domain', lambda: {'path': str(tmp_path / 'lease'), 'scope': 'host',
         'lock_mode': 'local', 'reason': 'synthetic', 'policy': {'batch_slot_dir_env': 'JOB_SCRATCH'}})
@@ -170,7 +170,7 @@ def test_lease_network_local_warns_and_no_policy_names_command(tmp_path, monkeyp
 def test_pythonpath_bwrap_and_unqualified_transport_fixes(tmp_path, monkeypatch):
     prefix, host = installed(tmp_path, monkeypatch); host.missing.add('bwrap')
     monkeypatch.setenv('PYTHONPATH', '/fake/view')
-    monkeypatch.setattr(sd, '_agent_cli_readiness', lambda host, prefix: {
+    monkeypatch.setattr(sd, '_agent_cli_readiness', lambda host, prefix, environ=None: {
         'status': 'ready', 'transport_qualified': False, 'transport': 'synthetic-cli-worker', 'detail': 'unqualified'})
     checks = rows(sd.doctor(profile='generic', prefix=prefix, host=host))
     assert checks['calling pythonpath']['status'] == 'warn'
@@ -255,20 +255,36 @@ def test_shared_agent_cli_helper_reads_records_without_live_qualification(tmp_pa
     from ravel.workflow import transport_registry as registry
     import hashlib
     executable=tmp_path/'claude';executable.write_text('# inert CLI\n')
+    # The owner's dedicated file-backed worker login; the helper checks it with a prompt-free status call.
+    login=tmp_path/'claude-login';login.mkdir(mode=0o700)
+    (login/'.credentials.json').write_text('opaque-owner-fixture');(login/'.credentials.json').chmod(0o600)
+    environ={'PATH':'/usr/bin:/bin','CLAUDE_CONFIG_DIR':str(login)}
     class CLIHost:
         def which(self,name):return str(executable) if name=='claude' else None
         def run(self,argv):
+            if argv==[str(executable),'auth','status','--json']:
+                return 0,json.dumps({'loggedIn':True,'authMethod':'claude.ai'})
             assert argv==[str(executable),'--version']
             return 0,'2.1.296'
     record={'unusable':False,'executable_sha256':hashlib.sha256(executable.read_bytes()).hexdigest(),
             'executable_path':str(executable)}
-    monkeypatch.setattr(registry,'load',lambda identity:{'id':identity})
+    from ravel.controller.step import seats
+    monkeypatch.setattr(seats, 'wired_transports', lambda: {'wired': ['claude-cli-worker'], 'excluded': [], 'kinds': ['cli-worker']})
     monkeypatch.setattr(registry,'read_probe',lambda identity:record)
     monkeypatch.setattr(registry,'probe_problem',lambda record,document:None)
     monkeypatch.setattr(registry,'qualification_status',lambda document,record:'live_qualified')
-    assert sd._agent_cli_readiness(CLIHost(),tmp_path)['transport_qualified'] is True
+    qualification = {key: None for key in registry.QUALIFICATION_RECORD_KEYS}
+    qualification.update(schema_version=1, kind='transport-qualification', status='live_qualified',
+        observed={'requested_model': 'synthetic-model', 'model': 'synthetic-model'},
+        steps=[{'step': step, 'passed': True} for step in sorted(registry.QUALIFICATION_STEPS)])
+    monkeypatch.setattr(registry, 'read_qualification', lambda document, record: qualification)
+    assert sd._agent_cli_readiness(CLIHost(),tmp_path,environ)['transport_qualified'] is True
     executable.write_text('# changed inert CLI\n')
-    assert sd._agent_cli_readiness(CLIHost(),tmp_path)['transport_qualified'] is False
+    assert sd._agent_cli_readiness(CLIHost(),tmp_path,environ)['transport_qualified'] is False
+    # Without the owner's login the helper reports the login remedy, never a qualified transport.
+    missing=sd._agent_cli_readiness(CLIHost(),tmp_path,{'PATH':'/usr/bin:/bin'})
+    assert missing['status']=='unconfigured' and missing.get('transport_qualified') is not True
+    assert missing['authentication']=='login_required'
 
 
 @pytest.mark.parametrize('threshold',[float('nan'),float('inf'),-1])

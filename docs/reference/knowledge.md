@@ -75,6 +75,16 @@ becomes an operation row with its implementing module and review checks:
 | `lifecycle-workspace-limit` | `ravel.physics.pyhf_exclude`, the published-workspace-limit stage |
 | `grid-recipe` | `ravel.workflow.grid_recipe`, a parameter grid from declared axes given as data |
 | `table-bin-edges` | `ravel.physics.table_bin_edges`, binned values from a table that states contiguous intervals |
+| `ml-stage-admit` | `ravel.workflow.ml_stages`, admission of one supplied classification table and its split into train, validation and protected partitions |
+| `ml-stage-features` | `ravel.workflow.ml_stages`, feature definition on the training partition with the label-leakage screen |
+| `ml-stage-train` | `ravel.workflow.ml_stages`, training of every declared arm and seed, never given the protected partition |
+| `ml-stage-evaluate` | `ravel.workflow.ml_stages`, the one evaluation read of the protected partition with the frozen models |
+| `ml-stage-card` | `ravel.workflow.ml_stages`, the model card from the stage records |
+| `ml-stage-review` | `ravel.workflow.ml_stages`, executable reviewer items recomputed from pinned arrays and stage records |
+| `manuscript-note-sources` | `ravel.controller.routes.manuscript.note`, the source build of a short note with its claim integrity recomputed |
+| `manuscript-note-pdf` | `ravel.controller.routes.manuscript.note`, the PDF build of a short note |
+| `scoped-generate` | `ravel.controller.routes.study.runtime`, a confined scoped generation with its original approval and evidence checks |
+| `scoped-likelihood` | `ravel.controller.routes.study.runtime`, a confined scoped likelihood with its original approval and evidence checks |
 
 Every registered mode has a signature. `python -m ravel.validation.signature_conformance`
 checks that each entry resolves to its implementation, uses known artifact kinds with
@@ -131,7 +141,7 @@ A flag contradicting the kind is refused.
 The existing binned-value validator checks representation, unit, bin identity,
 moments and covariance; its normalization and statistical-domain checks remain
 in force. A descriptor contradicting the artifact's unit, representation or
-producer bin identities is refused. A normalized shape cannot enter the existing
+producer bin identities is refused. A normalized shape must not enter the existing
 absolute-yield statistics interface by changing its descriptor.
 
 Each included factor has a unique name, kind (`branching_fraction`,
@@ -157,7 +167,7 @@ Consumers use partial exact requirements and a `required` list of field paths:
 
 A missing property produces an obligation with its edge location, field and
 expected value. A contradiction produces `quantity_incompatible`, including the
-field, observed value and expected value. An edge annotation cannot override a
+field, observed value and expected value. An edge annotation must not override a
 producer declaration. Absence and explicit false or an empty factor list are
 distinct. Requirements never use `_require_ok`'s permissive missing-property
 behavior for scientific metadata.
@@ -247,7 +257,7 @@ records. The atlas indexes their declarations when they are present.
 - **Writer and do-not-learn gate.** `write_candidate` records new candidates only. It refuses
   a lesson that fails the `knowledge_lessons` record rules or lacks `evidence.origin`
   (request digest and run id). It also refuses a lesson that rests only on reviewer verdicts
-  or model prose, or that carries a withheld identifier or number the harness supplies. A
+  or model prose, or that carries a protected identifier or number the harness supplies. A
   trigger that fires on more than 30% of retained runs is refused. So is text that weakens a
   check, trap, gate or threshold under the protected-path rule. Without that rule the gate
   refuses every lesson.

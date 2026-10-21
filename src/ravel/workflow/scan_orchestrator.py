@@ -165,6 +165,90 @@ def enumerate_points(spec):
     return points
 
 
+def population(manifest, scan):
+    """Population equality of an assembled scan against its manifest (SW33, G12, E24).
+
+    Returns ``{"holes", "extras", "duplicates", "unconfirmed", "claimed_complete", "not_completed"}``:
+    manifest points the scan does not list (in its ``point_population`` when present, else its result
+    rows), listed points outside the manifest, points listed twice, result rows the population does not
+    mark completed, and whether the scan claims full coverage (``n_missing == 0``, ``missing_tags == []``
+    or ``n_done`` equal to the manifest) while a point is not completed. An audit that checks only the
+    reported points cannot see a hole; this compares the whole population. It never raises: malformed
+    parts count as absent.
+    """
+    manifest = manifest if isinstance(manifest, dict) else {}
+    scan = scan if isinstance(scan, dict) else {}
+    points = manifest.get("points") if isinstance(manifest.get("points"), list) else []
+    invalid = []
+
+    def tags(rows, label):
+        found = []
+        for row in rows:
+            tag = row.get("tag") if isinstance(row, dict) else None
+            if not isinstance(tag, str) or not tag:
+                invalid.append(label)
+            else:
+                found.append(tag)
+        return found
+
+    expected = tags(points, "manifest point without a valid tag")
+    results = scan.get("points") if isinstance(scan.get("points"), list) else []
+    rows = scan.get("point_population")
+    if not isinstance(rows, list):
+        rows = results
+    listed = tags(rows, "population row without a valid tag")
+    result_tags = tags(results, "result row without a valid tag")
+    completed = {r["tag"] for r in rows if isinstance(r, dict) and isinstance(r.get("tag"), str)
+                 and r.get("tag") and r.get("status", "completed") == "completed"}
+    seen, duplicates = set(), []
+    for tag in listed:
+        if tag in seen and tag not in duplicates:
+            duplicates.append(tag)
+        seen.add(tag)
+    holes = [tag for tag in expected if tag not in seen]
+    extras = [tag for tag in listed if tag not in set(expected)]
+    missing = [tag for tag in expected if tag not in completed]
+    unconfirmed = [tag for tag in result_tags if tag not in completed]
+    claimed = (scan.get("n_missing") == 0 or scan.get("missing_tags") == []
+               or (scan.get("n_done") is not None and scan.get("n_done") == len(expected)))
+    return {"holes": holes, "extras": extras, "duplicates": duplicates, "unconfirmed": unconfirmed,
+            "claimed_complete": bool(claimed and missing), "not_completed": missing, "invalid": invalid}
+
+
+def population_errors(manifest, scan):
+    """Plain-language refusals of :func:`population` (empty when the scan lists exactly the manifest)."""
+    found = population(manifest, scan)
+    errors = []
+    if found["invalid"]:
+        errors.append(f"scan population has {len(found['invalid'])} malformed manifest, population or result row(s)")
+    if found["holes"]:
+        errors.append(f"scan omits {len(found['holes'])} manifest point(s): {', '.join(map(str, found['holes'][:20]))}")
+    if found["extras"]:
+        errors.append(f"scan lists unmanifested point(s): {', '.join(map(str, found['extras'][:20]))}")
+    if found["duplicates"]:
+        errors.append(f"scan lists point(s) twice: {', '.join(map(str, found['duplicates'][:20]))}")
+    if found["unconfirmed"]:
+        errors.append("scan reports result row(s) its population does not mark completed: "
+                      + ", ".join(map(str, found["unconfirmed"][:20])))
+    if found["claimed_complete"]:
+        errors.append(f"scan claims full coverage with {len(found['not_completed'])} point(s) not completed")
+    return errors
+
+
+def refuse_controller_owned(command, target):
+    """Exit through the controller's command policy when ``target`` lies in a controller-owned run.
+
+    Without the controller no run is owned. ``plan`` is also checked at the directories it would write.
+    """
+    try:
+        from ravel.controller import command_policy
+    except ImportError:
+        return
+    reason = command_policy.check(["scan_orchestrator", command, os.path.abspath(target)])
+    if reason:
+        die(reason)
+
+
 def point_tag(point):
     from hashlib import sha256
     return "point_"+sha256(json.dumps(point, sort_keys=True, allow_nan=False).encode()).hexdigest()[:20]
@@ -230,6 +314,8 @@ def cmd_plan(args):
         for p in points:
             print(f"  {point_tag(p)} {p}")
         return
+    for target in [directory] + [root/(spec["run_prefix"]+"_"+point_tag(p)) for p in points]:
+        refuse_controller_owned("plan", target)
     if (directory/"scan_manifest.json").exists():
         raise ValueError("scan manifest already exists; inspect/resume rather than overwrite")
     for point in points:
@@ -556,6 +642,50 @@ def harvest_quantities(point, run):
     return result
 
 
+def point_statistics(document, run_dir):
+    """A harvested point's uncertainty statement and recomputed statistics record.
+
+    A full record is recomputed with ``situations.audit``; a result pack's summary is replaced by the
+    record of the exclusion it is bound to, which must give the same outcome and labels. A record that
+    does not recompute, or a held outcome, makes the point invalid: its limit is never harvested. A point
+    written before these records existed carries neither.
+    """
+    from ravel.physics.inference import situations, uncertainty
+    out = {}
+    if "uncertainty" in document:
+        errors = uncertainty.document_errors(document)
+        if errors:
+            raise ValueError("the uncertainty statement disagrees with the reported limits: " + "; ".join(errors[:3]))
+        out["uncertainty"] = document["uncertainty"]
+    block = document.get("statistics")
+    if block is None:
+        return out
+    summary = None
+    assessment_document = document
+    if not (isinstance(block, dict) and block.get("kind") == situations.BLOCK_KIND):
+        summary = block if isinstance(block, dict) else {}
+        source = (document.get("limit_source") or {}).get("path") or (document.get("pointers") or {}).get("exclusion")
+        path = Path(run_dir) / source if isinstance(source, str) else None
+        if path is None or not path.is_file():
+            raise ValueError("the statistics summary names no exclusion record to recompute it from")
+        assessment_document = json.loads(path.read_text())
+        block = assessment_document.get("statistics")
+    errors = (situations.audit(block) or situations.result_document_errors(block, assessment_document)
+              or situations.result_document_errors(block, document))
+    if errors:
+        raise ValueError("the statistics record does not recompute: " + "; ".join(errors[:3]))
+    errors = uncertainty.document_errors(assessment_document) or uncertainty.document_errors(document)
+    if errors:
+        raise ValueError("the uncertainty statement disagrees with the reported limits: " + "; ".join(errors[:3]))
+    outcome, labels = block["validity"]["outcome"], situations.labels(block)
+    if outcome == "held":
+        raise ValueError("the statistics outcome is held: " + "; ".join(labels))
+    if summary is not None and (summary.get("outcome"), summary.get("labels")) != (outcome, labels):
+        raise ValueError("the result's statistics summary differs from its exclusion record")
+    out["statistics"] = block
+    return out
+
+
 def harvest_point(mp):
     """Read a finished point's limit -> dict(mu95_obs, mu95_exp, mu95_exp_band, m_parent, m_lsp,
     sigma_ref_fb, source) or None. Prefers result.json (the RESULT-PACK headline); falls back to the
@@ -627,6 +757,7 @@ def harvest_point(mp):
                 if key in d:
                     out[key] = d[key]
             attach_limits(out, result=limits)
+            out.update(point_statistics(d, run_dir))
             if required(run_dir):
                 from ravel.workflow.physics_review import status
                 out["physics_review"] = status(run_dir)
@@ -708,6 +839,14 @@ def cmd_assemble(args):
         "n_planned": manifest["n_points"], "n_done": len(rows), "n_missing": len(missing),
         "missing_tags": missing, "invalid_points": invalid, "points": rows,
         "point_population": []}
+    from ravel.physics.inference.situations import labels as statistics_labels
+    qualified = {}
+    for row in rows:
+        for label in statistics_labels(row.get("statistics")):
+            qualified.setdefault(label, []).append(row["tag"])
+    if qualified:
+        result["limitations"] = [{"key": "statistics-qualified", "note": label, "points": tags}
+                                 for label, tags in qualified.items()]
     completed = {row['tag']: row for row in rows}
     for point in manifest['points']:
         # Historical producers sometimes supplied coordinates only in the result.
@@ -908,6 +1047,8 @@ def main():
                    help="override the container sequential-only gate (ONLY with isolated VMs per point)")
     p.set_defaults(fn=cmd_launch)
     args = ap.parse_args()
+    if args.cmd != "status":
+        refuse_controller_owned(args.cmd, args.spec if args.cmd == "plan" else args.scandir)
     args.fn(args)
 
 

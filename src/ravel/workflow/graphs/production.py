@@ -13,6 +13,11 @@ executes them. The ``launch`` gate's action names the node and its rung, so the
 executor provider refuses a full or scan launch without the worker's receipt or a
 counting waiver. Completion writes ``production/nodes/<node>.json``: a record of who
 produced the node, never a scientific acceptance.
+
+This is the 1.1.0 production path for runs the controller does not own; its records carry the
+``NOT GOVERNED`` label. A controller-owned run produces through ``controller.step`` (sealed
+packets, confined launches, controller custody): the standalone entry refuses it, and no host
+waiver fills a production seat of such a run.
 """
 from __future__ import annotations
 
@@ -23,6 +28,15 @@ from .. import graph_nodes as nodes
 from .. import production_executor as executor
 
 GRAPH_ID = 'production.node'
+NOT_GOVERNED = 'NOT GOVERNED'
+
+
+def _controller_owned(root):
+    try:
+        from ravel.controller.store import controller_owned
+    except ImportError:
+        return None
+    return controller_owned(Path(root))
 
 
 class View(TypedDict):
@@ -60,6 +74,10 @@ def _order(state, identity):
     except ValueError as exc:
         raise _refused('production_order_invalid', exc) from exc
     waived = executor.waiver_path(_root(state), _node_id(state)).exists()
+    owner = _controller_owned(_root(state))
+    if owner and (order.get('executor') == 'host' or waived):
+        raise _refused('production_host_refused', f'run {owner} is controller-owned: a host waiver never fills a '
+                       'production seat; its steps run through controller.step')
     return {'node_id': order['node_id'], 'role': order['role'], 'rung': order.get('rung'),
             'order_sha256': order['order_sha256'], 'stage': order.get('stage'),
             'executor': 'host' if order.get('executor') == 'host' or waived else 'worker'}
@@ -167,7 +185,8 @@ def build(ctx):
                                  segment=lambda s: {'complete': _node_id(s)},
                                  identity=lambda s: {'node_id': _node_id(s), 'order_sha256': s['order']['order_sha256']},
                                  to_state=lambda s, r: {'results': {'node': {
-                                     'node_id': r['node_id'], 'executor': r['executor'], 'complete': True}}}))
+                                     'node_id': r['node_id'], 'executor': r['executor'], 'complete': True,
+                                     'governance': NOT_GOVERNED}}}))
     add('refused', nodes.hold('production_launch_refused', 'clear the launch gate errors recorded in gates: a '
                               'worker receipt for the node or a counting host waiver, then a new attempt'))
     builder.add_edge(START, 'order')
@@ -191,6 +210,14 @@ def instance(node_id, attempt=1):
 
 def run(rundir, node_id, *, attempt=1, gate_check=None, gate_providers=None, clear_stop=False, max_steps=None):
     """Run one node's production executor standalone (the lifecycle runs it as a subgraph)."""
+    try:
+        from ravel.controller import command_policy
+    except ImportError:
+        command_policy = None
+    if command_policy is not None:
+        reason = command_policy.check(['production', 'run', '--rundir', str(Path(rundir).expanduser().resolve())])
+        if reason:
+            raise PermissionError(reason)
     from .. import graph_substrate
     return graph_substrate.run(rundir, GRAPH_ID, instance(node_id, attempt), input={'node': instance(node_id, attempt)},
                                gate_check=gate_check, gate_providers=gate_providers, clear_stop=clear_stop,

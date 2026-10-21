@@ -7,6 +7,7 @@ from ravel.workflow import decision_case as dc
 from ravel.workflow import evidence_queue, rdj_anchor, rdj_custody
 from ravel.workflow import rdj_loop as rdj
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import (PROMPT, PROPOSER, Roles, Run, add, critic, critic_once, node, reviewer, said, sha,
                           two_level_r2, verifier)
 
@@ -89,7 +90,7 @@ def test_t2_failed_edge_blocks_authorization_even_when_the_verifier_authorizes(t
     assert rdj.gate_errors(run.root, "bulk", run.action())[0].code == "rdj_receipt_missing"
 
 
-def test_r2_case_authorizes_and_the_gate_accepts_only_the_exact_action(tmp_path):
+def test_r2_case_authorizes_and_the_gate_accepts_only_the_exact_action(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id = two_level_r2(run)
     rdj.run_roles(run.root, case_id, Roles())
@@ -108,7 +109,7 @@ def test_r2_case_authorizes_and_the_gate_accepts_only_the_exact_action(tmp_path)
 
 # ---------------------------------------------------------------- T3 affected branches
 
-def test_t3_revision_rereviews_only_affected_branch_and_anchor_change_invalidates_its_ancestors(tmp_path):
+def test_t3_revision_rereviews_only_affected_branch_and_anchor_change_invalidates_its_ancestors(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     log = []
     finding = {"id": "F1", "code": "missing_evidence", "targets": ["X2"], "materiality": "A",
@@ -224,27 +225,26 @@ def test_t7_same_session_critic_and_verifier_refused_at_r3(tmp_path):
     add(run, case_id, "B", node("C", "The validator certified it",
                                 anchors=[run.stage("cert", "outputs/cert.json", {"pass": True}, kind="measurement")]))
     roles = Roles(critic=critic(name="panel", session="shared"), verifier=verifier(name="panel-2", session="shared"))
-    with pytest.raises(rdj.IndependenceError, match="R3"):
+    with pytest.raises(rdj.IndependenceError, match="different sessions and actors"):
         rdj.run_roles(run.root, case_id, roles)
 
 
-def test_t7_same_session_at_r2_without_a_human_is_self_attested_and_refused(tmp_path):
+def test_t7_same_session_at_r2_without_a_human_is_refused(tmp_path):
     run = Run(tmp_path / "run")
     case_id = two_level_r2(run)
     roles = Roles(critic=critic(name="panel", session="shared"), verifier=verifier(name="other", session="shared"))
-    with pytest.raises(rdj.IndependenceError, match="self_attested"):
+    with pytest.raises(rdj.IndependenceError, match="different sessions and actors"):
         rdj.run_roles(run.root, case_id, roles)
 
 
-def test_t7_same_session_at_r2_with_a_recorded_human_approval_is_labelled_self_attested(tmp_path):
+def test_t7_same_session_at_r2_with_a_recorded_human_approval_still_refuses(tmp_path):
     run = Run(tmp_path / "run")
     case_id = two_level_r2(run)
     run.approve(case_id)
     roles = Roles(critic=critic(name="panel", session="shared"), verifier=verifier(name="other", session="shared"))
-    rdj.run_roles(run.root, case_id, roles)
-    receipt = rdj.authorize(run.root, case_id)
-    assert receipt["attestation_summary"]["verifier"] == "self_attested"
-    assert receipt["attestation_summary"]["human_approver"]
+    with pytest.raises(rdj.IndependenceError, match="different sessions and actors"):
+        rdj.run_roles(run.root, case_id, roles)
+    assert run.case(case_id)['verification'] is None
 
 
 # ---------------------------------------------------------------- T8 proposal committed first
@@ -312,7 +312,7 @@ def test_t15_unresolved_branch_request_becomes_a_typed_work_item(tmp_path):
 
 # ---------------------------------------------------------------- owner additions
 
-def test_tuning_change_carries_its_class_into_deviations(tmp_path):
+def test_tuning_change_carries_its_class_into_deviations(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     tuning = {"class": "recipe_restoration", "parameter": "shower.tune", "from": "default", "to": "published-recipe",
               "reason": "The published recipe names this tune"}
@@ -343,7 +343,7 @@ def test_analysis_choice_without_practice_anchor_stays_exploratory(tmp_path):
     assert [i["target"] for i in refused.value.items if i["code"] == "exploratory_choice"] == ["choice"]
 
 
-def test_analysis_choice_with_a_user_requirement_is_not_exploratory(tmp_path):
+def test_analysis_choice_with_a_user_requirement_is_not_exploratory(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id = rdj.open_case(run.root, "launch", run.action(), PROPOSER)
     add(run, case_id, "action", node("choice", "Keep the approved binning", recommends_choice=True))
@@ -390,7 +390,8 @@ class GraphHost:
                   "transport": {"adapter": "fixture-http", "execution_mode": "provider_http",
                                 "request_id": request["request_id"], "actor_id": said_["actor"],
                                 "requested_model": "m", "observed_model": "m"},
-                  "isolation": {"fresh_request": True, "fresh_context": True, "parent_transcript_supplied": False}}
+                  "isolation": {"fresh_request": True, "fresh_context": True, "parent_transcript_supplied": False,
+                                "model_tools_supplied": False}}
         return control.call("fixture-http", "model", request, lambda: result, output_tokens=64)
 
 

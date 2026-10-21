@@ -2,17 +2,16 @@
 
 `llp-plane-recipe` is a source-bound ordinary study that constructs the complete
 requested mass/spectrum, production-component, lifetime and projection population.
-It does not generate events, run a spectrum solver, fit a likelihood or approve
-an exclusion. Use an ordinary version-2 `ravel plan` specification with task
+Use an ordinary version-2 `ravel plan` specification with task
 `{"input":"/absolute/request.json"}`, the original `goal_binding`, a review policy,
 one attempt and a 60-second construction budget. The generic scientific-study
 Graph, status, review and report routes remain authoritative. Each emitted
 `model-events` or `signal-template` specification needs a separate fresh ordinary
-plan and approval. Construction never completes the original research task.
+plan and approval. Original-task completion requires the requested scientific quantities and their review.
 
 The private regression fixture demonstrates a fully supplied input graph. Every
 physical assertion in that fixture is synthetic, including its charged response.
-It must not be used as an ATLAS calibration.
+It defines a supplied recipe; detector calibration requires independent evidence.
 
 ## Request population and original source
 
@@ -34,8 +33,8 @@ individual ordinary stage inputs, not just manifest names.
 * Every point contains exactly its identity document's production components.
   Each component has a literal source cross section in pb and branching fraction,
   a full cohort or explicit null, a calibrated joint-response input or null,
-  and an optional existing `model_event_plan` generation request. Gauge fractions
-  do not supply component rates or acceptance. Missing components stay in all cells.
+  and an optional existing `model_event_plan` generation request. Supply component
+  rates and acceptance independently of gauge fractions. Missing components stay in all cells.
 * Every point's lifetime rows give ctau in mm for every source LLP species.
   Cells are the entire ordered point × lifetime × projection product. No missing,
   failed, unknown or rejected member disappears from the report.
@@ -68,19 +67,17 @@ kinematics, decay channels and branching assumptions remain fixed. Overflow,
 underflow or an unrepresentable ratio refuses; no clipping creates a zero event.
 Forced/truncated decays and right-censored records are retained as source-required
 branches. They need their actual normalized joint sampling density and support
-proof, and selection must be measurable from the retained record. They cannot use
+proof, and selection must be measurable from the retained record. They must not use
 this unconditional formula.
 
 A response binds the same point, component and cohort bytes. Its complete
 exclusive joint region-mask probabilities include rejection and preserve region
 membership overlaps. States have canonical region order; probabilities sum to
-one without renormalization. Region marginal probabilities may overlap. Lifetime
+one without renormalization. Region marginal probabilities can overlap. Lifetime
 marks are `R * epsilon_region`; they need not form a probability simplex.
 
 This operation never propagates a charged trajectory through a magnetic field
-or material, constructs a tracklet, or multiplies object efficiencies. A
-published per-tracklet efficiency map alone does not provide the joint event
-selection/calibration input. The source must supply the charged truth/selection
+or material, constructs a tracklet, or multiplies object efficiencies. The joint event selection/calibration requires a full event-level source law in addition to per-tracklet efficiencies. The source must supply the charged truth/selection
 producer, complete conditioning, overlaps and calibration. A pin preserves the
 assertion; it does not certify its physical validity.
 
@@ -88,16 +85,14 @@ assertion; it does not certify its physical validity.
 
 The supported linear normalization is an externally known component coefficient
 `K = sigma_pb * BR * luminosity_fb * 1000` with dimensionless importance marks.
-The source must establish the nominal group mark's unit-mean convention. Native
-weights carrying pb or requiring sum-original-weights ratio normalization remain
-an explicit unsupported branch here, rather than being rescaled by guesswork.
+The source must establish the nominal group mark's unit-mean convention. The source weights must use the declared dimensionless importance-mark normalization.
 The divisor is unchanged across target lifetimes. No selected or lifetime-weighted
 sum is a denominator.
 
 For a declared fixed-N IID generator-group experiment, the divisor counts **all**
 original groups. The reusable `marked_response.empirical_group_mean` returns the
 mean and estimated full covariance `K²/[N(N-1)] * sum_g (x_g-xbar)(x_g-xbar)^T`.
-N=1 has unavailable covariance, not zero covariance. This centered estimate is
+N=1 has missing covariance, not zero covariance. This centered estimate is
 not the known-category population formula or a finite-MC auxiliary likelihood.
 For a declared independent Poisson-group experiment, its known external original
 exposure divisor and the existing full uncentered group Gram are retained instead.
@@ -124,23 +119,22 @@ support/complete mixture-density treatment. No requested lifetime is removed.
 The existing published-model and signal-template contracts retain every source
 SR/CR channel, observation, modifier and auxiliary factor. The supplied mixed
 signal template must equal the exact normalized original-exposure prediction in
-all mapped bins. Scalar upper limits and post-fit error bars cannot replace the
-complete source likelihood. Correlated, signed or fixed-N moments cannot be
+all mapped bins. Scalar upper limits and post-fit error bars must not replace the
+complete source likelihood. Correlated, signed or fixed-N moments must not be
 turned into independent bin errors. The existing conditional Poissonized
 all-bin `signal-template` child can be emitted only with its exact source-law,
 nonnegative group, diagonal-within-cell and sumw2 checks.
 
 Projection scenarios explicitly supply luminosity, energy, the existing
 `stat`/`syst`/`frozen` background scaling law and its sources. New energy requires
-new source generation/response; luminosity scaling cannot provide it. The existing
+new source generation/response at that energy. The existing
 `project_workspace` background/global-luminosity convention is used explicitly.
 For the reused signal cohort, yields and signal histosys variations scale by f;
 absolute staterror/shapesys values scale by f, and signal template covariance
 scales by f². Relative signal normsys terms remain unchanged. This differs from
-assuming additional signal MC statistics grew with luminosity. Unsupported
-modifier types refuse. f=1 is the exact source identity.
+assuming additional signal MC statistics grew with luminosity. Modifier types must follow the declared scaling law. f=1 is the exact source identity.
 
-Complete projected workspaces are scientific inputs. Only expected quantiles may
+Complete projected workspaces are scientific inputs. Only expected quantiles can
 be interpreted as a projection; scaled observed entries are a proxy, not new data.
 Projected/fixed-N/correlated-MC inference still needs an applicable full auxiliary
 law and ordinary bridge. The result exposes those continuation obligations and
@@ -152,10 +146,9 @@ A supplied generation request is not a physical-target mapping by itself.
 Before constructing any child, this LHC branch checks symmetric pp beams
 (`beam_type=[1,1]`, `beam_pdg=[2212,2212]`, equal positive beam energies), with
 their sum in GeV exactly matching the selected point and original analysis energy
-in TeV. Other species or asymmetric beams remain an explicit unsupported source
-need; no guessed center-of-mass conversion or child is emitted.
+in TeV. Child preparation requires this symmetric-pp source contract and exact energy correspondence.
 
-A component with a generation request may additionally supply a pinned
+A component with a generation request can additionally supply a pinned
 `generation_target` document. Without it, all requested points/cells remain, and
 child preparation is blocked. The document has schema version 1, the exact
 `point_identity_sha256` and `component_id`, all three beam arrays, exact
@@ -186,7 +179,7 @@ members refuse success; failed outputs are retained.
 
 `record_measurable=True` asserts a response conditional on the retained full
 proper-length/kinematic record. An efficiency already averaged over a source
-lifetime is not this response and cannot be multiplied by another lifetime ratio.
+lifetime is not this response and must not be multiplied by another lifetime ratio.
 The selection/calibration sources must define the complete conditioning,
 coordinates and units, period, domain and uncertainties; their pins do not prove
 calibration. `joint_second_moment=source_asserted_finite` is likewise an explicit

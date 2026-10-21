@@ -56,11 +56,19 @@ if HERE not in sys.path:
 from ravel.validation import validate_task_contract  # noqa: E402
 from ravel.workflow import result_pack             # noqa: E402
 from ravel.workflow import provenance              # noqa: E402
+from ravel.workflow import stat_mode_decision      # noqa: E402
+from ravel.validation import likelihood_appropriateness  # noqa: E402
 from ravel.limits import claim_errors, read_limits, prose_errors, source_errors  # noqa: E402
 
 GATE_EPOCH = "2026-07-08"
 # Runs dated before this day predate the CHECK-IN 2 code gate; the gate is not applied to them.
 CHECKIN2_GATE_EPOCH = "2026-10-07"
+# Runs dated before this day predate the coded statistical-mode ladder; a missing decision or
+# appropriateness record is waived for them, while an existing record is checked in full.
+STAT_DECISION_EPOCH = "2026-10-20"
+# The stat_modes the coded ladder (stat_mode_decision.LADDER) can select.
+LADDER_STAT_MODES = ("published-likelihood", "simplified-likelihood", "constructed-likelihood",
+                     "best-sr-counting", "combined-counting")
 SKIP_DIRS = {"build", "logs", "__pycache__", ".git", "Events"}
 
 STAGE_ORDER = (
@@ -287,6 +295,20 @@ def locate_signal_patch(rundir):
                 if f.endswith("_patch.json"):
                     hits.append(os.path.join(root, f))
     return sorted(hits)[0] if hits else None
+
+
+def locate_likelihood_appropriateness(rundir):
+    """inputs/likelihood_appropriateness.json, else every **/likelihood_appropriateness.json
+    under outputs/ (all of them, so no hit can hide another)."""
+    canonical = os.path.join(rundir, "inputs", "likelihood_appropriateness.json")
+    if os.path.isfile(canonical):
+        return [canonical]
+    hits = []
+    for root, dirs, files in os.walk(os.path.join(rundir, "outputs")):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
+        if "likelihood_appropriateness.json" in files:
+            hits.append(os.path.join(root, "likelihood_appropriateness.json"))
+    return sorted(hits)
 
 
 def locate_bkg_workspace(rundir, facts):
@@ -1353,6 +1375,109 @@ def inv_blocked_shape_fit_refusal_recorded(rundir, contract, facts, legacy, stri
                      "blocking[] is empty and no DEVIATIONS.md is present")
 
 
+def _predates_stat_decision(rundir, legacy):
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})", os.path.basename(os.path.normpath(rundir)))
+    return bool(legacy or (m and m.group(1) < STAT_DECISION_EPOCH))
+
+
+def _limit_stage_reached(facts):
+    return bool(facts.get("statistics_path")) or bool(facts.get("result_pack_paths"))
+
+
+def _pack_downgrade_errors(rundir, facts, stat_mode):
+    """Every delivered pack must carry the downgrade label; result.json also the decision block."""
+    errors = []
+    for name, rel in sorted((facts.get("result_pack_paths") or {}).items()):
+        if not rel or os.path.basename(rel) == "figures.json":
+            continue
+        doc, err = load_json_safe(rundir, rel)
+        if err or not isinstance(doc, dict):
+            errors.append(f"{rel}: unreadable pack ({err or 'not an object'})")
+            continue
+        keys = {row.get("key") for row in doc.get("limitations") or [] if isinstance(row, dict)}
+        if "stat-mode-downgrade" not in keys:
+            errors.append(f"{rel} carries no 'stat-mode-downgrade' limitation")
+        if os.path.basename(rel) == "result.json":
+            block = doc.get("stat_mode_decision")
+            if not isinstance(block, dict) or block.get("selected") != stat_mode:
+                errors.append(f"{rel} stat_mode_decision.selected does not equal the contract stat_mode {stat_mode!r}")
+    return errors
+
+
+def inv_stat_mode_decision(rundir, contract, facts, legacy, strict):
+    """A ladder stat_mode is chosen by the coded ladder: inputs/stat_mode_decision.json must be
+    valid, select the contract's stat_mode, and every downgrade must be labelled in the pack."""
+    stat_mode = contract.get("stat_mode")
+    if stat_mode not in LADDER_STAT_MODES:
+        return "PASS", "stat_mode not on the ladder; not applicable"
+    rel = stat_mode_decision.RECORD
+    if not os.path.isfile(os.path.join(rundir, rel)):
+        if not _limit_stage_reached(facts):
+            return "PASS", f"statistics stage not yet reached; {rel} is required before a limit ships"
+        if _predates_stat_decision(rundir, legacy):
+            return "waived-legacy", f"no {rel}; run predates the coded statistical-mode ladder"
+        return ("FAIL" if strict else "WARN"), (
+            f"no {rel}: record the ladder decision with "
+            "`python -m ravel.workflow.stat_mode_decision --rundir <run> --evidence <evidence.json> --write`")
+    record, err = load_json_safe(rundir, rel)
+    errors = [f"unreadable: {err}"] if err else stat_mode_decision.validate_record(record)
+    if errors:
+        return "FAIL", f"{rel} invalid: " + "; ".join(errors)
+    if record["selected"] != stat_mode:
+        return "FAIL", (f"{rel} selected {record['selected']!r} but the contract stat_mode is "
+                        f"{stat_mode!r}; the delivered mode must be the decided mode")
+    if record["downgrades"]:
+        errors = _pack_downgrade_errors(rundir, facts, stat_mode)
+        if errors:
+            return "FAIL", "downgrade not labelled in the delivery: " + "; ".join(errors)
+        return "PASS", f"{rel} selected {stat_mode} with {len(record['downgrades'])} labelled downgrade(s)"
+    return "PASS", f"{rel} selected {stat_mode} (top available rung)"
+
+
+def inv_likelihood_appropriateness(rundir, contract, facts, legacy, strict):
+    """A published-likelihood run carries a likelihood-appropriateness record that is not
+    'inappropriate' and agrees with the decision record's appropriateness verdict."""
+    if contract.get("stat_mode") != "published-likelihood":
+        return "PASS", "stat_mode != published-likelihood; not applicable"
+    paths = locate_likelihood_appropriateness(rundir)
+    if not paths:
+        if not _limit_stage_reached(facts):
+            return "PASS", "statistics stage not yet reached; likelihood_appropriateness.json is required before a limit ships"
+        if _predates_stat_decision(rundir, legacy):
+            return "waived-legacy", "no likelihood_appropriateness.json; run predates the coded ladder"
+        return ("FAIL" if strict else "WARN"), (
+            "no inputs/likelihood_appropriateness.json: assess the published likelihood with "
+            "`python -m ravel.validation.likelihood_appropriateness`")
+    decision, _ = load_json_safe(rundir, stat_mode_decision.RECORD) \
+        if os.path.isfile(os.path.join(rundir, stat_mode_decision.RECORD)) else (None, None)
+    review = None
+    if isinstance(decision, dict):
+        part = (decision.get("evidence") or {}).get("published_likelihood") if isinstance(decision.get("evidence"), dict) else None
+        review = part.get("appropriateness") if isinstance(part, dict) else None
+    verdicts = []
+    for path in paths:
+        shown = os.path.relpath(path, rundir)
+        try:
+            with open(path) as fh:
+                doc = json.load(fh)
+        except (OSError, json.JSONDecodeError) as e:
+            return "FAIL", f"{shown} unreadable: {e}"
+        errors = likelihood_appropriateness.validate_record(doc)
+        if errors:
+            return "FAIL", f"{shown} invalid: " + "; ".join(errors)
+        if doc["verdict"] == "inappropriate":
+            return "FAIL", (f"{shown}: the published likelihood is recorded inappropriate "
+                            f"({', '.join(likelihood_appropriateness.blocking_codes(doc))}); "
+                            "downgrade the statistical mode")
+        if decision is not None:
+            claimed = review.get("verdict") if isinstance(review, dict) else None
+            if claimed != doc["verdict"]:
+                return "FAIL", (f"{stat_mode_decision.RECORD} records appropriateness verdict {claimed!r} "
+                                f"but {shown} says {doc['verdict']!r}")
+        verdicts.append(f"{shown}={doc['verdict']}")
+    return "PASS", "likelihood appropriateness: " + ", ".join(verdicts)
+
+
 def inv_deviations_on_change(rundir, contract, facts, legacy, strict):
     hits = traps_hit_ids(contract, facts["trap_sweep_doc"])
     stat_mismatch = False
@@ -1516,7 +1641,7 @@ def inv_ladder_order(rundir, contract, facts, legacy, strict):
                     "dry->smoke->full->scan ladder was skipped")
 
 
-CERT_REQUIRED_STAT_MODES = ("published-likelihood", "simplified-likelihood",
+CERT_REQUIRED_STAT_MODES = ("published-likelihood", "simplified-likelihood", "constructed-likelihood",
                             "best-sr-counting", "combined-counting", "stability-only",
                             # A sensitivity claim depends on A*eff exactly
                             # as a limit does -- sensitivity numbers once shipped with
@@ -1923,6 +2048,8 @@ INVARIANTS = (
     ("param-validated-before-scan", "analysis", inv_param_validated_before_scan),
     ("R5-before-limit-ships", "result_pack", inv_r5_before_limit),
     ("likelihood-selection-pairing", "statistics", inv_likelihood_pairing),
+    ("stat-mode-decision-recorded", "statistics", inv_stat_mode_decision),
+    ("likelihood-appropriateness", "statistics", inv_likelihood_appropriateness),
     ("blocked-shape-fit-refusal-recorded", "statistics", inv_blocked_shape_fit_refusal_recorded),
     ("DEVIATIONS-on-change", "result_pack", inv_deviations_on_change),
     ("result-prose-matches-artifacts", "result_pack", inv_result_prose_matches),
@@ -2625,6 +2752,98 @@ def _fixture_shower_without_lhe_check(td):
     return rd, contract
 
 
+def _stat_decision_evidence(*, likelihood=None, yields=True):
+    """Synthetic ladder evidence: a published likelihood (with its appropriateness verdict) or none."""
+    return {
+        "published_likelihood": {"available": likelihood is not None,
+                                 "path": "inputs/bkg_only.json" if likelihood is not None else None,
+                                 "appropriateness": ({"path": "inputs/likelihood_appropriateness.json",
+                                                      "verdict": likelihood} if likelihood else None)},
+        "covariance": {"available": False, "path": None, "source": None},
+        "systematics_registry": {"available": False, "path": None},
+        "yields": {"available": yields, "path": "outputs/sr_yields.json" if yields else None},
+        "mutually_exclusive_regions": None,
+    }
+
+
+def _fixture_stat_decision(td, *, dirname="2026-10-21_stat_decision", stat_mode="best-sr-counting",
+                           evidence=None, pack_limitation=False, appropriateness=None):
+    """A post-epoch run that reached its limit: an exclusion.json, optionally the decision
+    record (decided from ``evidence``), a result pack, and an appropriateness record."""
+    rd = os.path.join(td, dirname)
+    contract = _base_contract(
+        task_mode="reproduce", stat_mode=stat_mode, compute_plan="full",
+        detector_mode="simpleanalysis-delphes-native",
+        cost_estimate={"mode": "full", "points": 1, "walltime_h": [1, 2]})
+    _write_json(os.path.join(rd, "inputs", "task_contract.json"), contract)
+    _write_json(os.path.join(rd, "outputs", "pyhf_exclusion", "exclusion.json"),
+                {"obs_limit": 0.8, "exp_limits": [0.4, 0.6, 0.8, 1.1, 1.5], "per_sr": {}, "best_sr": "SR1"})
+    if evidence is not None:
+        _write_json(os.path.join(rd, stat_mode_decision.RECORD), stat_mode_decision.decide(evidence))
+    if pack_limitation is not None and evidence is not None:
+        record = stat_mode_decision.decide(evidence)
+        pack = {"stat_mode": stat_mode, "limitations": []}
+        if pack_limitation:
+            pack["limitations"].append({"key": "stat-mode-downgrade", "note": record["label"]})
+            pack["stat_mode_decision"] = {"selected": record["selected"]}
+        _write_json(os.path.join(rd, "result.json"), pack)
+    if appropriateness is not None:
+        findings = ([{"code": "selection-changed", "severity": "blocking", "evidence": {}, "reason": "-"}]
+                    if appropriateness == "inappropriate" else [])
+        _write_json(os.path.join(rd, "inputs", "likelihood_appropriateness.json"),
+                    {"schema_version": 1, "kind": "likelihood-appropriateness", "verdict": appropriateness,
+                     "findings": findings, "checks": [], "thresholds": {}, "inputs": [],
+                     "scope": likelihood_appropriateness.SCOPE})
+    return rd, contract
+
+
+def _invariant_case(label, build_fn, fn, expect_status, strict=False, contains=None):
+    """Evaluate one invariant directly on a fixture (the other gates are not under test)."""
+    with tempfile.TemporaryDirectory(prefix="validate_run_state_selftest_") as td:
+        rd, contract = build_fn(td)
+        errs = validate_task_contract.validate(contract)
+        if errs:
+            return False, f"{label}: fixture contract itself failed validate_task_contract: {errs}"
+        status, detail = fn(rd, contract, discover_facts(rd, contract), is_legacy(rd), strict)
+        ok = status == expect_status and (contains is None or contains in detail)
+        print(f"[selftest] {label}: {status}  {'ok' if ok else 'FAIL'}")
+        if not ok:
+            print(f"    detail: {detail}")
+        return ok, (None if ok else f"{label}: expected {expect_status}, got {status} ({detail})")
+
+
+def _stat_decision_selftests():
+    """(label, builder, invariant, expected status, strict, detail substring) rows."""
+    no_decision = _fixture_stat_decision
+    mismatched = lambda td: _fixture_stat_decision(td, stat_mode="simplified-likelihood",
+                                                   evidence=_stat_decision_evidence())
+    unlabelled = lambda td: _fixture_stat_decision(td, evidence=_stat_decision_evidence())
+    labelled = lambda td: _fixture_stat_decision(td, evidence=_stat_decision_evidence(), pack_limitation=True)
+    pre_epoch = lambda td: _fixture_stat_decision(td, dirname="2026-10-19_stat_decision")
+    inappropriate = lambda td: _fixture_stat_decision(
+        td, stat_mode="published-likelihood", appropriateness="inappropriate")
+    agreeing = lambda td: _fixture_stat_decision(
+        td, stat_mode="published-likelihood", evidence=_stat_decision_evidence(likelihood="appropriate"),
+        pack_limitation=None, appropriateness="appropriate")
+    return (
+        ("25 decision record missing post-epoch (strict) -> FAIL", no_decision,
+         inv_stat_mode_decision, "FAIL", True, stat_mode_decision.RECORD),
+        ("26 decision record missing post-epoch (non-strict) -> WARN", no_decision,
+         inv_stat_mode_decision, "WARN", False, None),
+        ("27 decision selects a mode other than the contract's -> FAIL", mismatched,
+         inv_stat_mode_decision, "FAIL", False, "contract stat_mode"),
+        ("28 downgrade without the pack's stat-mode-downgrade label -> FAIL", unlabelled,
+         inv_stat_mode_decision, "FAIL", False, "stat-mode-downgrade"),
+        ("29 downgrade labelled in the pack -> PASS", labelled, inv_stat_mode_decision, "PASS", True, None),
+        ("30 pre-epoch run without a decision record -> waived-legacy", pre_epoch,
+         inv_stat_mode_decision, "waived-legacy", True, None),
+        ("31 published likelihood recorded inappropriate -> FAIL", inappropriate,
+         inv_likelihood_appropriateness, "FAIL", False, "downgrade the statistical mode"),
+        ("32 appropriate likelihood agreeing with the decision -> PASS", agreeing,
+         inv_likelihood_appropriateness, "PASS", True, None),
+    )
+
+
 def _selftest_case(label, build_fn, expect_verdict, expect_exit, extra_check=None, stage_limit=None):
     with tempfile.TemporaryDirectory(prefix="validate_run_state_selftest_") as td:
         rd, contract = build_fn(td)
@@ -2883,6 +3102,11 @@ def selftest():
     if not ok:
         fails.append(why)
 
+    for label, build_fn, fn, expect, strict_case, contains in _stat_decision_selftests():
+        ok, why = _invariant_case(label, build_fn, fn, expect, strict=strict_case, contains=contains)
+        if not ok:
+            fails.append(why)
+
     # a couple of cheap CLI-level checks (usage / contract-invalid exit codes)
     with tempfile.TemporaryDirectory(prefix="validate_run_state_selftest_") as td:
         not_a_dir = os.path.join(td, "does-not-exist")
@@ -2960,7 +3184,7 @@ def selftest():
         for f in fails:
             print(f"SELFTEST FAIL: {f}", file=sys.stderr)
         return 1
-    print(f"validate_run_state selftest: {21 + 3} case(s) judged correctly.")
+    print(f"validate_run_state selftest: {21 + 3 + len(_stat_decision_selftests())} case(s) judged correctly.")
     return 0
 
 

@@ -107,13 +107,13 @@ def _review_waypoint(rd, *, status="pass"):
         {"id": name, "status": value, "evidence": [{"path": "inputs/produced.png", "location": "all"}],
          "attempt_ids": [record["attempt_id"]]} for name, value in (("integrity", "pass"), ("agreement", status))]})
     review.open_cycle(rd, effective_settings=paths, stage_receipts=[record["attempt_record"]], check_results="inputs/checks.json")
-    for role, actor in (("physics_critic", "critic"), ("skeptical_verifier", "skeptic"), ("physics_decider", "physicist")):
-        review.submit_review(rd, role=role, actor_id=actor, verdict="accept", summary="Synthetic boundary control",
-            claim_scope="reproduction" if status == "pass" else "diagnostic")
+    # Recorded votes come from bound responses of dispatched roles; declared names are advice.
+    from bound_review import bound_accept
+    bound_accept(rd, scope="reproduction" if status == "pass" else "diagnostic")
 
 
-def _run(tmp_path, plan="full", approve=True, checkin2=True):
-    rd = tmp_path / "2026-10-07_TEST_checkin2"
+def _run(tmp_path, plan="full", approve=True, checkin2=True, *, name="2026-10-07_TEST_checkin2"):
+    rd = tmp_path / name
     _write_inputs(rd, plan)
     if approve:
         result = _ws("approve", "--rundir", rd, "--quote", "Yes, run the plan", "--plan", plan)

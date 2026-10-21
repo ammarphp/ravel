@@ -6,7 +6,7 @@ Implemented source interfaces:
 
 - `ravel.physics.sfitter_native.validate/inputs/run`: closed configuration, complete original235-file custody, schema1 exact shipped top/profile/double/flow settings; schema2 source-supported top/Higgs, coordinate subsets, flow/SMC/CRAFT and authenticated saved phases, explicit admitted interpreter/runtime, original plus copied input checks, one native call, progressive/opaque output preservation, bounded delivery and ending census.
 - `ravel.physics.sfitter_worker.main`: ordinary native child, exact native `ProfileLikelihood.log_likelihood` for fixed vectors, or original `init_run → train → save → fit → plots` sequence. No native model/fitter imports occur in the planning process. Native `results.pkl` is retained before serialization and never unpickled by the parent. Both branches persist `initialized-state.json` after initialization and source checks, before training or evaluating fixed vectors. The snapshot observes the actual polynomial, measurement, error, pre-shrink correlation, inverse metric and normalization tensors, plus lossless float64 `corr_shrinkage`/`syst_rho` and integer `n_blocks_substituted`. It performs no additional score or matrix computation, survives later failures and carries independent consistency as unknown.
-- `ravel.physics.sfitter_results`: full22-parameter/231-pair transport, original numeric dtype/shape/C-order bytes, base64 plus hash, geometry/completeness validation. NaN, infinities, signed zeros and underflow bits are preserved, not clipped or assigned scientific validity. The unchanged FitResults does not retain raw profile log scores, argmax coordinates or convergence metadata; these are explicitly unavailable/unknown.
+- `ravel.physics.sfitter_results`: full22-parameter/231-pair transport, original numeric dtype/shape/C-order bytes, base64 plus hash, geometry/completeness validation. NaN, infinities, signed zeros and underflow bits are preserved, not clipped or assigned scientific validity.
 - `ravel.workflow.sfitter_workflow.context/phase_graph/apply_handoff/ready_native`: extraction, SM/order/theory, full signed Wilson templates, convention translation and exact datacard composition. Source phases use pinned upstream role/skill texts with explicit domain and authority overrides. No separate scheduler, mutable research journal or runner is introduced.
 - AgentHost tool actions `sfitter-context` and `sfitter-handoff`: every inspected role/code/paper/phase artifact must be an exact current Graph input. Host identity includes the adaptation, child, serializer and upstream census. Graph dependency order does not implicitly supply a model result; actual handoff files are explicitly pinned before the next phase.
 
@@ -17,7 +17,7 @@ A handoff includes the exact scientific population digest, actual evidence pins 
 The adapter preserves native top `score=-Q`, profiles/importance target `exp(-Q)`, signed component-wise RFit clamp before correlated contraction, named nuisance-key correlations, original published-block replacement and capped shrinkage. Every multi-bin native group normalizes its full polynomial by its width-weighted integral; both native and specialist intakes require normalized multi-bin groups and absolute singletons. The native singleton denominator is one; a normalized singleton interpretation is refused. Schema1 keeps the complete native22 basis. Schema2 builds the full22 top or20 Higgs likelihood, then embeds the explicitly selected ordered coordinates into that full vector with every omitted coefficient fixed at zero before both native score and prior calls. It never passes a shortened basis to the native polynomial, Higgs branching or EWPO tensors. Basis/units/flavour/cutoff are declared and source-bound; only equal positive source/target scale is supported here. An externally converted card needs actual conversion evidence and review. This source interface neither computes RGE nor certifies a general SMEFT basis transformation.
 
 Released cards remain unchanged. Ambiguous paired identities, unknown operator
-tokens or unsupported nuisance placements refuse admission until the request
+tokens or nuisance placements outside the input contract refuse admission until the request
 selects a matching reviewed source repair and disposition record.
 
 ## Ordinary invocation
@@ -41,7 +41,7 @@ python -m ravel.workflow.sfitter_workflow graph --request workflow.json --output
 python -m ravel.workflow.sfitter_workflow handoff --request workflow.json --handoff actual-phase.json --output handoff-receipt.json
 ```
 
-These commands prepare advisory artifacts only. Execute the resulting DAG with the existing AgentGraph/Host after its model budgets are authorized. After actual successful native return, use ordinary `physics_review.open_cycle` plus fresh `review_context.create` packets and the existing votes/decider. After an actual failed stage, classify the genuine record and use canonical `failed_stage_review.intake/create_context/graph_feedback`; the failure stays failed. `sfitter_workflow.review_graph` accepts these matching current role packets; it cannot construct review evidence or cast votes.
+These commands prepare advisory artifacts only. Execute the resulting DAG with the existing AgentGraph/Host after its model budgets are authorized. After actual successful native return, use ordinary `physics_review.open_cycle` plus fresh `review_context.create` packets and the existing votes/decider. After an actual failed stage, classify the genuine record and use canonical `failed_stage_review.intake/create_context/graph_feedback`; the failure stays failed. `sfitter_workflow.review_graph` accepts these matching current role packets; it must not construct review evidence or cast votes.
 
 ## Datacard construction
 
@@ -53,17 +53,17 @@ python -m ravel.workflow.sfitter_workflow assembly-graph --request workflow.json
 python -m ravel.workflow.sfitter_workflow materialize --request workflow.json --output /absolute/fresh-bundle --native-settings runtime-settings.json
 ```
 
-`materialize` writes the run-relative example outputs `<rundir>/data/assembled.json` and `<rundir>/params/assembled.yaml` in the fresh bundle directory supplied by `--output` (`<rundir>` here), an exact retained semantic copy, the datacard handoff, completed workflow and a preparation receipt. With explicit trusted runtime settings it also writes an actual `sfitter-native-fit` configuration and enumerates the complete existing native input graph. Its semantic handoff retains the original source pin so relative evidence resolves at its original location. The native `ReadDataCard` round trip remains unexecuted. Source-bound draft handoffs are not reviewer approval. Use the generated configuration for a fresh ordinary science plan; the command grants no execution or scientific acceptance.
+`materialize` writes the run-relative example outputs `<rundir>/data/assembled.json` and `<rundir>/params/assembled.yaml` in the fresh bundle directory supplied by `--output` (`<rundir>` here), an exact retained semantic copy, the datacard handoff, completed workflow and a preparation receipt. With explicit trusted runtime settings it also writes an actual `sfitter-native-fit` configuration and enumerates the complete existing native input graph. Its semantic handoff retains the original source pin so relative evidence resolves at its original location.  Source-bound draft handoffs are not reviewer approval. Use the generated configuration for a fresh ordinary science plan; the command grants no execution or scientific acceptance.
 
-All new card/request/semantic/template bytes are captured, parsed and copied from the same bounded ordinary-file observation. Ending bytes and ancestor identities are checked. The existing Host/Graph, science approval, native supervision and review journals retain authority; there is no additional scheduler. The assembler has source and synthetic engineering controls; a full-study native demonstration remains outstanding.
+All new card/request/semantic/template bytes are captured, parsed and copied from the same bounded ordinary-file observation. Ending bytes and ancestor identities are checked. The existing Host/Graph, science approval, native supervision and review journals retain authority; there is no additional scheduler. The assembler has source and synthetic engineering controls.
 
-## Complete upstream application boundary
+## Phase workflow
 
-The original noninteractive entry is `SFA_SESSION_DIR=<session> PYTHONPATH=<original>/src python -m launcher code <Claude arguments>`. It runs the unchanged conductor and phase skills inside Apptainer, maintains session-local lead/consultant memory and wikis, and supplies cluster execution through SLURM. That application backend is not yet implemented or admitted by RAVEL. A future wrapper should use the original entry and a dedicated writable `CLAUDE_CONFIG_DIR`, explicit image/cluster/runtime/call budgets and ordinary output intake, preserving the original application rather than reproducing its scheduler. It must never borrow global Claude or Codex configuration.
+
 
 The portable phase conductor connects actual specialist returns to an original-skill phase lead. It produces source-bound handoff files, phase documentation, explicit production requests and owning-phase draft revisions. It delegates source-bound domain review preparation, consumption and rework to the repaired SFitter domain protocol. The phase continuation requires all original registered review roles, the exact current request and the whole owning phase; narrow acceptance grants no whole-phase approval. Review transport and scientific production still require their ordinary separate admission. These operations use the existing Graph/Host and judgment journal; the conductor creates no additional scheduler, mutable approval state or native runner.
 
-The original application remains the preferred backend when complete upstream session memory/wiki and cluster behavior are required. Use its unchanged noninteractive launcher behind an explicit ordinary runtime contract and dedicated configuration rather than reproducing those facilities. The portable path still needs actual source-grounded SM/NLO and signed Wilson-scan production, coefficient/baseline evidence, native parser round trips and downstream fit review. Production requests are explicit missing-work handoffs, not executed MadGraph cards or completed measurements. Merely exposing all roles or accepting source drafts does not complete those obligations. The native exact polynomial and width-weighted normalization override any conflicting upstream Taylor prose.
+The native exact polynomial and width-weighted normalization govern the statistical inputs.
 
 ## Portable phase conductor
 
@@ -79,13 +79,13 @@ The existing Graph/Host dispatches the resulting model node only under its curre
 
 For actual review, `prepare_role`, `consume_review` and `rework_review` require the separately supplied domain protocol. Its exact request must name this adopted workflow and phase; its binding must retain that same request. The ordinary protocol/judgment consumer owns acceptance and actual send-back, including current concern coverage and review actors. If that required module is absent, the conductor refuses. The source controls exercise these delegate calls with an explicit stand-in until a coherent real protocol join is tested. Draft progression does not imply reviewer-approved phase completion.
 
-No complete original application, native parser or full-study demonstration is claimed by this interface. It is a connected portable construction path with explicit production and review dependencies.
+
 
 ## Runtime and resource boundary
 
 The core is separable from the Claude/Apptainer/SLURM launcher; CPU mode is explicit. This adapter does not invoke the upstream launcher, install tools or submit cluster jobs. `-I -B`, explicit site roots, exact interpreter bytes, package versions, declared source/runtime assets and observed nonstdlib import origins are required. Imports and Python startup can execute trusted code before an origin check; this is not an OS sandbox or a complete shared-library/stdlib closure. CPU mode explicitly hides CUDA before importing Torch; unexpected upstream automatic device selection is refused. Native randomness is unchanged, with no new seed/reproducibility claim.
 
-The configured native time/RAM/export ceiling is enforced through existing supervision and delivery validation. Raw logs, process/exit receipts, progress, copied sources/cards, model, opaque result and plots are retained on failure. Serializer failure or missing final runtime custody makes the stage fail without erasing raw data. There is no automatic retry or approval. All real fits and numerical qualification remain unexecuted.
+The configured native time/RAM/export ceiling is enforced through existing supervision and delivery validation. Raw logs, process/exit receipts, progress, copied sources/cards, model, opaque result and plots are retained on failure. Serializer failure or missing final runtime custody makes the stage fail without erasing raw data. There is no automatic retry or approval.
 
 ## Qualification before a full comparison
 
@@ -116,7 +116,7 @@ handoff remain bound. Caller-created files or a passed result bit are insufficie
 
 Diagnostic `toy`, `spiral` and `five_point` profiles retain their full source
 coordinates and are engineering controls with `purpose=analytic_qualification`;
-they cannot stand in for a physical measurement. Their likelihood and prior
+they must not stand in for a physical measurement. Their likelihood and prior
 semantics are preserved separately from the physical `score=-Q` convention.
 
 All source-defined numerical sections are retained rather than silently replaced
@@ -129,7 +129,7 @@ and independent accuracy/calibration remain required.
 
 The original SMC/CRAFT `FitResults` constructor omits four mandatory flow-weight
 histogram fields. The adapter applies one attributed MIT source delta **only in
-the copied source**: these fields are `None` and the unavailable weight plot is
+the copied source**: these fields are `None` and the missing weight plot is
 skipped. Original SMC/CRAFT marginalization discards residual log weights when
 building histograms. Those outputs are explicitly unweighted particle diagnostics,
 not Bayesian posterior densities. Physical native `log_prior` is zero with no
@@ -201,7 +201,7 @@ handoff remain bound. Caller-created files or a passed result bit are insufficie
 
 Diagnostic `toy`, `spiral` and `five_point` profiles retain their full source
 coordinates and are engineering controls with `purpose=analytic_qualification`;
-they cannot stand in for a physical measurement. Their likelihood and prior
+they must not stand in for a physical measurement. Their likelihood and prior
 semantics are preserved separately from the physical `score=-Q` convention.
 
 All source-defined numerical sections are retained rather than silently replaced
@@ -214,7 +214,7 @@ and independent accuracy/calibration remain required.
 
 The original SMC/CRAFT `FitResults` constructor omits four mandatory flow-weight
 histogram fields. The adapter applies one attributed MIT source delta **only in
-the copied source**: these fields are `None` and the unavailable weight plot is
+the copied source**: these fields are `None` and the missing weight plot is
 skipped. Original SMC/CRAFT marginalization discards residual log weights when
 building histograms. Those outputs are explicitly unweighted particle diagnostics,
 not Bayesian posterior densities. Physical native `log_prior` is zero with no
@@ -286,15 +286,15 @@ extractor. It supplies inputs rather than repeating their extraction or estimate
 `higgs-theory-uncertainty-auditor` and `higgs-combination-reviewer` judge the
 quantities and own none. The context records `quantity_owners` and the declared
 bundle handoffs; `validate_phase_ownership(higgs=True)` checks this boundary.
-The withheld setup groups retain their existing status.
+
 
 Graph factories bind scientific specialists with each node's `registry_role`;
 the fit phase factory does this for every specialist. Scheduler labels such as
-`designer` describe orchestration, so they cannot substitute for that binding.
+`designer` describe orchestration, so they must not substitute for that binding.
 Worker and map nodes use the actual dispatched card automatically, and a
 conflicting explicit binding is refused. A worker whose role is a scheduler
 label takes its ownership only from an explicit binding. The two independent
-proposer streams own distinct hypothesis sets, so a panel of both is admitted. Graphs may name
+proposer streams own distinct hypothesis sets, so a panel of both is admitted. Graphs can name
 `required_quantity_kinds` to refuse missing producers.
 
 Repeated production of one kind requires `quantity_handoffs` entries with

@@ -1,5 +1,47 @@
 # Step 2 — Inputs  ·  [judgment]  ·  CHECK-IN
 
+## On the controller
+
+On a controller run this step is the analysis route's **prepare phase**: five plan steps that run before
+CHECK-IN 1, at no compute rung, through the governed step graph. Their adopted outputs are the evidence
+CHECK-IN 1 presents; a missing or failing output holds CHECK-IN 1, so nothing is generated without it.
+
+| Plan step | Kind | Writes | The route adapter checks |
+|---|---|---|---|
+| `inputs.census` | `acquire` (`acquire-published`), governed acquisition through `ravel.workflow.resource_census --reading @input:inputs/reading.json --controller-output inputs/resource_census.json` | `outputs/inputs/resource_census.json`, with every source record embedded | every rung has a status; an unreachable source is never recorded as absent (P6 source ladder) |
+| `inputs.route` | `author` (worker `coordinator`) | `outputs/route_analysis.json` | routine, model, final state, energy, detector mode and statistic stated; every mismatch with the request bound to a stated approximation; the detector fidelity not below the request |
+| `inputs.traps` | `author`, reviewed by `trap-auditor` | `outputs/trap_sweep.json` | twelve verdicts; every hit carries a flag number or an escalation (P3) |
+| `inputs.figures` | `author`, reviewed by `figure-critic` | `outputs/figure_target.json`, `outputs/gallery.json`, `outputs/waypoint.json` | targets from the allowed reference with their published axis scales and source, every requested panel kept (P1); a cheap, discriminating waypoint, or source-independent waypoints when the reference is blinded |
+| `inputs.cost` | `derive` (worker `coordinator`) | `outputs/cost_preflight.json` | a cost record for the plan's highest rung and population; unknown stays unknown |
+
+The route analysis record carries `summary`, `routine`, `model`, `final_state`, `energy`, `detector_mode`,
+`stat_mode`, `method`, `hepdata_record`, `assumptions` (each with `statement`, `reason`, `alternatives` and
+`result_sensitive`), `decisions`, `approximations` (each with `reason` and `bound`), `mismatches` and, when the
+request leaves the scan grid open, `scan_grid`. After the prepare phase the controller binds these decisions into
+the plan's later steps (a new plan revision, before any approval); a step that stays unbound holds CHECK-IN 1.
+It can also supply `launches`, keyed by exact execution-step ID, with source-backed `argv` and resource
+declarations. Binding pins those commands before approval, including a distinct ID for each expanded scan point.
+Without supplied commands the operation retains its registered executor-role path. A launch reads only the
+step's declared input census: `@input:<artifact>` resolves to the current, digest-verified custody destination.
+
+At adoption, structured fields of admitted `keep_fixed` constraints (`routine`, `model`, `final_state`,
+`energy`, `detector_mode`, `stat_mode`) are compared with the route analysis, using the constraint's exact
+prompt spans. A producer must not hide a conflict by leaving `mismatches` empty. An allowed substitution
+records a mismatch with `constraint` (the admitted constraint id), `field`, `requested`, `selected` and
+`approximation` (an approximation id with a stated `reason` and `bound`). All these bindings must match;
+an unrelated approximation leaves `route_analysis_constraint_mismatch` unresolved. Missing or changed
+prompt spans refuse adoption with `route_analysis_constraint_unbound`.
+
+CHECK-IN 1 is then rendered from this evidence ([check-ins](../checklists/check-ins.md#on-the-controller-typed-check-ins)):
+the preamble, the resource census, the published-figure gallery, the figure target and waypoint, the method and
+cost, the scan grid for a scan, the numbered flags and the plan. The plan critic reviews it before the authority
+service asks the physicist (or applies the operator's configured authority).
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
 Before sending inputs to a model, pin the run's
 [data classification and allowed transport accounts](../reference/provider-policy.md).
 Restricted input pins require an explicit restricted declaration at run start.
@@ -12,7 +54,7 @@ steps (resource census, routine lookup, HEPData and figure fetches) run with the
 
 Decide the analysis routine and the model. Requires physics judgement.
 
-0. **RESOURCE SWEEP (mandatory, before anything is declared unavailable).** The `resource-sweep`
+0. **RESOURCE SWEEP (mandatory, before anything is declared missing).** The `resource-sweep`
    skill / `resource_census.py` walks HEPData (tables + the RESOURCES tab, where full likelihoods
    and efficiency maps live), the routine resolvers, arXiv source, GitHub (repos AND code search —
    recast repos rarely carry the analysis id in their name), and INSPIRE forward-citations
@@ -34,7 +76,7 @@ Decide the analysis routine and the model. Requires physics judgement.
 1. **Routine.** Resolve the analysis to a routine across **both** ecosystems at once — Rivet (Option A)
    and SimpleAnalysis (Option B) — from a paper code, Inspire id, or keyword:
    ```bash
-   python scripts/run.py ravel.workflow.routine_fetch --query "<ATLAS-SUSY-20XX-XX | insNNNN | keyword>"
+   python scripts/run.py ravel.workflow.routine_fetch --query "<analysis identifier | source record | keyword>"
    ```
    It prints the matching Rivet routine id (→ step 4A) and/or the SimpleAnalysis `DefineAnalysis` name
    (→ step 4B, the mapyde `[simpleanalysis] name`). **It matches the analysis CODE / literal ids**
@@ -146,7 +188,7 @@ Producers receive at most three procedural sections, or a smaller positive
 `max_procedural_items` from the card. Checks and premises do not count toward that
 cap. Consults receive full handbooks and are exempt from the procedural cap.
 The token budget uses a conservative UTF-8 byte charge for content. Required
-items that cannot fit cause refusal; optional omissions retain their IDs and
+items exceeding the packet budget cause refusal; optional omissions retain their IDs and
 reasons in `knowledge_omitted` and the bundle index.
 
 Node facts select sections through `handbook_sections`, a map from handbook ID

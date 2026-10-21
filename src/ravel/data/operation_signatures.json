@@ -9,7 +9,13 @@
     "kind": "command",
     "module": "ravel.workflow.resource_census"
    },
-   "consumes": [],
+   "consumes": [
+    {
+     "slot": "context_document",
+     "kind": "document",
+     "optional": true
+    }
+   ],
    "produces": [
     {
      "slot": "tables",
@@ -171,6 +177,20 @@
      "slot": "point",
      "kind": "parameter_point",
      "optional": true
+    },
+    {
+     "slot": "context_document",
+     "kind": "document",
+     "optional": true
+    },
+    {
+     "slot": "context_table",
+     "kind": "table",
+     "optional": true
+    },
+    {
+     "slot": "trap_sweep",
+     "kind": "validation:trap-sweep"
     }
    ],
    "produces": [
@@ -2381,6 +2401,20 @@
      "kind": "inference",
      "cardinality": "0..*",
      "optional": true
+    },
+    {
+     "slot": "context_cutflow",
+     "kind": "cutflow",
+     "optional": true
+    },
+    {
+     "slot": "context_document",
+     "kind": "document",
+     "optional": true
+    },
+    {
+     "slot": "trap_sweep",
+     "kind": "validation:trap-sweep"
     }
    ],
    "produces": [
@@ -3581,6 +3615,15 @@
      "slot": "point",
      "kind": "parameter_point",
      "optional": true
+    },
+    {
+     "slot": "context_document",
+     "kind": "document",
+     "optional": true
+    },
+    {
+     "slot": "trap_sweep",
+     "kind": "validation:trap-sweep"
     }
    ],
    "produces": [
@@ -4829,7 +4872,7 @@
     {
      "slot": "specification",
      "kind": "expression",
-     "task_pointer": "/task/spec"
+     "task_pointer": "/task/request"
     }
    ],
    "produces": [
@@ -4850,7 +4893,7 @@
     "ceiling_pointer": null
    },
    "critical_fields": [
-    "/task/spec"
+    "/request"
    ],
    "basis": {
     "adds": [
@@ -6114,6 +6157,10 @@
     {
      "slot": "classifier",
      "kind": "selection"
+    },
+    {
+     "slot": "trap_sweep",
+     "kind": "validation:trap-sweep"
     }
    ],
    "produces": [
@@ -7988,6 +8035,844 @@
     "checks": [
      "io_contract",
      "likelihood_pairing"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "detector-calibration": {
+   "summary": "Bounded detector-response calibration from supplied calibration inputs.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.physics.detector_calibration"
+   },
+   "consumes": [
+    {
+     "slot": "task",
+     "kind": "document"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "calibration",
+     "kind": "calibration:result"
+    }
+   ],
+   "effects": [
+    "runs_authored_code"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "task"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "detector"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "inference": {
+   "summary": "Typed statistical inference using the declared request, inputs and requested quantity.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.physics.inference.cli"
+   },
+   "consumes": [
+    {
+     "slot": "task",
+     "kind": "document"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "task"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "manuscript-note-pdf": {
+   "summary": "Source-bound short note pdf",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.controller.routes.manuscript.note"
+   },
+   "consumes": [
+    {
+     "slot": "claims",
+     "kind": "manuscript:claim-map"
+    },
+    {
+     "slot": "documents",
+     "kind": "document"
+    },
+    {
+     "slot": "results",
+     "kind": "table"
+    },
+    {
+     "slot": "trap_sweep",
+     "kind": "validation:trap-sweep"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "artifact_0",
+     "kind": "document"
+    },
+    {
+     "slot": "artifact_1",
+     "kind": "document"
+    },
+    {
+     "slot": "artifact_2",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "documents"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "manuscript-note-sources": {
+   "summary": "Source-bound short note sources",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.controller.routes.manuscript.note"
+   },
+   "consumes": [
+    {
+     "slot": "claims",
+     "kind": "manuscript:claim-map"
+    },
+    {
+     "slot": "documents",
+     "kind": "document"
+    },
+    {
+     "slot": "results",
+     "kind": "table"
+    },
+    {
+     "slot": "trap_sweep",
+     "kind": "validation:trap-sweep"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "artifact_0",
+     "kind": "document"
+    },
+    {
+     "slot": "artifact_1",
+     "kind": "document"
+    },
+    {
+     "slot": "artifact_2",
+     "kind": "document"
+    },
+    {
+     "slot": "artifact_3",
+     "kind": "document"
+    },
+    {
+     "slot": "artifact_4",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "documents"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ml-stage-admit": {
+   "summary": "Admission of one supplied binary-classification table and its split into train, validation and a withheld partition, with provenance, identity, overlap and sizing checks.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.ml_stages"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "train",
+     "kind": "table"
+    },
+    {
+     "slot": "validation",
+     "kind": "table"
+    },
+    {
+     "slot": "test",
+     "kind": "table"
+    },
+    {
+     "slot": "identities",
+     "kind": "table"
+    },
+    {
+     "slot": "admission",
+     "kind": "table"
+    },
+    {
+     "slot": "receipt",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "supplied_inputs"
+     }
+    ],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [
+    "NumPy"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ml-stage-card": {
+   "summary": "Model card from the stage records.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.ml_stages"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    },
+    {
+     "slot": "records",
+     "kind": "table",
+     "cardinality": "1..*"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model_card_json",
+     "kind": "document"
+    },
+    {
+     "slot": "model_card_md",
+     "kind": "document"
+    },
+    {
+     "slot": "receipt",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [
+    "NumPy"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ml-stage-evaluate": {
+   "summary": "The one evaluation read of the withheld partition with the frozen models; metrics, calibration and the overtraining comparison.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.ml_stages"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    },
+    {
+     "slot": "records",
+     "kind": "table",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "models",
+     "kind": "selection"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "evaluation",
+     "kind": "table"
+    },
+    {
+     "slot": "scores",
+     "kind": "table"
+    },
+    {
+     "slot": "receipt",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [
+    "NumPy"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ml-stage-features": {
+   "summary": "Feature definition on the training partition with the label-leakage screen and train-only preprocessing.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.ml_stages"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    },
+    {
+     "slot": "records",
+     "kind": "table",
+     "cardinality": "1..*"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "features",
+     "kind": "table"
+    },
+    {
+     "slot": "receipt",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "authored_code"
+     }
+    ],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [
+    "NumPy"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ml-stage-review": {
+   "summary": "Executable reviewer items recomputed from pinned arrays and stage records.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.ml_stages"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    },
+    {
+     "slot": "records",
+     "kind": "table",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "models",
+     "kind": "selection"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "review",
+     "kind": "document"
+    },
+    {
+     "slot": "receipt",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [
+    "NumPy"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ml-stage-train": {
+   "summary": "Training launch of every declared arm and seed within the approved budget, never given the withheld partition; the smoke rung trains one seed briefly.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.ml_stages"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    },
+    {
+     "slot": "records",
+     "kind": "table",
+     "cardinality": "1..*"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "models",
+     "kind": "selection"
+    },
+    {
+     "slot": "training",
+     "kind": "table"
+    },
+    {
+     "slot": "checkpoint_npz",
+     "kind": "selection"
+    },
+    {
+     "slot": "checkpoint_json",
+     "kind": "table"
+    },
+    {
+     "slot": "receipt",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "trained_model"
+     }
+    ],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [
+    "NumPy"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ordinary-study-prepare": {
+   "summary": "Source-bound ordinary child preparation.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.controller.routes.study.runtime"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "seconds",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "scoped-generate": {
+   "summary": "Confined ordinary scoped operation with original approval and evidence checks.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.controller.routes.study.runtime"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "document"
+    }
+   ],
+   "effects": [
+    "generates_events",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "seconds",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "generation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "scoped-likelihood": {
+   "summary": "Confined ordinary scoped operation with original approval and evidence checks.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.controller.routes.study.runtime"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "document"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "document"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "seconds",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "specification"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "literature-query-expansion": {
+   "summary": "Deterministic query expansion plus at most one dispatched, charged choice of curated entries and source-bound terms.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.research_tools"
+   },
+   "consumes": [
+    {
+     "slot": "query",
+     "kind": "document",
+     "task_pointer": "/query"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "expansion",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "wall_seconds",
+    "forecast": null,
+    "ceiling_pointer": "/max_wall_seconds"
+   },
+   "critical_fields": [
+    "/query"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "query"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "literature-evidence-scoring": {
+   "summary": "Question-conditioned relevance scores and summaries for the passages of one served search, one charged call per batch.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.research_tools"
+   },
+   "consumes": [
+    {
+     "slot": "served",
+     "kind": "document",
+     "task_pointer": "/serving_id"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "scores",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "wall_seconds",
+    "forecast": null,
+    "ceiling_pointer": "/max_wall_seconds"
+   },
+   "critical_fields": [
+    "/question",
+    "/serving_id"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "served"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "literature-discovery-crawl": {
+   "summary": "Bounded discovery crawl: query pages, seeds and a citation frontier with an admitted criterion selector and a dated lower-bound report.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.research_tools"
+   },
+   "consumes": [
+    {
+     "slot": "scope",
+     "kind": "document",
+     "task_pointer": "/scope_pin"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "report",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "wall_seconds",
+    "forecast": null,
+    "ceiling_pointer": "/max_wall_seconds"
+   },
+   "critical_fields": [
+    "/scope_pin"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "scope"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
     ]
    },
    "fidelity_rank": 1

@@ -239,6 +239,13 @@ def producer(rundir, record):
     command = [str(t) for t in record.get("command") or []]
     if not command:
         return None
+    if _python(command[0]) and len(command) >= 3:
+        from ravel.paths import module_command
+        # The package's exact launcher is the source-defined module transport.
+        # A copied or similarly named script never inherits this recognition.
+        bootstrap = module_command('ravel.physics.science_worker')[1]
+        if Path(command[1]).is_absolute() and Path(command[1]).resolve() == Path(bootstrap).resolve():
+            command = [command[0], '-m', command[2], *command[3:]]
     if _python(command[0]) and len(command) >= 3 and command[1] == "-m":
         module = command[2]
         if not _module_tool(module, rules["python_module_prefixes"]) or _shadowed(module, record.get("cwd")):

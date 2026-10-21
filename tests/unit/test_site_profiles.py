@@ -110,6 +110,9 @@ def test_unsafe_options_refused(tmp_path, scheduler, options):
 
 @pytest.mark.parametrize('handoff', ['default', 'proxy', 'path'])
 def test_opt_in_credential_directives_only(tmp_path, scheduler, monkeypatch, handoff):
+    tool = tmp_path / 'bin/voms-proxy-info'
+    tool.write_text('#!' + sys.executable + '\nprint(3600)\n')
+    tool.chmod(0o700)
     proxy = tmp_path / 'proxy'; proxy.write_text('NEVER-COPY-THIS-CONTENT')
     monkeypatch.setenv('SYNTHETIC_PROXY_PATH', str(proxy))
     options = {'use_x509userproxy':True} if handoff == 'proxy' else (
@@ -307,15 +310,18 @@ def test_rendered_commands_accept_workflow_formatting_and_relocation(tmp_path, s
     relocated = tmp_path / 'relocated profile'
     shutil.move(exported['path'], relocated)
     script = job(tmp_path)
-    for key, entry, target, command in [
-            ('cluster-generic-submit-cmd', 'submit_main', str(script), 'submit'),
-            ('cluster-generic-status-cmd', 'status_main', '12.0', 'status')]:
-        tool = tmp_path / 'bin' / ('ravel-wms-condor-' + command)
-        tool.write_text(f'#!{sys.executable}\nfrom ravel.workflow.site_profiles.htcondor import {entry}\nraise SystemExit({entry}())\n')
-        tool.chmod(0o755)
-        wrapper = relocated / p['config'][key].format(jobid='12.0')
-        result = subprocess.run([str(wrapper), target], capture_output=True, text=True)
-        assert result.returncode == 0, result.stderr
+    from ravel.workflow import wms_policy
+    # A facility submission runs only from inside a live governed launch (SW12).
+    with wms_policy.launch_authorization(tmp_path, 'alpha', 1, {'alpha': 'a' * 64}):
+        for key, entry, target, command in [
+                ('cluster-generic-submit-cmd', 'submit_main', str(script), 'submit'),
+                ('cluster-generic-status-cmd', 'status_main', '12.0', 'status')]:
+            tool = tmp_path / 'bin' / ('ravel-wms-condor-' + command)
+            tool.write_text(f'#!{sys.executable}\nfrom ravel.workflow.site_profiles.htcondor import {entry}\nraise SystemExit({entry}())\n')
+            tool.chmod(0o755)
+            wrapper = relocated / p['config'][key].format(jobid='12.0')
+            result = subprocess.run([str(wrapper), target], capture_output=True, text=True)
+            assert result.returncode == 0, result.stderr
     assert '+queue = "short"' in descriptor(tmp_path)
     index = json.loads((tmp_path / '.ravel-condor/project-project-a.jobs.json').read_text())
     assert index['options'] == p['options']
@@ -459,7 +465,8 @@ def test_record_budget_refuses_before_submission(tmp_path, scheduler, monkeypatc
 
 def test_submit_cli_surfaces_refusal_and_record_path(tmp_path, scheduler, capsys):
     scheduler[0](code=1, stderr='ERROR: diagnostic for agent', submit='')
-    with pytest.raises(SystemExit) as exc:
+    from ravel.workflow import wms_policy
+    with wms_policy.launch_authorization(tmp_path, 'alpha', 1, {'alpha': 'a' * 64}), pytest.raises(SystemExit) as exc:
         hc.submit_main(['--options-json', json.dumps(profile(tmp_path)['options']), str(job(tmp_path))])
     assert exc.value.code == 1
     output = capsys.readouterr()

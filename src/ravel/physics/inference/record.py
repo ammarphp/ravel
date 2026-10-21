@@ -37,7 +37,7 @@ SCHEMA_VERSION = 1
 QUANTITIES = ('grid-values', 'contour', 'morph-coefficients', 'morph-closure', 'delta-nll-region',
               'delta-nll-scan', 'best-fit', 'significance', 'cls-limit', 'cls-values', 'fitted-parameters',
               'post-fit-predictions', 'toy-p-values', 'applicability', 'mc-adequacy', 'systematics',
-              'goodness-of-fit')
+              'goodness-of-fit', 'model-construction', 'statistics')
 ROLES = ('primary', 'companion', 'diagnostic')
 ORIGINS = ('prescribed', 'default', 'not-applicable')
 

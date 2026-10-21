@@ -1,0 +1,657 @@
+{
+  "schema_version": 1,
+  "kind": "route-spec",
+  "id": "manuscript",
+  "version": 2,
+  "title": "Manuscript, note or paper from existing results",
+  "description": "Source-bound staged authoring, confined source assembly, manuscript.build receipt and a confined PDF rendering. A missing TeX engine produces a typed source-only ending through the sole sink.",
+  "match": {
+    "row": 2,
+    "when": {
+      "any": [
+        {
+          "field": "operation_kind",
+          "eq": "manuscript"
+        },
+        {
+          "field": "operation",
+          "eq": "manuscript"
+        }
+      ]
+    }
+  },
+  "steps": [
+    {
+      "id": "m01-author",
+      "kind": "author",
+      "title": "Staged authoring and claim mapping",
+      "role": "manuscript-writer",
+      "outputs": [
+        {
+          "path": "outputs/claim_map.json",
+          "kind": "manuscript:claim-map",
+          "required": true
+        },
+        {
+          "path": "outputs/note.md",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/trap_sweep.json",
+          "kind": "validation:trap-sweep",
+          "required": true
+        }
+      ],
+      "budget": {
+        "wall_seconds": 3600,
+        "broker_calls": 200,
+        "tokens": 400000
+      },
+      "instruction_sources": [
+        "docs/reference/staged-manuscript-authoring.md"
+      ],
+      "obligations": [
+        "R03"
+      ],
+      "parameters": {
+        "phase": "prepare",
+        "check_inputs": {
+          "check:validation.certificates.validate_certificate": {
+            "path": {
+              "source": "output",
+              "step": "m01-author",
+              "path": "outputs/claim_map.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/path",
+              "type": "path"
+            },
+            "kind": {
+              "source": "output",
+              "step": "m01-author",
+              "path": "outputs/claim_map.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/kind",
+              "type": "string"
+            }
+          }
+        },
+        "validator_exports": {
+          "outputs/claim_map.json": {
+            "/validator_inputs/check:validation.certificates.validate_certificate/path": "path",
+            "/validator_inputs/check:validation.certificates.validate_certificate/kind": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "m02-sources",
+      "kind": "operate",
+      "title": "Build sources and recompute claim integrity",
+      "operation": "manuscript-note-sources",
+      "role": "analysis-author",
+      "depends_on": [
+        "m01-author"
+      ],
+      "inputs": [
+        {
+          "artifact": "m01-author:outputs/claim_map.json",
+          "kind": "manuscript:claim-map"
+        },
+        {
+          "artifact": "m01-author:outputs/note.md",
+          "kind": "document"
+        },
+        {
+          "artifact": "m01-author:outputs/trap_sweep.json",
+          "kind": "validation:trap-sweep",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/sources.tar",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/sources/main.tex",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/integrity.json",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/bundle.json",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/receipt.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "budget": {
+        "wall_seconds": 900,
+        "attempts": 1
+      },
+      "review": [
+        "integrity-auditor"
+      ],
+      "rung": "full",
+      "parameters": {
+        "launch": {
+          "argv": [
+            "{python}",
+            "-I",
+            "-m",
+            "ravel.controller.routes.manuscript.note",
+            "sources",
+            "--root",
+            "../../../../..",
+            "--input",
+            "claim_map=steps/m01-author/outputs/claim_map.json",
+            "--input",
+            "note=steps/m01-author/outputs/note.md",
+            "--result",
+            "result={result_path}@{result_sha256}"
+          ],
+          "reads": [
+            "{result_path}"
+          ],
+          "cpus": 1
+        },
+        "check_inputs": {
+          "check:physics.normalization_ledger.check": {
+            "ledger": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+              "type": "path"
+            }
+          },
+          "check:validation.certificates.validate_certificate": {
+            "path": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/path",
+              "type": "path"
+            },
+            "kind": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/kind",
+              "type": "string"
+            }
+          },
+          "check:validation.validate_cutflow": {
+            "signal": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+              "type": "path"
+            },
+            "routine": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+              "type": "string"
+            },
+            "sigma_pb": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+              "type": "number"
+            },
+            "lumi_fb": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+              "type": "number"
+            },
+            "tables_dir": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+              "type": "path"
+            },
+            "grid": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+              "type": "string"
+            },
+            "m_parent": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+              "type": "number"
+            },
+            "m_lsp": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+              "type": "number"
+            },
+            "srs": {
+              "source": "output",
+              "step": "m02-sources",
+              "path": "outputs/integrity.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+              "type": "string"
+            }
+          },
+          "check:validation.validate_run_state.check_trap_sweep": {
+            "sweep": {
+              "source": "output",
+              "step": "m01-author",
+              "path": "outputs/trap_sweep.json",
+              "type": "path"
+            }
+          }
+        },
+        "validator_exports": {
+          "outputs/integrity.json": {
+            "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+            "/validator_inputs/check:validation.certificates.validate_certificate/path": "path",
+            "/validator_inputs/check:validation.certificates.validate_certificate/kind": "string",
+            "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+            "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+            "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+            "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+            "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+            "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+            "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+            "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+            "/validator_inputs/check:validation.validate_cutflow/srs": "string"
+          }
+        }
+      },
+      "obligations": [
+        "R03",
+        "MODE-manuscript-build"
+      ]
+    },
+    {
+      "id": "m02-build",
+      "kind": "subgraph",
+      "title": "Manuscript assembly, disclosure and integrity review",
+      "graph": {
+        "id": "manuscript.build",
+        "instance": {
+          "request_id": "short-note"
+        }
+      },
+      "role": "manuscript-writer",
+      "depends_on": [
+        "m01-author",
+        "m02-sources"
+      ],
+      "inputs": [
+        {
+          "artifact": "m02-sources:outputs/bundle.json",
+          "kind": "document"
+        },
+        {
+          "artifact": "m02-sources:outputs/integrity.json",
+          "kind": "document"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/assembly.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "budget": {
+        "wall_seconds": 7200,
+        "broker_calls": 400,
+        "tokens": 800000,
+        "review_rounds": 2
+      },
+      "review": [
+        "integrity-auditor"
+      ],
+      "instruction_sources": [
+        "docs/reference/manuscript-production.md"
+      ],
+      "obligations": [
+        "R03"
+      ],
+      "parameters": {
+        "check_inputs": {
+          "check:validation.certificates.validate_certificate": {
+            "path": {
+              "source": "output",
+              "step": "m02-build",
+              "path": "outputs/assembly.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/path",
+              "type": "path"
+            },
+            "kind": {
+              "source": "output",
+              "step": "m02-build",
+              "path": "outputs/assembly.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/kind",
+              "type": "string"
+            }
+          }
+        },
+        "validator_exports": {
+          "outputs/assembly.json": {
+            "/validator_inputs/check:validation.certificates.validate_certificate/path": "path",
+            "/validator_inputs/check:validation.certificates.validate_certificate/kind": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "m03-pdf",
+      "kind": "operate",
+      "title": "PDF build in a manuscript-build study",
+      "operation": "manuscript-note-pdf",
+      "role": "analysis-author",
+      "depends_on": [
+        "m02-build",
+        "m02-sources",
+        "m01-author"
+      ],
+      "inputs": [
+        {
+          "artifact": "m02-sources:outputs/sources.tar",
+          "kind": "document"
+        },
+        {
+          "artifact": "m02-sources:outputs/bundle.json",
+          "kind": "document"
+        },
+        {
+          "artifact": "m01-author:outputs/trap_sweep.json",
+          "kind": "validation:trap-sweep",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/manuscript.pdf",
+          "kind": "document",
+          "required": false
+        },
+        {
+          "path": "outputs/build.json",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/receipt.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "rung": "full",
+      "budget": {
+        "wall_seconds": 900,
+        "attempts": 1
+      },
+      "review": [
+        "integrity-auditor"
+      ],
+      "instruction_sources": [
+        "docs/reference/manuscript-production.md"
+      ],
+      "obligations": [
+        "R03",
+        "MODE-manuscript-build"
+      ],
+      "parameters": {
+        "launch": {
+          "argv": [
+            "{python}",
+            "-I",
+            "-m",
+            "ravel.controller.routes.manuscript.note",
+            "pdf",
+            "--root",
+            "../../../../..",
+            "--input",
+            "sources=steps/m02-sources/outputs/sources.tar",
+            "--input",
+            "bundle=steps/m02-sources/outputs/bundle.json",
+            "--tex={tex}",
+            "--wall-seconds",
+            "900"
+          ],
+          "reads": [],
+          "cpus": 1
+        },
+        "check_inputs": {
+          "check:physics.normalization_ledger.check": {
+            "ledger": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+              "type": "path"
+            }
+          },
+          "check:validation.certificates.validate_certificate": {
+            "path": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/path",
+              "type": "path"
+            },
+            "kind": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/kind",
+              "type": "string"
+            }
+          },
+          "check:validation.validate_cutflow": {
+            "signal": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+              "type": "path"
+            },
+            "routine": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+              "type": "string"
+            },
+            "sigma_pb": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+              "type": "number"
+            },
+            "lumi_fb": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+              "type": "number"
+            },
+            "tables_dir": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+              "type": "path"
+            },
+            "grid": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+              "type": "string"
+            },
+            "m_parent": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+              "type": "number"
+            },
+            "m_lsp": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+              "type": "number"
+            },
+            "srs": {
+              "source": "output",
+              "step": "m03-pdf",
+              "path": "outputs/build.json",
+              "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+              "type": "string"
+            }
+          },
+          "check:validation.validate_run_state.check_trap_sweep": {
+            "sweep": {
+              "source": "output",
+              "step": "m01-author",
+              "path": "outputs/trap_sweep.json",
+              "type": "path"
+            }
+          }
+        },
+        "validator_exports": {
+          "outputs/build.json": {
+            "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+            "/validator_inputs/check:validation.certificates.validate_certificate/path": "path",
+            "/validator_inputs/check:validation.certificates.validate_certificate/kind": "string",
+            "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+            "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+            "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+            "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+            "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+            "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+            "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+            "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+            "/validator_inputs/check:validation.validate_cutflow/srs": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "m04-review",
+      "kind": "review",
+      "title": "Meta-review of the built manuscript",
+      "role": "research-meta-reviewer",
+      "depends_on": [
+        "m03-pdf"
+      ],
+      "inputs": [
+        {
+          "artifact": "m03-pdf:outputs/manuscript.pdf",
+          "kind": "document"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/meta_review.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "budget": {
+        "wall_seconds": 1800,
+        "broker_calls": 100,
+        "tokens": 300000
+      }
+    }
+  ],
+  "checkins": [
+    {
+      "id": "checkin1",
+      "seats": [
+        "plan-critic"
+      ]
+    },
+    {
+      "id": "checkin3",
+      "seats": [
+        "integrity-auditor",
+        "research-meta-reviewer"
+      ]
+    }
+  ],
+  "obligations": [
+    "R03",
+    "MODE-manuscript-build"
+  ],
+  "deliverables": [
+    {
+      "match": {
+        "artifact": [
+          "document"
+        ]
+      },
+      "step": "m03-pdf",
+      "output": "outputs/manuscript.pdf"
+    },
+    {
+      "match": {
+        "claim": [
+          "document"
+        ]
+      },
+      "step": "m03-pdf",
+      "output": "outputs/manuscript.pdf"
+    }
+  ],
+  "instruction_sources": [
+    "docs/reference/staged-manuscript-authoring.md",
+    "docs/reference/manuscript-production.md"
+  ],
+  "adapter": "manuscript.staged",
+  "parameters": [
+    {
+      "name": "python",
+      "from": "reading:python",
+      "required": true,
+      "default": null
+    },
+    {
+      "name": "tex",
+      "from": "reading:tex",
+      "required": false,
+      "default": ""
+    },
+    {
+      "name": "result_path",
+      "from": "reading:result_path",
+      "required": true,
+      "default": null
+    },
+    {
+      "name": "result_sha256",
+      "from": "reading:result_sha256",
+      "required": true,
+      "default": null
+    }
+  ]
+}

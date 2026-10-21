@@ -12,7 +12,7 @@ existing project instruction documents byte for byte and writes guidance to
 `.ravel/agent-guidance.md`. Load this file into the host session alongside the
 project instructions. The software skill records the Snakemake version from
 `.ravel-site/wms.json`, the toolchain manifest, or the current environment, in
-that order. A declared version does not prove local availability.
+that order. Check the declared version against the local runtime observation.
 
 The site-wms record is `.ravel-site/wms.json` under the project, or under the
 site prefix named by `RAVEL_SITE_PREFIX` or `RAVEL_NATIVE_BUILD`. Guidance reads
@@ -30,8 +30,7 @@ commands are refreshed to use the runtime resolver.
 The shell guard is on by default when policy requires the workflow manager.
 `--wms-guard` also installs it in other projects, where it remains inert until
 policy requires it. It refuses common direct `ravel run`, science-module run,
-and manual `run-step` spellings, and names the `ravel wms` route. A command it
-cannot split into words is refused only when it spells a direct launch. It is agent
+and manual `run-step` spellings, and names the `ravel wms` route. A command that fails shell-word parsing is refused only when it spells a direct launch. It is agent
 discipline, not a security boundary. Arbitrary scripts or aliases can evade
 lexical inspection; the execution owner's admission and launch guard remains
 the authority.
@@ -40,14 +39,13 @@ To record an opt-out, supply `--no-wms-guard --guard-approval FILE`.
 The JSON record has `schema_version: 1`, `action: "wms-guard-opt-out"`,
 `approved: true`, the absolute `project`, a nonempty `approved_by` and `reason`.
 Keep the record local. The installer pins its digest and checks that it still
-matches; a Boolean flag alone cannot disable a policy-required guard. This
-record documents approval and does not authenticate a reviewer identity.
+matches; a Boolean flag alone must not disable a policy-required guard. This
+record documents approval; reviewer identity requires authenticated authority evidence.
 
 ## Initialize and register
 
 The workflow-manager launch interfaces must be installed before using the
-following commands. This checkout's agent-surface fixtures do not establish
-their availability. Inspect each command's `--help` from the installed version.
+following commands. Verify their availability in the selected runtime. Inspect each command's `--help` from the installed version.
 
 ```sh
 ravel wms init --project PROJECT --audit AUDIT.json --profile local
@@ -72,14 +70,14 @@ ravel wms status --project PROJECT
 
 Read the dry-run for missing inputs, rule selection, complete dependencies and
 resource declarations. Launch only after actual CHECK-IN 1 approval and method
-admission. The manager cannot approve tasks, widen scope or renew budgets.
+admission. The manager must not approve tasks, widen scope or renew budgets.
 
 ## Retry, replay and export
 
 Use `ravel wms retry --help` from the installed retry interface to select the
 failed registered task and its permitted bounded attempt. Preserve original
-logs and failed receipts. Scheduler retries do not create fresh scientific
-admission; follow RAVEL's retry accounting and source checks.
+logs and failed receipts. Scheduler retries require the existing scientific
+admission, retry accounting and source checks.
 
 For retained procedure evidence:
 
@@ -89,8 +87,7 @@ ravel procedure verify --package FRESH_DIRECTORY
 ```
 
 Export requires a fresh destination. Verification rechecks retained record
-pins; evidence replay does not execute recorded shell commands or establish a
-successful result. Re-execution needs its own admitted workflow and current
+pins; evidence replay verifies those retained records. Re-execution needs its own admitted workflow and current
 inputs. See [site workflows](../reference/site-workflows.md) for the exact
 recorded procedure contract.
 
@@ -100,5 +97,4 @@ Synthetic tests cover guidance selection, project-instruction preservation,
 portable generated content, hook refusal, consult routing and the handbook
 example. Native parsing, site resolver availability, scheduler behavior,
 scientific admission across retries and numerical physics qualification require
-separate executed evidence with supplied inputs and references. No such native
-or remote qualification is claimed by these fixtures.
+separate executed evidence with supplied inputs and references.

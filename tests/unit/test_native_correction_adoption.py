@@ -15,6 +15,7 @@ import pytest
 from ravel.physics import native_pipeline as pipeline, native_effective_config as effective
 from ravel.workflow import execution, physics_review as review, stage_supervisor, waypoint_evidence
 from ravel.workflow.state_io import atomic_json, read_json
+from bound_review import bound_review
 from test_native_dispatch import configuration, approve_fixture
 from test_physics_review import policy
 from method_decision_fixture import admit_method
@@ -101,7 +102,8 @@ def corrected_native(tmp_path, monkeypatch):
     review.open_cycle(root, effective_settings=settings,
         stage_receipts=[before[item["stage"]]["attempt_record"] for item in original["stages"]],
         check_results="inputs/review-checks.json")
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="send_back",
+    # The send-back is the bound response of a dispatched critic; declared names are advice.
+    bound_review(root, role="physics_critic", verdict="send_back",
         summary="Exercise explicit shower setting correction", findings=[{
             "id": "F-shower", "summary": "Rerun the controlled native chain after the shower correction",
             "evidence": [{"path": "output/shower.cfg", "location": "PartonLevel:MPI"}],
@@ -147,9 +149,9 @@ def test_native_adoption_repairs_actual_preparation_dependency_and_full_chain(ad
     review.open_cycle(root, effective_settings=settings, correction_id=amendment["correction_id"],
         stage_receipts=[after[item["stage"]]["attempt_record"] for item in derivative["stages"]],
         check_results="inputs/review-checks.json")
-    for role, actor in (("physics_critic", "critic"), ("skeptical_verifier", "skeptic"), ("physics_decider", "physicist")):
-        review.submit_review(root, role=role, actor_id=actor, verdict="accept", summary="Synthetic custody checks passed",
-                             closes=["F-shower"], claim_scope="reproduction")
+    for role in ("physics_critic", "skeptical_verifier", "physics_decider"):
+        bound_review(root, role=role, verdict="accept", summary="Synthetic custody checks passed",
+                     closes=["F-shower"], claim_scope="reproduction")
     assert review.gate_errors(root, "delivery") == []
     assert pipeline.execute_plan(derivative, supervisor=_supervisor, resume=True) == 0
     assert execution.load_execution(root)["stages"] == after

@@ -24,7 +24,7 @@ uses no mapyde/podman at all (`docs/workflow/reference/native-pipeline.md`)._
 ## Target analysis (selection + statistical model — keep these consistent!)
 | Field | Meaning |
 |---|---|
-| `[simpleanalysis] name` | the ATLAS SimpleAnalysis selection (its `DefineAnalysis` name) |
+| `[simpleanalysis] name` | the SimpleAnalysis selection (its `DefineAnalysis` name) |
 | `[pyhf] likelihood` | the matching pyhf workspace (e.g. `"Slepton_bkgonly.json"`) |
 | `[analysis] kfactor` | NLO/LO k-factor applied to the signal (e.g. 1.18) |
 | `[analysis] lumi` | integrated luminosity in pb⁻¹ (e.g. 139000) |

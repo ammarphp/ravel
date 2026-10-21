@@ -1,7 +1,7 @@
 ---
 name: verification-panel
 description: Run the mandatory pre-delivery panel: Tier-A mechanical number tracing and Tier-B evidence-bound critic, optional repair proposer, skeptical verifier and synthesizer cycle. Preserve all findings and accept only the declared scientific claim scope.
-when_to_use: a run has results drafted for delivery (final check-in / RESULT.md / scan deck) and has not yet passed the step-9 panel; or a FAIL verdict needs re-running after fixes
+when_to_use: a run has results drafted for delivery (final check-in / RESULT.md / scan deck) and requires the step-9 panel; or a FAIL verdict needs re-running after fixes
 allowed-tools: Bash, Read, Agent
 ---
 # Skill — the verification panel (step 9; both tiers; verdict ships verbatim)
@@ -61,12 +61,12 @@ ravel review --rundir RUN review --request CRITIC_REQUEST.json
 ```
 
 Retain `CREATION_DIGEST` outside the packet from its creation result. Use manifest
-artifact IDs; `a0000` is illustrative and may be an omission. The reader requires
+artifact IDs; `a0000` is illustrative and can be an omission. The reader requires
 that digest and exposes only hash-bound indexed copies. Supply verified content
 to each fresh role without the parent transcript or unrestricted filesystem,
 shell or browser access. Read-only profiles are guidance, not an OS sandbox.
-Known verdict fields are projected, but arbitrary artifacts may carry narrative;
-inspect projections and record blinding limitations. Large omitted files require
+Known verdict fields are projected, but arbitrary artifacts can carry narrative;
+inspect projections and record blinding qualifications. Large omitted files require
 a bounded source-pinned witness, not a claim that they were inspected.
 
 The critic receives source definitions, actual settings, measurements, precision
@@ -99,10 +99,10 @@ ravel review --rundir RUN correct --request CORRECTION_REQUEST.json
 
 The correction request names `actor_id`, `changed_paths`, `stages`,
 `recheck_checks`, and `stage_specs` when needed. Admission consumes a redo even
-on failure and cannot widen CHECK-IN 1. Execute only admitted stages through the
+on failure and must not widen CHECK-IN 1. Execute only admitted stages through the
 supervisor, then open a successor with `correction_id`, fresh successful receipts
 and rechecked outputs. All material findings remain inherited. Preserve original
-waypoint evidence; an old successful attempt cannot stand in for a new recheck.
+waypoint evidence; an old successful attempt must not stand in for a new recheck.
 
 Create a fresh `verifier` packet with factual findings, before/admitted setting
 identities, exact admission and new successor evidence, withholding the improver's
@@ -114,7 +114,7 @@ remain visible.
 
 The `synthesizer` packet includes original findings, repair evidence, all verdicts
 and unknown assumptions. The decider recommends a named scope, bounded correction,
-stop or specific evidence request. It cannot vote away a send-back/stop, erase an
+stop or specific evidence request. It must not vote away a send-back/stop, erase an
 inherited finding or allow the improver to accept its own output. Record successor
 judgments with `ravel review --rundir RUN review --request FILE`; all inherited
 findings must be explicitly closed. Check state and allowed delivery action:
@@ -124,7 +124,7 @@ ravel review --rundir RUN status
 ravel review --rundir RUN gate --action delivery
 ```
 
-For consequential or unsupported claims, use adaptive public assertion DAGs:
+For consequential or unverified claims, use adaptive public assertion DAGs:
 `ravel decision-case --case CASE.json --out NEW_REPORT.json`. Each supporting hop
 has a separate reviewer judgment and ends in a pinned observation, source,
 invariant or explicit requirement, or yields a specific evidence/experiment
@@ -132,7 +132,7 @@ request. No mandatory seven-depth prose or private reasoning trace. Evaluate
 supplied contrasts with `ravel diagnose --plan PLAN.json --out NEW_REPORT.json`.
 Neither command proves arbitrary entailment, authorizes compute or turns target
 matching into physics validation. Missing covariance is unresolved; calibration
-populations cannot become independent validation.
+populations must not become independent validation.
 
 ## Verdict + delivery (never silently fixed)
 The results deck carries this panel's verdict VERBATIM in its §7 `panel_verdict`: emit it as
@@ -142,7 +142,7 @@ verbatim panel verdict, and a missing one is a FAIL.
 
 PASS → deliver only within the recorded accepted scope and allowed delivery action,
 with the verdict + `verify_pack.py` report appended. CONCERNS → deliver WITH
-findings appended and each answered (accepted-as-limitation or fixed+noted); unanswered
+findings appended and each answered (accepted-as-qualification or fixed+noted); unanswered
 findings block. FAIL → do not deliver; fix, log in `DEVIATIONS.md`, RE-RUN BOTH TIERS. The
 findings text is appended to the final check-in VERBATIM and un-pre-judged — no spin,
 softening, or recommendation inserted ahead of the raw finding; even after fixes, the
@@ -150,7 +150,7 @@ physicist sees what the panel found.
 
 A contradicted scientific hypothesis can support an honest diagnostic result
 when integrity and that scope's checks pass. Integrity failure or an unresolved
-blocking finding cannot be renamed diagnostic success. Mechanical PASS and
+blocking finding must not be renamed diagnostic success. Mechanical PASS and
 reviewer agreement do not establish physics fidelity or authenticated independence.
 
 ## Red flags (you are rationalizing — stop)
@@ -163,8 +163,8 @@ reviewer agreement do not establish physics fidelity or authenticated independen
 ## Stop conditions
 - `verify_pack.py` exit 1 → fix the artifact/prose mismatch before Tier B (mechanics first).
 - Tier B reviewing roles share the producing context, lack the retained packet
-  digest, or see withheld verdicts → record the access failure and repeat the
+  digest, or see blinded verdicts → record the access failure and repeat the
   affected fresh role. Distinct actor IDs alone are insufficient.
-- Missing witness, unsupported material link, or unresolved inherited finding →
+- Missing witness, unverified material link, or unresolved inherited finding →
   specific evidence/experiment request; no automatic acceptance.
 - A FAIL verdict is un-negotiable: no partial delivery, no "noting it in passing".

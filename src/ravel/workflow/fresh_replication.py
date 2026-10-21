@@ -511,7 +511,7 @@ def _prepared(root, request_pin, *, _producer_scope=None):
     document = _json(request_pin, state["base_dir"], consumed)
     if document.get("kind") != "fresh-replication-request" or document.get("cycle_root") != str(cycle._ordinary(root)):
         raise ValueError("this cycle's actual fresh preparation required")
-    old = cycle._read(cycle._pin(Path(root)/"history"/f"{document['revision']:04d}.json"), root)
+    old = cycle.historical_state(root, document["revision"])
     if old["sha256"] != document["state_sha256"] or old["contract"] != state["contract"]:
         raise ValueError("original replication state or whole goal changed")
     # Original immutable declaration/result/receipt/review stay exact, even as

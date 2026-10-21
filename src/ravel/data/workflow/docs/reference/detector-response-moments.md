@@ -11,7 +11,7 @@ For each weight, event products use the existing literal floating-point arithmet
 The coordinate marks and denominator marks in each generator group use the
 existing `math.fsum` law. Signed correlated subevents therefore cancel within a
 group before taking second moments. Sparse support means exactly nonzero marks
-after these complete group sums; a group may cover many bins even if each event
+after these complete group sums; a group can cover many bins even if each event
 only covers one or three bins. No per-group sparsity assumption is imposed.
 
 The raw joint Gram uses all nonzero numerator and per-weight denominator marks,
@@ -54,7 +54,7 @@ The generic reconstructed-event constructor opts out of its selector's duplicate
 per-anchor covariance. The selector returns `covariance: null` with an explicit
 delegation status, and the complete joint accumulator supplies the sole moment
 result. The selector's default signature behavior, results and covariance stay
-unchanged; likelihood mapping refuses unavailable delegated covariance. All
+unchanged; likelihood mapping refuses missing delegated covariance. All
 selection decisions, regions, weights, yields and source checks remain.
 
 Generic response scientific inputs retain 8 MiB per-file and 32 MiB aggregate

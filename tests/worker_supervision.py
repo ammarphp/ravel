@@ -49,6 +49,22 @@ def descriptor(*, transport_id=TRANSPORT, model_id=MODEL, family='synthetic', ki
             'model': {'requested': model_id, 'observed': None, 'family': family, 'effort': None}}
 
 
+def review_packet(rundir, point_id, role, n=1, round_=0):
+    """The role projection the review graph hands reviewer ``n`` of ``point_id`` (``review_projection.packet_for``).
+
+    A review worker earns independent credit only with this RAVEL-built packet; pass it to
+    ``supervised(..., packet=...)`` as the review graph passes it to the dispatcher.
+    """
+    from ravel.workflow import review_points, review_projection
+    facts = review_points._facts(rundir)
+    point = next(p for p in review_points.derive(facts) if p['id'] == point_id)
+    item = {'key': f'r{round_}:{point_id}:{role}:{n}', 'point_id': point_id, 'role': role, 'n': n, 'round': round_,
+            'at': point['when']['at'], 'subject_sha256': review_points.subject_digest(facts, point),
+            'claim_id': point.get('claim_id'), 'node_id': point.get('node_id'), 'gate': point['gate'],
+            'mode': point['mode'], 'findings': {}}
+    return review_projection.packet_for(rundir, item)
+
+
 def reserved(rundir, spec, launch_spec=None):
     """The dispatcher's launch reservation alone: the actor is assigned and the launch is on record,
     and no supervisor runs. A stub adapter that then hands ``finish`` its own execution record

@@ -80,12 +80,13 @@ def broker_guard(tools, *, rundir, graph_id=None, sinks=None):
 
 
 def production_broker(rundir, workspace, *, tools, role, node_id, attempt, max_calls, graph_id=None,
-                      forbidden_sources=(), actor_id=None, season=None, atlas_path=None):
+                      forbidden_sources=(), actor_id=None, season=None, atlas_path=None, retrieval=None, review_packet=None):
     """The broker a real worker talks to, with the shared gate installed.
 
     ``tools`` is the pinned toolbelt. The allowlist is exactly its actions, every one of
     which must have a registered handler; knowledge is narrowed to its ops; and
-    ``broker_guard`` refuses any call no tool produces.
+    ``broker_guard`` refuses any call no tool produces. ``retrieval`` is the trusted
+    literature serving configuration from installation settings, or None.
     """
     from .knowledge_broker import create
     tools = deepcopy(list(tools))
@@ -93,10 +94,12 @@ def production_broker(rundir, workspace, *, tools, role, node_id, attempt, max_c
     made = create(rundir, workspace, role=role, atlas_path=atlas_path, node_id=node_id, attempt=attempt,
                   allowed_actions=allowed, max_calls=max_calls, forbidden_sources=list(forbidden_sources),
                   actor_id=actor_id, season=season, may_query=toolbelt.knowledge_ops(tools),
-                  guards=[broker_guard(tools, rundir=rundir, graph_id=graph_id)])
+                  guards=[broker_guard(tools, rundir=rundir, graph_id=graph_id)], retrieval=retrieval)
     if toolbelt.CHECK_ACTION in allowed:
         from . import review_projection_checks, role_registry
         review_projection_checks.register(made, role_registry.load(role))
+    if toolbelt.REVIEW_ACTION in allowed:
+        toolbelt.register_review_reader(made, review_packet)
     unregistered = [a for a in allowed if a not in made.actions]
     if unregistered:
         raise toolbelt.ToolbeltError(f'toolbelt actions without a broker handler: {unregistered}')
@@ -140,11 +143,21 @@ class Gate:
     ``rundir`` (the worker's run) lets a replay re-verify its broker receipt in custody.
     """
 
-    def __init__(self, tools, *, scope_root, graph, prefix, broker_call, provisioning=None, rundir=None):
+    def __init__(self, tools, *, scope_root, graph, prefix, broker_call, provisioning=None, rundir=None,
+                 literature_output=None):
         self.tools = list(tools)
         self.names = toolbelt.by_name(self.tools)
         self.scope_root, self.graph, self.prefix = scope_root, dict(graph), prefix
         self.broker_call = broker_call
+        self.literature_output = literature_output
+        bound_workspace = getattr(getattr(broker_call, '__self__', None), 'workspace', None)
+        if (self.literature_output is None and bound_workspace is not None
+                and any(t['executes_through']['action'] == 'literature query' for t in self.tools)):
+            from . import broker, literature_mcp
+            bound_run = getattr(getattr(broker_call, '__self__', None), 'rundir', None)
+            logical_workspace = broker.logical(bound_run, bound_workspace) if bound_run is not None else None
+            self.literature_output = literature_mcp.projector(bound_workspace,
+                                                             logical_workspace=logical_workspace)
         self.provisioning = dict(provisioning or {})
         self.provisioning.setdefault('toolbelt_manifest_sha256', effect_ledger.digest(self.tools))
         self.verify_reply = (lambda reply: verify_receipted_reply(rundir, reply)) if rundir is not None else None
@@ -184,13 +197,19 @@ class Gate:
         artifact = {'receipt_id': reply.get('receipt_id'), 'status': reply.get('status'), 'tool_name': call['name'],
                     'atlas_id': tool['atlas_id'] if tool else None}
         content = json.dumps(reply, sort_keys=True)
+        failed = reply.get('status') != 'ok'
+        route = tool['executes_through'] if tool is not None else {}
+        if self.literature_output is not None and route.get('action') == 'literature query':
+            projection = self.literature_output(reply, route['fixed_args']['op'])
+            content = [{'type': 'text', 'text': content}, *projection['content']]
+            failed = failed or projection['isError']
         try:
             from langchain_core.messages import ToolMessage
         except ImportError:  # the gate itself has no LangChain dependency
             return {'type': 'tool', 'tool_call_id': call['id'], 'name': call['name'], 'content': content,
-                    'status': 'success' if reply.get('status') == 'ok' else 'error', 'artifact': artifact}
+                    'status': 'error' if failed else 'success', 'artifact': artifact}
         return ToolMessage(content=content, tool_call_id=call['id'], name=call['name'], artifact=artifact,
-                           status='success' if reply.get('status') == 'ok' else 'error')
+                           status='error' if failed else 'success')
 
     def __call__(self, request, execute=None):
         """``ToolNode(..., wrap_tool_call=gate)``. Tools execute only through the broker, so

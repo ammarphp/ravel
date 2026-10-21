@@ -127,7 +127,17 @@
     "tree-array-export": "analysis-author",
     "weighted-events": "generator",
     "width-inputs": "inference",
-    "workspace-combination-study": "inference"
+    "workspace-combination-study": "inference",
+    "ml-stage-admit": "ml-trainer",
+    "ml-stage-features": "ml-trainer",
+    "ml-stage-train": "ml-trainer",
+    "ml-stage-evaluate": "ml-trainer",
+    "ml-stage-card": "ml-trainer",
+    "ml-stage-review": "ml-trainer",
+    "manuscript-note-sources": "analysis-author",
+    "manuscript-note-pdf": "analysis-author",
+    "scoped-generate": "shower-detector",
+    "scoped-likelihood": "inference"
   },
   "coordinator": {
     "role": "coordinator",
@@ -165,8 +175,12 @@
   },
   "host_operations": {
     "acquire-published": "Acquires publication metadata and published files without evaluating a scientific model.",
+    "literature-query-expansion": "Dispatches the registered expander card for one charged search-hint choice; evaluates no scientific input.",
+    "literature-evidence-scoring": "Dispatches the registered scorer card for charged reading-aid scores of served passages; evaluates no scientific input.",
+    "literature-discovery-crawl": "Runs bounded charged discovery pages and dispatches the registered selector card; evaluates no scientific input.",
     "fill-template": "Copies accepted result values into declared template bins without rerunning scientific inputs.",
     "grid-recipe": "Writes declared parameter coordinates without evaluating events, predictions or likelihoods.",
-    "table-bin-edges": "Reads explicit contiguous intervals from a table without inferring or calculating bin boundaries."
+    "table-bin-edges": "Reads explicit contiguous intervals from a table without inferring or calculating bin boundaries.",
+    "ordinary-study-prepare": "Prepares the declared child work order and scope without evaluating scientific inputs; the coordinator retains its confined preparation receipt."
   }
 }

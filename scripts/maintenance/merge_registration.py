@@ -338,6 +338,8 @@ def _apply_census(reg, document, source, report):
                     and current['status'] == status)
             if not same:
                 raise Collision(f'{source}: census row {identity} is already registered differently')
+            if 'request_names' in row:
+                current['request_names'] = copy.deepcopy(row['request_names'])
             report['reflected'].append(identity)
             continue
         if target is not None:
@@ -346,6 +348,8 @@ def _apply_census(reg, document, source, report):
             checks += [c for c in row['doctor_checks'] if c not in checks]
             target.update(installer_groups=groups, doctor_checks=checks, status=status,
                           requirement='required_for_profile')
+            if 'request_names' in row:
+                target['request_names'] = copy.deepcopy(row['request_names'])
             mirror[identity].update(installer_groups=groups, status=status)
             flipped.add(identity)
             report['applied'].append(identity)
@@ -355,6 +359,8 @@ def _apply_census(reg, document, source, report):
                'requirement': 'required_for_profile', 'summary': row.get('notes') or row['title'],
                'evidence_scope': REGISTERED_SCOPE,
                'source_locator': f'{source}#{row["id"]}', 'source_status': row['qualification']}
+        if 'request_names' in row:
+            new['request_names'] = copy.deepcopy(row['request_names'])
         tools.append(new)
         by_id[identity] = new
         mirror_row = {k: new[k] for k in ('evidence_scope', 'id', 'installer_groups', 'source_locator',

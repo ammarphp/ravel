@@ -1,0 +1,35 @@
+{
+  "title": "P7 conservative-default record",
+  "type": "object",
+  "required": ["assumption", "default", "alternatives", "claim_type", "direction_established", "expected_sign",
+               "expected_size", "reversible_knob", "flag", "physics_critical", "justification"],
+  "additionalProperties": false,
+  "properties": {
+    "assumption": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "default": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "alternatives": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+    "claim_type": {"type": "string", "enum": ["exclusion", "measurement", "fit", "comparison", "calculation", "other"]},
+    "direction_established": {"type": "boolean"},
+    "expected_sign": {"type": "string", "enum": ["weaker_claim", "stronger_claim", "propagated", "unknown"]},
+    "expected_size": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "reversible_knob": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "flag": {
+      "type": "object",
+      "required": ["checkin_flag", "deviation"],
+      "additionalProperties": false,
+      "properties": {
+        "checkin_flag": {"type": "integer", "minimum": 1},
+        "deviation": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      }
+    },
+    "physics_critical": {"type": "boolean"},
+    "justification": {
+      "anyOf": [
+        {"type": "object", "required": ["kind", "reference"], "additionalProperties": false,
+         "properties": {"kind": {"type": "string", "enum": ["request_span", "registered_invariant", "authoritative_practice"]},
+                        "reference": {"type": "string", "minLength": 1, "pattern": "\\S"}}},
+        {"type": "null"}
+      ]
+    }
+  }
+}

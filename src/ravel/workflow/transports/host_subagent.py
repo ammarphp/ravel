@@ -101,6 +101,8 @@ def brief(rundir, spec, workspace, *, transport_id, card=None):
               'tools': tools, 'toolbelt_manifest_sha256': belt['manifest_sha256'],
               'declared_outputs': spec['declared_outputs'], 'final_record_schema': spec['final_record_schema'],
               'budgets': spec['budgets'], 'attestation': 'host_attested', 'isolation': 'cli-policy'}
+    packet.update({'rundir': str(run), 'subject': subject_for(spec),
+                   'spec_sha256': broker.digest(spec), 'role_card': deepcopy(card)})
     try:
         declared = project_instructions.for_packet(project_instructions.for_run(run))
     except project_instructions.ProjectInstructionsError as exc:
@@ -140,8 +142,11 @@ def serve_broker(rundir, spec, packet):
     tools = [t for t in belt['tools'] if t['name'] in set(packet['tools'])]
     if sorted(packet['tools']) != sorted(t['name'] for t in tools):
         _refuse('toolbelt:changed')
+    from .. import literature_settings
+    # Literature serving comes only from the installation settings this process reads.
     tool_broker = production_broker(run, ws, tools=tools, role=spec['role']['id'], node_id=spec['node_id'],
-                                    attempt=spec['attempt'], max_calls=spec['budgets']['max_broker_calls'])
+                                    attempt=spec['attempt'], max_calls=spec['budgets']['max_broker_calls'],
+                                    retrieval=literature_settings.for_tools(tools))
     from contextlib import ExitStack
     from .. import gate_wiring
     with ExitStack() as window:
@@ -176,6 +181,13 @@ def complete(rundir, spec, packet, *, final, instructions_sha256=None):
         _refuse('declaration:changed')
     from ..state_io import read_json
     run = broker.ordinary(rundir)
+    dispatch_path = broker.custody(run) / (agent_worker._key(spec['node_id'], spec['attempt']) + '.role-dispatch.json')
+    if dispatch_path.is_file():
+        dispatch_record = read_json(dispatch_path)
+        advisory = dispatch_record['identity']['mode'] == 'advisory'
+        raise LaunchRefused('host subagent refused: ' + ('advisory' if advisory else 'refused host')
+                            + ' dispatch cannot become a required-role receipt',
+                            ['advisory' if advisory else 'role_dispatch'])
     start = _start_path(run, spec)
     acknowledged = read_json(start) if start.is_file() and not start.is_symlink() else None
     # A host may hand back the packet without the instruction record; the start is then matched
@@ -211,4 +223,193 @@ def complete(rundir, spec, packet, *, final, instructions_sha256=None):
     return agent_worker.finish(rundir, spec, final=deepcopy(final), execution=execution)
 
 
-__all__ = ['LaunchRefused', 'brief', 'complete', 'serve_broker', 'unsupported']
+__all__ = ['LaunchRefused', 'brief', 'complete', 'serve_broker', 'unsupported',
+           'subject_for', 'dispatch_role', 'dispatch_parser', 'main']
+
+
+def subject_for(spec):
+    """The exact review subject, sealed work order, or otherwise the pinned spec."""
+    from .. import agent_worker
+    spec = agent_worker._validate(spec)
+    if spec['parent'].get('review_subject') is not None:
+        return deepcopy(spec['parent']['review_subject'])
+    if spec['work_order']:
+        return {'scope': spec['work_order']['path'], 'sha256': spec['work_order']['sha256']}
+    return {'scope': 'worker-spec', 'sha256': broker.digest(spec)}
+
+
+def dispatch_role(rundir, spec, *, node_id, role, subject, adapter=None,
+                  mode='required', parent_session_id=None, **worker_options):
+    """Dispatch one exactly bound role; never execute it in the caller's context.
+
+    CLI workers use the existing governed supervisor. A host delegate may produce
+    an explicitly advisory result only: its schema and reported child identity
+    establish neither confinement nor independent-review credit. Blind/voting
+    cards refuse even advisory host execution before any packet is exposed.
+    """
+    from .. import agent_worker, gate_wiring, role_registry
+    from ..state_io import file_lock, read_json
+    from .generic_delegate import DelegateAdapter, NativeDelegateAdapter
+    spec = agent_worker._validate(spec)
+    run = broker.ordinary(rundir)
+    card = _card(spec, None)
+    if (node_id != spec['node_id'] or role != card['id'] or spec['role']['version'] != card['version']
+            or subject != subject_for(spec)
+            or mode not in ('required', 'advisory')):
+        raise LaunchRefused('role dispatch refused: run/node/role/subject binding mismatch', ['binding'])
+    key = agent_worker._key(node_id, spec['attempt'])
+    identity = {'rundir': str(run), 'node_id': node_id, 'attempt': spec['attempt'],
+                'role': role, 'subject': deepcopy(subject), 'spec_sha256': broker.digest(spec),
+                'mode': mode, 'adapter': deepcopy(adapter.identity) if isinstance(adapter, (DelegateAdapter, NativeDelegateAdapter)) else None,
+                'parent_session_id': parent_session_id,
+                'packet': agent_worker._packet_binding(worker_options.get('packet')),
+                'protected': sorted(str(broker.ordinary(p)) for p in worker_options.get('protected', ())),
+                'effect': agent_worker._effect_binding(worker_options.get('effect')),
+                'graph': deepcopy(worker_options.get('graph')),
+                'framework_step': worker_options.get('framework_step')}
+    target = broker.custody(run) / (key + '.role-dispatch.json')
+
+    def result(status, *, missing=(), receipt=None, final=None, session_id=None, detail=None, request_sha256=None):
+        return {'schema_version': 1, 'kind': 'role-dispatch-result', **deepcopy(identity),
+                'status': status, 'label': 'ADVISORY - REQUIRED ROLE NOT SATISFIED' if status == 'advisory'
+                else 'ROLE DISPATCH ' + status.upper(), 'missing': list(missing),
+                'required_role_satisfied': bool(status == 'completed' and receipt and receipt['status'] == 'ok'),
+                'worker_receipt': receipt, 'advisory_result': final, 'session_id': session_id,
+                'request_sha256': request_sha256 if request_sha256 is not None else
+                receipt.get('request_sha256') if receipt else None,
+                'attestation': receipt.get('attestation') if receipt else 'host_attested' if adapter is not None else None,
+                'isolation': deepcopy(receipt.get('isolation')) if receipt else
+                {'profile': 'cli-policy', 'user_configuration_loaded': True,
+                 'evidence': {'confirmed': False, 'basis': 'host report; no confinement observed'}}
+                if adapter is not None else None,
+                'detail': detail}
+
+    def refusal(*, missing, detail=None):
+        outcome = result('refused', missing=missing, detail=detail)
+        atomic_json(target, {'identity': identity, 'result': outcome})
+        return outcome
+
+    # A single reservation for this run/node/attempt, also across concurrent hosts.
+    # A reserved/ambiguous call is never automatically invoked again.
+    with file_lock(target.with_suffix('.lock')):
+        if target.exists():
+            kept = read_json(target)
+            if kept['identity'] != identity:
+                raise LaunchRefused('role dispatch refused: attempt already bound differently', ['binding'])
+            if kept['result'] is not None and adapter is not None:
+                return kept['result']
+            if adapter is not None:
+                return result('ambiguous', missing=['reconciliation'], detail='dispatch reserved; do not repeat the host call')
+        with gate_wiring.steering_dispatch(run, node_id):
+            if broker.stop_mode(run):
+                return refusal(missing=['stop_requested'])
+            if adapter is not None and not isinstance(adapter, (DelegateAdapter, NativeDelegateAdapter)):
+                return refusal(missing=['delegate:contract'])
+            routes = [tr.load(t) for t in spec['transport_preference']]
+            host_routes = [d for d in routes if d['transport_kind'] == 'host-subagent']
+            if adapter is None and host_routes and len(host_routes) == len(routes):
+                return refusal(missing=['delegate:unavailable'])
+            if adapter is not None:
+                if (set(worker_options) - {'graph', 'framework_step', 'packet', 'protected', 'effect', 'wait'}
+                        or worker_options.get('wait', True) is not True):
+                    return refusal(missing=['delegate:worker_options'])
+                transport_id = 'host-subagent-' + adapter.host
+                if transport_id not in spec['transport_preference']:
+                    return refusal(missing=['transport_preference'])
+                document = _document(transport_id)
+                caps, reasons = tr.effective_capabilities(document, None)
+                missing = tr.unmet(document, caps, card) + reasons
+                # A host callback never proves that it is outside the parent's
+                # conversation, even if a future card needs only host attestation.
+                if mode == 'required':
+                    return refusal(missing=sorted(set(missing + ['independence:unproven'])))
+                try:
+                    _refuse_review(card, spec)
+                except LaunchRefused as exc:
+                    return refusal(missing=exc.missing, detail=str(exc))
+                if not parent_session_id or type(parent_session_id) is not str:
+                    return refusal(missing=['parent_session_id'])
+            elif mode == 'advisory':
+                return refusal(missing=['delegate:unavailable'])
+            atomic_json(target, {'identity': identity, 'result': None, 'reserved_utc': broker.utc()})
+
+    invoked = False
+    try:
+        if adapter is None:
+            receipt = agent_worker.dispatch(run, spec, **worker_options)
+            failure = receipt.get('failure') or {}
+            outcome = result('completed' if receipt['status'] == 'ok' else receipt['status'], receipt=receipt,
+                             missing=failure.get('missing', ()), detail=failure.get('detail'))
+        else:
+            ws = agent_worker.materialize(run, spec,
+                                          **{k: v for k, v in worker_options.items() if k != 'wait'})
+            packet = brief(run, spec, ws, transport_id=transport_id, card=card)
+            request = {'schema_version': 1, 'kind': 'role-dispatch-request', 'rundir': str(run),
+                       'node_id': node_id, 'attempt': spec['attempt'], 'role': role,
+                       'subject': deepcopy(subject), 'spec_sha256': broker.digest(spec),
+                       'brief': packet, 'role_card': card}
+            request_sha = broker.digest(request)
+            with serve_broker(run, spec, packet):
+                invoked = True
+                response = adapter.invoke(request)
+            if response['request_sha256'] != request_sha or response['session_id'] == parent_session_id:
+                raise ValueError('host response does not bind this request and a distinct child')
+            # A claimed child cannot fill multiple seats in this run. This ledger
+            # records host reports, not authenticated independence or actor credit.
+            with file_lock(broker.custody(run) / 'role-dispatch-sessions.lock'):
+                sessions_path = broker.custody(run) / 'role-dispatch-sessions.json'
+                sessions = read_json(sessions_path) if sessions_path.exists() else []
+                if response['session_id'] in sessions:
+                    raise ValueError('host reused a child session for another role attempt')
+                atomic_json(sessions_path, sessions + [response['session_id']])
+            if not agent_worker.FINAL_SCHEMAS[spec['final_record_schema']](response['final']):
+                raise ValueError('host final record does not match the required schema')
+            declared = packet.get('project_instructions')
+            if declared and response['instructions_sha256'] != declared['record']['sha256']:
+                raise ValueError('host did not acknowledge the pinned project instructions')
+            # No finish()/acceptance receipt: advisory work can never be adopted as
+            # the required role, including when its broker produced valid outputs.
+            outcome = result('advisory', missing=sorted(set(missing + ['independence:unproven'])),
+                             final=response['final'], session_id=response['session_id'], request_sha256=request_sha)
+    except LaunchRefused as exc:
+        outcome = (result('ambiguous', missing=['reconciliation'], detail='delegate returned an invalid completion; do not retry')
+                   if invoked else result('refused', missing=exc.missing, detail=str(exc)))
+    except Exception:
+        # No retry: invocation or completion may have happened. Do not retain
+        # host exception text, which can contain provider bodies or credentials.
+        outcome = result('ambiguous', missing=['reconciliation'], detail='dispatch completion unknown; explicit reconciliation required')
+    with file_lock(target.with_suffix('.lock')):
+        atomic_json(target, {'identity': identity, 'result': outcome})
+    return outcome
+
+
+def dispatch_parser():
+    """The same concrete parser used by redirects and the public CLI bridge."""
+    import argparse
+    from pathlib import Path
+    parser = argparse.ArgumentParser(description='Dispatch one exactly bound RAVEL role')
+    parser.add_argument('command', choices=['dispatch'])
+    parser.add_argument('--rundir', type=Path, required=True)
+    parser.add_argument('--node', required=True)
+    parser.add_argument('--role', required=True)
+    parser.add_argument('--spec', type=Path, required=True)
+    parser.add_argument('--subject', type=Path, required=True)
+    return parser
+
+
+def main(argv=None):
+    import json
+    from ..state_io import read_json
+    args = dispatch_parser().parse_args(argv)
+    try:
+        value = dispatch_role(args.rundir, read_json(args.spec), node_id=args.node, role=args.role,
+                              subject=read_json(args.subject))
+    except (OSError, ValueError) as exc:
+        print(json.dumps({'kind': 'role-dispatch-error', 'status': 'refused', 'detail': str(exc)}))
+        return 1
+    print(json.dumps(value, indent=2, allow_nan=False))
+    return 0 if value['required_role_satisfied'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

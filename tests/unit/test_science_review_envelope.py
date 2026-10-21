@@ -9,6 +9,7 @@ import pytest
 from ravel.workflow import execution, physics_review as review, science, launch_authorization, stage_supervisor
 from ravel.workflow.state_io import atomic_json, read_json
 from test_physics_review import policy
+from bound_review import bound_review
 
 
 def specification(base, *, copied=False):
@@ -159,7 +160,7 @@ def test_exact_numeric_repair_keeps_approval_and_requires_fresh_review(planned):
     checks(rd, first, 1, 'fail')
     review.open_cycle(rd, effective_settings=science.review_effective_settings(rd),
                       stage_receipts=[first['attempt_record']], check_results='inputs/checks-1.json')
-    review.submit_review(rd, role='physics_critic', actor_id='critic', verdict='send_back', summary='Explicit numeric defect',
+    bound_review(rd, role='physics_critic', verdict='send_back', summary='Explicit numeric defect',
         findings=[{'id': 'F1', 'summary': 'Repair the declared numeric setting',
                    'evidence': [{'path': 'outputs/attempt-1/result.json', 'location': '$.value'}],
                    'check_ids': ['agreement'], 'required_paths': [science.EXECUTION_TASK], 'required_stages': ['science']}])
@@ -184,9 +185,10 @@ def test_exact_numeric_repair_keeps_approval_and_requires_fresh_review(planned):
     review.open_cycle(rd, effective_settings=science.review_effective_settings(rd),
         stage_receipts=[second['attempt_record']], check_results='inputs/checks-2.json', correction_id=admission['correction_id'])
     assert science.packet(rd)['lifecycle_verdict'] == 'PENDING'
-    for role, actor in [('physics_critic', 'critic'), ('skeptical_verifier', 'skeptic'), ('physics_decider', 'physicist')]:
-        review.submit_review(rd, role=role, actor_id=actor, verdict='accept', summary='Located fresh repair evidence',
-                             closes=['F1'], claim_scope='reproduction')
+    # Recorded votes are bound responses of dispatched roles; a declared reviewer name is advice only.
+    for role in ['physics_critic', 'skeptical_verifier', 'physics_decider']:
+        bound_review(rd, role=role, verdict='accept', summary='Located fresh repair evidence',
+                     closes=['F1'], claim_scope='reproduction')
     assert science.packet(rd)['lifecycle_verdict'] == 'PASS'
     assert {path: execution.file_hash(rd / path) for path in initial_hashes} == initial_hashes
     assert (rd / 'outputs/attempt-1/result.json').exists()
@@ -253,7 +255,7 @@ def test_admitted_run_precheck_uses_the_supervisors_augmented_inputs(planned, mo
     checks(rd, first, 1, 'fail')
     review.open_cycle(rd, effective_settings=science.review_effective_settings(rd),
                       stage_receipts=[first['attempt_record']], check_results='inputs/checks-1.json')
-    review.submit_review(rd, role='physics_critic', actor_id='critic', verdict='send_back', summary='Explicit numeric defect',
+    bound_review(rd, role='physics_critic', verdict='send_back', summary='Explicit numeric defect',
         findings=[{'id': 'F1', 'summary': 'Repair the declared numeric setting',
                    'evidence': [{'path': 'outputs/attempt-1/result.json', 'location': '$.value'}],
                    'check_ids': ['agreement'], 'required_paths': [science.EXECUTION_TASK], 'required_stages': ['science']}])

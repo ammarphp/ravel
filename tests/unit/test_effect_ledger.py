@@ -580,3 +580,20 @@ def test_deliver_external_closes_only_the_correlated_paused_effect(tmp_path):
     assert closed["status"] == "completed" and closed["reconciliation"]["evidence"][0]["path"].startswith("calls/")
     assert ledger.delegate(tmp_path, function=pause, **arguments) == {"fetched": 1}
     assert ledger.verified_result(tmp_path, record["call_id"]) == {"fetched": 1}
+
+
+def test_a_refused_campaign_reservation_is_a_definite_failure_never_an_ambiguous_effect(tmp_path):
+    """A research campaign's reservation boundary refuses before dispatch; the loop ends on it, bounded."""
+    from ravel.workflow import research_cycle
+
+    def reserve():
+        raise research_cycle.CampaignBudgetExhausted('cumulative research resource ceiling exhausted: calls')
+    with pytest.raises(research_cycle.CampaignBudgetExhausted):
+        call(tmp_path, reserve)
+    assert [(r["attempt"], r["status"], r["error_type"]) for r in ledger.attempts(tmp_path, PATH)] == \
+        [(1, "failed", "CampaignBudgetExhausted")]
+
+    def dispatched_then_ambiguous():
+        raise RuntimeError("synthetic: the action may have been sent")
+    with pytest.raises(ledger.Ambiguous):
+        call(tmp_path / "other", dispatched_then_ambiguous)

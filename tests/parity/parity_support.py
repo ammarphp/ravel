@@ -12,8 +12,6 @@ from ravel.workflow import role_registry, transport_registry as tr
 
 SYNTHETIC_MODEL = 'parity-model'
 SYNTHETIC_FAMILY = 'parity'
-# An earlier role's selection, in a family no declaration serves, for a card that must differ from it.
-PRIOR_ASSIGNMENT = {'family': 'parity-prior', 'transport_id': 'parity-prior', 'model': 'parity-prior-model'}
 EXECUTABLE_SHA = 'a' * 64
 # The six stub kinds a parity cell may name (a declaration's transport_kind).
 STUB_KINDS = ('cli-worker', 'cli-oneshot', 'ravel-loop', 'http-model', 'external-relay', 'host-subagent')
@@ -80,8 +78,7 @@ def preferences(card, document):
 def cell(card, document, *, qualified=False, local_models=None):
     """The selector's answer for one card on one declaration: admitted, or refused naming what is missing.
 
-    A card whose model family must differ from earlier roles is given those roles' synthetic prior
-    selections, so the cell measures this declaration's own capabilities.
+    The cell measures this declaration's own capabilities for the card.
     """
     probe = synthetic_probe(document)
     if qualified and probe is not None:
@@ -93,9 +90,8 @@ def cell(card, document, *, qualified=False, local_models=None):
     row = {'role': card['id'], 'family': card['family'], 'transport': document['id'],
            'transport_kind': document['transport_kind'], 'qualified': bool(qualified)}
     try:
-        assigned = {role: dict(PRIOR_ASSIGNMENT) for role in (card.get('model') or {}).get('distinct_family_from') or []}
         chosen = tr.select(card, preferences(card, document), probes=probes, executables=executables,
-                           local_models=local_models, assigned=assigned)
+                           local_models=local_models)
     except tr.TransportRefusal as refusal:
         missing = list(refusal.missing)
         return {**row, 'status': 'refused', 'missing': missing}

@@ -3,13 +3,12 @@
 `ravel contur-companion --input request.json --review-policy policy.json --out science.json`
 prepares an ordinary version-2 scientific study. Continue with ordinary `science plan`,
 Check-In 1 approval, supervised execution and fresh separated scientific reviews.
-Preparation creates no native process, result or approval. The adapter permits one
+The adapter permits one
 attempt and a review policy with zero automatic redos.
 
 The new mode is `contur-companion`. It calls the separately installed released Contur
 3.1.5 source (commit `3d3ccb52188acc86940f3881c98251ea904bb9e0`) through its actual argument
-parser and operation entry. Contur's GPL source remains external; RAVEL does not copy its
-likelihood, renderer or extractor algorithm. The implementation requires the independently
+parser and operation entry. Contur's GPL source supplies its likelihood, renderer and extractor algorithms. The implementation requires the independently
 reviewed complete-mode `contur_yoda`/`contur_import` custody interfaces.
 
 | Request operation | Released function | Population and quantity |
@@ -32,7 +31,7 @@ For extraction the source profile requires the actual `params.dat` and matching
 default selectors are seed 101 and tag `runpoint`. The `.out` must explicitly declare
 `Cross-section (nb)` (the original header spans two lines). The native printed fb value
 is `percentage * total_nb * 0.01 * 1e6`. Its parser discards the parenthesized total error;
-RAVEL reports that uncertainty as unavailable. All raw percentages remain available,
+RAVEL reports that uncertainty as missing. All raw percentages remain available,
 including those below `100*tolerance` that the original printer omits. No BRs or
 uncertainties are reconstructed from another input.
 
@@ -86,7 +85,7 @@ pdf/png/svg format and native interpolation/style settings. Rivet plotting accep
 analysis match/veto selectors, databg/no-exp, exact beam/runpoint or native single-point
 `null`, include-none and the native selection threshold. Missing or foreign grid subjects
 refuse; RAVEL never chooses an arbitrary point. `offline` is always declared, never forced.
-Unsupported interactive/external-Python overlays and Oracle training are outside this mode.
+The mode uses the declared noninteractive overlay and native companion contract.
 
 Native time is bounded to 1–900 seconds, declared RAM to 512–8192 MiB, and renderer cores
 to 1–4. The ordinary stage includes 60 seconds of readback in addition to native time.
@@ -104,7 +103,7 @@ calls, retains errors and records the actual selected start method. This has sof
 source-compatible controls; actual SDK startup/spawn behavior still needs qualification.
 
 The original serial branch launches its script via its unchanged shell argv. Its grandchild
-cannot inherit a parent savefig callback. For that branch RAVEL retains the actual native
+must not inherit a parent savefig callback. For that branch RAVEL retains the actual native
 error output and verifies the complete finite source-declared target population. Literal
 paths and the released profile generator's `__file__`/`plotDir`/`os.path.join`/string-suffix
 conventions are supported without executing or evaluating an AST. The profile generator's
@@ -135,7 +134,7 @@ the intended preparation commitment, and the native worker retains its authentic
 startup preparation snapshot through its ending checks. No permissions are normalized
 to a guessed execute mode.
 
-The released serial profile generator may write its figures beside its copied script.
+The released serial profile generator can write its figures beside its copied script.
 Those files are admitted and registered only as the exact authenticated native product
 population from a successful source-bound renderer receipt. They remain separate from
 the original scientific input inventory; no directory-wide empty or extra-file waiver
@@ -157,7 +156,7 @@ This mode covers preparation interfaces for the seven companion variants: `sm_te
 `sm_test_spey`, `grid_xsbf`, `contur_plot`, `rivetplots`, `rivetplots_databg`,
 `rivetplots_noExp`. Existing complete inference/grid/no-exp modules own `grid_spey`,
 `grid_default`, `single_default`, `single_default_noExp`. `contur_oracle` training remains
-user-deferred. These are implementation dispositions, not twelve executed outcomes.
+recorded as a user decision. These records describe implementation dispositions.
 
 Later root-admitted qualification must use the genuine complete original SM libraries,
 actual Spey/dependency versions and config fallback; the genuine seed101 runpoint0003

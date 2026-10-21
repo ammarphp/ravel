@@ -59,8 +59,7 @@ exclusion result is not a discovery claim.
 - A charge-summed basis must be requested explicitly with `charge: "sum"`.
 - Match the numerator and denominator's explicit process, charge sum, flavor/multiplicity,
   branching-ratio convention, perturbative order, masses and collision energy. Inspect the
-  actual grid and generator metadata: a single-charge reference cannot normalize a both-charge
-  sample without the corresponding documented conversion. A k-factor below one is not by itself
+  actual grid and generator metadata: a both-charge sample requires a charge-inclusive reference or a documented conversion from the single-charge basis. A k-factor below one is not by itself
   unphysical, and a value above one does not prove matching bases. Diagnose any warning against
   these inputs; never tune the normalization to reach an expected numerical range.
 - When the generated sample differs from the model's inclusive basis (a required extra parton,
@@ -75,7 +74,7 @@ A×ε = (routine SR yield)/(σ·lumi), cross-section-independent. Tiers: **drivi
 + within 1.5×) ≤12–15%; **contributing** ≤25%; **tail** (<~5 events) report-only. Every residual above
 its tier emits an attribution row (`cause_class ∈ merging / k-factor / fast-sim-floor /
 selection-mapping / statistics`) with a bounded µ₉₅-impact. PASS = driving within tol **and** worst
-|Δµ₉₅| ≤ bound **and** the verdict can't flip. Usage: `--srs "<SR-A>,<SR-B>,…"` is a **comma list of SR
+|Δµ₉₅| ≤ bound **and** the verdict must not flip. Usage: `--srs "<SR-A>,<SR-B>,…"` is a **comma list of SR
 names**, not a json path. The output formatter tolerates a missing SR (`mine=None` → `-`).
 
 ## Signal regions, controls and simulation uncertainty
@@ -93,6 +92,6 @@ and same-process evidence, never by adding already normalized templates or count
 
 There is no universal fast-simulation error floor that excuses a failed comparison. Detector,
 trigger, ISR and theory variations require source-backed response estimates. Published benchmark
-nuisance derivatives are valid for their own signal model and cannot be transferred to arbitrary
-native samples without evidence. Report absent uncertainty components and validate each stage
+nuisance derivatives require signal-model-specific validation before transfer to other
+native samples. Report absent uncertainty components and validate each stage
 before claiming physical reproduction. Follow the reproduction-closure checklist.

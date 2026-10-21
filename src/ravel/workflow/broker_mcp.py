@@ -35,13 +35,23 @@ SERVER_NAME = 'ravel-broker'
 PARSE_ERROR, INVALID_REQUEST, METHOD_NOT_FOUND, INVALID_PARAMS = -32700, -32600, -32601, -32602
 
 
+def served(tools):
+    """The toolbelt entries the server lists and calls: those that execute through a broker action.
+
+    ``submit_final`` executes nothing here (it is the CLI's structured output), so a worker's served
+    inventory, and the tool set admitted for it, never names it.
+    """
+    return [t for t in tools if t['executes_through']['action'] is not None]
+
+
 class Server:
     """One MCP session over a toolbelt; ``call(broker_request) -> reply`` reaches the broker."""
 
-    def __init__(self, tools, call, *, version='1'):
-        self.tools = [t for t in tools if t['executes_through']['action'] is not None]
+    def __init__(self, tools, call, *, version='1', literature_output=None):
+        self.tools = served(tools)
         self.call = call
         self.version = version
+        self.literature_output = literature_output
         self.session = uuid.uuid4().hex[:12]
 
     def listing(self):
@@ -66,8 +76,15 @@ class Server:
         if name == 'submit_final':
             raise _RpcError(INVALID_PARAMS, 'submit_final is structured output; finish with the CLI final message')
         reply = self.call(toolbelt.to_request(self.tools, name, args, self._call_id(params, rpc_id)))
-        return {'content': [{'type': 'text', 'text': json.dumps(reply, sort_keys=True)}],
-                'structuredContent': reply, 'isError': reply.get('status') != 'ok'}
+        result = {'content': [{'type': 'text', 'text': json.dumps(reply, sort_keys=True)}],
+                  'structuredContent': reply, 'isError': reply.get('status') != 'ok'}
+        tool = toolbelt.by_name(self.tools).get(name) if isinstance(name, str) else None
+        route = tool['executes_through'] if tool is not None else {}
+        if self.literature_output is not None and route.get('action') == 'literature query':
+            projection = self.literature_output(reply, route['fixed_args']['op'])
+            result['content'].extend(projection['content'])
+            result['isError'] = result['isError'] or projection['isError']
+        return result
 
     def handle(self, message):
         """One JSON-RPC message in; a response object, or None for a notification."""
@@ -189,7 +206,14 @@ def main(argv=None):
     if document.get('kind') != 'toolbelt' or toolbelt.manifest_sha256(document) != document.get('manifest_sha256'):
         parser.error('toolbelt document is not a toolbelt or its manifest digest differs')
     from .broker import socket_call
-    server = Server(document['tools'], lambda request: socket_call(args.socket, request))
+
+    def literature_output(reply, operation):
+        # Imported only when a literature reply is projected: other workers' MCP face stays minimal.
+        from . import literature_mcp
+        return literature_mcp.projector(args.workspace)(reply, operation)
+
+    server = Server(document['tools'], lambda request: socket_call(args.socket, request),
+                    literature_output=literature_output)
     serve_stdio(server, sys.stdin, sys.stdout)
     return 0
 

@@ -40,6 +40,124 @@ def task(identity="missing-citation"):
         "failure_or_missing": "Citation is unresolved; not permission to invent evidence."}
 
 
+def _assert_tex_intervals(source, units):
+    by_id = {unit["id"]: unit for unit in units}
+    for unit in units:
+        assert unit["text"] == source[unit["start"]:unit["end"]]
+        assert source.encode()[unit["byte_start"]:unit["byte_end"]] == unit["text"].encode()
+        if unit["parent"] is not None:
+            parent = by_id[unit["parent"]]
+            assert parent["start"] <= unit["start"] <= unit["end"] <= parent["end"]
+    parents = {unit["parent"] for unit in units}
+    leaves = sorted((u["start"], u["end"]) for u in units if u["id"] not in parents)
+    assert "".join(source[start:end] for start, end in leaves) == source
+
+
+def test_tex_table_cells_are_located_exactly_with_row_column_header_and_units():
+    source = r"""A fictional μ table.
+\begin{table}
+\begin{tabular}{lcc}
+Channel & Yield [events] & Efficiency [\%] \\
+\hline
+A & 12.5 & 3.4 \\
+\end{tabular}
+\end{table}
+Trailing text.
+"""
+    units, failures = lc._forest("sample", source, "tex")
+    assert not failures
+    cells = [u for u in units if u["kind"] == "table-cell"]
+    assert [u["text"] for u in cells] == ["Channel", "Yield [events]", r"Efficiency [\%]", "A", "12.5", "3.4"]
+    assert [(u["row"], u["column"]) for u in cells] == [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+    assert [u["header"] for u in cells] == ["Channel", "Yield [events]", r"Efficiency [\%]"] * 2
+    assert [u["units"] for u in cells] == [None, "events", r"\%"] * 2
+    rows = [u for u in units if u["kind"] == "table-row"]
+    assert len(rows) == 2
+    table = next(u for u in units if u["kind"] == "table")
+    assert all(row["parent"] == table["id"] for row in rows)
+    assert all(cell["parent"] == rows[cell["row"]]["id"] for cell in cells)
+    _assert_tex_intervals(source, units)
+    assert lc._forest("sample", source, "tex") == (units, failures)
+
+
+def test_tex_figure_caption_files_and_axis_labels_are_located():
+    source = r"""\begin{figure*}
+\includegraphics[width={0.5\textwidth}]{a.pdf}
+\includegraphics{folder/b.pdf}
+\caption[Short]{A fictional {nested} caption with $\mu$.}
+\begin{tikzpicture}\begin{axis}[xlabel={$m$ [GeV]}, ylabel={Rate [fb]}]
+\end{axis}\end{tikzpicture}
+\end{figure*}
+"""
+    units, failures = lc._forest("drawing", source, "tex")
+    assert not failures
+    figure = next(u for u in units if u["kind"] == "figure")
+    children = [u for u in units if u["kind"] in {"figure-caption", "figure-file", "axis-label"}]
+    assert [(u["kind"], u["text"]) for u in children] == [
+        ("figure-file", "a.pdf"), ("figure-file", "folder/b.pdf"),
+        ("figure-caption", r"A fictional {nested} caption with $\mu$."),
+        ("axis-label", "$m$ [GeV]"), ("axis-label", "Rate [fb]")]
+    assert all(u["parent"] == figure["id"] for u in children)
+    assert [u["units"] for u in children if u["kind"] == "axis-label"] == ["GeV", "fb"]
+    _assert_tex_intervals(source, units)
+    bare, _ = lc._forest("fileonly", r"\begin{figure}\includegraphics{only.pdf}\end{figure}", "tex")
+    assert [u["kind"] for u in bare if u["kind"] in {"figure-caption", "figure-file", "axis-label"}] == ["figure-file"]
+
+
+def test_tex_table_failures_stay_visible(tmp_path):
+    source = r"""\begin{table}
+\begin{tabular}{lc}
+Label & Yield [events] \\ \hline
+Good & 12 \\
+Ragged & 1 & 2 \\
+Nested & \begin{tabular}{c}inner \\ \end{tabular} \\
+\end{tabular}
+\end{table}
+\begin{table}
+\begin{tabular}{lc}
+Unclosed & 3 \\
+"""
+    base = tmp_path.resolve()
+    result = lc.prepare(request(base, [document(base, "sample", source, "tex")]), base / "out", base_dir=base)
+    context = result["context"]
+    failures = context["missing_and_unresolved"]
+    assert any(f.get("code") == "ragged_row" and f["status"] == "unresolved" for f in failures)
+    assert any(f.get("code") == "nested_tabular" and f["status"] == "unresolved" for f in failures)
+    assert any("unclosed TeX environment" in f["reason"] and f["status"] == "unresolved" for f in failures)
+    cells = [u for u in context["units"] if u["kind"] == "table-cell"]
+    assert [u["text"] for u in cells] == ["Label", "Yield [events]", "Good", "12"]
+    assert len([u for u in context["units"] if u["kind"] == "table"]) == 2
+    _assert_tex_intervals(source, context["units"])
+
+
+@pytest.mark.parametrize("environment,preamble", [("tabular", "{lcc}"), ("tabular*", "{6cm}{lcc}"),
+                                                    ("tabularx", "{6cm}{lcc}"), ("longtable", "{lcc}")])
+def test_tex_bare_tables_multicolumn_and_explicit_units(environment, preamble):
+    source = (r"\begin{" + environment + "}" + preamble + "\n" + r"\toprule" + "\n"
+              + r"Name & \multicolumn{2}{c}{Mass (GeV)} \\ \midrule" + "\n"
+              + r"A\&B & {1 & 2} & $3\,\mathrm{fb}$ \\" + "\n" + r"\end{" + environment + "}")
+    units, failures = lc._forest("bare", source, "tex")
+    assert not failures
+    cells = [u for u in units if u["kind"] == "table-cell"]
+    assert len(cells) == 5
+    assert cells[1]["text"] == r"\multicolumn{2}{c}{Mass (GeV)}"
+    assert cells[1]["column_span"] == 2
+    assert [(u["column"], u["header"], u["units"]) for u in cells[2:]] == [
+        (0, "Name", None), (1, r"\multicolumn{2}{c}{Mass (GeV)}", "GeV"),
+        (2, r"\multicolumn{2}{c}{Mass (GeV)}", "fb")]
+    _assert_tex_intervals(source, units)
+
+
+def test_tex_table_cell_limit_falls_back_as_a_whole(monkeypatch):
+    source = r"\begin{table}\begin{tabular}{cc}A & B \\ \hline 1 & 2 \\ \end{tabular}\end{table}"
+    monkeypatch.setattr(lc, "MAX_UNITS", 12)
+    units, failures = lc._forest("bounded", source, "tex")
+    assert len(units) <= lc.MAX_UNITS
+    assert any(f.get("code") == "too_many_cells" for f in failures)
+    assert [u["kind"] for u in units] == ["document", "table"]
+    _assert_tex_intervals(source, units)
+
+
 def request(base, documents, *, tasks=(), root=None):
     scope = None
     if root:
@@ -521,3 +639,184 @@ def test_large_pdf_operational_pin_is_exact_named_custody_not_generic_cap_bypass
     else:
         with pytest.raises(agent_host.HostFailure):
             host._pins(node,{"input_artifacts":inputs})
+
+
+# Fictional page text with every boundary str.splitlines() honours beyond the kernel's LF, CR and CRLF.
+BOUNDARY_TEXT = ("First located line.\x0cSame kernel line after a form feed.\n"
+                 "Second line\x1dstill one under a group separator.\r"
+                 "Third line ends with a carriage return.\r\n"
+                 "Fourth line keeps \x85 next-line and   line and   paragraph separators.\n"
+                 "\n"
+                 "A later paragraph\x0b with a vertical tab and \x1c\x1e separators.\n")
+
+
+@pytest.mark.parametrize("format", ["text", "markdown"])
+def test_kernel_line_law_keeps_exact_excerpts_and_ranges_for_unicode_boundaries(tmp_path, format):
+    base = tmp_path.resolve()
+    text = ("# Located heading\n" if format == "markdown" else "") + BOUNDARY_TEXT
+    raw = text.encode()
+    result = lc.prepare(request(base, [document(base, "paper", text, format)]), base / "located", base_dir=base)
+    assert lc.consume(result["product"], base_dir=base) == result
+    assertions = result["context"]["source_assertions"]
+    assert assertions
+    for unit in result["context"]["units"]:
+        assert unit["text"] == text[unit["start"]:unit["end"]]
+        assert raw[unit["byte_start"]:unit["byte_end"]] == unit["text"].encode()
+        if unit["text"]:
+            # Unit lines are retrieval locations, counted as the retrieval contract verifies them.
+            assert unit["line_start"] == raw[:unit["byte_start"]].count(b"\n") + 1
+            assert unit["line_end"] == raw[:max(unit["byte_start"], unit["byte_end"] - 1)].count(b"\n") + 1
+    # Assertion evidence ranges select exactly their excerpt under the kernel's own line law.
+    located = (base / "located" / "paper.txt").read_bytes().splitlines(keepends=True)
+    for node in assertions:
+        for evidence in node["evidence"]:
+            excerpt = b"".join(located[evidence["line_start"] - 1:evidence["line_end"]])
+            assert hashlib.sha256(excerpt).hexdigest() == evidence["excerpt_sha256"]
+            assert excerpt.decode().strip() == node["statement"]
+    custody = json.loads((base / "located" / "original-custody.json").read_bytes())
+    assert custody["kind"] == lc.SOURCE_VERSION and custody["derivation"] == lc.LINE_LAW
+    # Every located unit passes the retrieval contract's exact excerpt and line check.
+    from ravel.workflow import literature_index
+    receipts = {hashlib.sha256(p.read_bytes()).hexdigest(): "receipt:fixture" for p in base.rglob("*") if p.is_file()}
+    corpus = literature_index.corpus_from_contexts([result], base_dir=base, receipt_ids=receipts)
+    assert {u["evidence"]["text"] for u in corpus["units"]} == {u["text"] for u in result["context"]["units"] if u["text"]}
+    assert lc.kernel_lines(BOUNDARY_TEXT) == [l.decode() for l in BOUNDARY_TEXT.encode().splitlines(keepends=True)]
+
+
+def test_products_pinned_under_the_legacy_line_law_verify_under_it_and_unknown_laws_need_migration(tmp_path, monkeypatch):
+    base = tmp_path.resolve()
+    plain = "# Method\nA located convention.\n\nEvery original line survives.\n"
+    with monkeypatch.context() as patch:
+        patch.setattr(lc, "LINE_LAW", lc.LEGACY_LINE_LAW)
+        old = lc.prepare(request(base, [document(base, "paper", plain)]), base / "legacy", base_dir=base)
+        # The legacy law is the defect: Unicode-only boundaries break its exact ranges.
+        (base / "unicode").mkdir()
+        with pytest.raises((ValueError, IndexError)):
+            lc.prepare(request(base / "unicode", [document(base / "unicode", "paper", BOUNDARY_TEXT, "text")]),
+                       base / "unicode" / "located", base_dir=base)
+    legacy = json.loads((base / "legacy" / "original-custody.json").read_bytes())
+    assert "derivation" not in legacy and set(legacy) == set(lc.CUSTODY_FIELDS)
+    product = (base / "legacy" / "product.json").read_bytes()
+    # The pinned product is verified under its original derivation, not rewritten.
+    assert lc.consume(old["product"], base_dir=base) == old
+    assert (base / "legacy" / "product.json").read_bytes() == product
+    custody_pin = next(p for p in json.loads(product)["generated"] if p["path"].endswith("original-custody.json"))
+    assert lc.source_manifest(custody_pin, base_dir=base)
+    (base / "fresh").mkdir()
+    new = lc.prepare(request(base / "fresh", [document(base / "fresh", "paper", plain)]), base / "fresh" / "located",
+                     base_dir=base)
+    assert json.loads((base / "fresh/located/original-custody.json").read_bytes())["derivation"] == lc.LINE_LAW
+    strip = lambda units: [{k: u[k] for k in ("kind", "start", "end", "line_start", "line_end", "excerpt_sha256")} for u in units]
+    assert strip(new["context"]["units"]) == strip(old["context"]["units"])
+    with monkeypatch.context() as patch:
+        patch.setattr(lc, "LINE_LAW", "literature-line-law/9")
+        patch.setattr(lc, "LINE_LAWS", (*lc.LINE_LAWS, "literature-line-law/9"))
+        (base / "future").mkdir()
+        future = lc.prepare(request(base / "future", [document(base / "future", "paper", plain)]),
+                            base / "future" / "located", base_dir=base)
+    with pytest.raises(ValueError, match="migrate it by preparing a fresh product"):
+        lc.consume(future["product"], base_dir=base)
+
+
+def test_new_preparation_records_literal_forest_law_three(tmp_path):
+    base = tmp_path.resolve()
+    result = lc.prepare(request(base, [document(base, "paper", "A fictional statement.\n", "text")]),
+                        base / "located", base_dir=base)
+    custody = json.loads((base / "located" / "original-custody.json").read_bytes())
+    assert custody["derivation"] == "literature-forest-law/3"
+    assert lc.consume(result["product"], base_dir=base) == result
+
+
+def test_line_law_two_text_and_markdown_products_verify_without_repinning(tmp_path, monkeypatch):
+    base = tmp_path.resolve()
+    documents = [document(base, "plain", "A fictional μ statement.\n", "text"),
+                 document(base, "marked", "# Fictional heading\nA fictional result.\n", "markdown")]
+    with monkeypatch.context() as patch:
+        patch.setattr(lc, "LINE_LAW", "literature-line-law/2")
+        old = lc.prepare(request(base, documents), base / "located", base_dir=base)
+    old_value = json.loads(Path(old["product"]["path"]).read_bytes())
+    custody_pin = next(p for p in old_value["generated"] if Path(p["path"]).name == "original-custody.json")
+    custody = json.loads(Path(custody_pin["path"]).read_bytes())
+    assert custody["derivation"] == "literature-line-law/2"
+    pinned_result = deepcopy(old)
+    source_pins = [pin(Path(lc.__file__)), pin(Path(lc.knowledge.__file__))]
+    assert all(p in custody["input_pins"] for p in source_pins)
+    before = {str(p): p.read_bytes() for p in base.rglob("*") if p.is_file()}
+    assert lc._custody_law(custody) == "literature-line-law/2"
+    assert lc.source_manifest(custody_pin, base_dir=base)
+    assert lc.consume(old["product"], base_dir=base) == pinned_result
+    assert old == pinned_result
+    assert [pin(Path(lc.__file__)), pin(Path(lc.knowledge.__file__))] == source_pins
+    assert {str(p): p.read_bytes() for p in base.rglob("*") if p.is_file()} == before
+
+
+@pytest.mark.parametrize("status", ["supplied", "missing"])
+def test_line_law_two_any_tex_custody_member_requires_exact_migration(tmp_path, monkeypatch, status):
+    base = tmp_path.resolve()
+    with monkeypatch.context() as patch:
+        patch.setattr(lc, "LINE_LAW", "literature-line-law/2")
+        old = lc.prepare(request(base, [document(base, "plain", "A fictional statement.\n", "text")]),
+                         base / "original", base_dir=base)
+    old_value = json.loads(Path(old["product"]["path"]).read_bytes())
+    original_custody = next(p for p in old_value["generated"]
+                            if Path(p["path"]).name == "original-custody.json")
+    custody = json.loads(Path(original_custody["path"]).read_bytes())
+    assert custody["derivation"] == "literature-line-law/2"
+    if status == "supplied":
+        tex = document(base, "tex-member", "\\begin{table}\n\\end{table}\n", "tex")
+    else:
+        tex = dict(deepcopy(custody["documents"][0]), id="missing-tex-member", format="tex",
+                   pin=None, status="missing", reason="Fictional missing original TeX member.")
+    custody["documents"].append(tex)
+    # These are separately pinned inert admission fixtures, not a rewritten
+    # historical derivation. Refusal must precede regeneration or dependency reads.
+    refused_custody = write(base / "refused" / "original-custody.json", custody)
+    refused_value = deepcopy(old_value)
+    refused_value["generated"] = [refused_custody if p == original_custody else p
+                                  for p in refused_value["generated"]]
+    refused_product = write(base / "refused" / "product.json", refused_value)
+    before = {str(p): p.read_bytes() for p in base.rglob("*") if p.is_file()}
+    reason = ("located literature was derived under literature-line-law/2 with a TeX member; "
+              "migrate it by preparing a fresh product from its original request")
+    checks = [lambda: lc._custody_law(custody),
+              lambda: lc.source_manifest(refused_custody, base_dir=base),
+              lambda: lc._product_law(refused_value, lc._Reader(base)),
+              lambda: lc.consume(refused_product, base_dir=base)]
+    for check in checks:
+        with pytest.raises(ValueError) as error:
+            check()
+        assert str(error.value) == reason
+    assert {str(p): p.read_bytes() for p in base.rglob("*") if p.is_file()} == before
+
+
+def test_legacy_no_derivation_tex_preserves_old_whole_environment_intervals(tmp_path, monkeypatch):
+    base = tmp_path.resolve()
+    table = ('\\begin{table}\n\\caption{Fictional count}\n\\begin{tabular}{lr}\n'
+             'Region & Yield [events] \\\\\n'
+             'amber & 17.3 \\\\\n'
+             '\\end{tabular}\n\\end{table}\n')
+    equation = "\\begin{equation}\nx=2\n\\end{equation}\n"
+    text = "\\section{Fictional method}\n" + table + equation
+    with monkeypatch.context() as patch:
+        patch.setattr(lc, "LINE_LAW", lc.LEGACY_LINE_LAW)
+        old = lc.prepare(request(base, [document(base, "paper", text, "tex")]),
+                         base / "legacy", base_dir=base)
+    product = json.loads(Path(old["product"]["path"]).read_bytes())
+    custody_pin = next(p for p in product["generated"] if Path(p["path"]).name == "original-custody.json")
+    custody = json.loads(Path(custody_pin["path"]).read_bytes())
+    assert "derivation" not in custody
+    assert lc._custody_law(custody) == "literature-line-law/1"
+    units = old["context"]["units"]
+    assert not {"table-row", "table-cell", "figure-caption", "figure-file", "axis-label"} & {u["kind"] for u in units}
+    for kind, fragment in [("table", table), ("caption", "\\caption{Fictional count}\n"),
+                           ("equation", equation)]:
+        matches = [u for u in units if u["kind"] == kind]
+        assert len(matches) == 1
+        unit = matches[0]
+        start = text.index(fragment)
+        assert (unit["start"], unit["end"], unit["text"]) == (start, start + len(fragment), fragment)
+        assert text.encode()[unit["byte_start"]:unit["byte_end"]] == fragment.encode()
+    before = {str(p): p.read_bytes() for p in base.rglob("*") if p.is_file()}
+    assert lc.source_manifest(custody_pin, base_dir=base)
+    assert lc.consume(old["product"], base_dir=base) == old
+    assert {str(p): p.read_bytes() for p in base.rglob("*") if p.is_file()} == before

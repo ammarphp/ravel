@@ -1,0 +1,47 @@
+--- a/src/ravel/validation/check_generality.py
++++ b/src/ravel/validation/check_generality.py
+@@ -206,9 +206,44 @@
+         return found
+ 
+ 
++def _controller_source_policy():
++    """The sole protected restricted-source policy of the controller-owned cwd.
++
++    Ownership and store failures propagate. Only an absent controller package or
++    an unowned working directory retains the legacy environment-list interface.
++    """
++    try:
++        from ravel.controller.store import RunStore, controller_owned
++    except ImportError as exc:
++        if isinstance(exc, ModuleNotFoundError) and exc.name in {'ravel', 'ravel.controller'}:
++            return None
++        raise
++    run_id = controller_owned(Path.cwd())
++    if run_id is None:
++        return None
++    rows = RunStore(run_id).scan('restricted-source-policy')
++    if type(rows) is not list or len(rows) != 1:
++        raise ValueError('controller run requires exactly one immutable restricted-source policy')
++    row = rows[0]
++    policy = row.get('record', row) if type(row) is dict else None
++    if (type(policy) is not dict or policy.get('kind') != 'restricted-sources'
++            or type(policy.get('fingerprints')) is not list or type(policy.get('documents')) is not list
++            or any(type(term) is not str or not term.strip() for term in policy['fingerprints'])
++            or any(type(document) is not dict or type(document.get('sha256')) is not str
++                   or not SHA.fullmatch(document['sha256'].lower()) for document in policy['documents'])):
++        raise ValueError('controller restricted-source policy is malformed')
++    return policy
++
++
+ def _external_entries(env):
+     """Entries from the outside term list and the owner's restricted-source list."""
+     terms, documents = [], []
++    protected = _controller_source_policy()
++    if protected is not None:
++        terms = protected['fingerprints']
++        documents = [row['sha256'].lower() for row in protected['documents']]
++        # Do not even open environment-supplied lists for a governed run.
++        env = {}
+     if env.get('RAVEL_EVAL_TERMS_FILE'):
+         terms += Path(env['RAVEL_EVAL_TERMS_FILE']).read_text(encoding='utf-8').splitlines()
+     if env.get('RAVEL_EVAL_TERMS'):

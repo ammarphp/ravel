@@ -1,6 +1,38 @@
 # Tool licences
 
-RAVEL fetches the tools below at installation and runs them as separate programs. The copied material that travels with RAVEL is listed in [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md).
+The installers acquire Python distributions and native tools. The generated
+[component inventory](component-inventory.md) records every full-profile and package
+requirement using installed distribution metadata, and every native manifest group
+using its declared licences and installation boundaries. Regenerate it in the full
+host environment with `python scripts/maintenance/render_component_inventory.py`;
+`--check` exits 1 when the file differs from that environment's observations.
+The copied files retained in this tree are listed in
+[THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md).
+
+## Python installation and imports
+
+The full host profile installs distributions whose own metadata includes GPL, LGPL
+or MPL terms: `pySecDec` and `hepdata-cli` declare `GPLv3`; `pyslha` has a GPLv3
+licence classifier; `iminuit` declares `MIT+LGPL`; `certifi` declares `MPL-2.0`;
+`camb` declares `LicenseRef-LGPLv3-arxiv`; and `cobaya` declares
+`LGPL-3.0-or-later AND LicenseRef-GFDL-1.3-or-later`. These are the metadata strings
+observed in the full-profile generating environment, rather than inferred terms.
+`classy` has no licence field or licence classifier there and is recorded as `unknown`.
+
+Installation in the host environment and import in a process are distinct.
+`src/ravel/physics/finite_integrals.py` copies the
+worker source and launches the pinned `runtime.python` executable with `-I -B`.
+`src/ravel/physics/finite_integrals_worker.py` explicitly adds the admitted source
+root and runtime site directories to `sys.path`, then imports `pySecDec`,
+`pySecDec.integral_interface` and `pySecDecContrib` in that child process.
+The native `finite-integrals` group creates the `integrals` environment, but a task
+supplies its interpreter and site roots. The host executable is also a valid interpreter
+choice when it satisfies the task's declared runtime contract.
+
+The host code also imports full-profile packages: for example,
+`src/ravel/physics/reinterpret_db.py` imports `pyslha`. The cosmology solver launches its supplied runtime
+interpreter with `-I -B` and imports its selected solver in that child process
+(`src/ravel/physics/cosmology_solver.py`).
 
 ## Scope-tools add-ons
 
@@ -13,7 +45,7 @@ Unconfirmed terms use conservative permissions. No upstream code or source text
 is included here. The source-fetch job must replace candidate URLs with actual
 assets and confirm the licence file at the chosen revision. Authored assets are
 resolved from the local source tree. Remote and locally built images require their
-own receipts; an upstream source fetch cannot establish a built image digest.
+own receipts; a built image requires its own observed digest.
 
 Fragments use `ravel.setup.licence_policy.licence_entries(keys)` for manifest licence
 entries and `load_pin(key)` for install inputs. `load_pin` refuses pending entries;
@@ -23,8 +55,8 @@ lints assembled groups and recipe text without running an upstream tool.
 Manifest validation invokes the group policy; the assembler must also supply the
 recipe text to cover Containerfile COPY. Groups that only describe local/site
 infrastructure or inherit dependencies acquire no third-party component and need
-no new licence entry. Restricted Python tools use separate interpreters; GPL,
-LGPL, AGPL, MPL and unconfirmed tools are never imported into RAVEL's environment.
+no new licence entry. These ledger flags apply to the additional source acquisitions described here;
+the full host profile and its process boundaries are recorded above.
 
 Run `python -m ravel.setup.licence_policy --containerfile <recipe>` for the offline
 pins/schema/ledger and recipe lint. Published comparator stubs and source metadata
@@ -38,16 +70,15 @@ optional `RAVEL_SOURCE_CACHE` when filled records are present. Numeric source
 values belong only in the cited rows, with an exact table, figure or equation
 locator, conditions, units, uncertainty definition and extraction attribution.
 
-Every GPL, LGPL, AGPL and MPL entry below (and every unconfirmed `LicenseRef`) is an
-external add-on: fetched at installation, run as a separate program, never vendored,
-imported into RAVEL or published in a container (`import_into_ravel: never`,
-`container_publish: never`).
+The restricted entries below carry `import_into_ravel: never` and
+`container_publish: never` in the source-acquisition ledger. These are configured
+installer policies, not a description of every Python dependency or every copied
+file in this tree. The copied-material table records retained files separately.
 
-All entries below await upstream licence-text hashes. `redistribute` describes
-upstream permission, not a plan to vendor code: these integrations acquire tools
-at installation. `container_publish: never` also applies to locally built GPL
-images. The base image is a package collection whose licences require a package
-inventory; no blanket licence is asserted.
+All entries below await upstream licence-text hashes. `redistribute` is a ledger
+flag; this table records its configured value without establishing permission.
+`container_publish: never` also applies to locally built images for these entries.
+The base image contains multiple packages; its ledger entry is not a component inventory.
 
 | Pin key | SPDX / licence reference | Redistribute | Import into RAVEL | Publish container | Evidence |
 |---|---|---|---|---|---|

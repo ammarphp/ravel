@@ -1,0 +1,1449 @@
+{
+ "checks": {
+  "asymptotic-interval-regime": {
+   "id": "asymptotic-interval-regime",
+   "on_fail": "qualify",
+   "qualification": "small or unstated counts: the asymptotic interval coverage is not verified by toys",
+   "reason": "the coverage of a likelihood-ratio interval rests on its asymptotic chi-square law, which needs a few expected and observed counts per bin",
+   "stage": "facts",
+   "threshold": {
+    "min_count": 5.0
+   },
+   "title": "Counts large enough for asymptotic intervals"
+  },
+  "asymptotic-regime": {
+   "id": "asymptotic-regime",
+   "on_fail": "escalate",
+   "qualification": "small-count regime: the asymptotic CLs calibration is not verified by toys",
+   "reason": "asymptotic qtilde distributions are unreliable below a few expected or observed counts",
+   "stage": "facts",
+   "threshold": {
+    "min_count": 5.0
+   },
+   "title": "Counts large enough for asymptotic formulae"
+  },
+  "asymptotic-significance-regime": {
+   "id": "asymptotic-significance-regime",
+   "on_fail": "escalate",
+   "qualification": "small-count regime: the asymptotic discovery significance is not verified by toys",
+   "reason": "the asymptotic half chi-square law of q0 is unreliable below a few expected or observed counts",
+   "stage": "facts",
+   "threshold": {
+    "min_count": 5.0
+   },
+   "title": "Counts large enough for an asymptotic discovery significance"
+  },
+  "away-from-boundary": {
+   "id": "away-from-boundary",
+   "on_fail": "qualify",
+   "qualification": "the interval reaches a physical boundary; its coverage is not verified",
+   "reason": "Wilks' theorem fails at a physical boundary of the parameter",
+   "stage": "result",
+   "threshold": null,
+   "title": "The interval stays away from boundaries"
+  },
+  "bracket-envelope": {
+   "id": "bracket-envelope",
+   "on_fail": "hold",
+   "qualification": "the correlation bracket is incomplete",
+   "reason": "the stated correlation assignments are evaluated and their declared extremum is reported",
+   "stage": "result",
+   "threshold": null,
+   "title": "The declared envelope over evaluated correlation variants is reported"
+  },
+  "builder-parity": {
+   "id": "builder-parity",
+   "on_fail": "hold",
+   "qualification": "the constructed model differs between builders",
+   "reason": "two independent builders of one declared model must agree",
+   "stage": "result",
+   "threshold": null,
+   "title": "Constructed model agrees between builders"
+  },
+  "correlation-declared": {
+   "id": "correlation-declared",
+   "on_fail": "escalate",
+   "qualification": "correlations of some systematic sources are unknown; they are treated as stated",
+   "reason": "treating unknown correlations as known can understate or overstate the uncertainty",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Every systematic source declares its correlation"
+  },
+  "correlation-known": {
+   "id": "correlation-known",
+   "on_fail": "escalate",
+   "qualification": "input correlations are unknown; the conservative envelope over the stated range is reported",
+   "reason": "propagation through correlated inputs needs their correlation",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Input correlations are known"
+  },
+  "correlations-stated": {
+   "id": "correlations-stated",
+   "on_fail": "qualify",
+   "qualification": "background correlations between regions not published; constraints assumed independent",
+   "reason": "a counting model without published correlations must say what it assumes",
+   "stage": "result",
+   "threshold": null,
+   "title": "The counting model states its correlation assumption"
+  },
+  "covariance-sourced": {
+   "id": "covariance-sourced",
+   "on_fail": "escalate",
+   "qualification": "no sourced published covariance",
+   "reason": "a simplified likelihood needs the published covariance and its source",
+   "stage": "facts",
+   "threshold": null,
+   "title": "A sourced published covariance"
+  },
+  "coverage-at-truth": {
+   "id": "coverage-at-truth",
+   "on_fail": "qualify",
+   "qualification": "the limit over-excludes the true signal strength",
+   "reason": "a 95% CLs limit must not exclude the true strength more than 5% of the time",
+   "stage": "result",
+   "threshold": {
+    "confidence": 0.95
+   },
+   "title": "False-exclusion rate at the truth"
+  },
+  "generator-law-declared": {
+   "id": "generator-law-declared",
+   "on_fail": "escalate",
+   "qualification": "no generator law is declared for the exact finite-MC likelihood",
+   "reason": "an exact finite-MC likelihood is conditional on the declared generator law",
+   "stage": "facts",
+   "threshold": null,
+   "title": "A declared MC generator law"
+  },
+  "independence-declared": {
+   "id": "independence-declared",
+   "on_fail": "hold",
+   "qualification": "the independence of the combined event populations is not stated",
+   "reason": "a product of likelihoods double counts overlapping events",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Event-population independence is stated"
+  },
+  "independent-tests-declared": {
+   "id": "independent-tests-declared",
+   "on_fail": "escalate",
+   "qualification": "the trials correction assumes independent tests",
+   "reason": "a Sidak correction assumes independent tests",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Scanned tests declared independent"
+  },
+  "inputs-combined": {
+   "id": "inputs-combined",
+   "on_fail": "qualify",
+   "qualification": "the inputs were not combined",
+   "reason": "a combination result must name the inputs it combined",
+   "stage": "result",
+   "threshold": null,
+   "title": "The inputs were combined"
+  },
+  "interval-resolved": {
+   "id": "interval-resolved",
+   "on_fail": "qualify",
+   "qualification": "an interval edge is a scan bound",
+   "reason": "an interval edge at the scan edge is a bound",
+   "stage": "result",
+   "threshold": null,
+   "title": "Interval edges are resolved"
+  },
+  "limits-resolved": {
+   "id": "limits-resolved",
+   "on_fail": "qualify",
+   "qualification": "the limit is a scan bound, not a resolved root",
+   "reason": "a scan endpoint is a bound, not a limit",
+   "stage": "result",
+   "threshold": null,
+   "title": "Limits are resolved roots"
+  },
+  "linearity": {
+   "id": "linearity",
+   "on_fail": "escalate",
+   "qualification": "non-linear propagation was approximated linearly",
+   "reason": "a non-linear function of uncertain inputs is not described by its first derivatives",
+   "stage": "result",
+   "threshold": {
+    "tolerance": 0.1
+   },
+   "title": "Linear propagation agrees with sampling"
+  },
+  "local-claim": {
+   "id": "local-claim",
+   "on_fail": "escalate",
+   "qualification": "local significance; the global significance over the scanned hypotheses is not evaluated",
+   "reason": "a local significance over many tested hypotheses overstates the global evidence",
+   "stage": "facts",
+   "threshold": null,
+   "title": "The significance is claimed local"
+  },
+  "mc-moments-available": {
+   "id": "mc-moments-available",
+   "on_fail": "qualify",
+   "qualification": "MC statistical uncertainty not modelled: the MC moments are absent",
+   "reason": "the MC statistical uncertainty is computed from sumw and sumw2",
+   "stage": "facts",
+   "threshold": null,
+   "title": "MC moments are available"
+  },
+  "mc-sample-precision": {
+   "id": "mc-sample-precision",
+   "on_fail": "qualify",
+   "qualification": "the sampled spread carries a non-negligible sampling uncertainty",
+   "reason": "a sampled standard deviation has its own sampling uncertainty",
+   "stage": "result",
+   "threshold": {
+    "max_relative_precision": 0.02
+   },
+   "title": "Enough samples for the propagated spread"
+  },
+  "mc-statistics-modelled": {
+   "id": "mc-statistics-modelled",
+   "on_fail": "qualify",
+   "qualification": "MC statistical uncertainty of limited bins is not modelled",
+   "reason": "a limited MC prediction treated as exact understates the uncertainty",
+   "stage": "result",
+   "threshold": {
+    "max_relative_uncertainty": 0.1,
+    "min_effective_entries": 10.0
+   },
+   "title": "MC-limited bins carry an MC-statistics term"
+  },
+  "no-shared-parameters": {
+   "id": "no-shared-parameters",
+   "on_fail": "escalate",
+   "qualification": "shared systematic parameters were treated as uncorrelated",
+   "reason": "an uncorrelated combination drops the correlation of shared systematics",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Inputs share no parameter"
+  },
+  "nonnegative-weights": {
+   "id": "nonnegative-weights",
+   "on_fail": "qualify",
+   "qualification": "negative event weights: the efficiency uncertainty is an approximation",
+   "reason": "negative weights break the binomial picture of an efficiency",
+   "stage": "facts",
+   "threshold": null,
+   "title": "No negative weights"
+  },
+  "normal-approximation": {
+   "id": "normal-approximation",
+   "on_fail": "escalate",
+   "qualification": "normal-approximation efficiency interval near 0 or 1",
+   "reason": "the normal binomial interval under-covers near 0 and 1",
+   "stage": "facts",
+   "threshold": {
+    "min_count": 5.0
+   },
+   "title": "Normal approximation of a binomial"
+  },
+  "one-dimensional-scan": {
+   "id": "one-dimensional-scan",
+   "on_fail": "escalate",
+   "qualification": "the upcrossing trials factor applies to a one-dimensional scan only",
+   "reason": "the upcrossing estimate counts crossings along one ordered scan coordinate",
+   "stage": "facts",
+   "threshold": null,
+   "title": "The scan has one coordinate"
+  },
+  "parabolic-profile": {
+   "id": "parabolic-profile",
+   "on_fail": "escalate",
+   "qualification": "the interval is the quadratic approximation of a non-parabolic profile",
+   "reason": "a quadratic error is the profile interval only for a parabolic likelihood",
+   "stage": "result",
+   "threshold": {
+    "tolerance": 0.1
+   },
+   "title": "The profile is parabolic"
+  },
+  "published-appropriate": {
+   "id": "published-appropriate",
+   "on_fail": "escalate",
+   "qualification": "the published likelihood was not used",
+   "reason": "an inappropriate or unassessed likelihood describes another measurement",
+   "stage": "facts",
+   "threshold": null,
+   "title": "The published likelihood is appropriate"
+  },
+  "published-total-preserved": {
+   "id": "published-total-preserved",
+   "on_fail": "hold",
+   "qualification": "the constructed model does not reproduce the published uncertainties",
+   "reason": "a constructed model must reproduce the published total background uncertainty per region",
+   "stage": "result",
+   "threshold": null,
+   "title": "Published total uncertainties are preserved"
+  },
+  "pulls-within-limit": {
+   "id": "pulls-within-limit",
+   "on_fail": "qualify",
+   "qualification": "a nuisance parameter is pulled beyond 3 sigma",
+   "reason": "a large pull indicates tension between the data and the model",
+   "stage": "result",
+   "threshold": {
+    "max_abs_pull": 3.0
+   },
+   "title": "Nuisance pulls are moderate"
+  },
+  "reference-limit-closure": {
+   "id": "reference-limit-closure",
+   "on_fail": "hold",
+   "qualification": "the model does not reproduce the published limits within the closure tolerance",
+   "reason": "a model that misses a benchmark's published limit by more than the tolerance does not stand in for the analysis's likelihood",
+   "stage": "result",
+   "threshold": {
+    "max_relative_difference": 0.2
+   },
+   "title": "The model reproduces the published limits"
+  },
+  "reference-limits-declared": {
+   "id": "reference-limits-declared",
+   "on_fail": "qualify",
+   "qualification": "closure against the published limits is not evaluated",
+   "reason": "a model built here stands in for the analysis's likelihood only as far as it reproduces the analysis's published limits",
+   "stage": "result",
+   "threshold": null,
+   "title": "Published reference limits are supplied or declared absent"
+  },
+  "shared-parameter-consistency": {
+   "id": "shared-parameter-consistency",
+   "on_fail": "hold",
+   "qualification": "inputs disagree on the definition of a shared parameter",
+   "reason": "a shared name with different constraints is not one parameter",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Shared parameters have one definition"
+  },
+  "signal-injection": {
+   "id": "signal-injection",
+   "on_fail": "hold",
+   "qualification": "the model does not recover an injected signal",
+   "reason": "an Asimov fit must recover the strength it was built with; a failure reveals degeneracy, a bound or a defective parameterisation",
+   "stage": "result",
+   "threshold": {
+    "tolerance_in_sigma": 0.1
+   },
+   "title": "Injected signal is recovered"
+  },
+  "significance-evaluated": {
+   "id": "significance-evaluated",
+   "on_fail": "hold",
+   "qualification": "the discovery test statistic is not finite",
+   "reason": "a discovery significance needs its finite test statistic",
+   "stage": "result",
+   "threshold": null,
+   "title": "The discovery statistic is evaluated"
+  },
+  "single-bin-known-background": {
+   "id": "single-bin-known-background",
+   "on_fail": "escalate",
+   "qualification": "the exact reference does not apply to this model",
+   "reason": "the exact count-ordered CLs reference has no nuisance parameter",
+   "stage": "facts",
+   "threshold": null,
+   "title": "One bin with a known background"
+  },
+  "symmetric-errors": {
+   "id": "symmetric-errors",
+   "on_fail": "escalate",
+   "qualification": "asymmetric input errors were symmetrised",
+   "reason": "linear propagation of a covariance assumes symmetric Gaussian errors",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Input errors are symmetric"
+  },
+  "toy-mc-precision": {
+   "id": "toy-mc-precision",
+   "on_fail": "qualify",
+   "qualification": "toy-calibrated limit with a large Monte Carlo uncertainty",
+   "reason": "a toy crossing carries Monte Carlo uncertainty from the finite ensemble",
+   "stage": "result",
+   "threshold": {
+    "max_relative_half_width": 0.2
+   },
+   "title": "Toy calibration is precise enough"
+  },
+  "toy-tail-resolved": {
+   "id": "toy-tail-resolved",
+   "on_fail": "qualify",
+   "qualification": "toy discovery p-value with an unresolved tail or a large Monte Carlo uncertainty",
+   "reason": "a toy p-value carries the Monte Carlo uncertainty of the finite ensemble, and an empty tail is a bound",
+   "stage": "result",
+   "threshold": {
+    "max_relative_uncertainty": 0.2
+   },
+   "title": "Toy discovery p-values are resolved and precise"
+  },
+  "unweighted-counts": {
+   "id": "unweighted-counts",
+   "on_fail": "escalate",
+   "qualification": "weighted entries treated as counts",
+   "reason": "exact binomial intervals assume unweighted counts",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Unweighted entries"
+  },
+  "upcrossings-observed": {
+   "id": "upcrossings-observed",
+   "on_fail": "qualify",
+   "qualification": "the trials factor rests on too few upcrossings",
+   "reason": "the upcrossing estimate extrapolates from upcrossings at a low reference level",
+   "stage": "result",
+   "threshold": null,
+   "title": "Upcrossings support the trials factor"
+  },
+  "validation-closure": {
+   "id": "validation-closure",
+   "on_fail": "qualify",
+   "qualification": "the background model does not close in a validation region",
+   "reason": "the background model is tested in regions it was not fitted to",
+   "stage": "result",
+   "threshold": {
+    "max_abs_residual": 2.0
+   },
+   "title": "Validation regions close"
+  },
+  "validation-regions-present": {
+   "id": "validation-regions-present",
+   "on_fail": "escalate",
+   "qualification": "no validation region to test closure",
+   "reason": "closure is tested in regions the background fit did not use",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Validation regions exist"
+  },
+  "yields-and-registry": {
+   "id": "yields-and-registry",
+   "on_fail": "escalate",
+   "qualification": "no systematics breakdown to construct a model",
+   "reason": "a constructed model needs per-region yields and every systematic component",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Yields with a declared systematics breakdown"
+  },
+  "yields-available": {
+   "id": "yields-available",
+   "on_fail": "hold",
+   "qualification": "no published yields",
+   "reason": "a counting model needs the published yields",
+   "stage": "facts",
+   "threshold": null,
+   "title": "Published per-region yields"
+  }
+ },
+ "kind": "statistics-situation-catalogue",
+ "methods": {
+  "asymptotic-cls": {
+   "applies": null,
+   "checks": [
+    "asymptotic-regime",
+    "limits-resolved"
+   ],
+   "cost": "cheap",
+   "escalation": "toy-cls",
+   "id": "asymptotic-cls",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude likelihood",
+     "pyhf_exclude counting",
+     "pyhf_exclude constructed"
+    ],
+    "entrypoints": [
+     "ravel.physics.pyhf_exclude:compute"
+    ],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "Asymptotic CLs (qtilde) with the Asimov expected band"
+  },
+  "asymptotic-significance": {
+   "applies": null,
+   "checks": [
+    "asymptotic-significance-regime",
+    "significance-evaluated"
+   ],
+   "cost": "cheap",
+   "escalation": "toy-significance",
+   "id": "asymptotic-significance",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "Asymptotic discovery significance from the profile-likelihood q0"
+  },
+  "clopper-pearson": {
+   "applies": null,
+   "checks": [
+    "unweighted-counts"
+   ],
+   "cost": "cheap",
+   "escalation": "weighted-efficiency",
+   "id": "clopper-pearson",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.efficiency:interval"
+    ],
+    "modes": [],
+    "packages": [
+     "scipy"
+    ]
+   },
+   "title": "Exact Clopper-Pearson interval"
+  },
+  "constructed-likelihood": {
+   "applies": null,
+   "checks": [
+    "yields-and-registry",
+    "builder-parity",
+    "published-total-preserved",
+    "limits-resolved",
+    "reference-limits-declared",
+    "reference-limit-closure"
+   ],
+   "cost": "moderate",
+   "escalation": "counting",
+   "id": "constructed-likelihood",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude constructed"
+    ],
+    "entrypoints": [
+     "ravel.physics.inference.constructed:build"
+    ],
+    "modes": [],
+    "packages": [
+     "pyhf",
+     "cabinetry"
+    ]
+   },
+   "title": "HistFactory model constructed from published yields and their systematics"
+  },
+  "correlation-bracketing": {
+   "applies": null,
+   "checks": [
+    "bracket-envelope"
+   ],
+   "cost": "moderate",
+   "escalation": null,
+   "id": "correlation-bracketing",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude constructed"
+    ],
+    "entrypoints": [
+     "ravel.physics.inference.constructed:bracket_correlations"
+    ],
+    "modes": [],
+    "packages": [
+     "pyhf",
+     "cabinetry"
+    ]
+   },
+   "title": "Evaluate fully correlated and independent assignments as endpoint sensitivity"
+  },
+  "counting": {
+   "applies": null,
+   "checks": [
+    "yields-available",
+    "correlations-stated",
+    "limits-resolved"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "counting",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude counting",
+     "pyhf_exclude counting --combined"
+    ],
+    "entrypoints": [
+     "ravel.physics.pyhf_exclude:model_from_counting"
+    ],
+    "modes": [],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "Single-bin counting per region (the most sensitive region, or exclusive regions combined)"
+  },
+  "coverage-toys": {
+   "applies": null,
+   "checks": [
+    "coverage-at-truth"
+   ],
+   "cost": "expensive",
+   "escalation": null,
+   "id": "coverage-toys",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.model_checks:exclusion_coverage",
+     "ravel.validation.statistical_calibration:known_background_poisson_coverage"
+    ],
+    "modes": [],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "False-exclusion rate of the limit at the true strength from toys"
+  },
+  "exact-count-calibration": {
+   "applies": null,
+   "checks": [
+    "single-bin-known-background",
+    "limits-resolved"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "exact-count-calibration",
+   "note": "a reference for one bin without nuisance parameters",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.validation.statistical_calibration:known_background_poisson_upper_limit"
+    ],
+    "modes": [],
+    "packages": []
+   },
+   "title": "Exact count-ordered CLs for one bin with a known background"
+  },
+  "finite-mc-model": {
+   "applies": null,
+   "checks": [
+    "generator-law-declared",
+    "mc-moments-available"
+   ],
+   "cost": "expensive",
+   "escalation": null,
+   "id": "finite-mc-model",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.finite_mc_model:validate"
+    ],
+    "modes": [
+     "finite-mc"
+    ],
+    "packages": []
+   },
+   "title": "Exact finite-MC likelihood under a declared generator law"
+  },
+  "independent-combination": {
+   "applies": null,
+   "checks": [
+    "independence-declared",
+    "no-shared-parameters",
+    "inputs-combined"
+   ],
+   "cost": "cheap",
+   "escalation": "joint-likelihood",
+   "id": "independent-combination",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude simplified"
+    ],
+    "entrypoints": [
+     "ravel.physics.inference.simplified:combine"
+    ],
+    "modes": [],
+    "packages": [
+     "spey"
+    ]
+   },
+   "title": "Product of independent likelihoods"
+  },
+  "joint-likelihood": {
+   "applies": null,
+   "checks": [
+    "independence-declared",
+    "shared-parameter-consistency",
+    "inputs-combined"
+   ],
+   "cost": "moderate",
+   "escalation": null,
+   "id": "joint-likelihood",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.workspace_combination:combine"
+    ],
+    "modes": [
+     "workspace-combination-study"
+    ],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "One likelihood with shared parameters correlated by name"
+  },
+  "linear-propagation": {
+   "applies": null,
+   "checks": [
+    "correlation-known",
+    "symmetric-errors",
+    "linearity"
+   ],
+   "cost": "cheap",
+   "escalation": "sampled-propagation",
+   "id": "linear-propagation",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.propagation:propagate"
+    ],
+    "modes": [
+     "derived-quantities"
+    ],
+    "packages": [
+     "numpy"
+    ]
+   },
+   "title": "First-order propagation of the input covariance"
+  },
+  "local-significance": {
+   "applies": null,
+   "checks": [
+    "local-claim"
+   ],
+   "cost": "cheap",
+   "escalation": "trials-factor",
+   "id": "local-significance",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "Local significance at each tested hypothesis"
+  },
+  "mc-shapesys": {
+   "applies": null,
+   "checks": [
+    "mc-moments-available",
+    "mc-statistics-modelled"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "mc-shapesys",
+   "note": "",
+   "provider": {
+    "commands": [
+     "sa2json_native --mc-stat shapesys"
+    ],
+    "entrypoints": [],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "Per-sample Poisson-gamma MC-statistics term"
+  },
+  "mc-staterror": {
+   "applies": null,
+   "checks": [
+    "mc-moments-available",
+    "mc-statistics-modelled"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "mc-staterror",
+   "note": "",
+   "provider": {
+    "commands": [
+     "sa2json_native --mc-stat staterror"
+    ],
+    "entrypoints": [],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "Per-bin Gaussian MC-statistics term (Barlow-Beeston lite)"
+  },
+  "normal-binomial": {
+   "applies": null,
+   "checks": [
+    "unweighted-counts",
+    "normal-approximation"
+   ],
+   "cost": "cheap",
+   "escalation": "wilson-binomial",
+   "id": "normal-binomial",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.efficiency:interval"
+    ],
+    "modes": [],
+    "packages": [
+     "scipy"
+    ]
+   },
+   "title": "Normal approximation of the binomial efficiency error"
+  },
+  "profile-likelihood": {
+   "applies": null,
+   "checks": [
+    "asymptotic-interval-regime",
+    "interval-resolved",
+    "away-from-boundary"
+   ],
+   "cost": "moderate",
+   "escalation": null,
+   "id": "profile-likelihood",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.profile:intervals",
+     "ravel.physics.inference.intervals:allowed_regions"
+    ],
+    "modes": [
+     "prescribed-statistic"
+    ],
+    "packages": [
+     "pyhf",
+     "scipy"
+    ]
+   },
+   "title": "Profile-likelihood interval with verified crossings"
+  },
+  "profiled-nuisances": {
+   "applies": null,
+   "checks": [
+    "correlation-declared",
+    "pulls-within-limit"
+   ],
+   "cost": "moderate",
+   "escalation": "correlation-bracketing",
+   "id": "profiled-nuisances",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude constructed",
+     "pyhf_exclude likelihood"
+    ],
+    "entrypoints": [
+     "ravel.physics.inference.constructed:build",
+     "ravel.physics.inference.model_construction:construct"
+    ],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf",
+     "cabinetry"
+    ]
+   },
+   "title": "Constrained nuisance parameters profiled in a HistFactory model"
+  },
+  "propagation-correlation-bracketing": {
+   "applies": null,
+   "checks": [
+    "bracket-envelope",
+    "mc-sample-precision"
+   ],
+   "cost": "moderate",
+   "escalation": null,
+   "id": "propagation-correlation-bracketing",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.propagation:propagate"
+    ],
+    "modes": [],
+    "packages": [
+     "numpy"
+    ]
+   },
+   "title": "Propagation over the stated range of each unknown correlation, reporting the widest interval"
+  },
+  "published-likelihood": {
+   "applies": null,
+   "checks": [
+    "published-appropriate",
+    "limits-resolved"
+   ],
+   "cost": "moderate",
+   "escalation": "simplified-likelihood",
+   "id": "published-likelihood",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude likelihood"
+    ],
+    "entrypoints": [
+     "ravel.physics.pyhf_exclude:model_from_likelihood",
+     "ravel.validation.likelihood_appropriateness:assess"
+    ],
+    "modes": [
+     "published-model"
+    ],
+    "packages": [
+     "pyhf",
+     "jsonpatch"
+    ]
+   },
+   "title": "The analysis's published likelihood with the run's signal"
+  },
+  "quadratic-errors": {
+   "applies": null,
+   "checks": [
+    "asymptotic-interval-regime",
+    "parabolic-profile"
+   ],
+   "cost": "cheap",
+   "escalation": "profile-likelihood",
+   "id": "quadratic-errors",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.profile:intervals"
+    ],
+    "modes": [],
+    "packages": [
+     "pyhf",
+     "iminuit"
+    ]
+   },
+   "title": "Quadratic (HESSE) errors at the best fit"
+  },
+  "sampled-propagation": {
+   "applies": null,
+   "checks": [
+    "correlation-known",
+    "mc-sample-precision"
+   ],
+   "cost": "moderate",
+   "escalation": "propagation-correlation-bracketing",
+   "id": "sampled-propagation",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.propagation:propagate"
+    ],
+    "modes": [],
+    "packages": [
+     "numpy"
+    ]
+   },
+   "title": "Monte Carlo propagation with split-normal inputs for asymmetric errors"
+  },
+  "sidak-correction": {
+   "applies": null,
+   "checks": [
+    "independent-tests-declared"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "sidak-correction",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.lee:sidak"
+    ],
+    "modes": [],
+    "packages": [
+     "scipy"
+    ]
+   },
+   "title": "Sidak correction for independent tests"
+  },
+  "signal-injection": {
+   "applies": null,
+   "checks": [
+    "signal-injection"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "signal-injection",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.model_checks:signal_injection"
+    ],
+    "modes": [],
+    "packages": [
+     "pyhf",
+     "iminuit"
+    ]
+   },
+   "title": "Asimov signal-injection and recovery"
+  },
+  "simplified-likelihood": {
+   "applies": null,
+   "checks": [
+    "covariance-sourced",
+    "limits-resolved",
+    "reference-limits-declared",
+    "reference-limit-closure"
+   ],
+   "cost": "cheap",
+   "escalation": "constructed-likelihood",
+   "id": "simplified-likelihood",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude simplified"
+    ],
+    "entrypoints": [
+     "ravel.physics.inference.simplified:from_document"
+    ],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "spey"
+    ]
+   },
+   "title": "Simplified likelihood from the published background covariance"
+  },
+  "toy-cls": {
+   "applies": "a HistFactory (pyhf) model, which the calculator samples and refits; a simplified likelihood is not one",
+   "checks": [
+    "toy-mc-precision",
+    "limits-resolved"
+   ],
+   "cost": "expensive",
+   "escalation": null,
+   "id": "toy-cls",
+   "note": "",
+   "provider": {
+    "commands": [
+     "pyhf_exclude likelihood --cls-calculator toybased",
+     "pyhf_exclude counting --cls-calculator toybased",
+     "pyhf_exclude constructed --cls-calculator toybased"
+    ],
+    "entrypoints": [
+     "ravel.physics.inference.toy_cls:apply"
+    ],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf"
+    ]
+   },
+   "title": "Toy-based CLs calibrated around the asymptotic roots"
+  },
+  "toy-neyman": {
+   "applies": null,
+   "checks": [
+    "interval-resolved"
+   ],
+   "cost": "expensive",
+   "escalation": null,
+   "id": "toy-neyman",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [],
+    "modes": [
+     "differential-likelihood"
+    ],
+    "packages": [
+     "iminuit"
+    ]
+   },
+   "title": "Toy Neyman construction for intervals near a boundary"
+  },
+  "toy-significance": {
+   "applies": "a HistFactory (pyhf) model, which the calculator samples and refits; a simplified likelihood is not one",
+   "checks": [
+    "significance-evaluated",
+    "toy-tail-resolved"
+   ],
+   "cost": "expensive",
+   "escalation": null,
+   "id": "toy-significance",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.search:toy_discovery"
+    ],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf",
+     "scipy"
+    ]
+   },
+   "title": "Discovery p-value from background-only toys with q0 refitted on each"
+  },
+  "trials-factor": {
+   "applies": null,
+   "checks": [
+    "one-dimensional-scan",
+    "upcrossings-observed"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "trials-factor",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.lee:global_significance"
+    ],
+    "modes": [],
+    "packages": [
+     "scipy"
+    ]
+   },
+   "title": "Global significance from upcrossings of the local test statistic along the scan"
+  },
+  "validation-region-closure": {
+   "applies": null,
+   "checks": [
+    "validation-regions-present",
+    "validation-closure"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "validation-region-closure",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [],
+    "modes": [
+     "search-statistics"
+    ],
+    "packages": [
+     "pyhf",
+     "iminuit"
+    ]
+   },
+   "title": "Background-only fit closure in validation regions"
+  },
+  "weighted-efficiency": {
+   "applies": null,
+   "checks": [
+    "nonnegative-weights"
+   ],
+   "cost": "cheap",
+   "escalation": null,
+   "id": "weighted-efficiency",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.efficiency:weighted"
+    ],
+    "modes": [],
+    "packages": [
+     "numpy"
+    ]
+   },
+   "title": "Weighted efficiency with effective entries from sumw2"
+  },
+  "wilson-binomial": {
+   "applies": null,
+   "checks": [
+    "unweighted-counts"
+   ],
+   "cost": "cheap",
+   "escalation": "clopper-pearson",
+   "id": "wilson-binomial",
+   "note": "",
+   "provider": {
+    "commands": [],
+    "entrypoints": [
+     "ravel.physics.inference.efficiency:interval"
+    ],
+    "modes": [],
+    "packages": [
+     "scipy"
+    ]
+   },
+   "title": "Wilson score interval"
+  }
+ },
+ "outcomes": {
+  "held": "the result is not delivered until the hold is resolved",
+  "qualified": "the result is delivered with the listed labels",
+  "valid": "every owed check passed"
+ },
+ "purpose": "Statistics situations RAVEL detects in its inputs, the installed methods that treat each, the validity checks each method owes and the qualified fallback. The default is the cheapest available method whose input checks pass; a seat may choose another listed method with a justification. Passing the checks does not certify a result.",
+ "schema_version": 1,
+ "situations": [
+  {
+   "facts": [
+    "derived"
+   ],
+   "fallback": {
+    "method": "propagation-correlation-bracketing",
+    "outcome": "qualified",
+    "qualification": "input correlations unknown; the widest interval over the stated correlation range is reported"
+   },
+   "id": "derived-quantity-propagation",
+   "methods": [
+    "linear-propagation",
+    "sampled-propagation",
+    "propagation-correlation-bracketing"
+   ],
+   "references": [
+    "conv:published-information"
+   ],
+   "revealed_by": "derived quantities computed from inputs that carry uncertainties",
+   "title": "Error propagation through derived quantities"
+  },
+  {
+   "facts": [
+    "systematics"
+   ],
+   "fallback": {
+    "method": "counting",
+    "outcome": "qualified",
+    "qualification": "the correlation of systematic sources across regions is unknown and not bracketed; the most sensitive single region is used"
+   },
+   "id": "systematic-nuisances",
+   "methods": [
+    "profiled-nuisances",
+    "correlation-bracketing"
+   ],
+   "references": [
+    "conv:published-information",
+    "conv:asimov-profile"
+   ],
+   "revealed_by": "a systematics breakdown or background uncertainties that enter the statistical model",
+   "title": "Systematic uncertainties as nuisance parameters"
+  },
+  {
+   "facts": [
+    "deliverables",
+    "bins"
+   ],
+   "fallback": {
+    "method": "asymptotic-cls",
+    "outcome": "qualified",
+    "qualification": "small-count regime: the asymptotic CLs calibration is not verified by toys"
+   },
+   "id": "low-counts",
+   "methods": [
+    "asymptotic-cls",
+    "toy-cls",
+    "exact-count-calibration"
+   ],
+   "references": [
+    "conv:asimov-profile"
+   ],
+   "revealed_by": "an exclusion from main bins with fewer than five observed or expected counts",
+   "title": "Low counts and asymptotic breakdown in an exclusion"
+  },
+  {
+   "facts": [
+    "deliverables",
+    "bins"
+   ],
+   "fallback": {
+    "method": "asymptotic-significance",
+    "outcome": "qualified",
+    "qualification": "small-count regime: the asymptotic discovery significance is not verified by toys"
+   },
+   "id": "low-count-significance",
+   "methods": [
+    "asymptotic-significance",
+    "toy-significance"
+   ],
+   "references": [
+    "conv:discovery"
+   ],
+   "revealed_by": "a discovery significance from main bins with fewer than five observed or expected counts",
+   "title": "Low counts in a discovery significance"
+  },
+  {
+   "facts": [
+    "combination"
+   ],
+   "fallback": {
+    "method": null,
+    "outcome": "qualified",
+    "qualification": "the inputs are not combined; the most sensitive single input is quoted"
+   },
+   "id": "combination",
+   "methods": [
+    "independent-combination",
+    "joint-likelihood"
+   ],
+   "references": [
+    "conv:published-information"
+   ],
+   "revealed_by": "two or more inputs to combine, possibly sharing systematic parameters",
+   "title": "Combination of channels or analyses"
+  },
+  {
+   "facts": [
+    "likelihood"
+   ],
+   "fallback": {
+    "method": null,
+    "outcome": "held",
+    "qualification": "no statistical model is available; no limit is delivered"
+   },
+   "id": "likelihood-availability",
+   "methods": [
+    "published-likelihood",
+    "simplified-likelihood",
+    "constructed-likelihood",
+    "counting"
+   ],
+   "references": [
+    "conv:published-information",
+    "conv:statistic-policy"
+   ],
+   "revealed_by": "what the analysis published: full likelihood, background covariance, or per-region yields",
+   "title": "Likelihood availability tier"
+  },
+  {
+   "facts": [
+    "bins",
+    "mc_statistics"
+   ],
+   "fallback": {
+    "method": null,
+    "outcome": "qualified",
+    "qualification": "MC statistical uncertainty not modelled in the flagged bins"
+   },
+   "id": "limited-mc-statistics",
+   "methods": [
+    "mc-staterror",
+    "mc-shapesys",
+    "finite-mc-model"
+   ],
+   "references": [],
+   "revealed_by": "MC-predicted bins with a large relative statistical uncertainty or few effective entries",
+   "title": "Limited Monte Carlo statistics"
+  },
+  {
+   "facts": [
+    "deliverables",
+    "scan"
+   ],
+   "fallback": {
+    "method": "local-significance",
+    "outcome": "qualified",
+    "qualification": "local significance; the global significance over the scanned hypotheses is not evaluated"
+   },
+   "id": "look-elsewhere",
+   "methods": [
+    "local-significance",
+    "trials-factor",
+    "sidak-correction"
+   ],
+   "references": [
+    "conv:discovery"
+   ],
+   "revealed_by": "a significance reported over two or more tested hypotheses",
+   "title": "Look-elsewhere effect in scans"
+  },
+  {
+   "facts": [
+    "model_origin",
+    "deliverables"
+   ],
+   "fallback": {
+    "method": null,
+    "outcome": "qualified",
+    "qualification": "closure, signal injection and coverage are not evaluated"
+   },
+   "id": "model-validation",
+   "methods": [
+    "signal-injection",
+    "validation-region-closure",
+    "coverage-toys"
+   ],
+   "references": [
+    "conv:asimov-profile"
+   ],
+   "revealed_by": "a statistical model constructed or supplied here rather than published, or a fitted parameter",
+   "title": "Closure, signal injection and coverage"
+  },
+  {
+   "facts": [
+    "deliverables",
+    "estimation"
+   ],
+   "fallback": {
+    "method": "profile-likelihood",
+    "outcome": "qualified",
+    "qualification": "profile-likelihood interval near a boundary; its coverage is not verified"
+   },
+   "id": "parameter-estimation",
+   "methods": [
+    "quadratic-errors",
+    "profile-likelihood",
+    "toy-neyman"
+   ],
+   "references": [
+    "conv:asimov-profile"
+   ],
+   "revealed_by": "a request to estimate (fit, measure) a parameter",
+   "title": "Parameter estimation with profile intervals"
+  },
+  {
+   "facts": [
+    "efficiencies"
+   ],
+   "fallback": {
+    "method": "clopper-pearson",
+    "outcome": "qualified",
+    "qualification": "conservative exact interval"
+   },
+   "id": "efficiency-acceptance",
+   "methods": [
+    "normal-binomial",
+    "wilson-binomial",
+    "clopper-pearson",
+    "weighted-efficiency"
+   ],
+   "references": [],
+   "revealed_by": "efficiencies or acceptances computed from selected and generated entries",
+   "title": "Efficiency and acceptance uncertainties"
+  }
+ ]
+}

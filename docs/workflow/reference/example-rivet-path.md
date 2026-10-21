@@ -5,7 +5,7 @@ bracketed values with your analysis + model.
 
 | Step | What you do |
 |---|---|
-| 2 routine | `routine_fetch.py --query "[ATLAS/CMS code or Inspire id]"` → the Rivet routine id; confirm `Beams`/`Status` |
+| 2 routine | `routine_fetch.py --query "[analysis identifier or source record]"` → the Rivet routine id; confirm `Beams`/`Status` |
 | 2 model | a colored simplified model (e.g. gaugino/squark pair, parent→jets+LSP); cards per `docs/workflow/checklists/model-cards.md` |
 | 3 generate | `p p > [parents]` at the routine's √s; **merge** the extra-jet multiplicities if the SRs need ≥4 jets (`docs/workflow/checklists/merging.md`) → LHE → Pythia8 → HepMC3 |
 | 4 analyze | `rivet -a [RIVET_ID] …` → YODA (the routine's SR counters + m_eff distributions) |

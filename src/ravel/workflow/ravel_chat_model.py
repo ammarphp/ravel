@@ -36,6 +36,9 @@ class RavelTransportChatModel(SingleEffect, BaseChatModel):
     max_context_bytes: int = 1_000_000
     max_cost_per_turn_usd: float | None = None
     token_limit_field: str = 'max_completion_tokens'
+    # The requested reasoning effort, sent in the request field the adapter defines (provider_tools.EFFORT_FIELDS).
+    reasoning_effort: str | None = None
+    tariff: dict | None = None
     tools: list[dict] = Field(default_factory=list)
     _pin: str = PrivateAttr()
 
@@ -48,7 +51,15 @@ class RavelTransportChatModel(SingleEffect, BaseChatModel):
             raise GuardError('provider cache is owned by the effect ledger')
         if type(self.max_output_tokens) is not int or self.max_output_tokens < 1:
             raise GuardError('positive output token bound required')
+        if self.reasoning_effort is not None and self.adapter not in provider_tools.EFFORT_FIELDS:
+            raise GuardError(f'the {self.adapter} request carries no reasoning effort')
         import math
+        if self.tariff is not None:
+            prices = self.tariff.get('prices_per_million')
+            if (type(prices) is not dict or set(prices) != {'input', 'cache_write', 'cache_read', 'output'}
+                    or any(type(value) not in (int, float) or not math.isfinite(value) or value < 0
+                           for value in prices.values())):
+                raise GuardError('complete finite nonnegative pinned tariff required')
         if self.max_cost_per_turn_usd is not None and (not math.isfinite(self.max_cost_per_turn_usd)
                                                        or self.max_cost_per_turn_usd <= 0):
             raise GuardError('finite positive per-turn cost reservation required')
@@ -62,15 +73,20 @@ class RavelTransportChatModel(SingleEffect, BaseChatModel):
     def identity(self):
         from .execution import file_hash
         from . import langchain_guard
-        return {'adapter': self.adapter, 'model': self.model, 'host': deepcopy(self.sender.identity),
-                'request_binding': deepcopy(self.request_binding), 'text_protocol': self.text_protocol,
-                'streaming_declared': self.streaming_declared, 'stream_enabled': self.stream_enabled,
-                'max_output_tokens': self.max_output_tokens, 'max_context_bytes': self.max_context_bytes,
-                'max_cost_per_turn_usd': self.max_cost_per_turn_usd,
-                'token_limit_field': self.token_limit_field,
-                'sources': {'chat_model': file_hash(__file__),
-                            'provider_tools': file_hash(provider_tools.__file__),
-                            'guard': file_hash(langchain_guard.__file__)}}
+        value = {'adapter': self.adapter, 'model': self.model, 'host': deepcopy(self.sender.identity),
+                 'request_binding': deepcopy(self.request_binding), 'text_protocol': self.text_protocol,
+                 'streaming_declared': self.streaming_declared, 'stream_enabled': self.stream_enabled,
+                 'max_output_tokens': self.max_output_tokens, 'max_context_bytes': self.max_context_bytes,
+                 'max_cost_per_turn_usd': self.max_cost_per_turn_usd,
+                 'token_limit_field': self.token_limit_field,
+                 'sources': {'chat_model': file_hash(__file__),
+                             'provider_tools': file_hash(provider_tools.__file__),
+                             'guard': file_hash(langchain_guard.__file__)}}
+        if self.reasoning_effort is not None:
+            value['reasoning_effort'] = self.reasoning_effort
+        if self.tariff is not None:
+            value['tariff'] = deepcopy(self.tariff)
+        return value
 
     def current(self):
         if digest(self.identity) != self._pin:
@@ -100,7 +116,7 @@ class RavelTransportChatModel(SingleEffect, BaseChatModel):
             nonlocal sent
             body = provider_tools.render(self.adapter, consumed, model=self.model,
                 max_output_tokens=self.max_output_tokens, text_protocol=self.text_protocol,
-                token_limit_field=self.token_limit_field)
+                token_limit_field=self.token_limit_field, reasoning_effort=self.reasoning_effort)
             if len(json.dumps(body).encode()) > self.max_context_bytes:
                 raise GuardError('complete context exceeds declared bound; no truncation')
             # The enclosing model effect persists this exact request with its result.
@@ -121,6 +137,24 @@ class RavelTransportChatModel(SingleEffect, BaseChatModel):
             if type(raw) is dict:
                 evidence['provider_usage'] = deepcopy(raw.get('usageMetadata' if self.adapter == 'gemini' else 'usage', {}))
             evidence['usage'] = usage(self.adapter, evidence['provider_usage'])
+            if self.tariff is not None:
+                from .transports.provider_usage import normalize_usage
+                from . import model_catalogue
+                split = normalize_usage(self.adapter, evidence['provider_usage'])
+                evidence['usage']['cost_usd'] = None
+                observed = evidence['model_reported']
+                # No identity inference: a substituted or unreported served model cannot spend again.
+                from ravel.controller.step.seats import model_matches
+                if split['status'] == 'reported' and model_matches(self.model, observed):
+                    row = {**self.tariff, 'id': self.model}
+                    priced = model_catalogue.price(split['usage'], self.model,
+                        {'models': [row], 'price_basis': 'pinned catalogue tariff on provider-reported usage'})
+                    evidence['usage']['cost_usd'] = priced['cost_usd']
+                    evidence['usage']['cost_basis'] = priced['price_basis']
+                    evidence['usage']['input_tokens'] = sum(split['usage'][k] for k in
+                        ('input_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens'))
+                    evidence['usage']['output_tokens'] = split['usage']['output_tokens']
+                    evidence['usage']['reported'] = True
             try:
                 if self.text_protocol:
                     text = raw if type(raw) is str else provider_tools.parse(self.adapter, raw)['content']

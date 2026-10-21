@@ -10,6 +10,7 @@ from ravel.workflow import decision_case as dc
 from ravel.workflow import evidence_queue, rdj_custody
 from ravel.workflow import rdj_loop as rdj
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import (PROPOSER, assigned, Roles, Run, add, authorize_tuning_case, challenge, critic, critic_once, escalate,
                           node, prepare_case, record_decision, said, two_level_r2, verifier)
 
@@ -150,7 +151,7 @@ def _basis(run, case_id, fid="F1"):
     return run.case(case_id), json.loads((run.root / f"rdj/state/{case_id}.json").read_text())["finding_basis"][fid]
 
 
-def test_p17_code_check_locator_naming_existing_run_file_is_advisory(tmp_path):
+def test_p17_code_check_locator_naming_existing_run_file_is_advisory(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     roles = Roles(critic=critic([finding(locators=("inputs/cards/settings.json",))]), verifier=verifier(resolved="no"))
     case_id = full_r2(run, roles=roles)
@@ -162,7 +163,7 @@ def test_p17_code_check_locator_naming_existing_run_file_is_advisory(tmp_path):
     assert rdj.decision_detail(run.root, receipt["receipt_id"])["advisory_findings"] == ["F1"]
 
 
-def test_p17_code_check_locator_naming_case_node_is_advisory(tmp_path):
+def test_p17_code_check_locator_naming_case_node_is_advisory(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     roles = Roles(critic=critic([finding(locators=("B", "A"))]), verifier=verifier(resolved="no"))
     case_id = full_r2(run, roles=roles)
@@ -225,7 +226,7 @@ def _tested_case(run, roles=None):
     return case_id, item, roles
 
 
-def test_queue_item_marked_withdrawn_by_file_edit_still_pending(tmp_path):
+def test_queue_item_marked_withdrawn_by_file_edit_still_pending(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id, item, roles = _tested_case(run)
     evidence_queue.resolve(run.root, item["item_id"], status="withdrawn", note="not needed")
@@ -233,7 +234,7 @@ def test_queue_item_marked_withdrawn_by_file_edit_still_pending(tmp_path):
     assert rdj.authorize(run.root, case_id)["outcome"] == "gather_evidence"
 
 
-def test_refutes_verdict_without_registered_answer_does_not_release_finding(tmp_path):
+def test_refutes_verdict_without_registered_answer_does_not_release_finding(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id, item, roles = _tested_case(run)
     evidence_queue.resolve(run.root, item["item_id"], status="done", note="the card agrees",
@@ -242,7 +243,7 @@ def test_refutes_verdict_without_registered_answer_does_not_release_finding(tmp_
     assert rdj.authorize(run.root, case_id)["outcome"] == "gather_evidence"
 
 
-def test_withdrawal_by_recorded_user_decision_releases(tmp_path):
+def test_withdrawal_by_recorded_user_decision_releases(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id, item, roles = _tested_case(run)
     record_decision(run, "withdraw", case_id=case_id, finding_id="F1")
@@ -251,7 +252,7 @@ def test_withdrawal_by_recorded_user_decision_releases(tmp_path):
     assert receipt["outcome"] == "authorize" and receipt["open_a_findings"] == 0
 
 
-def test_a_withdrawal_of_another_case_or_before_the_case_does_not_release(tmp_path):
+def test_a_withdrawal_of_another_case_or_before_the_case_does_not_release(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id, item, roles = _tested_case(run)
     with pytest.raises(ValueError):
@@ -262,7 +263,7 @@ def test_a_withdrawal_of_another_case_or_before_the_case_does_not_release(tmp_pa
     assert rdj.authorize(run.root, case_id)["outcome"] == "gather_evidence"
 
 
-def test_a_registered_worker_receipt_answer_counts(tmp_path):
+def test_a_registered_worker_receipt_answer_counts(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id, item, roles = _tested_case(run)
     receipt = next((run.root / "agent-work").rglob("receipt.json")).relative_to(run.root).as_posix()
@@ -272,7 +273,7 @@ def test_a_registered_worker_receipt_answer_counts(tmp_path):
     assert rdj.authorize(run.root, case_id)["outcome"] == "authorize"
 
 
-def test_the_critic_session_that_raised_a_finding_can_withdraw_it(tmp_path):
+def test_the_critic_session_that_raised_a_finding_can_withdraw_it(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     outputs = [{"findings": [finding(evidence_class="opinion", locators=(), request=TEST_REQUEST)]},
                {"findings": [], "withdrawn": ["F1"]}]
@@ -331,7 +332,7 @@ def test_attestation_rank_and_independence():
     assert rdj.OBSERVED_ATTESTATION["transport_attested_cli"] == "transport_attested"
 
 
-def test_resolve_worker_receipt_with_cli_mode_not_rejected(tmp_path):
+def test_resolve_worker_receipt_with_cli_mode_not_rejected(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     cli = lambda payload: said({"findings": []}, "critic", attestation="transport_attested_cli",  # noqa: E731
                                mode="transport_attested_cli", verified_label="transport_attested")
@@ -398,7 +399,7 @@ def test_unknown_floor_raises_valueerror(tmp_path):
             rdj.compute_class(run.root, "launch", {**run.action(), "floor": floor})
 
 
-def test_a_floor_above_the_case_class_refuses_the_gate(tmp_path):
+def test_a_floor_above_the_case_class_refuses_the_gate(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     receipt = authorize_tuning_case(run, "R2")
     action = {**run.action("tuning_change"), "floor": "R3"}
@@ -408,7 +409,7 @@ def test_a_floor_above_the_case_class_refuses_the_gate(tmp_path):
     assert receipt["class"] == "R2"
 
 
-def test_authorizing_receipt_is_the_one_gate_errors_accepted(tmp_path):
+def test_authorizing_receipt_is_the_one_gate_errors_accepted(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     action = run.action("tuning_change")
     older = authorize_tuning_case(run, "R2")
@@ -437,7 +438,7 @@ def test_launch_with_only_unblind_receipt_reports_receipt_missing(tmp_path):
 
 # ---------------------------------------------------------------- RDJ half of the merged-tree acceptance legs
 
-def test_leg_l4_a_real_tuning_case_authorizes_at_its_floor(tmp_path):
+def test_leg_l4_a_real_tuning_case_authorizes_at_its_floor(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     receipt = authorize_tuning_case(run, "R2", "calibration", gate="checkin2_accept")
     action = {**run.action("tuning_change"), "floor": "R2"}
@@ -448,7 +449,7 @@ def test_leg_l4_a_real_tuning_case_authorizes_at_its_floor(tmp_path):
     assert found["case"]["risk"]["class"] == "R2"
 
 
-def test_leg_l8_an_r3_unblind_case_needs_a_recorded_approval(tmp_path):
+def test_leg_l8_an_r3_unblind_case_needs_a_recorded_approval(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     action = run.action("bulk_launch")
     case_id = prepare_case(run, "unblind", "bulk_launch")
@@ -494,7 +495,7 @@ def _hard(run, case_id):
     return rows[-1]["outcome"] != "authorize"
 
 
-def test_leg_l13_a_code_check_citing_a_run_file_does_not_hold_authorization(tmp_path):
+def test_leg_l13_a_code_check_citing_a_run_file_does_not_hold_authorization(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     roles = Roles(critic=critic([finding(locators=("inputs/cards/settings.json",))]), verifier=verifier(resolved="no"))
     case_id = full_r2(run, roles=roles)

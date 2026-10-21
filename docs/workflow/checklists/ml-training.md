@@ -1,8 +1,15 @@
 # Governed ML method studies
 
+Controller intake accepts the exact operation `published-classifier` under the
+`calculation` planning kind and `ml-training` under `research`. A grounded
+interpretation can name the operation directly as its kind, or name its planning
+kind and operation together. The admitted intake retains the operation for the
+fixed `ml.inference` and `ml.training` route selectors. Plan approval, stage
+authority, training prerequisites and the single held-out test read check govern execution.
+
 Use science mode `ml-training` for a binary classifier comparison on supplied,
 pinned data. The executor trains every baseline and model with every seed before
-opening the withheld test payload. It produces checkpoints, a receipt, a result
+opening the blinded test payload. It produces checkpoints, a receipt, a result
 document, and ROC and reliability figures in the house style.
 
 Create a science/v2 specification with one attempt, a prospective review policy,
@@ -36,7 +43,7 @@ The task contains these fields:
   its wall limit covers all arm/seed ceilings plus 30 seconds for evaluation and
   output. The ordinary science supervisor supplies process admission and the hard
   stage wall. The adapter consumes the plan and takes `execution_backend.capacity`
-  for its local computation. Remote and accelerator placement are not implemented.
+  for its local computation.
 
 Each NPZ split contains `x` (event × feature matrix; graph tensors below), binary `y`, nonnegative
 `weight`, unique integer or string `event_id`, and `group_id`. Each split needs positive
@@ -54,7 +61,7 @@ freeze and the charged read. After that read, its identifiers must equal the cen
 fails and stays spent. Splits require disjoint events and groups. A population whose every normalized
 feature/region/weight row appears in another is a relabelled copy and counts as overlap. Independent
 events that share some measured values are recorded as `value_collisions`, not refused. The producer
-must not receive the withheld arrays. The supervised test scoring occurs after all arms freeze.
+must not receive the blinded arrays. The supervised test scoring occurs after all arms freeze.
 
 The authoritative exposure ledger is `<default RAVEL state>/ml-exposure/`.
 Population keys hash sorted event IDs. Event, group and value indices reject
@@ -62,10 +69,10 @@ re-encoding, reordering, subsets and renamed identities. Byte hashes remain
 secondary provenance. One atomic claim covers train, validation, test, cross-fit,
 null-toy, oracle-training, signal-evaluation and reference populations. Every read
 must match the registered context schedule and a freeze record of the same spec.
-Closed studies reject reads. A withheld test split takes one scheduled context and one evaluation
+Closed studies reject reads. A blinded test split takes one scheduled context and one evaluation
 read in total. An unread failed claim can be replaced with an audit record. Train and validation
-populations may be reread by later train or validation roles (`adaptive_reuse` in the record); a
-read population can never become a withheld one. A claim token persisted by its study lets a resumed
+populations can be reread by later train or validation roles (`adaptive_reuse` in the record); a
+read population can never become a blinded one. A claim token persisted by its study lets a resumed
 run continue its own unread claim. Local and global ledgers pin the completed receipt. Never remove
 these records to obtain another attempt.
 
@@ -119,11 +126,7 @@ unlabeled features after the executor's exposure decision. Array names do not pr
 population provenance. A complete probe response is retained per interpreter file;
 an absent, partial or failed installation is probed again.
 
-The executor does not yet pin the runtime and worker sources at approval or record
-the bound interpreter's package versions in its receipt. Until it does, do not admit
-a study with torch or torch-geometric arms: receipt construction reads the host's
-package metadata, which fails after the test split has been read when the host lacks
-these packages. Standalone receipt replay cannot run these arms.
+Use the installed NumPy reference backend for admitted three-file studies.
 
 ## Production card: ml-trainer
 
@@ -134,17 +137,28 @@ seeds, metric definitions, equal budgets, and a pinned placement plan.
 The role prepares and executes this one declared study through the science
 worker. It checks the split and package requirements before admission, preserves
 failed attempts, and returns the receipt, result document, checkpoints and
-figures. It cannot expand a search, inspect test data early, change a baseline,
+figures. It must not expand a search, inspect test data early, change a baseline,
 raise a ceiling, approve itself, select a model using test scores, or certify
-physics. Missing packages, unsupported architectures, contaminated splits,
+physics. Missing packages, architectures outside the backend's declared domain, contaminated splits,
 exhausted budgets and failed postconditions return a concrete failed or blocked
 study to the research loop. A follow-up needs a new prospectively reviewed
 protocol and a genuinely unexposed test population.
 
 The role registry carries `ml-trainer` and its specialist reviewer `ml-reviewer`.
-The reviewer is blind and spec-denied, and runs in a model family distinct from the
-trainer's. The trainer has no launch action: in `ml.study` it designs the models at S7,
+The reviewer is blind and spec-denied and runs in its own fresh session, with an actor distinct
+from the trainer's; any model family can serve it, and its credited seat is labelled with
+the family relation. In `ml.study` the trainer designs the models at S7,
 and training starts only through the graph's spend and launch gates.
+The document adapter `review_projection_checks.ml_result` reports supplied failures and keeps
+success claims inconclusive. A result JSON field containing `pass` or `asserted_by_construction`
+must not satisfy a trainer self-check. The controller records the operation owner's executed graph
+checks and registered validator outcomes with `record_ml_stage`. The sealed work order binds each
+check to its observation id, frozen specification digest and complete result digest; broker checks
+and governed validation read these with `observed_ml_result`. A missing or mismatched binding,
+an unexecuted check, or an unresolved outcome must not pass. The numerical plugin tests establish
+this custody and receipt path; they do not certify a scientific method. In particular, the
+cross-fit executor's unresolved toy-law, spurious-signal and claim-scope results remain unresolved
+until the corresponding scientific evidence is supplied and checked.
 
 ## Planning card: ml-planner
 
@@ -154,8 +168,8 @@ Inputs: the study spec without its confirmation population (`inputs/ml-spec/`).
 The role writes the plan record before any training or evaluator response:
 claim kind, estimand, the single primary metric, comparison margins, arms with the
 oracle labelled as a ceiling, paired replicate seeds, equal budgets, the hypothesis
-family, the stopping rule and the precision-based sizing. It may add ablation arms
-but never remove a generated one. It cannot read the confirmation population,
+family, the stopping rule and the precision-based sizing. It can add ablation arms
+but never remove a generated one. It must not read the confirmation population,
 evaluator-owned columns, published numbers or any selection score, choose a metric
 after a result, launch training, approve a gate or mark a check not applicable. Its
 must-check list is the S1, S2, S5, S6, S9 and S13 checks those choices govern. The
@@ -170,13 +184,12 @@ The executable synthetic schema is in `tests/unit/test_ml_crossfit.py::fixture`.
 This is a supplied-data method study, not an event-generation route.
 
 Before CHECK-IN 1, call `ml_training.size_study(spec) -> dict`. It accepts either
-an outer science spec or its task. It performs no training or data decoding.
+an outer science spec or its task and returns the prospective sizing record.
 The return fields are `admissible`, `refusal_reasons`, `cells`, `trainings`,
 `trainings_per_arm`, `training_arms`, `injection_points`, `toys`, `windows`,
 `fold_salts`, `projected_wall_seconds`, and `projected_cpu_seconds`.
 A malformed or missing count/timing contract returns `admissible: false`.
-Intake and the research planner must consume this result before approval; that
-merge integration is outside this executor. Do not use a generation smoke's
+Intake and the research planner must consume this result before approval. Do not use a generation smoke's
 size as a statistical precision claim.
 
 Each cell reports expected independent counts per signal/sideband region and
@@ -189,7 +202,7 @@ admission. Precision uses effective counts from per-group summed weights.
 Replicate seeds do not multiply them. Every window and fold is checked before
 exposure; achieved sideband selections are checked again after scoring.
 An undersized plan needs a changed claim or more independent data, followed by
-a new frozen spec. It cannot acquire result status by being called a smoke.
+a new frozen spec. It must not acquire result status by being called a smoke.
 
 The training count per trained arm is
 `windows * k * (k - 1) * initializations * (1 + strengths * samplings + toys)
@@ -208,8 +221,8 @@ reference; it does not qualify extrapolation to a different data size.
 
 `budget` also freezes `epochs`, `patience`, per-training `wall_seconds`,
 `ceiling_seconds`, `max_trials: 1`, and `equal_across_arms: true`.
-The producer ceiling comes from `run_ceilings.resolve(rundir)`; until that
-provider lands the fixed section-13 default is 2700 seconds. A spec cannot raise
+The producer ceiling comes from `run_ceilings.resolve(rundir)`, whose section-13
+default is 2700 seconds. A spec must not raise
 it. The preflight is printed before launch. A projection above the ceiling requests
 `spend_above_ceiling`; even after approval, update and freeze the authorized
 ceiling before launching. The ordinary stage supervisor supplies the hard wall.
@@ -225,7 +238,7 @@ at most 100,000 rows and 64 columns; compressed and expanded inputs stay below
 64 MiB. Combined ensemble scores are bounded at four million entries.
 The producer role reads `inputs/ml-spec/` only. Worker dispatch must enforce that boundary
 and evaluator access. Real-data cross-fitting is refused until that isolation is
-qualified. A truth-supervised study cannot be an anomaly search; trained arms
+qualified. A truth-supervised study must not be an anomaly search; trained arms
 are labelled ceilings and have no search statistic.
 
 The split declaration freezes `k` (3–10), `group_column: group_id`, `salt`,
@@ -246,7 +259,7 @@ and `mlp` with `widths` (one to four ReLU layers, at most 128 units each),
 `learning_rate`, and a sigmoid head. Early stopping uses validation loss and
 retains the best epoch. The equal-budget check compares actual training and epoch counts, and reports
 measured wall and CPU totals per arm. Unequal executed epochs fail that check.
-Arms may declare a `family`; its configuration count must respect `max_trials`.
+Arms can declare a `family`; its configuration count must respect `max_trials`.
 The default family is the architecture. This does not assert equal FLOPs.
 
 `supervision` declares `kind: truth | weak_region | mixture`,
@@ -283,7 +296,7 @@ Ties can change achieved efficiencies; the receipt retains the scored population
 
 Baselines include `inclusive` (alias `inclusive_bump_hunt`, efficiency one,
 no training), `supervised_oracle`, and synthetic-only `idealized_anomaly`.
-Oracle rows always say "labelled ceiling; unavailable to a real search" and
+Oracle rows always say "labelled ceiling; missing to a real search" and
 never enter the search statistic. An oracle can declare an independent pinned
 `training_pool` with both truth classes; this supports an oracle ceiling even
 when the search dataset is background-only. Its groups must be disjoint from
@@ -345,19 +358,15 @@ The spec freezes every configuration before exposure. Admission checks the full
 pairwise identity matrix, pool purity and size, localization, counts, fold
 support, cost provenance and required active gate providers. Missing providers
 for `unblind`, `spend_above_ceiling` or `bespoke_calibration` refuse before claims.
-The current read-only decision-gate interface supplies no authenticated record writer.
-Unblind requests therefore finish with a blocked gate and `complete_blinded`;
-no self-authored verdict dictionary can authorize a statistic. Failed or
-unresolved blocking checks also prevent an unblind request.
+Unblinding requires an authenticated gate record and passing blocking checks.
 
 Cross-fit checkpoints, transforms, rank references, nominal scores and injection
 inference arrays remain in `ml_custody` evaluator memory. They are never written
 to outputs. Receipts contain opaque sealed pins, no rank values, no observed
 statistic and no pre-unblind truth AUC. `unidentifiable` suppresses injections,
-medians, summaries and every performance field. Real-data truth AUC is unavailable.
+medians, summaries and every performance field.
 The sealed store has a 256 MiB bound. A process exit loses it: external validation
-then refuses rather than accepting an unreconstructible receipt. Worker dispatch owns a
-future durable store the producer cannot read; directory naming is not isolation.
+then refuses rather than accepting an unreconstructible receipt. Keep evaluator custody isolated from the producer.
 
 The schema-2 validator replays frozen checkpoints and recomputes nominal scores,
 fold maps from pinned identities, check verdicts, disposition, complete toy
@@ -365,9 +374,7 @@ statistics, injection metrics, window medians and summary fields. It checks
 receipt pins in both ledgers; a receipt without its written, ledger-pinned file refuses. Missing artifacts or incomplete failed-toy model
 populations refuse validation. `resume_frozen(task, base, output_dir)` re-scores
 completed freezes as ledger class `replay`, without training or incrementing the
-original exposure count. Unfinished folds remain unresolved. This supports
-interruption diagnostics within the evaluator process; it cannot resume training
-or survive process loss without durable evaluator custody.
+original exposure count. Unfinished folds remain unresolved. Use this replay for interruption diagnostics within the evaluator process.
 
 `check:ml-null-execution` records toy completion. Null calibration stays unresolved
 until the research-protocol record supplies pinned toy-law provenance and accepted nominal/toy
@@ -387,12 +394,11 @@ and refuses unreachable precision; the reference cap is 1024 samplings. Exact
 binomial intervals condition on the background, signal pool **and toy ensemble**.
 They do not include toy-threshold uncertainty or establish unconditional power.
 The executor accepts only `claim_kind: diagnostic` (the default).
-`method_performance` refuses until the research-protocol claim contract is implemented.
+
 
 Dispositions remain `assumption_violated`, `limited`, `supported_synthetic`, or
 `unidentifiable`. `status: passed` means the operation completed. It does not
-accept its assumptions or scientific claim. Current provider boundaries prevent
-claim-bearing or real-data operation.
+accept its assumptions or scientific claim. Use the diagnostic disposition for this operation.
 
 ## Review corrections and integration boundaries
 
@@ -411,7 +417,7 @@ are metric → arm → window, with seed and fold-salt spreads separately named.
 Three-file calibration is to truth labels; weak cross-fit ECE/Brier calibrate
 region labels, not signal probability. Over signal-region scores they measure
 the search itself, so they stay `blinded` (null values) until the unblind gate
-passes. Truth AUC remains withheld until an authenticated reveal on synthetic data.
+passes. Truth AUC remains blinded until an authenticated reveal on synthetic data.
 
 A failed attempt can retry only when every claimed role has zero reads.
 A training read already spends its population even if the test remains unopened. Backend-plan input paths resolve relative to the spec
@@ -424,22 +430,18 @@ presence registers no capability. The role registry now holds the three ML cards
 (the trainer and reviewer converted from `role-cards.json`, which stays as the
 original record). The knowledge atlas indexes the five `hb:ml-*` handbooks, the
 `ml.study` stage checks and the cross-fit receipt checks as `check:ml-*` rows.
-The `trap:ml-*` and study premises and the research-protocol stages are not yet in
-their central registries, so no premise fires from them. Observable support, trigger plateau, independent physics review,
+ Observable support, trigger plateau, independent physics review,
 formal injection closure and mechanism ablations remain required external
-checks for their claims. The executor supplies no evidence for those facts.
+checks for their claims. Supply evidence for each required scientific check.
 
 The adapter's `run_in_worker` hook supplies the admitted run root to decision
 gates and checks its attempt number. Dataset and configuration pins still resolve
 against the original specification directory. These directories need not be the
 same; a gate must never search the external spec directory for run approval.
 
-## Governed method-study graph
+## Supplied method-study executor contract
 
-`ml.study` v2 is registered with run scope and instance `{"study": "<family-id>"}`.
-Its S1–S16 nodes require the named protocol checks. The planner and designer use
-`graph_nodes.agent`; the host supplies their governed worker specifications. Role
-doubles from `ml_role_factory` are honoured only in the test lease domain.
+For the registered `ml.study` v2 graph, supply a trusted host executor, its implementation/environment identity and governed planner/designer worker specifications. Bind the named S1–S16 protocol checks to their artifact validators. Role doubles from `ml_role_factory` are for the test lease domain.
 
 Verdicts are computed, never taken from the executor. The graph computes the checks it
 owns from its records and the exposure ledger: estimand, partition purpose, equal budget,
@@ -450,7 +452,7 @@ context)`) from the artifact the executor pins for it inside the study scope. A 
 without a pinned artifact, or a check without a validator, is `missing` and blocks. Only the
 versioned requirement matrix (`ml-requirement-matrix-1`, keyed on task class, claim kinds,
 split method and arm roles) marks a check `not_applicable`, with its reason. Stage results with
-missing, failed or unresolved checks cannot open confirmation.
+missing, failed or unresolved checks must not open confirmation.
 
 The graph contract declares `study_id`, `synthetic`, `task_class` (`supervised_tagger`,
 `weakly_supervised_search`, `regression_calibration`, `surrogate` or `method_study`),
@@ -460,9 +462,7 @@ baseline/candidate roles and component definitions and no arm-level budget, pair
 `split_manifest` whose digest is `split_sha256`, the pinned `confirm` population and
 `placement.local: true`. Attribution (`scope: joint_confirm`) is required for a mechanism claim
 and optional otherwise. Performance claims need at least five paired replicates. Three are
-admitted only for a diagnostic smoke rung. Interval and coverage claims are refused. Remote
-placement holds until the owner decides where remote work runs. Separately reserved
-attribution samples are refused until the staged executor supports them.
+admitted only for a diagnostic smoke rung. Set local placement and joint-confirm attribution explicitly.
 
 The split manifest is JSON with `kind: ml-split-manifest`, `method`, `provenance.class`
 (`synthetic` or `observed`, which must equal the declared `synthetic` flag) and partitions
@@ -470,9 +470,7 @@ The split manifest is JSON with `kind: ml-split-manifest`, `method`, `provenance
 Partition identities come from these lists; no partition file is read to compute them.
 The `confirm` partition pin must be the study's `confirm` pin.
 
-The graph generates remove-one, controls-only, declared remove-set and optional
-add-one descriptors. The staged executor compiles them into model specifications.
-They train with the study budget before selection freezes. Before training,
+The supplied host-executor contract requires remove-one, controls-only, declared remove-set and optional add-one model specifications, with budgeted training before selection freezes. Before training,
 `training_start` claims train, validation and confirm in one ledger transaction under a
 token persisted in the study's `exposure-claim.json` record, charges one `train` read for the
 train and validation populations against the study's `training-freeze.json` record, and appends
@@ -518,13 +516,6 @@ interface with an implementation/environment `identity` and these methods:
 These objects are supplied by the host, never by checkpoint or request data.
 They must preserve producer/evaluator credentials, read scopes, environment locks,
 all-role exposure accounting, query journal custody and the protocol's R2/R3
-receipts. Synthetic controls may supply inert role and evaluator doubles.
+receipts. Synthetic controls can supply inert role and evaluator doubles.
 
-The merged `ml_training.run` trains and opens its test population in one atomic
-call. It supplies no training-only or staged evaluation interface and must never
-be used as the per-arm fan-out operation. Without the staged host interface,
-`ravel graph run --scope-root <run> --graph ml.study --instance <instance-json>
---input <input-json>` holds before dispatch. The graph does not manufacture
-missing checks, query-journal evidence or statistical acceptance. Its synthetic
-suite qualifies graph control flow; native method-study execution remains a
-consumer handoff until the staged interface is provided.
+Use a separately bound staged executor for per-arm fan-out, with the training, selection, confirmation and attribution methods above.

@@ -546,6 +546,8 @@ def _literal_approval_paths(rd):
     paths=[str(regular(v,rd)) for v in (PLAN,SPEC,'inputs/checkin1.json')]
     paths.extend(str(regular(v,p['base_dir'])) for v in task_inputs(spec,p['base_dir']))
     paths.extend(scientific_autonomy.input_paths(spec,rd))
+    from . import operating_mode
+    if operating_mode.frozen(rd) is not None:paths.append(str(rd/operating_mode.RUN_RECORD))
     from . import work_dispatch
     paths.extend(work_dispatch.approval_input_paths(rd))
     from . import site_tools
@@ -559,7 +561,7 @@ def _verify_literal_machine_approval(rd,proposal,spec,receipt):
     _literal_delegation_spec(spec,proposal['base_dir'])
     _keys(receipt,{'schema_version','generated_by','quote','approval_mode','proposal_approval_mode',
         'expert_review','plan_sha256','checkin_sha256','utc','input_fingerprint',
-        'authority','delegation','delegate_actor'},'literal calculator machine approval')
+        'authority','delegation','delegate_actor'} | ({'operating_mode'} if 'operating_mode' in receipt else set()),'literal calculator machine approval')
     from . import scientific_autonomy
     scientific_autonomy.verify_decision(spec,receipt,rd)
     scientific_autonomy.plan_authority(rd)
@@ -590,7 +592,8 @@ def _approve_literal_delegated(rd):
         reserve_delegated(spec, d, rd)
         errors=check(read_json(rd/'inputs/checkin1.json'))
         if errors:raise ValueError('; '.join(errors))
-        receipt={'schema_version':3,'generated_by':'ravel.workflow.science.approve_delegated',
+        from . import operating_mode
+        receipt={'operating_mode':operating_mode.receipt(rd), 'schema_version':3,'generated_by':'ravel.workflow.science.approve_delegated',
             'quote':d['value']['quote'],'approval_mode':'delegated_machine',
             'proposal_approval_mode':p['approval_mode'],'expert_review':False,
             'plan_sha256':execution.file_hash(rd/PLAN),
@@ -630,6 +633,9 @@ def _verify_plan_v1(rundir, approved=False):
         raise ValueError('check-in does not describe the current scientific proposal')
     if approved:
         receipt = read_json(rd / APPROVAL)
+        from . import operating_mode
+        if 'operating_mode' in receipt or operating_mode.frozen(rd) is not None:
+            operating_mode.verify_receipt(rd, receipt)
         if receipt.get('schema_version')==3:
             _verify_literal_machine_approval(rd,proposal,spec,receipt)
         elif (receipt.get('plan_sha256') != execution.file_hash(rd / PLAN)
@@ -726,7 +732,8 @@ def _approve_v1(rundir, quote, *, scripted=False):
         if errors:
             raise ValueError('; '.join(errors))
         from .approval_authority import classify
-        _register_approval(rd, {'authority': classify(scripted=scripted, quote=quote),
+        from . import operating_mode
+        _register_approval(rd, {'operating_mode':operating_mode.receipt(rd), 'authority': classify(scripted=scripted, quote=quote),
             'schema_version': 1, 'quote': quote, 'approval_mode': p['approval_mode'],
             'expert_review': False, 'plan_sha256': execution.file_hash(rd / PLAN),
             'checkin_sha256': execution.file_hash(rd / 'inputs/checkin1.json'), 'utc': execution.utc_now(),
@@ -902,7 +909,7 @@ def _v2_approval_keys(approval, label):
     """Version-two approval fields; ``authority`` is optional for older receipts."""
     names = {'schema_version', 'generated_by', 'quote', 'approval_mode', 'expert_review',
              'plan_sha256', 'checkin_sha256', 'utc', 'input_fingerprint'}
-    _keys(approval, names | ({'authority'} if isinstance(approval, dict) and 'authority' in approval else set()), label)
+    _keys(approval, names | (set(approval) & {'authority', 'operating_mode'} if isinstance(approval, dict) else set()), label)
     from .approval_authority import AUTHORITIES
     if 'authority' in approval and approval['authority'] not in AUTHORITIES:
         raise ValueError(label + ' has an invalid authority label')
@@ -1314,6 +1321,8 @@ def plan(rundir, specification, *, research_binding=None):
     held_before = _is_held_dir(rd)
     try:
         result = _plan(rundir, specification, source, spec, research_binding=research_binding)
+        from . import operating_mode
+        operating_mode.initialize(rd, spec, configured_only=True)
         from .research_admission import admission
         errors = admission(rd, 'plan', bind=True)
         if errors: raise ValueError('; '.join(errors))
@@ -1423,16 +1432,71 @@ def approval_input_paths(rundir):
     rd = root(rundir)
     if not review_enabled(rd):
         return _literal_approval_paths(rd)
+    return _v2_approval_input_paths(rd, _research_contract_paths(rd))
+
+
+def _v2_approval_input_paths(rd, child_paths):
+    """The complete ordered approval roster, with an explicitly supplied child inventory."""
     paths = [str(regular(p, rd)) for p in (PLAN, SPEC, 'inputs/checkin1.json', REVIEW_POLICY)]
     from . import scientific_autonomy
     paths.extend(scientific_autonomy.input_paths(read_json(rd / SPEC), rd))
+    from . import operating_mode
+    if operating_mode.frozen(rd) is not None:paths.append(str(rd/operating_mode.RUN_RECORD))
     from . import work_dispatch
     paths.extend(work_dispatch.approval_input_paths(rd))
     from . import site_tools
     paths.extend(site_tools.approval_input_paths(rd))
     from .method_selection import DECISION_PATH
     if (rd / DECISION_PATH).exists(): paths.append(str(rd / DECISION_PATH))
+    paths.extend(child_paths)
     return list(dict.fromkeys(paths))
+
+
+def _research_contract_paths(rd, session=None):
+    """Authenticate child intake through its campaign or controller approval."""
+    from .research_cycle import CHILD_CONTRACT_ORIGIN, verify_experiment_contract
+    names = ('inputs/task_contract.json', CHILD_CONTRACT_ORIGIN)
+    present = [(session.observe_exists(rd / name) if session is not None else (rd / name).exists())
+               for name in names]
+    if not any(present):
+        plan = read_json(rd / PLAN)
+        binding = plan.get('research_binding')
+        if binding is not None:
+            from . import research_cycle
+            _, state = research_cycle._load_history(binding['root'])
+            row = next(e for e in state['experiments'] if e['id'] == binding['experiment_id'])
+            if row.get('task_contract') is not None:
+                raise ValueError('prepared research child task contract is missing')
+        return []
+    if not all(present):
+        if present[0] and not present[1] and read_json(rd / PLAN).get('research_binding') is None:
+            from ravel.controller.routes.study.child_contract import paths as verify_contract
+            paths = verify_contract(rd)
+            if paths is None:
+                raise ValueError('science plan, prospective policy or immutable envelope changed')
+        else:
+            raise ValueError('science child contract requires its authenticated campaign origin')
+    else:
+        verify_contract = verify_experiment_contract
+        paths = verify_contract(rd)
+    if session is not None:
+        for path in paths:
+            session.read_document(Path(path))
+        key = ('research_contract_final_observation', str(rd))
+        observed = tuple(paths)
+        proof = session.proofs.get(key)
+        if proof is None:
+            def ending():
+                if tuple(verify_contract(rd)) != observed:
+                    raise ValueError('research child custody observation changed')
+            # Registration belongs to the original live participant. A frozen
+            # participant with no such original proof still refuses here.
+            session.retain_final_check(ending)
+            session.proofs[key] = (verify_contract, observed, ending)
+        elif (proof[:2] != (verify_contract, observed)
+              or not any(check is proof[2] for check in session.final_checks)):
+            raise ValueError('research child final observation owner or roster changed')
+    return paths
 
 
 def _approval_fingerprint(paths):
@@ -1560,8 +1624,9 @@ def _verify_v2_common(rd, *, _session=None, _read=None, _readonly=None):
             or p['max_seconds'] != spec['max_seconds'] or p['max_attempts'] != spec['max_attempts']
             or p['approval_mode'] != spec['approval_mode'] or p['expert_review'] is not False
             or read(rd / REVIEW_POLICY) != spec['review_policy']['policy']
-            or any((rd / x).exists() for x in ('inputs/native_execution_plan.json', 'inputs/checkin1_approval.json', 'inputs/task_contract.json'))):
+            or any((rd / x).exists() for x in ('inputs/native_execution_plan.json', 'inputs/checkin1_approval.json'))):
         raise ValueError('science plan, prospective policy or immutable envelope changed')
+    _research_contract_paths(rd, _session)
     if 'research_binding' in p:
         if read(rd/'inputs/research-experiment.json') != p['research_binding']:
             raise ValueError('research execution binding changed')
@@ -1610,15 +1675,18 @@ def _verify_v2_common(rd, *, _session=None, _read=None, _readonly=None):
     return p, spec
 
 
-def _verify_v2_approval(rd, spec, *, _session=None, _read=None):
+def _verify_v2_approval(rd, spec, *, _session=None, _read=None, _child_contract_paths=None):
     from .method_selection import require_launch
     require_launch(rd, spec=spec)
     read = _read if _read is not None else (_session.read_document if _session is not None else read_json)
     receipt = read(rd / APPROVAL)
     if not isinstance(receipt, dict):
         raise ValueError('science approval requires an object')
+    from . import operating_mode
+    if 'operating_mode' in receipt or operating_mode.frozen(rd) is not None:
+        operating_mode.verify_receipt(rd, receipt)
     _keys(receipt, {'schema_version', 'generated_by', 'quote', 'approval_mode', 'expert_review', 'plan_sha256',
-                    'checkin_sha256', 'utc', 'input_fingerprint'} | ({'authority','delegation','delegate_actor','proposal_approval_mode'} if receipt.get('schema_version')==3 else ({'authority'} if 'authority' in receipt else set())), 'science approval')
+                    'checkin_sha256', 'utc', 'input_fingerprint'} | ({'authority','delegation','delegate_actor','proposal_approval_mode'} if receipt.get('schema_version')==3 else ({'authority'} if 'authority' in receipt else set())) | ({'operating_mode'} if 'operating_mode' in receipt else set()), 'science approval')
     from .approval_authority import AUTHORITIES
     if 'authority' in receipt and receipt['authority'] not in (*AUTHORITIES, 'machine_under_user_delegation'):
         raise ValueError('invalid science approval authority')
@@ -1629,10 +1697,12 @@ def _verify_v2_approval(rd, spec, *, _session=None, _read=None):
         if type(receipt['schema_version']) is not int:raise ValueError('exact delegated approval version required')
         from . import scientific_autonomy
         scientific_autonomy.verify_decision(spec,receipt,rd)
+    inputs = (approval_input_paths(rd) if _child_contract_paths is None
+              else _v2_approval_input_paths(rd, _child_contract_paths))
     if (receipt['schema_version'] != (3 if delegated_approval else 2) or receipt['generated_by'] != ('ravel.workflow.science.approve_delegated' if delegated_approval else 'ravel.workflow.science.approve')
             or receipt['plan_sha256'] != execution.file_hash(rd / PLAN)
             or receipt['checkin_sha256'] != execution.file_hash(rd / 'inputs/checkin1.json')
-            or receipt['input_fingerprint'] != _approval_fingerprint(approval_input_paths(rd))
+            or receipt['input_fingerprint'] != _approval_fingerprint(inputs)
             or receipt['approval_mode'] != ('delegated_machine' if delegated_approval else spec['approval_mode'])
             or (delegated_approval and receipt['proposal_approval_mode']!=spec['approval_mode']) or not isinstance(receipt['quote'], str)
             or not receipt['quote'].strip() or receipt['expert_review'] is not False):
@@ -1692,6 +1762,8 @@ def verify_approval_envelope(rundir, *, _session=None):
 def approve(rundir, quote, *, scripted=False, _delegated=False):
     if type(_delegated) is not bool:raise ValueError('delegated approval switch must be boolean')
     rd = root(rundir)
+    from . import operating_mode
+    _delegated = operating_mode.bind_plan(rd) or _delegated
     from .method_selection import require_launch
     require_launch(rd)
     if not review_enabled(rd):
@@ -1712,7 +1784,7 @@ def approve(rundir, quote, *, scripted=False, _delegated=False):
         reapproval = _admit_approval(rd, authority)
         from .launch_authorization import operational_utc
         from .approval_authority import classify
-        receipt = {'authority': classify(scripted=scripted, delegated=delegated is not None, quote=quote),
+        receipt = {'operating_mode':operating_mode.receipt(rd), 'authority': classify(scripted=scripted, delegated=delegated is not None, quote=quote),
                    'schema_version': 2, 'generated_by': 'ravel.workflow.science.approve', 'quote': quote,
                    'approval_mode': p['approval_mode'], 'expert_review': False,
                    'plan_sha256': execution.file_hash(rd / PLAN), 'checkin_sha256': execution.file_hash(rd / 'inputs/checkin1.json'),
@@ -1737,6 +1809,8 @@ def approve(rundir, quote, *, scripted=False, _delegated=False):
 def approve_delegated(rundir):
     """Public initial-prompt/CI1 opt-in, exact machine assent, no compute dispatch."""
     rd=root(rundir)
+    from . import operating_mode
+    operating_mode.bind_plan(rd)
     if not review_enabled(rd):return _approve_literal_delegated(rd)
     return approve(rd,'delegated quote resolved from committed user text',scripted=True,_delegated=True)
 
@@ -1944,6 +2018,9 @@ def validate_authorization_snapshot(snapshot, event):
         sources={row['path']:row['text'].encode() for row in snapshot['approval_inputs']}
         delegated_source=scientific_autonomy.declaration(spec,rd,_sources=sources)
         expected_extra=list(dict.fromkeys(scientific_autonomy.input_paths(spec,rd,sources=sources)))
+        from . import operating_mode
+        mode_path = str(rd / operating_mode.RUN_RECORD)
+        if mode_path in sources and mode_path not in expected_extra:expected_extra.append(mode_path)
         from . import method_selection
         method_path = str(rd / method_selection.DECISION_PATH)
         method_record = json.loads(sources[method_path]) if method_path in sources else None
@@ -1954,13 +2031,45 @@ def validate_authorization_snapshot(snapshot, event):
         if 'work_obligations_sha256' in checkin:
             expected_extra.append(str(rd / 'inputs/work-obligations.json'))
         if method_record is not None: expected_extra.append(method_path)
+        from .research_cycle import CHILD_CONTRACT_ORIGIN
+        contract_path, origin_path = str(rd / 'inputs/task_contract.json'), str(rd / CHILD_CONTRACT_ORIGIN)
+        if contract_path in sources and origin_path not in sources and p.get('research_binding') is None:
+            from ravel.controller.routes.study.child_contract import paths as controller_contract
+            controller_contract_paths = controller_contract(rd, sources=sources,
+                approval=json.loads(approval['text']), approval_inputs=snapshot['approval_inputs'])
+            if controller_contract_paths is None:
+                raise ValueError('retained child intake has no controller approval origin')
+            expected_extra.extend(controller_contract_paths)
+        elif contract_path in sources or origin_path in sources:
+            if contract_path not in sources or origin_path not in sources:
+                raise ValueError('retained child intake has an incomplete campaign origin')
+            child = json.loads(sources[contract_path])
+            origin = json.loads(sources[origin_path])
+            if (p.get('research_binding') != origin
+                    or child.get('goal_binding') != spec.get('goal_binding')):
+                raise ValueError('retained child intake differs from its science campaign and goal')
+            expected_extra.extend((contract_path, origin_path))
+            keys = (['request_plan'] if child.get('agent_layer_epoch', 1) == 2 else [])
+            keys += ['reading'] if 'reading' in child else []
+            for key in keys:
+                pin = child[key]
+                local = Path(pin['path'])
+                if local.is_absolute() or '..' in local.parts:
+                    raise ValueError('retained child intake record must stay confined')
+                path = str(rd / local)
+                if (path not in sources
+                        or provenance.sha256_bytes(sources[path]) != pin['sha256']):
+                    raise ValueError('retained child intake pin changed')
+                expected_extra.append(path)
         expected_extra=[path for path in expected_extra if path not in [p['path'] for p in snapshot['approval_inputs'][:4]]]
         if [row['path'] for row in snapshot['approval_inputs'][4:]]!=expected_extra:raise ValueError('retained delegation source roster changed')
         validate(spec)
         receipt = json.loads(approval['text'])
         _keys(receipt, {'schema_version', 'generated_by', 'quote', 'approval_mode', 'expert_review', 'plan_sha256',
-                        'checkin_sha256', 'utc', 'input_fingerprint'} | ({'authority','delegation','delegate_actor','proposal_approval_mode'} if receipt.get('schema_version')==3 else ({'authority'} if 'authority' in receipt else set())), 'retained science approval')
+                        'checkin_sha256', 'utc', 'input_fingerprint'} | ({'authority','delegation','delegate_actor','proposal_approval_mode'} if receipt.get('schema_version')==3 else ({'authority'} if 'authority' in receipt else set())) | ({'operating_mode'} if 'operating_mode' in receipt else set()), 'retained science approval')
         delegated_approval=receipt.get('schema_version')==3
+        from . import operating_mode
+        if 'operating_mode' in receipt:operating_mode.verify_receipt(rd, receipt, sources=sources)
         if delegated_approval:scientific_autonomy.verify_decision(spec,receipt,rd,sources=sources)
         if (type(receipt['schema_version']) is not int or receipt['schema_version'] != (3 if delegated_approval else 2)
                 or receipt['generated_by'] != ('ravel.workflow.science.approve_delegated' if delegated_approval else 'ravel.workflow.science.approve')
@@ -2079,10 +2188,10 @@ def _readonly_worker_boundary(rd, session):
     review policy and ordinary Session finish remain unchanged.
     """
     from . import physics_review
-    forbidden = ('inputs/native_execution_plan.json', 'inputs/checkin1_approval.json',
-                 'inputs/task_contract.json')
+    forbidden = ('inputs/native_execution_plan.json', 'inputs/checkin1_approval.json')
     if any(session.observe_exists(rd / value) for value in forbidden):
         raise ValueError('scientific worker has a forbidden task/approval envelope')
+    _research_contract_paths(rd, session)
     for value in (physics_review.REGISTRATION, physics_review.HEAD):
         path = rd / value
         if session.observe_exists(path):
@@ -2161,8 +2270,9 @@ def _packet_negative_close(rd, observations):
     if not observations.get('canonical'):
         return
     if any((rd / name).exists() for name in
-           ('inputs/native_execution_plan.json', 'inputs/checkin1_approval.json', 'inputs/task_contract.json')):
+           ('inputs/native_execution_plan.json', 'inputs/checkin1_approval.json')):
         raise ValueError('science plan, prospective policy or immutable envelope changed')
+    _research_contract_paths(rd)
     if observations.get('approval_missing') and (rd / APPROVAL).exists():
         raise ValueError('study approval appeared during packet observation')
 
@@ -2171,7 +2281,7 @@ def _packet_negative_close(rd, observations):
 # contain no evidence and do not retain any validation across public calls.
 from .validation_io import ValidationSession as _PACKET_SESSION_TYPE
 _PACKET_VALIDATORS = (verify_plan, _verify_v2, _verify_v2_common,
-                      _verify_v2_approval, review_enabled, _packet_negative_close)
+                      _verify_v2_approval, review_enabled, _packet_negative_close, _research_contract_paths)
 
 
 def _packet_v2_observed(rd, session, *, _single_pass=False, _absence_observations=None):
@@ -2181,7 +2291,7 @@ def _packet_v2_observed(rd, session, *, _single_pass=False, _absence_observation
         canonical = (_single_pass and _absence_observations is not None
             and type(session) is _PACKET_SESSION_TYPE
             and all(actual is expected for actual, expected in zip(
-                (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close),
+                (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close, _research_contract_paths),
                 _PACKET_VALIDATORS))
             and review_enabled(rd))
         if canonical:
@@ -2195,14 +2305,14 @@ def _packet_v2_observed(rd, session, *, _single_pass=False, _absence_observation
         if canonical:
             _absence_observations['approval_missing'] = not approval_exists
             if not all(actual is expected for actual, expected in zip(
-                    (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close),
+                    (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close, _research_contract_paths),
                     _PACKET_VALIDATORS)):
                 raise ValueError('packet validation owners changed during observation')
         if approval_exists:
             if canonical:
                 _verify_v2_approval(rd, spec, _session=session, _read=read)
                 if not all(actual is expected for actual, expected in zip(
-                        (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close),
+                        (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close, _research_contract_paths),
                         _PACKET_VALIDATORS)):
                     raise ValueError('packet validation owners changed during observation')
                 session.proofs[('science-v2-plan', True)] = p
@@ -2301,12 +2411,12 @@ def packet(rundir, *, write=False):
                                          _absence_observations=observations)
         if observations.get('canonical'):
             if not all(actual is expected for actual, expected in zip(
-                (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close),
+                (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close, _research_contract_paths),
                 _PACKET_VALIDATORS)):
                 raise ValueError('packet validation owners changed during observation')
             _packet_negative_close(rd, observations)
             if not all(actual is expected for actual, expected in zip(
-                (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close),
+                (verify_plan, _verify_v2, _verify_v2_common, _verify_v2_approval, review_enabled, _packet_negative_close, _research_contract_paths),
                 _PACKET_VALIDATORS)):
                 raise ValueError('packet validation owners changed during observation')
     except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
@@ -2382,6 +2492,8 @@ def run(rundir, *, resume=False):
                 raise ValueError('the approved attempt is spent; accepted reuse or an admitted correction is required')
             else:
                 stage, budget, attempt = p['stages'][0], p['max_seconds'], {'attempt': 1, 'correction_id': None, 'correction_plan_sha256': None}
+            from ravel.controller.routes.study.child_contract import compute_rung
+            rung = compute_rung(rd, max_seconds=budget)
             requested_binding = execution.plan_stage(rd, 'science', stage['command'], stage['inputs'], stage['outputs'], [], rd,
                                                   **execution.stage_metadata_fields(stage))
             _steering_admission(rd)
@@ -2401,7 +2513,8 @@ def run(rundir, *, resume=False):
             placed = rd / 'inputs/backend-plan.json' if 'execution' in read_json(rd / SPEC) else None
             code = supervise('science', str(rd), 0, stage['log'], stage['command'], kill_secs=budget, poll=.2, grace=2,
                              inputs=stage['inputs'], outputs=stage['outputs'], depends_on=[], cwd=str(rd),
-                         **execution.stage_metadata_fields(stage), **({'backend_plan': str(placed)} if placed else {}))
+                         **execution.stage_metadata_fields(stage), **({'backend_plan': str(placed)} if placed else {}),
+                         **({'science_rung': rung} if rung is not None else {}))
             _release_refused_attempt(rd, attempt)
     if legacy:
         return _run_v1(rd, resume=resume)
@@ -2419,9 +2532,39 @@ _READONLY_CORE_BINDINGS = (
     ('adapter', adapter), ('_await_worker_registration', _await_worker_registration),
     ('_selected', _selected), ('_check_launch_selection', _check_launch_selection),
     ('_verify_worker_observed', _verify_worker_observed),
+    ('_research_contract_paths', _research_contract_paths),
     ('_readonly_worker_boundary', _readonly_worker_boundary))
 _READONLY_SESSION_FACTORY = execution._validation_session
 _READONLY_PROCESS_READER = execution.process_identity
+
+
+def controller_products(rundir, *, allow_pending_review=False):
+    """Return current source-verified ordinary products for controller adoption.
+
+    This confers no review or authority. It reuses the complete ordinary gate
+    and returns the selected attempt, never an arbitrary earlier result.
+    """
+    rd = root(rundir)
+    state = packet(rd)
+    if type(allow_pending_review) is not bool:
+        raise ValueError('pending-review product adoption must be explicit')
+    pending_review = (allow_pending_review and state.get('execution', {}).get('status') == 'awaiting_review'
+                      and state.get('errors') == [])
+    if state.get('lifecycle_verdict') != 'PASS' and not pending_review:
+        raise ValueError('ordinary study result or review is incomplete')
+    proposal = verify_plan(rd, approved=True)
+    stage = (_selected(rd, proposal)[0] if proposal.get('schema_version', 1) == 2
+             else proposal['stages'][0])
+    folder = rd / stage['outputs'][0]
+    result_path = regular(folder / 'result.json', rd)
+    result = read_json(result_path)
+    pins = []
+    for path in sorted(folder.rglob('*')):
+        if path.is_symlink():
+            raise ValueError('ordinary product tree contains a symbolic link')
+        if path.is_file():
+            pins.append({'path': str(path), 'sha256': execution.file_hash(path), 'size': path.stat().st_size})
+    return {'result': result, 'artifacts': pins, 'packet': state, 'review_pending': bool(pending_review)}
 
 
 def prepare_readonly_worker(rundir, *, verifier, attempt=None, correction_sha256=None):

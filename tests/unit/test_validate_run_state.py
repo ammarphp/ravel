@@ -493,3 +493,148 @@ def test_deviations_invariant_unchanged_without_run_state():
         facts = vrs.discover_facts(rd, contract)
         status, _ = vrs.inv_deviations_on_change(rd, contract, facts, False, False)
         assert status == "PASS"
+
+
+# --------------------------------------------------------------------------- the coded stat-mode ladder
+
+def _decision_case(vrs, td, **kwargs):
+    rd, contract = vrs._fixture_stat_decision(td, **kwargs)
+    return rd, contract, vrs.discover_facts(rd, contract), vrs.is_legacy(rd)
+
+
+def test_stat_decision_invariants_are_registered_under_statistics():
+    vrs = _load_module()
+    registered = {name: (stage, fn) for name, stage, fn in vrs.INVARIANTS}
+    assert registered["stat-mode-decision-recorded"] == ("statistics", vrs.inv_stat_mode_decision)
+    assert registered["likelihood-appropriateness"] == ("statistics", vrs.inv_likelihood_appropriateness)
+    assert vrs.STAT_DECISION_EPOCH == "2026-10-20"
+    assert set(vrs.LADDER_STAT_MODES) == set(vrs.stat_mode_decision.LADDER) | {"combined-counting"}
+
+
+def test_missing_decision_record_post_epoch_fails_strict_and_warns_otherwise():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(vrs, td)
+        assert vrs.inv_stat_mode_decision(rd, contract, facts, legacy, True)[0] == "FAIL"
+        status, detail = vrs.inv_stat_mode_decision(rd, contract, facts, legacy, False)
+        assert status == "WARN" and "stat_mode_decision.json" in detail
+        rows = {i["name"]: i for i in vrs.evaluate(rd, contract, strict=True)["invariants"]}
+        assert rows["stat-mode-decision-recorded"]["status"] == "FAIL"
+
+
+def test_decision_not_required_off_the_ladder_or_before_the_limit_stage():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract = vrs._fixture_survey_pass(td)
+        facts = vrs.discover_facts(rd, contract)
+        assert vrs.inv_stat_mode_decision(rd, contract, facts, False, True) == (
+            "PASS", "stat_mode not on the ladder; not applicable")
+        assert vrs.inv_likelihood_appropriateness(rd, contract, facts, False, True)[0] == "PASS"
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, _, legacy = _decision_case(vrs, td)
+        Path(rd, "outputs", "pyhf_exclusion", "exclusion.json").unlink()
+        facts = vrs.discover_facts(rd, contract)
+        status, detail = vrs.inv_stat_mode_decision(rd, contract, facts, legacy, True)
+        assert status == "PASS" and "not yet reached" in detail
+
+
+def test_decision_selecting_another_mode_fails():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(
+            vrs, td, stat_mode="simplified-likelihood", evidence=vrs._stat_decision_evidence())
+        status, detail = vrs.inv_stat_mode_decision(rd, contract, facts, legacy, False)
+        assert status == "FAIL" and "'best-sr-counting'" in detail
+
+
+def test_invalid_decision_record_fails_even_before_the_epoch():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, _, _ = _decision_case(vrs, td, dirname="2026-10-01_old", evidence=vrs._stat_decision_evidence(),
+                                            pack_limitation=True)
+        record_path = Path(rd, vrs.stat_mode_decision.RECORD)
+        record = json.loads(record_path.read_text())
+        record["label"] = None
+        record_path.write_text(json.dumps(record))
+        facts = vrs.discover_facts(rd, contract)
+        status, detail = vrs.inv_stat_mode_decision(rd, contract, facts, vrs.is_legacy(rd), False)
+        assert status == "FAIL" and "invalid" in detail
+
+
+def test_downgrade_must_be_labelled_in_the_result_pack():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(vrs, td, evidence=vrs._stat_decision_evidence())
+        status, detail = vrs.inv_stat_mode_decision(rd, contract, facts, legacy, False)
+        assert status == "FAIL" and "stat-mode-downgrade" in detail
+        pack = json.loads(Path(rd, "result.json").read_text())
+        pack["limitations"].append({"key": "stat-mode-downgrade", "note": "labelled"})
+        Path(rd, "result.json").write_text(json.dumps(pack))
+        status, detail = vrs.inv_stat_mode_decision(rd, contract, facts, legacy, False)
+        assert status == "FAIL" and "stat_mode_decision.selected" in detail
+        pack["stat_mode_decision"] = {"selected": "best-sr-counting"}
+        Path(rd, "result.json").write_text(json.dumps(pack))
+        assert vrs.inv_stat_mode_decision(rd, contract, facts, legacy, True)[0] == "PASS"
+
+
+def test_top_rung_decision_needs_no_label():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(
+            vrs, td, stat_mode="published-likelihood", appropriateness="appropriate",
+            evidence=vrs._stat_decision_evidence(likelihood="appropriate"))
+        status, detail = vrs.inv_stat_mode_decision(rd, contract, facts, legacy, True)
+        assert status == "PASS" and "top available rung" in detail
+
+
+def test_pre_epoch_run_without_records_is_waived():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(vrs, td, dirname="2026-10-19_old")
+        assert vrs.inv_stat_mode_decision(rd, contract, facts, legacy, True)[0] == "waived-legacy"
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(vrs, td, dirname="2026-10-19_old",
+                                                     stat_mode="published-likelihood")
+        assert vrs.inv_likelihood_appropriateness(rd, contract, facts, legacy, True)[0] == "waived-legacy"
+
+
+def test_existing_selftest_fixtures_predate_the_epoch():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract = vrs._fixture_reproduce_cert_fail(td)
+        assert Path(rd).name[:10] < vrs.STAT_DECISION_EPOCH
+        rows = {i["name"]: i for i in vrs.evaluate(rd, contract)["invariants"]}
+        assert rows["stat-mode-decision-recorded"]["status"] == "waived-legacy"
+
+
+def test_published_likelihood_appropriateness_record():
+    vrs = _load_module()
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(vrs, td, stat_mode="published-likelihood")
+        assert vrs.inv_likelihood_appropriateness(rd, contract, facts, legacy, True)[0] == "FAIL"
+        assert vrs.inv_likelihood_appropriateness(rd, contract, facts, legacy, False)[0] == "WARN"
+    with tempfile.TemporaryDirectory() as td:
+        rd, contract, facts, legacy = _decision_case(vrs, td, stat_mode="published-likelihood",
+                                                     appropriateness="inappropriate")
+        status, detail = vrs.inv_likelihood_appropriateness(rd, contract, facts, legacy, False)
+        assert status == "FAIL" and "recorded inappropriate" in detail and "selection-changed" in detail
+    with tempfile.TemporaryDirectory() as td:
+        # a decision citing a different verdict than the record on disk
+        rd, contract, facts, legacy = _decision_case(
+            vrs, td, stat_mode="published-likelihood", appropriateness="appropriate",
+            evidence=vrs._stat_decision_evidence(likelihood="appropriate-with-cautions"))
+        status, detail = vrs.inv_likelihood_appropriateness(rd, contract, facts, legacy, False)
+        assert status == "FAIL" and "'appropriate-with-cautions'" in detail
+    with tempfile.TemporaryDirectory() as td:
+        # a record under outputs/ is found, and an inappropriate one there is not hidden by another
+        rd, contract, facts, legacy = _decision_case(vrs, td, stat_mode="published-likelihood",
+                                                     appropriateness="appropriate")
+        doc = json.loads(Path(rd, "inputs", "likelihood_appropriateness.json").read_text())
+        Path(rd, "inputs", "likelihood_appropriateness.json").unlink()
+        for sub, verdict in (("a", "appropriate"), ("b", "inappropriate")):
+            findings = [] if verdict == "appropriate" else [
+                {"code": "missing-channels", "severity": "blocking", "evidence": {}, "reason": "-"}]
+            vrs._write_json(str(Path(rd, "outputs", sub, "likelihood_appropriateness.json")),
+                            dict(doc, verdict=verdict, findings=findings))
+        assert len(vrs.locate_likelihood_appropriateness(rd)) == 2
+        assert vrs.inv_likelihood_appropriateness(rd, contract, facts, legacy, False)[0] == "FAIL"

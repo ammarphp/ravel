@@ -1,13 +1,13 @@
 ---
 name: resource-sweep
-description: Run the RESOURCE SWEEP for one or more target analyses, or for a topic with no reference paper — resource_census.py walks HEPData (tables + the resources tab where likelihoods/efficiency maps live), Rivet/SimpleAnalysis routines, arXiv source, GitHub (repos AND code search), and INSPIRE forward-citations/Zenodo, emitting inputs/resource_census.json (an index over one record per analysis or keyword search) + the CHECK-IN 1 "what exists online" block. Fire at step 2 for EVERY new analysis, and again whenever information seems missing — BEFORE declaring anything unavailable.
+description: Run the RESOURCE SWEEP for one or more target analyses, or for a topic with no reference paper — resource_census.py walks HEPData (tables + the resources tab where likelihoods/efficiency maps live), Rivet/SimpleAnalysis routines, arXiv source, GitHub (repos AND code search), and INSPIRE forward-citations/Zenodo, emitting inputs/resource_census.json (an index over one record per analysis or keyword search) + the CHECK-IN 1 "what exists online" block. Fire at step 2 for EVERY new analysis, and again whenever information seems missing — BEFORE declaring anything missing.
 when_to_use: step 2 of any run (mandatory, before CHECK-IN 1); any "the paper doesn't provide X" moment; before the no-routine (Option C) or blocked verdicts; source-ladder protocol P6
 allowed-tools: Bash, Read
 ---
 # Skill — resource sweep (source-ladder rungs 1–5, automated)
 
 The failure this prevents: an analysis's public code or data sits unexamined online while the run
-improvises around "unavailable". Public routines, likelihoods and efficiency maps are often held in
+improvises around "missing". Public routines, likelihoods and efficiency maps are often held in
 a record's resources tab, auxiliary material or a code repository rather than the paper; a single
 look at one source does not establish absence.
 

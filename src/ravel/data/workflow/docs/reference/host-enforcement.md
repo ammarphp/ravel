@@ -32,7 +32,7 @@ and `output.args` and throws to refuse. The generated plugin uses only built-in
 runtime modules. Generated command hooks omit timeouts to use the host default.
 Prompt hooks are advisory, as in Claude's router: a routing failure warns on stderr
 and exits 0, because exit 2 would block the prompt (Codex) or drop it (Gemini).
-Tool hooks fail closed: an unavailable guard exits 2. Adapters find the nearest ancestor containing `.claude/settings.json`, then fall
+Tool hooks fail closed: an missing guard exits 2. Adapters find the nearest ancestor containing `.claude/settings.json`, then fall
 back to the Git root or the starting directory. Claude starts from
 `CLAUDE_PROJECT_DIR` when set; other command hooks start from the working directory,
 and the plugin starts from its host directory. This locates the local runtime even
@@ -71,7 +71,7 @@ an activation script. Activate in the shell environment used by the host:
 
 Each shim calls `execution_guard.decide`, resolves the active run and reuses its
 byte-bound CHECK-IN 1 approval verifier and live steering gate before `exec` of
-the next executable on PATH. Missing run, invalid/stale approval, unavailable guard
+the next executable on PATH. Missing run, invalid/stale approval, missing guard
 or paused steering refuses before execution. Arguments and the executable exit
 status are preserved. The shim grants no approval or supervised launch receipt;
 use the normal supervised workflow for admitted work. Shims and activation files
@@ -108,7 +108,7 @@ moves and symlink aliases for native write tools. A changed approved input still
 requires amendment and reapproval; a deviation note does not renew approval.
 Claude's existing post-edit guard retains its timing and failure behavior. Native
 adapters protect records before writes and check deviations after completion;
-post-tool checks can report a violation but cannot undo a completed write.
+post-tool checks report observed violations after the tool completes.
 
 See [host governance](../workflow/hooks.md) for explicit decision gates, interpreter
 installation and append-only records, and the [gate-wiring record](gate-wiring.md)
@@ -131,7 +131,7 @@ malformed MCP names default to the `unknown` effect. Only explicitly declared
 lookup, metadata, status, listing and reading operations pass without approval.
 Downloads, transfers, job submissions/cancellations, notebook execution and file
 writes require a current run approval covering the exact call. Policy or interpreter
-failure refuses admission, including read-only calls whose policy cannot be checked.
+failure refuses admission, including read-only calls whose policy check fails.
 Review the actual server inventory and semantics before adding read-only rules;
 a generic execution or multi-action tool must remain effectful.
 
@@ -161,8 +161,8 @@ Replace the explanatory digest token with 64 lowercase hex characters. Obtain it
 with `ravel.workflow.site_tools.input_digest(tool_input)`, which hashes canonical
 JSON with sorted keys. Scope names are exact, with no globs, and the complete
 argument object is bound: datasets, destinations, submitted code, cancellation
-job identifiers and resource limits cannot change silently. The scope schema is
-`src/ravel/data/site_tools/scope.schema.json`. Display the planned arguments,
+job identifiers and resource limits must not change silently. The scope schema is
+`src/ravel/data/site_tools/scope.schema.json`. Display the declared arguments,
 effects and resource cost in CHECK-IN 1; a hash alone is not a reviewable plan.
 An unknown operation requires an explicit `unknown` effect for its exact call.
 Run `python -m ravel.workflow.site_tools refresh-checkin --rundir <run>` to
@@ -202,9 +202,11 @@ regenerate declarations with `python -m ravel.workflow.role_registry --write --p
 The observer appends every completed MCP call to `<run>/logs/site-tools.jsonl`,
 or `<project>/logs/site-tools.jsonl` if no run resolves. It stores tool name,
 classification/effects, input and response hashes, policy hash, approval hash
-when currently valid, and observation-time decision. It stores no raw arguments,
+when valid, and observation-time decision. It stores no raw arguments,
 results, credentials or tokens. These are host-reported observations, distinct
 from supervised launch receipts and from remote success. Observers remain
-best-effort: failures are reported in `logs/hook-failures.log`. The policy, schemas,
+recorded: failures are reported in `logs/hook-failures.log`. The policy, schemas,
 admission module and generated declarations enter the enforcement fingerprint
 and are read-only during a registered physics session.
+
+Restricted-host mode is the conservative mode when whole-host enforcement is unverified. It permits inspection and labelled diagnostic reporting; scientific computation must use the existing governed launch service. Direct-shell scientific fallback and same-context replacement of required independent review are refused. The receipt distinguishes observed stage commands, registered worker usage reports, configured enforcement and unknown whole-host inventory. Its enforcement evidence covers the declared governed actions. Whole-host containment requires an independently qualified host boundary.

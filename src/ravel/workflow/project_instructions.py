@@ -257,6 +257,12 @@ def declare(rundir, path):
 def repin(rundir, *, approved_by, statement, path=None):
     """Replace the run's pin by an explicit approval; the approval is kept in the pin and in custody."""
     run = _run(rundir)
+    from .approval_authority import AGENT_MARKERS
+    present = [name for name in AGENT_MARKERS if name in os.environ]
+    if present:
+        # A changed document waits for the operator; an agent never re-pins it (its own session is refused).
+        _refuse('project_instructions:agent-session', f'a re-pin is the operator\'s action; an agent session '
+                f'({present[0]}) is refused')
     for name, value in (('approved_by', approved_by), ('statement', statement)):
         if type(value) is not str or not value.strip():
             _refuse('project_instructions:approval', f'a re-pin records {name}')

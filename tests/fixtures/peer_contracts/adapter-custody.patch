@@ -1,0 +1,253 @@
+diff --git a/src/ravel/workflow/transports/cli_worker.py b/src/ravel/workflow/transports/cli_worker.py
+--- a/src/ravel/workflow/transports/cli_worker.py
++++ b/src/ravel/workflow/transports/cli_worker.py
+@@ -330,7 +330,9 @@
+     from .. import cli_agent_host as host
+     environment = dict(os.environ)
+     if agent == 'claude' and document['auth']['kind'] == 'login':
+-        return _login_config_dir(), False, {}, ['CLAUDE_CONFIG_DIR'], ws / 'inputs' / 'mcp'
++        from ...controller.confine.worker import private_login_copy
++        home = private_login_copy(ws, _login_config_dir())
++        return home, True, {'CLAUDE_CONFIG_DIR': str(home)}, ['CLAUDE_CONFIG_DIR'], ws / 'inputs' / 'mcp'
+     home = sandbox.cli_home_for(ws)
+     fresh = not home.exists()
+     if fresh:
+diff --git a/src/ravel/workflow/procedure_export.py b/src/ravel/workflow/procedure_export.py
+--- a/src/ravel/workflow/procedure_export.py
++++ b/src/ravel/workflow/procedure_export.py
+@@ -50,7 +50,12 @@
+ DEFAULT_BYTE_CEILING = 1024 * 1024
+ 
+ 
+-def _byte_ceiling():
++def _byte_ceiling(rundir=None):
++    if rundir is not None:
++        from ravel.controller.confine.policy import export_ceiling
++        governed = export_ceiling(rundir, DEFAULT_BYTE_CEILING)
++        if governed is not None:
++            return governed
+     try:
+         ceiling = int(os.environ.get('RAVEL_PROCEDURE_BYTE_CEILING', DEFAULT_BYTE_CEILING))
+     except ValueError as exc:
+@@ -201,7 +206,7 @@
+     from .submission_export import code_version
+     root = Path(rundir).absolute()
+     if not root.is_dir(): raise ValueError('run directory required')
+-    ceiling = _byte_ceiling(); procedure_status = _procedure_status(status)
++    ceiling = _byte_ceiling(root); procedure_status = _procedure_status(status)
+     sources = []; nodes = []; ledger = execution.load_execution(root)
+     if (root / execution.STATE_NAME).exists(): sources.append(_source(root / execution.STATE_NAME))
+     stage_nodes = {}
+diff --git a/src/ravel/validation/check_generality.py b/src/ravel/validation/check_generality.py
+--- a/src/ravel/validation/check_generality.py
++++ b/src/ravel/validation/check_generality.py
+@@ -206,8 +206,13 @@
+         return found
+ 
+ 
+-def _external_entries(env):
+-    """Entries from the outside term list and the owner's restricted-source list."""
++def _external_entries(env, target=None):
++    """Outside entries, bound to the store pin whenever the target is controller-owned."""
++    if target is not None:
++        from ravel.controller.confine.policy import restricted_sources
++        pinned = restricted_sources(target)
++        if pinned is not None:
++            env = {'RAVEL_RESTRICTED_SOURCES': pinned}
+     terms, documents = [], []
+     if env.get('RAVEL_EVAL_TERMS_FILE'):
+         terms += Path(env['RAVEL_EVAL_TERMS_FILE']).read_text(encoding='utf-8').splitlines()
+@@ -228,7 +233,7 @@
+     return entries, documents
+ 
+ 
+-def load_denylist(path, env=None):
++def load_denylist(path, env=None, *, target=None):
+     """The maintained denylist (``path`` or the shipped one) plus the outside lists in ``env``."""
+     path = Path(path) if path else DENYLIST
+     document = json.loads(path.read_text()) if path.is_file() else denylist_document([])
+@@ -240,8 +245,23 @@
+                 or entry['category'] not in CATEGORIES or not re.fullmatch(r'[0-9a-f]{20}', str(entry['digest']))
+                 or type(entry['length']) is not int or entry['length'] < 3):
+             raise ValueError(f'{path}: invalid denylist entry {entry!r}')
+-    extra, documents = _external_entries(os.environ if env is None else env)
+-    return Denylist(document['entries'] + extra, documents)
++    extra, documents = _external_entries(os.environ if env is None else env, target)
++    result = Denylist(document['entries'] + extra, documents)
++    result._maintained_entries = document['entries']
++    return result
++
++
++def _bound_denylist(target, denylist):
++    """Bind public tree/path scans even when the caller already loaded a denylist."""
++    from ravel.controller.confine.policy import restricted_sources
++    pinned = restricted_sources(target)
++    if pinned is None:
++        return denylist
++    extra, documents = _external_entries({'RAVEL_RESTRICTED_SOURCES': pinned})
++    maintained = getattr(denylist, '_maintained_entries', denylist.entries)
++    result = Denylist(maintained + extra, documents)
++    result._maintained_entries = maintained
++    return result
+ 
+ 
+ def citations_document(files, withheld=None):
+@@ -444,6 +464,7 @@
+ 
+ 
+ def scan_tree(root, denylist):
++    denylist = _bound_denylist(root, denylist)
+     root = Path(root)
+     return _scan_many([(p.relative_to(root).as_posix(), str(p)) for p in _walk(root)], denylist)
+ 
+@@ -459,6 +480,7 @@
+ 
+ 
+ def scan_repository(root, denylist, staged=False):
++    denylist = _bound_denylist(root, denylist)
+     root = Path(root)
+     found, scanned = [], set()
+     if staged:
+@@ -473,16 +495,18 @@
+ 
+ 
+ def scan_paths(paths, denylist, root='.'):
++    denylist = _bound_denylist(root, denylist)
+     found, scanned = [], set()
+     for given in paths:
+         given = Path(given)
++        active = _bound_denylist(given, denylist)
+         for path in ([given] if given.is_file() else _walk(given)):
+             try:
+                 relative = path.resolve().relative_to(Path(root).resolve()).as_posix()
+             except ValueError:
+                 relative = path.as_posix()
+             scanned.add(relative)
+-            found += scan_bytes(relative, path.read_bytes(), denylist)
++            found += scan_bytes(relative, path.read_bytes(), active)
+     return found, scanned
+ 
+ 
+@@ -553,20 +577,25 @@
+             added = _add_terms(args.denylist, args.add_term, sys.stdin.read().splitlines())
+             print(f'check_generality: added {added} entr{"y" if added == 1 else "ies"}', file=sys.stderr)
+             return 0
+-        denylist = load_denylist(args.denylist)
++        target = args.tree or args.root or (args.paths[0] if args.paths else Path.cwd())
++        denylist = load_denylist(args.denylist, target=target)
+         allow = load_allowlist(args.allowlist)
+         _CITATIONS = load_citations(args.citations)
+     except (OSError, ValueError) as error:
+         print(f'check_generality: {error}', file=sys.stderr)
+         return 2
+-    root = Path(args.root) if args.root else _repository_root(Path.cwd())
+-    if args.tree:
+-        hits = scan_tree(args.tree, denylist)
+-        scanned = {p.relative_to(args.tree).as_posix() for p in _walk(Path(args.tree))}
+-    elif args.paths:
+-        hits, scanned = scan_paths(args.paths, denylist, root)
+-    else:
+-        hits, scanned = scan_repository(root, denylist, staged=args.staged)
++    try:
++        root = Path(args.root) if args.root else _repository_root(Path.cwd())
++        if args.tree:
++            hits = scan_tree(args.tree, denylist)
++            scanned = {p.relative_to(args.tree).as_posix() for p in _walk(Path(args.tree))}
++        elif args.paths:
++            hits, scanned = scan_paths(args.paths, denylist, root)
++        else:
++            hits, scanned = scan_repository(root, denylist, staged=args.staged)
++    except (OSError, ValueError) as error:
++        print(f'check_generality: {error}', file=sys.stderr)
++        return 2
+     hits, stale = apply_allowlist(hits, allow, scanned)
+     if args.summary or args.json:
+         report = summary(hits)
+diff --git a/src/ravel/workflow/submission_export.py b/src/ravel/workflow/submission_export.py
+--- a/src/ravel/workflow/submission_export.py
++++ b/src/ravel/workflow/submission_export.py
+@@ -626,7 +626,7 @@
+                       **({'release_tree': [{'path': name, **tree[name]} for name in names]} if mode == 'vendor' else {})}, names, tree
+ 
+ 
+-def _write_framework(pkg, mode, checkout):
++def _write_framework(pkg, mode, checkout, *, rundir=None):
+     checkout, record, names, tree = _framework_release(mode, checkout)
+     if mode == 'vendor':
+         # Git archive guarantees bytes from the tag, never modified working-tree files.
+@@ -647,7 +647,7 @@
+                 pkg.add('vendor/ravel/' + name, 'code')
+                 extracted[name] = {'path': name, 'sha256': hashlib.sha256(raw).hexdigest(), 'blob_id': blob}
+         if set(extracted) != set(names): raise ValueError('framework archive is incomplete')
+-        scanned = _restricted_source_scan(checkout, record['tag'], pkg.root / 'vendor/ravel')
++        scanned = _restricted_source_scan(checkout, record['tag'], pkg.root / 'vendor/ravel', rundir=rundir)
+         pkg.write_json('vendor/ravel/VENDOR-MANIFEST.json',
+                        {'tag': record['tag'], 'commit': record['commit'], 'files': list(extracted.values()),
+                         'restricted_source_scan': scanned}, 'code')
+@@ -661,12 +661,15 @@
+ RESTRICTED_SCAN = 'scripts/maintenance/restricted_source_scan.py'
+ 
+ 
+-def _restricted_source_scan(checkout, tag, vendor_root):
++def _restricted_source_scan(checkout, tag, vendor_root, *, rundir=None):
+     """Run the release's own restricted-source scan over the vendored files; refuse on any finding.
+ 
+-    The owner's deny list comes from the scanner's environment variable (RAVEL_RESTRICTED_SOURCES).
++    Controller-owned runs require their unchanged store-pinned operator policy before scanner loading.
++    Legacy deny lists come from the scanner's environment variable (RAVEL_RESTRICTED_SOURCES).
+     Without it only the uncited document-hash rule runs; the manifest records which case applied,
+     never the list's path or content."""
++    from ravel.controller.confine.policy import restricted_sources
++    pinned = restricted_sources(rundir if rundir is not None else vendor_root)
+     done = _git('show', f'refs/tags/{tag}:{RESTRICTED_SCAN}', cwd=checkout, text=False)
+     if done is None or done.returncode:
+         raise ValueError('framework release carries no restricted-source scan; vendoring refused')
+@@ -674,7 +677,7 @@
+         script = Path(scratch) / 'restricted_source_scan.py'
+         script.write_bytes(done.stdout)
+         scanner = run_path(str(script))
+-    supplied = os.environ.get(scanner['ENV'])
++    supplied = pinned if pinned is not None else os.environ.get(scanner['ENV'])
+     deny_list = None
+     if supplied:
+         resolved, vendor = Path(supplied).resolve(), Path(vendor_root).resolve()
+@@ -686,7 +689,7 @@
+         paths = sorted({str(f['path']) for f in findings})
+         raise ValueError(f'vendored framework files have {len(findings)} restricted-source finding(s): '
+                          + ', '.join(paths[:5]) + (' ...' if len(paths) > 5 else ''))
+-    return {'deny_list': 'supplied' if deny_list is not None else 'none', 'findings': 0}
++    return {'deny_list': 'pinned' if pinned is not None else 'supplied' if deny_list is not None else 'none', 'findings': 0}
+ 
+ 
+ def _known_roots(rundir, checkout=None):
+@@ -899,7 +902,7 @@
+         site = _site(pkg, request['site_workflow'])
+         pkg.write_json('workflow/dag.json', workflow_graph(rundir, partitions, site), 'workflow')
+         audit = _audit(pkg, request['audit'], rundir)
+-        framework = _write_framework(pkg, framework_source, framework_checkout) if framework_source is not None else None
++        framework = _write_framework(pkg, framework_source, framework_checkout, rundir=rundir) if framework_source is not None else None
+         if framework is None:
+             framework = {'source': 'distribution', **_package_metadata()}
+             pkg.write('environment/ravel-requirements.txt',
+diff --git a/src/ravel/workflow/wms_launch.py b/src/ravel/workflow/wms_launch.py
+--- a/src/ravel/workflow/wms_launch.py
++++ b/src/ravel/workflow/wms_launch.py
+@@ -358,7 +358,7 @@
+             'rules': [write(folder / 'rules' / f'{name}.smk', raw) for name, raw in sorted(rules.items())]}
+ 
+ 
+-def launch(project, task, cores=1, *, jobs=None):
++def launch(project, task, cores=1, *, jobs=None, capability_scope=None):
+     """Run one indexed task (and any unfinished --after tasks) through Snakemake.
+ 
+     The Snakefile, the index and every indexed rule are verified and copied under
+@@ -425,7 +425,8 @@
+         submit_before = {p for root in submit_roots for p in root.glob('submit-*/receipt.json')}
+     start = _utc()
+     governed = {'argv': argv, 'site_profile': site_profile, 'jobs': jobs, 'parse_inputs': parse} if site else {}
+-    with log_stream, wms_policy.launch_authorization(wf, task, number, authorized, **governed):
++    with log_stream, wms_policy.launch_authorization(
++            wf, task, number, authorized, capability_scope=capability_scope, **governed):
+         # Recheck the combined records at dispatch, after version discovery and parse freezing.
+         from . import wms_adopt
+         for row in json.loads(index_raw)['tasks']:

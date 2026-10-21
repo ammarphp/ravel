@@ -7,7 +7,7 @@ import pytest
 from ravel.workflow import fresh_replication as fresh, research_cycle as cycle, science, execution
 from ravel.workflow.state_io import atomic_json, read_json
 from ravel.workflow.validation_io import ValidationSession
-from test_fresh_replication import seed, prepare, fresh_run
+from test_fresh_replication import seed, seed_domain, seed_dispatch_domain, prepare, fresh_run  # noqa: F401
 from test_science_validation_session import prepared
 
 

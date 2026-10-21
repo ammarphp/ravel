@@ -3,6 +3,9 @@
 SourceBoundBroker extends source matching only; the broker core owns dispatch,
 fd-safe IO, call budgets, replay and receipt custody. Bundle builders use
 filter_sources before opening any member. Worker inventory uses filter_inputs.
+Every source-bound broker also carries the literature serving actions
+(literature_serving); without a trusted retrieval configuration they refuse
+each call with a receipt and the knowledge actions are unchanged.
 """
 from __future__ import annotations
 
@@ -86,7 +89,7 @@ def _metadata_path(rundir, node_id, attempt):
 
 class SourceBoundBroker(core.Broker):
     """Provider-side policy extension; no broker-core mutation or authority bypass."""
-    def __init__(self, rundir, workspace, *, role, atlas_path=None, may_query=None, **options):
+    def __init__(self, rundir, workspace, *, role, atlas_path=None, may_query=None, retrieval=None, **options):
         legacy = options.pop('forbidden_sources', ())
         if not all(isinstance(p, str) for p in legacy):
             raise ValueError('legacy descriptor restrictions must be path strings')
@@ -106,6 +109,9 @@ class SourceBoundBroker(core.Broker):
         self.input_sources = read_json(metadata) if metadata.is_file() else {}
         self.guards.append(self._policy_guard)
         register(self)
+        # Trusted installation configuration only (literature_serving.Serving), never a call argument.
+        from . import literature_serving
+        literature_serving.register(self, retrieval)
 
     def _policy_guard(self, action, args, workspace):
         if policy_digest(self.rundir) != self.policy_sha256:
@@ -334,8 +340,8 @@ def register(broker):
     broker.register('knowledge.source_check', broker.source_check, derivation='retrieval', read_only=True)
 
 
-def create(rundir, workspace, *, role, atlas_path=None, **options):
-    return SourceBoundBroker(rundir, workspace, role=role, atlas_path=atlas_path, **options)
+def create(rundir, workspace, *, role, atlas_path=None, retrieval=None, **options):
+    return SourceBoundBroker(rundir, workspace, role=role, atlas_path=atlas_path, retrieval=retrieval, **options)
 
 
 def filter_inputs(rundir, workspace, spec):

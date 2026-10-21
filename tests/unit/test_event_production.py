@@ -421,7 +421,7 @@ def test_ordinary_plan_approve_run(tmp_path):
     assert not list(rd.rglob(ep.RECEIPT))
     science.approve(rd, 'Scripted engineering check.', scripted=True)
     assert science.run(rd) == 0, '\n'.join(p.read_text(errors='replace')[-3000:]
-                                           for p in sorted(rd.rglob('*.log')) + sorted(rd.rglob('failures.json')))
+                                           for p in sorted(rd.rglob('*.log')) + sorted(rd.rglob('failures.json'))) + json.dumps({name: {key: value for key, value in record.items() if key in {'status', 'error', 'exit_code', 'cleanup'}} for name, record in science.execution.load_execution(rd).get('stages', {}).items()}, indent=2)
     receipt = json.loads(next(rd.rglob(ep.RECEIPT)).read_text())
     assert receipt['events']['accepted'] == 6
     events = [json.loads(p.read_text()) for p in sorted((rd / 'logs/authorization').glob('*.json'))]

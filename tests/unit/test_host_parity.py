@@ -158,18 +158,19 @@ def test_command_hook_import_failure_is_a_blocking_exit(host, tmp_path):
     missing = tmp_path / 'missing-runtime'; missing.write_text('#!/bin/sh\nexit 1\n'); missing.chmod(0o755)
     done = subprocess.run(['/bin/sh', '-c', host_hooks.command(host, 'pre')], cwd=tmp_path,
                           input='{}', text=True, capture_output=True,
-                          env={**os.environ, 'RAVEL_PYTHON': str(missing)})
+                          env={**os.environ, 'RAVEL_PYTHON': str(missing), 'RAVEL_STATE_DIR': str(tmp_path / 'state')})
     assert done.returncode == 2 and 'BLOCKED' in done.stderr
 
 
 @pytest.mark.parametrize('host', ('codex', 'gemini'))
-def test_prompt_routing_failure_never_blocks_the_prompt(host, tmp_path):
-    # The prompt router is advisory on every host; the hard blocks live in the tool guards.
+def test_prompt_routing_failure_blocks_the_prompt_and_labels(host, tmp_path):
+    # A router that cannot run blocks the prompt (fail closed) and records a NOT GOVERNED event.
     missing = tmp_path / 'missing-runtime'; missing.write_text('#!/bin/sh\nexit 1\n'); missing.chmod(0o755)
     done = subprocess.run(['/bin/sh', '-c', host_hooks.command(host, 'prompt')], cwd=tmp_path,
                           input='{"prompt": "x"}', text=True, capture_output=True,
-                          env={**os.environ, 'RAVEL_PYTHON': str(missing)})
-    assert done.returncode == 0 and 'unavailable' in done.stderr
+                          env={**os.environ, 'RAVEL_PYTHON': str(missing), 'RAVEL_STATE_DIR': str(tmp_path / 'state')})
+    assert done.returncode == 2 and 'unavailable' in done.stderr and 'NOT GOVERNED' in done.stderr
+    assert 'hook_failure' in (tmp_path / 'state/host-integrity/events.jsonl').read_text()
 
 
 def test_prompt_route_record_is_best_effort_and_contract_is_validated(tmp_path, monkeypatch, capsys):

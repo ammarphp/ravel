@@ -1,0 +1,4 @@
+{"schema_version": 1, "kind": "toy-conformance", "rules": [
+  {"id": "positive", "statement": "every observable is positive"},
+  {"id": "monotone", "statement": "the observable grows with the coupling"},
+  {"id": "complete", "statement": "every supplied point has a row"}]}

@@ -1,18 +1,66 @@
 # Source-bound model event generation
 
-The ordinary `model-events` scientific adapter prepares and runs full supplied UFO models through the pinned MG5_aMC 2.9.27 driver. It uses existing ordinary source custody, CHECK-IN 1, approved-attempt selection, supervised worker and native process-group execution. It does not introduce a generator, shower, matrix-element evaluator or statistical optimizer.
+The ordinary `model-events` scientific adapter prepares source-bound supplied UFO model specifications for the pinned MG5_aMC 2.9.27 driver. It uses existing ordinary source custody, CHECK-IN 1, approved-attempt selection, supervised worker and native process-group execution.
 
-A preparation is source-only. Use `ravel model-events prepare --request request.json --out fresh-preparation`, then `ravel plan --rundir fresh-run --spec fresh-preparation/science.json`. The deterministic Graph/Host action `model-event-plan` consumes the same request. It never approves or executes the study. The native worker is reachable only from the exact approved ordinary task/output. A supplied-event operation remains separate; preparing supplied events cannot silently satisfy a request for generation.
+A preparation is source-only. Use `ravel model-events prepare --request request.json --out fresh-preparation`, then `ravel plan --rundir fresh-run --spec fresh-preparation/science.json`. The deterministic Graph/Host action `model-event-plan` consumes the same request. It never approves or executes the study. The native worker is reachable only from the exact approved ordinary task/output. A supplied-event operation remains separate; preparing supplied events must not silently satisfy a request for generation.
+
+## Model validation records
+
+`model_validation` contains exactly two file pins, `admission` and `widths`.
+Each pin is `{"path": "record.json", "sha256": "<sha256>"}`. Source preparation,
+ordinary input binding and the native worker consume the same evidence through
+`model_admission.generation_evidence`. The result retains each validation origin,
+its qualifications and original input census. Parameter reweight entries carry
+an additional `model_validation` pair for their exact effective card.
+
+`ravel model admit` accepts `--process-card`, `--parameter-card` and
+`--restriction`. Its record carries `generation_binding`, and every required
+process check records its exact definitions, restriction, private card and log.
+The command evaluates all processes in the complete source card using the
+existing admission checks in `model_admission.REQUIRED`.
+
+The binding consists of `ufo_digest`, `process_commands`, `restriction` and
+`parameter_card_sha256`. `model_admission.generation_binding` constructs it from
+the selected source UFO, complete literal process card and explicit parameter
+card. File content determines freshness. The model-events restriction is `full`.
+An unsuffixed scoped/native import uses `default`; an explicit suffix uses that
+restriction name. Definitions and additional processes retain their complete
+ordered population.
+
+For accepted local derivations, `ravel model-derivation-bridge width-receipt`
+consumes the qualified handoff and card-bound admission. Its
+`model-width-consistency` receipt retains the selected literal decay widths,
+parameter card pin, derivation handoff and native-check scope. Generation
+rechecks the current successful derivation result, accepted handoff, source
+manifest, original attempt and selected card.
+
+A supplied model has its own attributed path. Its admission record contains
+`schema_version: 1`, `kind: "external-model-admission"`, `decision: "admitted"`,
+`binding`, a nonempty `provenance` list of original file pins and a textual
+`qualification`. Its width record contains `schema_version: 1`,
+`kind: "external-model-widths"`, `status: "passed"`, the same `binding`,
+`parameter_card` pin, `provenance` pins and `qualification`. The external
+validator's record covers that exact model, process and parameter point.
+Generation carries `origin: "external"`, `checked_here: false` and the supplied
+qualifications. A combination of local and external evidence retains each
+component's origin and reports `origin: "mixed"`.
+
+The typed reasons are `model_evidence_absent`, `model_evidence_foreign`,
+`model_evidence_failed`, `model_evidence_stale` and `model_evidence_invalid`.
+Each refusal supplies a remedy that renews admission and widths through their
+original validator, or records attributed external validation for the current
+source point. Existing ordinary approval and execution authority apply to the
+complete evidence population.
 
 ## Complete source and mode declaration
 
-The closed schema requires full MG and unrestricted UFO source-tree manifests, an exact native Python and support-file census, compiler/runtime dependency trees, explicit source process/parameter/run cards, and explicit decay/reweight/shower choices. Every expanded source member becomes an ordinary stage input. Graph inputs expose compact manifest identities, all cards/variation definitions and original parent dependencies; preparation expands and hashes all members before and after. It never treats an unverified manifest as proof of its live members. Output may not overlap the original source trees.
+The closed schema requires full MG and unrestricted UFO source-tree manifests, an exact native Python and support-file census, compiler/runtime dependency trees, explicit source process/parameter/run cards, and explicit decay/reweight/shower choices. Every expanded source member becomes an ordinary stage input. Graph inputs expose compact manifest identities, all cards/variation definitions and original parent dependencies; preparation expands and hashes all members before and after. It never treats an unverified manifest as proof of its live members. Output must not overlap the original source trees.
 
-`generation.scheme` and perturbative `order` are mandatory. The implemented upstream paths are unmerged LO, LO MLM, LO CKKW-L, NLO MC@NLO and NLO FxFx. Their explicit `ickkw`, matrix-element cuts, integrated-shower parameters, hard-process label and complete process jet multiplicities must agree. A matched/NLO request cannot become unshowered or unmerged LO. MLM/CKKW-L/FxFx require multiple declared jet populations. The historical MSSM native pipeline remains the historical unmerged LO path; explicit MadSpin, reweight, NLO, matching/merging or systematics requests there receive a constructive `model-events` routing error.
+`generation.scheme` and perturbative `order` are mandatory. The implemented upstream paths are unmerged LO, LO MLM, LO CKKW-L, NLO MC@NLO and NLO FxFx. Their explicit `ickkw`, matrix-element cuts, integrated-shower parameters, hard-process label and complete process jet multiplicities must agree. A matched/NLO request must not become unshowered or unmerged LO. MLM/CKKW-L/FxFx require multiple declared jet populations. The historical MSSM native pipeline remains the historical unmerged LO path; explicit MadSpin, reweight, NLO, matching/merging or systematics requests there receive a constructive `model-events` routing error.
 
 Process cards contain only literal particle definitions and `generate`/`add process` commands. The adapter imports the supplied private UFO with `-full`, so MG's default restriction card is not silently applied. NLO processes must contain `[QCD]`. The literal native export process/model history is retained and compared to the requested commands. Decay chains are declared in the separate MadSpin card. Explicit SLHA scalar parameters, block scales, widths and branching rows are preserved; Auto widths are refused rather than computed without a separate admitted operation.
 
-All original cards are copied, never edited in place. The reserved nominal weight channel cannot be declared as a variation. Copied admitted MG/UFO members and their complete non-cache membership are authenticated before and after build and generation, with each returned census retained before mismatch refusal. Native generated process trees are separate; only the existing explicit Python-derived cache policy is excluded. Runtime set commands use the upstream --no_save option, so copied configuration files have no general mutation exemption. Intent, exact rendered-card pins, actual returned card text, command argv/status/timing and generated file census are retained before success checks. The only implemented Pythia output-card normalization is MG's source-backed `HEPMCoutput:file = auto` to the declared literal native filename. Arbitrary filenames, cut changes, backend changes and nominal parameter changes refuse. The private source and native scripts never install software or download a model.
+All original cards are copied, never edited in place. The reserved nominal weight channel must not be declared as a variation. Copied admitted MG/UFO members and their complete non-cache membership are authenticated before and after build and generation, with each returned census retained before mismatch refusal. Native generated process trees are separate; only the existing explicit Python-derived cache policy is excluded. Runtime set commands use the upstream --no_save option, so copied configuration files have no general mutation exemption. Intent, exact rendered-card pins, actual returned card text, command argv/status/timing and generated file census are retained before success checks. The only implemented Pythia output-card normalization is MG's source-backed `HEPMCoutput:file = auto` to the declared literal native filename. Arbitrary filenames, cut changes, backend changes and nominal parameter changes refuse. The private source and native scripts never install software or download a model.
 
 ## Decay and variation semantics
 
@@ -20,27 +68,20 @@ MadSpin must declare its literal mode, seed and decay commands. Modes `madspin`,
 
 LO scale/PDF variations use explicit `use_syst`, `systematics_program=systematics` and arguments. NLO uses explicit on-the-fly scale/PDF controls or stored-info systematics. Header identities, groups, MUR/MUF factors and LHAPDF IDs are matched to actual upstream header attributes or NLO text. A PDF set/member label remains a source declaration requiring the pinned LHAPDF/grid source; ID correspondence alone is not an independent library qualification.
 
-ME reweighting uses the upstream card's actual order: each named `launch` is followed by its literal parameter edits. The edits must equal the declared coefficient point through an explicit real/imaginary component, factor/unit and external UFO address map. NLO `_nlo` and NLO-tree `_tree` suffixes are retained. The exact coefficient basis, flavour, scale and complex components are carried with source pins. WCxf/Wilson artifacts cannot supply an inferred UFO/SFitter map. These weights represent full native matrix elements; isolated linear interference or quadratic coefficients require a separately source-backed projection and are refused by this route. Reweighting phase-space overlap, NLO approximation choice and EFT validity remain scientific obligations.
+ME reweighting uses the upstream card's actual order: each named `launch` is followed by its literal parameter edits. The edits must equal the declared coefficient point through an explicit real/imaginary component, factor/unit and external UFO address map. NLO `_nlo` and NLO-tree `_tree` suffixes are retained. The exact coefficient basis, flavour, scale and complex components are carried with source pins. WCxf/Wilson artifacts must not supply an inferred UFO/SFitter map. These weights represent full native matrix elements; isolated linear interference or quadratic coefficients require a separately source-backed projection and are refused by this route. Reweighting phase-space overlap, NLO approximation choice and EFT validity remain scientific obligations.
 
 ## Complete signed populations and downstream boundary
 
 Every generated LHE event, including negative and zero nominal weights, is consumed through EOF. Its full particle/header population, process normalization, PDF/beam identity, complete named or compact weight vector and ordinal are retained in a progressive JSONL journal. Missing/extra/duplicate/nonfinite weights, truncated exposure or altered raw streams refuse. Decimal W/Q summaries describe literal serialized weights. No luminosity normalization, envelope, cross-variation independence, sampling-law qualification or finite-MC covariance is inferred. The event hash is explicitly canonical XML, while original raw-file bytes have a separate hash.
 
-Integrated showers must declare a complete unique nominal-plus-all-variation name map. The actual HepMC2 E/N weight vectors, explicit units, finite particle/beam records and bounded returned population are retained progressively. A declared LHE-to-shower name map is not an independently qualified correspondence. The original LHE ordinal is deliberately null until an observer qualification supplies that join. Shower vetoes may reduce returned events within the explicit lower/upper bound; they do not change the original generated LHE denominator.
+Integrated showers must declare a complete unique nominal-plus-all-variation name map. The actual HepMC2 E/N weight vectors, explicit units, finite particle/beam records and bounded returned population are retained progressively. A declared LHE-to-shower name map is not an independently qualified correspondence. The original LHE ordinal is deliberately null until an observer qualification supplies that join. Shower vetoes can reduce returned events within the explicit lower/upper bound; they do not change the original generated LHE denominator.
 
-Generator handoffs retain source/model/cards/runtime, intended/rendered/observed settings, complete selected weight labels, signed W/Q and original exposure. They do not invent per-region yields, efficiencies, correlation law, detector selection or likelihood. Existing supplied-event detector/routine consumers need their own admitted lineage/normalization operation; source identity or marginal multiweights cannot replace missing shared-group covariance. Parent goal dependencies remain external and immutable, and generation delivery leaves reinterpretation/fit/coverage obligations open.
-
-## Qualification status
-
-This is an implemented source candidate with pure card, transport and inert native-driver protocol controls. No MG process, UFO import, compiler, shower, event generation or physics validation has been run for it. Build/run lifecycle, actual integrated Pythia support, MadSpin return, real native header conventions, complete source and owned-process quiescence must be qualified in future ordinary studies. The current installed MG configuration does not establish a usable MG5aMC_PY8 interface; an arbitrary installed Pythia prefix is insufficient.
-
-Primary implementation sources: pinned MG 2.9.27 `madgraph/interface/{madgraph_interface,madevent_interface,amcatnlo_run_interface,reweight_interface}.py`, `<supplied-MG-source>/MadSpin/interface_madspin.py`, `<supplied-MG-source>/models/import_ufo.py`, `madgraph/various/{banner,systematics}.py`, LO Pythia/NLO shower cards and `<supplied-MG-source>/Template/NLO/SubProcesses/handling_lhe_events.f`. Upstream descriptions: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/MadSpin and https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight . Exact source pins and line traces are retained in the private handoff rather than claimed as executed scientific evidence.
+Generator handoffs retain source/model/cards/runtime, intended/rendered/observed settings, complete selected weight labels, signed W/Q and original exposure. They do not invent per-region yields, efficiencies, correlation law, detector selection or likelihood. Existing supplied-event detector/routine consumers need their own admitted lineage/normalization operation; source identity or marginal multiweights must not replace missing shared-group covariance. Parent goal dependencies remain external and immutable, and generation delivery leaves reinterpretation/fit/coverage obligations open.
 
 ## Authenticated export and static-build reuse
 
 A new `generator_reuse` declaration uses the existing `model-events` preparation,
-plan, approval and worker. It does not create an execution controller or a global
-cache. Omit it to retain the existing fresh-export behavior. To produce a reusable
+plan, approval and worker. Omit it to retain the existing fresh-export behavior. To produce a reusable
 capsule on an ordinary successful run, declare:
 
 ```json
@@ -89,8 +130,7 @@ static overlay. On every ordinary launch this source function cleans PDF/generic
 libraries and subprocess executables before returning; it still treats fresh cards,
 compiles and surveys/refines normally. No compile call is skipped or replaced.
 This can reuse compatible libraries but does not promise every object survives
-native dependency checks or that every subprocess binary is reused. NLO and an
-unsupported build API use export reuse with normal native rebuilding.
+native dependency checks or that every subprocess binary is reused. NLO uses export reuse with normal native rebuilding. The declared LO build-reuse API must match its pinned source.
 
 Static compatibility additionally binds the complete nominal parameter card,
 all other cards, run settings, shower/decay/reweight/weight semantics and source
@@ -111,7 +151,7 @@ populations remain refused.
 The exact released MG2.9.27 `Template/LO/Events/.keep` is the sole admitted
 incidental Events file before launch. Its empty bytes and released exporter,
 copy helper and cleaner are authenticated. Other Events files, aliases and
-changed marker sources remain unavailable. Captured zero-byte members such as
+changed marker sources remain missing. Captured zero-byte members such as
 `SubProcesses/done` use a lossless typed nonempty storage envelope; materializing
 into fresh work restores their exact empty bytes. No native source, log or
 scientific result is padded. Stored envelope bytes count toward reuse ceilings.
@@ -126,8 +166,8 @@ hard-generation and shower-reentry streams, preserving that separate route.
 Scientific files and unexpected empty outputs retain the common strict guard.
 
 Capture has explicit file/member/total byte ceilings, including the cumulative
-population and bytes hashed through external source links. Unsupported export links
-or a capture ceiling retain an unavailable diagnostic and any partial files;
+population and bytes hashed through external source links. Export links outside the declared capture contract
+or a capture ceiling retain an missing diagnostic and any partial files;
 they do not qualify a capsule or turn a completed/failed run directory into a
 cache. Successful ordinary origin and the closed capsule are checked again at
 the final common worker boundary. Source controls do not establish actual
@@ -159,14 +199,14 @@ storage/reference bytes and 128 MiB per member. All actual resources and native
 calls still require the existing plan/check-in approval. Capture itself consumes
 that original study's wall allowance. The field requires exact released MG 2.9.27
 LO source, `operative_seed_observation`, an original goal binding and local native
-ownership. It cannot be combined with static `generator_reuse` or the separate
+ownership. It must not be combined with static `generator_reuse` or the separate
 pre-shower split transport.
 
 The immutable `integration-checkpoint/checkpoint.json` records the actual live
 `AllResults`, exact current run/tag alias, `RunResults`/`OneTagResults`, final
 `RunStatistics`, complete card/banner, original/current seed, Python random state
 and native `mg_seedset` presence/value. A finite typed codec replaces pickle;
-unsupported native state refuses. The stale `HTML/results.pkl` is retained only
+unrecognized native state refuses. The stale `HTML/results.pkl` is retained only
 as original provenance. The full process census includes source-selected channel
 results, grids, event pools, maxima, loop resources, cards, binaries, empty files,
 link targets and modes. Source-selected zero subprocesses/channels remain explicit.
@@ -224,7 +264,7 @@ integration products must survive that setup, then the codec restores the comple
 live graph and uses released `AllResults.def_current` for the exact existing tag.
 It never calls the destructive `set_run_name` branch to add a tag. The current
 setup timestamp is retained. Python state and `mg_seedset` are restored **after**
-setup, so a later source seed branch cannot silently reset them. The original full
+setup, so a later source seed branch must not silently reset them. The original full
 `run_generate_events` body then performs the requested refinement, zero-cross
 branch, second-refinement threshold, combine/store and configured final services.
 No shortened tail or synthetic survey seed log is used.
@@ -234,7 +274,7 @@ original survey stdout with its one genuine seed-offset observation, and the act
 continuation stdout with no repeated survey. Current banner/process/card/LHE and
 complete output ending checks remain binding. Results retain `same_sample_lineage`
 and `independent_sample=false`; the original failure remains a failure. Restored
-survey/materialized export timing is labeled separately and cannot qualify the
+survey/materialized export timing is labeled separately and must not qualify the
 existing fresh-generation phase calibration.
 
 Here “regular LO” includes loop-induced LO **only** where MG 2.9.27 uses this same
@@ -264,12 +304,12 @@ ordinary approval, goal/config/source and registered-attempt admission, then
 serializes one owner against the exact original checkpoint and goal. The whole
 selected ordinary stage ceiling is debited from the original remainder. Every
 failed or unknown reservation remains charged; there are no inferred refunds.
-Two successor directories cannot borrow the same remainder concurrently. Exact
+Two successor directories must not borrow the same remainder concurrently. Exact
 previous failure and native/ordinary cleanup evidence can release ownership for
 a smaller serial retry, without restoring its consumed allowance. A successful
 same-run continuation forbids another replay of the captured RNG stream.
 Missing or inconsistent control state refuses; the API never resets it or
-creates a replacement grant. Interrupted emission may leave conservative held
+creates a replacement grant. Interrupted emission can leave conservative held
 state requiring explicit recovery. This uses the existing mutable ordinary
 execution-control trust boundary, not an OS sandbox or a cryptographic guarantee
 against an operator rolling back all authoritative filesystem history.

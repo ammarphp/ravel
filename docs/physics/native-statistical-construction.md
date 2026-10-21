@@ -3,13 +3,12 @@
 `native-statistical-construction` is an ordinary version 2 science preparation
 mode. Its task is `{"input": "/absolute/path/recipe.json"}`. It constructs every
 declared cell's complete card, generated PhysicsModel bridge, original source and
-template files, and ordinary `native-likelihood` task. Preparation does not import
-ROOT, compile, invoke a provider/model, build a workspace, fit, or calibrate. A
+template files, and ordinary `native-likelihood` task. A
 source-only preparation result says `physics_validated: false`.
 
 The native fit subsequently uses the existing prepared runtime, Combine command
 recipe, process custody, saved-fit/result delivery and ordinary review workflow.
-There is no new optimizer, scheduler, controller or automatic fit dispatch. The
+The
 prepared `task.json` records carry the original parent scope, literal cell
 coordinates and original per-task resource ceiling. The preparation plan has its
 own existing outer attempt ceiling. Preparing sixteen tasks does not authorize
@@ -27,7 +26,7 @@ The top-level fields are `schema_version: 1` or `2`, `kind: native-source-graph/
 `runtime`, `max_seconds`, and `assumptions`. Source/review roots, law source pins,
 runtime pins and the review subject use absolute paths. No operator-written
 prebuilt card is an input. `runtime` and every cell's `fit` are the existing
-native-likelihood schemas; the currently source-pinned bridge covers
+native-likelihood schemas; the source-pinned bridge covers
 Combine 9.2.1 and ROOT 6.22/00, observed or explicitly source-generated MultiDimFit and the original full POI box.
 The generated card is staged at `source/ravel_graph_model.txt` beside the copied
 original source root. The existing native adapter runs in that card directory,
@@ -131,8 +130,7 @@ Typed geometry must have finite, distinct binary64 endpoints and finite positive
 source and native bin widths. The constant observable midpoint is formed from
 the exact rational endpoints before conversion, avoiding overflow from adding
 large native endpoints. Every exact template integral divided by its exact bin
-width must produce a finite native height; a nonzero source integral cannot
-become a zero height or a zero/nonfinite native height-times-width product.
+width must produce a finite native height; a nonzero source integral must retain a nonzero finite height and a nonzero finite native height-times-width product.
 Source zero and signed heights remain unchanged. Collapsed native edges and
 unrepresentable geometry are refused during complete recipe validation, before
 output staging. No clipping, silent zero, rescaling or new parameter repairs the
@@ -210,7 +208,7 @@ No factorization, marginal renormalization, density flattening or signed clippin
 is introduced. The native bridge uses actual joint `createIntegral` APIs;
 `RooDataHist.set(row,height,0)` retains zero deterministic metadata errors.
 Explicit Poisson MC means keep their original exposure-times-latent law; a graph
-contribution cannot replace those auxiliary means.
+contribution must not replace those auxiliary means.
 
 Joint geometry checks source/native edges, native RooBinning midpoint, widths,
 volume, density height and reconstructed nonzero integral representability.
@@ -235,7 +233,7 @@ numerical qualification. Requested settings and source-derived effective setting
 are separate: ROOT6.22 RooAdaptiveIntegratorND uses relative tolerance with
 effective absolute tolerance zero and resets `maxWarn` to zero. Returned scalar
 values, raw logs and unknown status/error/evaluation counts remain visible.
-Optimizer success or no printed warning cannot certify convergence.
+Convergence requires the declared numerical evidence and independent checks.
 
 ## Explicit generated expected data
 
@@ -243,9 +241,9 @@ An optional `expected_data` has kind `source-graph-asimov/v1`, conditioning
 `supplied_nominal` or `fit_observed_at_fixed_poi`, full `point`, original law
 `source`, explicit `statement`, and `fit` (null for supplied nominal, the existing
 bounded minimizer settings for conditioning). The point includes every original
-physical parameter, graph coordinate and whitened Gaussian eta, and may use a
+physical parameter, graph coordinate and whitened Gaussian eta, and can use a
 nonzero signed POI. Conditioning requires the complete original integer dataset.
-Null source observations may use a clearly labelled temporary zero build scaffold
+Null source observations can use a clearly labelled temporary zero build scaffold
 for nominal generation; literal original nulls are never reported as observed data.
 
 The shared preparation reads every original native `ravel_mean_i`, fills all SR/CR

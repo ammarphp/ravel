@@ -13,11 +13,13 @@ Two model-building modes, matching what a search actually publishes:
                EXPECTED CLs), which is the standard prescription when the SRs
                overlap and cannot be statistically combined.
 
-Both modes invert pyhf's asymptotic CLs with a shared scan and bracketed root
-refinement. Observed and expected (+/-1,2 sigma) limits have separate resolved /
-above-scan / below-scan statuses. A scan endpoint is a bound, not a measured limit.
-This computes the supplied statistical model; it does not establish asymptotic
-coverage, detector fidelity, or the validity of missing background correlations.
+Both modes first invert asymptotic CLs with bracketed root refinement. The CLI
+records a calculator policy: auto requests finite-toy calibration below five
+expected or observed main-bin counts, subject to the recorded toy budget.
+Observed and expected (+/-1,2 sigma) limits have separate resolved / above-scan /
+below-scan statuses. A scan endpoint is a bound, not a measured limit. This
+computes the supplied model; it does not establish coverage, detector fidelity,
+or the validity of missing background correlations.
 
 Every minimization runs through `robust_optimizer`: scipy/SLSQP plus bounded
 multistart profiling and a NaN-guarded iminuit-MIGRAD fallback. Scalar fits retain
@@ -46,6 +48,7 @@ from pathlib import Path
 import numpy as np
 from ..paths import package_data_path
 from ..limits import attach_limits, read_limits, rescale_artifact
+from .inference import toy_cls
 
 try:
     import pyhf
@@ -705,14 +708,32 @@ def scale_result(result, factor):
     result["exp_limits_lo"] = list(result["exp_limits"])
     rescale_artifact(result, 1.0 / factor)
     result["scan_mu"] = [value / factor for value in result["scan_mu"]]
+    if "asymptotic_reference" in result:
+        reference = result["asymptotic_reference"]
+        rescale_artifact(reference, 1.0 / factor)
+        reference["scan_mu"] = [value / factor for value in reference["scan_mu"]]
+    if "toy_scan" in result:
+        result["toy_scan"]["scan_mu"] = [value / factor for value in result["toy_scan"]["scan_mu"]]
+    if "limit_mc_interval" in result:
+        intervals = result["limit_mc_interval"]
+        def scaled_interval(interval):
+            return [None if value is None else value / factor for value in interval]
+        intervals["observed"] = scaled_interval(intervals["observed"])
+        intervals["expected"] = [scaled_interval(interval) for interval in intervals["expected"]]
     for record in result.get("per_sr", {}).values():
         if "obs_limit" in record:
             rescale_artifact(record, 1.0 / factor)
         if "s" in record:
             record["s_lo"] = record["s"]
             record["s"] *= factor
-    if "inference" in result:
+    if "root_atol" in result.get("inference", {}):
         result["inference"]["root_atol"] /= factor
+    if "numerical_evidence" in result:
+        evidence = result["numerical_evidence"]
+        if isinstance(evidence, dict):
+            for entry in [evidence["observed"], *evidence["expected"]]:
+                if entry.get("bracket") is not None:
+                    entry["bracket"] = [None if v is None else v / factor for v in entry["bracket"]]
     if "fit_diagnostics" in result:
         result["fit_diagnostics"]["signal_strength_units"] = "original supplied-model units (before sigma_scale_k)"
 
@@ -763,11 +784,11 @@ def model_from_counting_combined(srs):
 def low_count_flags(sr):
     """Where asymptotic qtilde calibration needs scrutiny (shapesys is Poisson-constrained)."""
     flags = []
-    if float(sr["b"]) < 5:
+    if float(sr["b"]) < toy_cls.SMALL_COUNT:
         flags.append("b<5")
     if float(sr["b"]) > 0 and float(sr["db"]) / float(sr["b"]) > 0.5:
         flags.append("db/b>0.5")
-    if float(sr["n"]) < 5:
+    if float(sr["n"]) < toy_cls.SMALL_COUNT:
         flags.append("n<5")
     return flags
 
@@ -1325,19 +1346,34 @@ def plot(res, out_png, title, sr_label=None):
     fig, ax = plt.subplots(figsize=(7, 5))
     ax.fill_between(mu, exp[:, 0], exp[:, 4], color="gold", alpha=0.5, label=r"expected $\pm2\sigma$")
     ax.fill_between(mu, exp[:, 1], exp[:, 3], color="limegreen", alpha=0.6, label=r"expected $\pm1\sigma$")
-    ax.plot(mu, exp[:, 2], "k--", lw=1.4, label="expected median")
-    ax.plot(mu, obs, "ko-", ms=3, lw=1.6, label="observed")
+    toys_applied = res.get("calculator", {}).get("applied") == "toybased"
+    prefix = "asymptotic " if toys_applied else ""
+    ax.plot(mu, exp[:, 2], "k--", lw=1.4, label=prefix + "expected median")
+    if res["obs_limit"] is not None:
+        ax.plot(mu, obs, "ko-", ms=3, lw=1.6, label=prefix + "observed")
+    if toys_applied:
+        toy = res["toy_scan"]
+        ax.errorbar(toy["scan_mu"], toy["scan_cls_obs"],
+                    yerr=toy["cls_mc_uncertainty"]["observed"], fmt="o", ms=3, color="navy",
+                    capsize=2, label="toy-based CLs observed (MC error)")
+        expected_toy = np.asarray(toy["scan_cls_exp"])
+        expected_error = np.asarray(toy["cls_mc_uncertainty"]["expected"])
+        for index in range(5):
+            ax.errorbar(toy["scan_mu"], expected_toy[:, index], yerr=expected_error[:, index],
+                        fmt=".", color="tab:blue", alpha=0.5, capsize=1,
+                        label="toy-based CLs expected (MC error)" if index == 2 else None)
     ax.axhline(0.05, color="red", lw=1.3, label=r"95% CL ($\mathrm{CL}_s=0.05$)")
     obs_curve = read_limits(res).observed
     relation = {"resolved": "=", "below_scan": "<", "above_scan": ">"}.get(obs_curve.status, "\\sim")
     qualifier = "" if obs_curve.status == "resolved" else f" ({obs_curve.status}; bound/report only)"
-    ax.axvline(res["obs_limit"], color="navy", ls=":", lw=1.4,
-               label=rf"$\mu^{{95}}_{{obs}}{relation}{res['obs_limit']:.2f}$" + qualifier)
+    if res['obs_limit'] is not None:
+        ax.axvline(res["obs_limit"], color="navy", ls=":", lw=1.4,
+                   label=rf"$\mu^{{95}}_{{obs}}{relation}{res['obs_limit']:.2f}$" + qualifier)
     ax.set_xlabel(r"signal strength $\mu$")
     ax.set_ylabel(r"$\mathrm{CL}_s$")
     ax.set_ylim(0, 1.05)
     # zoom the x-axis around the crossing when the limit is small vs the scan range
-    obs_lim = res["obs_limit"]
+    obs_lim = res["obs_limit"] if res["obs_limit"] is not None else res['exp_limits'][2]
     xhi = mu.max() if obs_lim >= 0.4 * mu.max() else max(1.0, 2.5 * obs_lim)
     ax.set_xlim(0, xhi)
     sub = f"\n(most-sensitive SR: {sr_label})" if sr_label else ""
@@ -1517,7 +1553,49 @@ def main():
                    help="headline limit from the SIMULTANEOUS multi-channel fit of all SRs "
                         "(valid only for mutually exclusive SRs); per-SR limits + best_sr "
                         "are still computed and reported")
-    for parser in (a, c):
+    k = sub.add_parser("constructed", help="HistFactory model constructed from per-region yields and a declared "
+                                            "systematics registry (the constructed-likelihood rung)")
+    k.add_argument("--srs", required=True, help="JSON list of {name,n,b,db,s}")
+    k.add_argument("--systematics", required=True, help="systematics registry JSON (sources apply to the background)")
+    k.add_argument("--out", required=True)
+    k.add_argument("--label", default="constructed model")
+    k.add_argument("--sigma-scale", type=float, default=1.0, help="NLO+NLL k-factor (µ₉₅ on NLO σ = µ₉₅/k)")
+    k.add_argument("--builder", choices=["cabinetry", "native"], default="cabinetry",
+                   help="which builder's workspace is fitted; both builders run and their parity is recorded")
+    k.add_argument("--regions-exclusive", action="store_true",
+                   help="declare that the regions are mutually exclusive (required: the model fits them simultaneously)")
+    k.add_argument("--reference-limits", metavar="FILE",
+                   help="published signal-strength limits of benchmark signals (kind reference-limits), or their "
+                        "declared absence: each benchmark is recomputed through the same model for closure")
+    simplified = sub.add_parser("simplified")
+    simplified.add_argument("--srs", required=True, help="JSON list of {name,n,b,db,s}")
+    simplified.add_argument("--covariance", required=True, help="cited background-covariance schema 1 document")
+    simplified.add_argument("--out", required=True)
+    simplified.add_argument("--label", default="simplified likelihood")
+    simplified.add_argument("--sigma-scale", type=float, default=1.0,
+                            help="signal scale factor (upper limits divided by this factor)")
+    simplified.add_argument("--reference-limits", metavar="FILE",
+                            help="published signal-strength limits of benchmark signals (kind reference-limits), or "
+                                 "their declared absence: each benchmark is recomputed through the same likelihood")
+    for parser in (a, c, k, simplified):
+        parser.add_argument("--statistics-choices", metavar="FILE",
+                            help="a seat's method choices {situation: {method, justification}} for the statistics "
+                                 "catalogue (python -m ravel.physics.inference.situations catalogue)")
+        parser.add_argument("--stat-mode-decision", metavar="FILE",
+                            help="the run's statistical-mode decision record (inputs/stat_mode_decision.json): its "
+                                 "likelihood tiers enter the assessment, and a run below the strongest tier needs a "
+                                 "justified choice")
+        parser.add_argument("--uncertainty-breakdown", choices=["auto", "on", "off"], default="auto",
+                            help="compute the statistical-only expected limit for the systematic component "
+                                 "(auto: models with at most 60 parameters)")
+    for parser in (a, c, k):
+        parser.add_argument("--cls-calculator", choices=["auto", "asymptotic", "toybased"], default="auto")
+        parser.add_argument("--toys", type=int, default=2000)
+        parser.add_argument("--toy-seed", type=int, default=1)
+        parser.add_argument("--toy-max-fits", type=int, default=200000)
+        parser.add_argument("--toy-max-seconds", type=float, default=1800.0,
+                            help="wall-time budget for a toy calibration, projected from a measured pilot of a "
+                                 "few toys; a refusal keeps the asymptotic limit and records the recommendation")
         parser.add_argument("--backend", choices=["numpy", "jax"], default="numpy",
                             help="explicit tensor backend; missing dependencies are an error")
         parser.add_argument("--fit-tolerance", type=float, default=1e-9,
@@ -1532,6 +1610,10 @@ def main():
     args = ap.parse_args()
     if args.mode == "selftest":
         selftest()
+        return
+    statistics_inputs = _statistics_inputs(args, ap)
+    if args.mode == "simplified":
+        _simplified_main(args, ap, statistics_inputs)
         return
     try:
         _number(args.sigma_scale, "sigma_scale", positive=True)
@@ -1551,7 +1633,14 @@ def main():
     except Exception as exc:
         ap.error(f"requested {args.backend} backend could not be configured: {exc}")
 
-    paths = ([Path(args.bkg), Path(args.patch)] if args.mode == "likelihood" else [Path(args.srs)])
+    if args.mode == "constructed" and not args.regions_exclusive:
+        ap.error("constructed: the model fits every region simultaneously; pass --regions-exclusive after "
+                 "checking the published region definitions")
+    paths = ([Path(args.bkg), Path(args.patch)] if args.mode == "likelihood"
+             else [Path(args.srs), Path(args.systematics)] if args.mode == "constructed" else [Path(args.srs)])
+    paths += statistics_inputs["paths"]
+    if getattr(args, "reference_limits", None):
+        paths.append(Path(args.reference_limits))
     input_artifacts = [{"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
                        for path in paths]
     engine_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -1623,6 +1712,82 @@ def main():
         res["model_scope"] = {"correlations": "preserved from the supplied workspace modifier structure",
                               "acceptance_validated": False}
         best_label = None
+    elif args.mode == "constructed":
+        from ravel.physics.inference import constructed
+        from ravel.physics.inference.systematics import Registry
+        srs_document, registry_document = _read_json(args.srs), _read_json(args.systematics)
+
+        def backend():
+            # The search builder configures its own guarded optimizer while constructing; the
+            # inference runs under this command's declared backend, tolerance and class.
+            pyhf.set_backend(args.backend, robust_optimizer(maxiter=200000, tolerance=args.fit_tolerance),
+                             precision="64b")
+
+        bracket = None
+        try:
+            registry = Registry(registry_document)
+            if registry.unknown_correlations():
+                # an unknown correlation is bracketed automatically: the facts call for it
+                def compute_variant(model_, data_):
+                    backend()
+                    return run_compute(model_, data_, n_curve=25)
+                (model, data, record, document, res), bracket = constructed.bracket_correlations(
+                    srs_document, registry_document, folder=Path(args.out) / "model_construction",
+                    compute=compute_variant, builder=args.builder, regions_exclusive=bool(args.regions_exclusive))
+            else:
+                model, data, record, document = constructed.build(
+                    srs_document, registry_document, folder=Path(args.out) / "model_construction",
+                    builder=args.builder, regions_exclusive=bool(args.regions_exclusive))
+        except (ValueError, RuntimeError) as exc:
+            ap.error(f"constructed: {exc}")
+        backend()
+        print(f"constructed model ({args.builder}): {model.config.nmaindata} regions, "
+              f"{len(model.config.par_order)} parameters; builder parity {record['parity']['status']}"
+              + (f"; correlation bracket over {len(bracket['variants'])} variants, reported "
+                 f"{bracket['reported_variant']}" if bracket else ""))
+        if bracket is None:
+            res = run_compute(model, data, n_curve=25)
+        else:
+            res["correlation_bracket"] = bracket
+        res["mode"] = "constructed"
+        res["stat_mode"] = "constructed-likelihood"
+        res["construction"] = record
+        res["per_sr"] = {sr["name"]: {"n": sr["n"], "b": sr["b"], "db": sr["db"], "s": sr["s"],
+                                      **({"low_count_flags": low_count_flags(sr)} if low_count_flags(sr) else {})}
+                         for sr in _read_json(args.srs)}
+        res["model_scope"] = {
+            "background_constraint": "declared systematics registry: one Gaussian-constrained parameter per component "
+                                     "under its correlation model, plus the uncorrelated per-region remainder of the "
+                                     "published total uncertainty",
+            "correlations": ("endpoint sensitivity over fully correlated and independent per-region assignments; "
+                             "continuous correlation coverage requires a separate domain assessment" if bracket else
+                             "declared by the registry (correlated components shared across regions)"),
+            "mutual_exclusivity": "declared by the caller (--regions-exclusive)",
+            "signal_uncertainty": "not included (absent from the yield record)",
+            "acceptance_validated": False,
+        }
+        if args.reference_limits:
+            from ravel.physics.inference import closure, situations
+            try:
+                reference = closure.load(_read_json(args.reference_limits), [sr["name"] for sr in srs_document])
+            except ValueError as exc:
+                ap.error(f"constructed: {exc}")
+            closure_registry = constructed.variant_registry(registry_document, bracket)
+
+            def compute_reference(index, signal):
+                # the same builder, registry and correlation variant as the reported limit
+                rows = [{**sr, "s": signal[sr["name"]]} for sr in srs_document]
+                model_, data_, _, _ = constructed.build(
+                    rows, closure_registry, folder=Path(args.out) / "reference_closure" / f"point-{index}",
+                    builder=args.builder, regions_exclusive=bool(args.regions_exclusive))
+                backend()
+                return run_compute(model_, data_, n_curve=25)
+            try:
+                res["reference_closure"] = closure.evaluate(reference, compute_reference,
+                                                            tolerance=situations.REFERENCE_CLOSURE_TOLERANCE)
+            except (ValueError, RuntimeError) as exc:
+                ap.error(f"constructed: a reference benchmark could not be computed: {exc}")
+        best_label = None
     else:
         srs = _read_json(args.srs)
         if not isinstance(srs, list) or not srs:
@@ -1636,7 +1801,7 @@ def main():
             names.append(name)
         # per-SR limits always computed: they feed best_sr (best EXPECTED sensitivity)
         # and the per_sr record consumers (cert engines, the benchmark gate).
-        best, best_res = None, None
+        best, best_res, best_model, best_data = None, None, None, None
         per_sr = {}
         for sr in srs:
             entry = {"n": sr["n"], "b": sr["b"], "db": sr["db"], "s": sr["s"]}
@@ -1647,6 +1812,9 @@ def main():
             flags = low_count_flags(sr)
             if flags:
                 entry["low_count_flags"] = flags
+            if args.cls_calculator != "asymptotic":
+                model, data = model_from_counting(sr)
+                entry["calculator_policy"] = toy_cls.calculator_policy(model, data, requested=args.cls_calculator)
             if float(sr["s"]) == 0.0:
                 # a zero-signal SR puts NO constraint on mu: the bracket would run to
                 # the poi cap and record a ceiling that is not a limit. Skip honestly.
@@ -1654,7 +1822,8 @@ def main():
                 per_sr[sr["name"]] = entry
                 print(f"  SR {sr['name']:6s}: s=0 -> SKIPPED (no constraint on mu)")
                 continue
-            model, data = model_from_counting(sr)
+            if args.cls_calculator == "asymptotic":
+                model, data = model_from_counting(sr)
             r = run_compute(model, data, n_curve=25)  # counting fits are instant -> fine grid
             entry.update({"obs_limit": r["obs_limit"], "exp_median": r["exp_limits"][2]})
             entry["exp_limits"] = r["exp_limits"]
@@ -1673,6 +1842,7 @@ def main():
                 best is None or r["exp_limits"][2] < best_res["exp_limits"][2]
             ):
                 best, best_res = sr["name"], r
+                best_model, best_data = model, data
         if best is None:
             sys.exit("counting: no resolved median expected limit; cannot rank a best SR")
         per_sr[best]["is_best"] = True
@@ -1691,6 +1861,7 @@ def main():
                   f"(exp {res['exp_limits'][2]:.2f})")
         else:
             res = best_res
+            model, data = best_model, best_data
             res["mode"] = "counting"
         res["best_sr"] = best
         res["per_sr"] = per_sr
@@ -1702,6 +1873,9 @@ def main():
         }
         best_label = best
 
+    toy_cls.apply(model, data, res, requested=args.cls_calculator,
+                  ntoys=args.toys, seed=args.toy_seed, max_fits=args.toy_max_fits,
+                  max_seconds=args.toy_max_seconds)
     res["label"] = args.label
     if any(hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"]
            for path, entry in zip(paths, input_artifacts)):
@@ -1716,11 +1890,23 @@ def main():
     if k != 1.0:
         scale_result(res, k)
         print(f"  applied NLO+NLL k={k}: µ₉₅(LO)={res['obs_limit_lo']:.3f} -> µ₉₅(NLO)={res['obs_limit']:.3f}")
+    from ravel.physics.inference import exclusion_statistics
+    statistics_mode = res["mode"]
+    regions = ([res["best_sr"]] if statistics_mode == "counting" else list(res["combined_channels"])
+               if statistics_mode == "counting-combined" else None)
+    exclusion_statistics.attach(
+        res, model=model, data=data, mode=statistics_mode, choices=statistics_inputs["choices"],
+        tiers=statistics_inputs["tiers"],
+        registry=registry if args.mode == "constructed" else None,
+        srs=srs_document if args.mode == "constructed" else None,
+        compute=lambda model_, data_: compute(model_, data_, n_curve=5, diagnostic_record={}),
+        breakdown=args.uncertainty_breakdown, scale=k, regions=regions)
     from ravel.validation import regression_triggers
     res['computed_checks'] = regression_triggers.consume_flags(res)
     res['computed_check_summary'] = regression_triggers.summary(res['computed_checks'])
     json.dump(res, open(os.path.join(args.out, "exclusion.json"), "w"), indent=2, allow_nan=False)
     plot(res, os.path.join(args.out, "exclusion.png"), args.label, sr_label=best_label)
+    _report_statistics(res)
 
     print("\n=== 95% CL upper limit on mu ===")
     print(f"  observed : {res['obs_limit']:.3f}")
@@ -1731,6 +1917,119 @@ def main():
     if res["limit_status"]["observed"] != "resolved":
         verdict = "UNRESOLVED: scan bound only; inspect limit_status"
     print(f"  nominal signal (mu=1): {verdict}")
+    if exclusion_statistics.outcome(res) == "held":
+        sys.exit(3)
+
+
+def _statistics_inputs(args, parser):
+    """Seat choices and the run's tier record, read and checked before anything is computed."""
+    from ravel.physics.inference import exclusion_statistics
+    out = {"paths": [], "choices": None, "tiers": None}
+    if getattr(args, "statistics_choices", None):
+        out["choices"] = _read_json(args.statistics_choices)
+        if not isinstance(out["choices"], dict):
+            parser.error("--statistics-choices must be an object keyed by situation")
+        out["paths"].append(Path(args.statistics_choices))
+    if getattr(args, "stat_mode_decision", None):
+        from ravel.workflow import stat_mode_decision
+        record = _read_json(args.stat_mode_decision)
+        problems = stat_mode_decision.validate_record(record)
+        if problems:
+            parser.error("--stat-mode-decision is not a valid decision record: " + "; ".join(problems))
+        out["tiers"] = exclusion_statistics.tier_facts(record)
+        out["paths"].append(Path(args.stat_mode_decision))
+        mode = "counting-combined" if getattr(args, "combined", False) else args.mode
+        problems = exclusion_statistics.tier_errors(mode, out["tiers"], out["choices"])
+        if problems:
+            parser.error("; ".join(problems))
+    return out
+
+
+def _report_statistics(res):
+    block = res.get("statistics") or {}
+    validity = block.get("validity") or {}
+    from ravel.physics.inference import situations
+    chosen = ", ".join(f"{row['situation']}: {row['method']} ({row['origin']})"
+                       for row in (block.get("decision") or {}).get("choices") or ())
+    print(f"\n=== statistics: {validity.get('outcome')} ===")
+    if chosen:
+        print(f"  methods  : {chosen}")
+    for label in situations.labels(block):
+        print(f"  label    : {label}")
+
+
+def _simplified_main(args, parser, statistics_inputs=None):
+    """Independent covariance route; pyhf-specific fitting options do not apply."""
+    from ravel.physics.inference import simplified
+    from ravel.validation import regression_triggers
+    try:
+        _number(args.sigma_scale, "sigma_scale", positive=True)
+    except ValueError as exc:
+        parser.error(str(exc))
+    paths = [Path(args.srs), Path(args.covariance)] + ([Path(args.reference_limits)] if args.reference_limits else [])
+    inputs = [{"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()} for path in paths]
+    engine_paths = [Path(__file__), Path(simplified.__file__)]
+    engines = [{"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()} for path in engine_paths]
+    covariance_document, yields = _read_json(args.covariance), _read_json(args.srs)
+    reference = None
+    if args.reference_limits:
+        from ravel.physics.inference import closure
+        try:
+            reference = closure.load(_read_json(args.reference_limits), [row["name"] for row in yields])
+        except ValueError as exc:
+            parser.error(f"simplified: {exc}")
+    result = simplified.run_yields(covariance_document, yields)
+    if reference is not None:
+        from ravel.physics.inference import situations
+        try:
+            result["reference_closure"] = closure.evaluate(
+                reference, lambda index, signal: simplified.run_yields(
+                    covariance_document, [{**row, "s": signal[row["name"]]} for row in yields]),
+                tolerance=situations.REFERENCE_CLOSURE_TOLERANCE)
+        except (ValueError, RuntimeError) as exc:
+            parser.error(f"simplified: a reference benchmark could not be computed: {exc}")
+    result['label'] = args.label
+    if args.sigma_scale != 1.0:
+        scale_result(result, args.sigma_scale)
+    for path, pin in zip([*paths, *engine_paths], [*inputs, *engines]):
+        if hashlib.sha256(path.read_bytes()).hexdigest() != pin['sha256']:
+            raise RuntimeError('inference inputs or engine changed while computing the result')
+    dependencies = {}
+    for name in ('spey', 'pyhf', 'numpy', 'scipy', 'iminuit'):
+        try:
+            dependencies[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            dependencies[name] = None
+    result['execution_provenance'] = {'inputs': inputs, 'engine_sha256': engines[0]['sha256'],
+        'engines': engines, 'backend': result['inference']['backend'], 'precision': '64b',
+        'dependencies': dependencies}
+    statistics_inputs = statistics_inputs or {"paths": [], "choices": None, "tiers": None}
+    from ravel.physics.inference import exclusion_statistics
+    stat_only = None
+    if args.uncertainty_breakdown != "off":
+        try:
+            fixed = simplified.run_yields(simplified.statistical_only_document(covariance_document), yields)
+            stat_only = {"status": "evaluated", "fixed_parameters": ["background covariance"],
+                         "expected": [float(x) for x in fixed["exp_limits"]],
+                         "observed": fixed["obs_limit"], "observed_status": fixed["limit_status"]["observed"]}
+        except (ValueError, RuntimeError) as exc:
+            stat_only = {"status": "not-evaluated", "reason": f"the statistical-only reference failed: {exc}"[:400]}
+        if stat_only.get("status") == "evaluated" and args.sigma_scale != 1.0:
+            stat_only["expected"] = [x / args.sigma_scale for x in stat_only["expected"]]
+            stat_only["observed"] = None if stat_only["observed"] is None else stat_only["observed"] / args.sigma_scale
+    else:
+        stat_only = {"status": "not-evaluated", "reason": "--uncertainty-breakdown off"}
+    exclusion_statistics.attach(result, mode="simplified", srs=yields, choices=statistics_inputs["choices"],
+                                tiers=statistics_inputs["tiers"], stat_only=stat_only, scale=args.sigma_scale)
+    result['computed_checks'] = regression_triggers.consume_flags(result)
+    result['computed_check_summary'] = regression_triggers.summary(result['computed_checks'])
+    os.makedirs(args.out, exist_ok=True)
+    with open(os.path.join(args.out, 'exclusion.json'), 'w') as stream:
+        json.dump(result, stream, indent=2, allow_nan=False)
+    plot(result, os.path.join(args.out, 'exclusion.png'), args.label, sr_label=None)
+    _report_statistics(result)
+    if exclusion_statistics.outcome(result) == "held":
+        sys.exit(3)
 
 
 if __name__ == "__main__":

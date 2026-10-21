@@ -678,6 +678,10 @@ def main(argv=None):
     ap = os.path.abspath(argv[0])
     if os.path.basename(os.path.dirname(ap)) == "inputs":
         base_dir = os.path.dirname(os.path.dirname(ap))
+    from ravel.workflow.architecture_receipt import checkin_section
+    architecture = checkin_section({'rundir': base_dir})
+    print(architecture['text'])
+    print(json.dumps({'architecture_receipt': architecture.get('architecture_receipt')}, indent=2))
     errs = validate(obj, base_dir=base_dir)
     if errs:
         print(f"INVALID check-in ({argv[0]}):")

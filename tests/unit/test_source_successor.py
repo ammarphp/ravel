@@ -15,6 +15,7 @@ def copied_request(tmp_path):
         shutil.copytree(ref['root'],copies/name)
     return {'config':c,'madgraph':str(copies/'madgraph'),'model':str(copies/'model'),'process':str(tmp_path/'process'),
         'python':c['runtime']['python']['path'],'card_paths':{n:p['path'] for n,p in c['cards'].items() if p},'config_sha256':'a'*64,
+        'source_base': str(tmp_path / 'original'),
         'process_observer_sha256':m.bridge._hash(model_event_process.__file__)}
 
 

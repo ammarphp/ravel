@@ -38,7 +38,9 @@ def execute_meta(base,root,monkeypatch,*,pages=None,max_request=2_000_000,op='re
         'affected_claim_ids':['complete-method'],'affected_stage_ids':[],'objections':[{'location':'full original matrix','statement':'Exact software-only report, no scientific judgment.'}],
         'required_experiment_ids':[],'premise_revision':None,'resolves_meta_revisions':[], 'replacement_stage_ids':[], 'replacement_comparison_ids':[], 'replacement_claim_ids':[],
         'evidence_citations':[{'artifact_id':entry['id'],'sha256':entry['sha256'],'location':'complete question and whole original obligations'}]}
-    host=agent_host.AgentHost(endpoint='http://127.0.0.1:9/v1/responses',max_request_bytes=max_request)
+    # An observed local model on loopback: meta actions need an observed transport; a control response is advice.
+    host=agent_host.AgentHost(endpoint='http://127.0.0.1:9/v1/responses',max_request_bytes=max_request,
+                              privacy='local_only',local_models=['inert'])
     def response(data,params,request,control):
         payload=json.loads(data)['input']
         assert 'complete-method' in json.dumps(payload)
@@ -189,11 +191,13 @@ def test_consumed_inventory_and_actual_presentation_ending_guards(tmp_path,monke
         with pytest.raises(ValueError):proto.apply_meta_review(root,graph_root=prepared['graph_root'],node_id='meta',context_pin=prepared['context'],allow_control=True)
 
 
-def quantitative_case(base,monkeypatch):
+def quantitative_case(base,monkeypatch,*,goal_binding=None):
     from test_scientific_report import fixture,attach_context
     request=fixture(base);context=attach_context(base,request)
     c=contract(base);c['context_request']=write(base/'original-context-request.json',context['request'])
     c['required_experiments']=['attempt1','still-unissued']
+    if goal_binding is not None:
+        c['goal_binding']=goal_binding
     root=base/'cycle';cycle.create(root,c,base_dir=base, evaluation_harness=True)
     _,state=cycle._load(root);state['context']=context
     receipt=write(base/'observed-record.json',{'stage':'science','attempt_id':'explicit-inert','status':'succeeded','exit_code':0,
@@ -256,13 +260,11 @@ def test_progress_nonselected_current_review_drift_refuses(tmp_path,monkeypatch)
 
 def test_progress_parent_completion_cannot_replace_original_contract(tmp_path,monkeypatch):
     from test_task_completion import goal
+    from ravel.workflow import rdj_custody
     _,parent=goal(tmp_path/'parent');_,foreign=goal(tmp_path/'foreign')
-    root,request=quantitative_case(tmp_path,monkeypatch)
-    _,state=cycle._load(root)
-    from ravel.workflow.task_completion import binding_projection
+    rdj_custody.record_input_snapshot(Path(parent['path']).parent.parent,'run_init')
     binding={'contract':parent,'assignment_id':'summary-child'}
-    state['contract']['goal_binding']=binding;state['parent_task']=binding_projection(binding,base_dir=tmp_path)
-    cycle._commit(root,state,'explicit_parent_bound_quantity_fixture')
+    root,request=quantitative_case(tmp_path,monkeypatch,goal_binding=binding)
     request['task_completion']=write(tmp_path/'foreign-completion.json',{'schema_version':1,'contract':foreign,
         'outcomes':[],'parent_review':None,'report':None})
     with pytest.raises(ValueError,match='original parent'):cycle.progress_synthesis(root,base_dir=tmp_path,report_request=request)

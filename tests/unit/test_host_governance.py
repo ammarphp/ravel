@@ -250,8 +250,9 @@ def test_result_pack_records_enforcement_and_refuses_raw_launch(tmp_path):
     assert result["detector_mode"] == "simpleanalysis-delphes"               # R-51 item 7 alias
     assert result["detector_mode_requested"] == "simpleanalysis-delphes-native"
     record = result["enforcement"]
-    assert set(record) == {"pre_execution_guards", "enforcement_surface_sha256", "host", "raw_launch",
+    assert set(record) == {"governance", "pre_execution_guards", "enforcement_surface_sha256", "host", "raw_launch",
                            "declared_host", "declared_pre_execution_guards"}
+    assert record["governance"]["label"] == "NOT GOVERNED"
     assert record["raw_launch"] == "pass" and record["pre_execution_guards"] == "none"
     (rd / "outputs/events.hepmc").write_bytes(b"raw")
     (rd / "outputs/claims").mkdir()

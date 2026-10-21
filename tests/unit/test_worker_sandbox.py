@@ -128,6 +128,28 @@ def test_provider_network_allows_outbound_tcp_443_only(tmp_path):
     assert sandbox.egress('provider','linux')==('tcp-443' if sandbox.linux_port_rules() else 'unrestricted')
 
 
+def test_provider_profile_never_grants_keychain_or_security_tool(tmp_path):
+    import inspect
+    from ravel.workflow import sandbox
+    ws = tmp_path / 'worker'
+    ws.mkdir()
+    home = sandbox.cli_home_for(ws)
+    home.mkdir(mode=0o700)
+    forbidden = ('SecurityServer', 'securityd', 'com.apple.security.agent', 'ocspd',
+                 'opendirectoryd.membership', '/usr/bin/security', '/private/var/db/mds', 'Keychains')
+    profiles = (sandbox.macos_profile(ws, network='provider'),
+                sandbox.macos_profile(ws, network='provider', home=home),
+                sandbox.macos_profile(ws))
+    for profile in profiles:
+        for name in forbidden:
+            assert name not in profile, name
+    assert not hasattr(sandbox, 'login_keychains')
+    assert not hasattr(sandbox, '_keychain')
+    assert not any(name.startswith('MACOS_KEYCHAIN_') for name in dir(sandbox))
+    for function in (sandbox.macos_profile, sandbox.linux_command, sandbox.command, sandbox.probe):
+        assert 'keychain_home' not in inspect.signature(function).parameters
+
+
 def test_denial_probe_runs_the_launch_profile_home_and_network(tmp_path,monkeypatch):
     import json,subprocess
     from ravel.workflow import sandbox
@@ -164,112 +186,14 @@ def test_real_provider_profile_denies_ports_other_than_443(tmp_path, require_san
     assert evidence['confirmed'] and evidence['computed_checks']['other_port_denied'] is True
 
 
-def _keychain_fixture(tmp_path,monkeypatch):
+def test_profiles_require_file_backed_worker_homes(tmp_path):
     from ravel.workflow import sandbox
-    ws=tmp_path/'worker'
-    for name in ('inputs','outputs','scratch'):(ws/name).mkdir(parents=True)
-    real=tmp_path/'account/Library/Keychains';real.mkdir(parents=True)
-    monkeypatch.setattr(sandbox,'login_keychains',lambda:real)
-    home=sandbox.user_home_for(ws);(home/'Library').mkdir(parents=True)
-    (home/'Library/Keychains').symlink_to(real,target_is_directory=True)
-    return ws,home,real
-
-
-def test_keychain_home_reads_the_login_keychain_and_never_writes_it(tmp_path,monkeypatch):
-    from ravel.workflow import sandbox
-    ws,home,real=_keychain_fixture(tmp_path,monkeypatch)
-    profile=sandbox.macos_profile(ws,network='provider',keychain_home=home)
-    assert '(allow file-read* (subpath '+sandbox.quote(str(real))+') (subpath "/private/var/db/mds"))' in profile
-    assert '(allow file-read* file-write* (subpath '+sandbox.quote(str(home))+'))' in profile
-    assert not any('file-write' in line and str(real) in line for line in profile.splitlines())
-    # The account home and its Library are visible as path entries only, never as readable trees.
-    for above in (real.parent,real.parent.parent):
-        assert '(subpath '+sandbox.quote(str(above))+')' not in profile
-    for name in ('com.apple.securityd','com.apple.security.agent','com.apple.ocspd',
-                 'com.apple.system.opendirectoryd.membership'):
-        assert '(global-name "'+name+'")' in profile
-    assert 'com.apple.SecurityServer' in profile and 'com.apple.trustd' in profile
-    # The CLI reads its stored login by running exactly /usr/bin/security; nothing else is named.
-    assert '(allow process-exec (literal "/usr/bin/security"))' in profile
-    assert '(allow file-read* (literal "/usr/bin/security"))' in profile
-    with pytest.raises(sandbox.ReadRootRefused):
-        sandbox.macos_profile(ws,keychain_home=sandbox.cli_home_for(ws))
-    with pytest.raises(ValueError):
-        sandbox.linux_command(ws,['/usr/bin/true'],keychain_home=home)
-
-
-def test_profiles_without_a_keychain_home_never_name_the_login_keychain(tmp_path,monkeypatch):
-    from ravel.workflow import sandbox
-    ws,home,real=_keychain_fixture(tmp_path,monkeypatch)
-    for kwargs in ({'network':'provider'},{'network':'provider','home':sandbox.cli_home_for(ws)},{}):
-        profile=sandbox.macos_profile(ws,**kwargs)
-        assert str(real) not in profile and str(home) not in profile and '/private/var/db/mds' not in profile
-        assert not any('(global-name "'+name+'")' in profile for name in sandbox.MACOS_KEYCHAIN_SERVICES)
-        assert '/usr/bin/security' not in profile
-
-
-def test_real_keychain_profile_still_denies_ports_other_than_443(tmp_path,monkeypatch,require_sandbox):
-    import sys
-    from ravel.workflow import sandbox
-    ws,home,real=_keychain_fixture(tmp_path,monkeypatch)
-    (tmp_path/'private').write_text('x')
-    if sandbox.available()!='macos':pytest.skip('the keychain home is a macOS sandbox profile property')
-    try:
-        evidence=sandbox.probe(ws,forbidden=tmp_path/'private',read_paths=sandbox.runtime_paths([sys.executable]),
-                               network='provider',keychain_home=home)
-    except sandbox.SandboxUnavailable:
-        pytest.skip('sandbox-blocked: actual OS confinement unavailable here')
-    assert evidence['confirmed'] and evidence['login_keychain'] is True
-    assert evidence['computed_checks']['other_port_denied'] is True and evidence['network']=='tcp-443'
-
-
-def test_real_keychain_profile_reads_through_the_link_and_never_writes(tmp_path,monkeypatch,require_sandbox):
-    import subprocess,sys
-    from ravel.workflow import sandbox
-    ws,home,real=_keychain_fixture(tmp_path,monkeypatch)
-    (real/'login.keychain-db').write_text('synthetic')
-    (tmp_path/'account/.profile').write_text('private')
-    if sandbox.available()!='macos':pytest.skip('the keychain home is a macOS sandbox profile property')
-    program=('import json,pathlib,sys\nh=pathlib.Path(sys.argv[1]);out={}\n'
-             'out["read"]=(h/"Library/Keychains/login.keychain-db").read_text()\n'
-             'for k,p in (("link_write",h/"Library/Keychains/new"),("real_write",pathlib.Path(sys.argv[2])/"new")):\n'
-             ' try:p.write_text("x");out[k]=False\n'
-             ' except PermissionError:out[k]=True\n'
-             'try:pathlib.Path(sys.argv[3]).read_text();out["home_read"]=False\n'
-             'except PermissionError:out["home_read"]=True\n'
-             'print(json.dumps(out))\n')
-    argv=[sys.executable,'-B','-c',program,str(home),str(real),str(tmp_path/'account/.profile')]
-    done=subprocess.run(sandbox.command(ws,argv,read_paths=sandbox.runtime_paths([sys.executable]),network='provider',
-                                        keychain_home=home),cwd=ws,env={'PATH':'/usr/bin:/bin','HOME':str(home)},
-                        capture_output=True,text=True,timeout=20)
-    if 'sandbox_apply' in done.stderr:pytest.skip('sandbox-blocked: actual OS confinement unavailable here')
-    import json
-    assert json.loads(done.stdout)=={'read':'synthetic','link_write':True,'real_write':True,'home_read':True},done.stderr
-    assert sorted(p.name for p in real.iterdir())==['login.keychain-db']
-
-
-def test_real_keychain_profile_runs_the_security_tool_read_only(tmp_path, require_sandbox):
-    """The account's real login keychain, read through the worker's keychain home; no secret is read or printed."""
-    import os,pwd,subprocess,sys
-    from ravel.workflow import sandbox
-    if sandbox.available()!='macos':pytest.skip('the keychain home is a macOS sandbox profile property')
-    if not (sandbox.login_keychains()/'login.keychain-db').is_file():pytest.skip('no login keychain on this account')
-    ws=tmp_path/'worker'
-    for name in ('inputs','outputs','scratch'):(ws/name).mkdir(parents=True)
-    home=sandbox.user_home_for(ws);(home/'Library').mkdir(parents=True)
-    (home/'Library/Keychains').symlink_to(sandbox.login_keychains(),target_is_directory=True)
-    account=pwd.getpwuid(os.getuid()).pw_name
-    env={'PATH':'/usr/bin:/bin','HOME':str(home),'TMPDIR':str(ws/'scratch'),'USER':account,'LOGNAME':account}
-    def run(*args):
-        argv=sandbox.command(ws,['/usr/bin/security',*args],read_paths=sandbox.runtime_paths([sys.executable]),
-                             network='provider',keychain_home=home)
-        return subprocess.run(argv,cwd=ws,env=env,capture_output=True,text=True,timeout=30)
-    info=run('show-keychain-info',str(home/'Library/Keychains/login.keychain-db'))
-    if 'sandbox_apply' in info.stderr:pytest.skip('sandbox-blocked: actual OS confinement unavailable here')
-    assert info.returncode==0,info.stderr
-    # A lookup of a service that does not exist reaches the keychain search (exit 44, item not found).
-    missing=run('find-generic-password','-a',account,'-s','ravel-synthetic-absent-service')
-    assert missing.returncode==44 and 'could not be found' in missing.stderr
+    ws = tmp_path / 'worker'
+    ws.mkdir()
+    with pytest.raises(TypeError):
+        sandbox.macos_profile(ws, keychain_home=tmp_path / 'external')
+    with pytest.raises(TypeError):
+        sandbox.linux_command(ws, ['/usr/bin/true'], keychain_home=tmp_path / 'external')
 
 
 def test_symlinked_run_path_refusal_names_the_real_path(tmp_path):

@@ -744,7 +744,29 @@ MANUAL_RUNGS = [
 ]
 
 
-def census_one(inspire, arxiv=None, analysis_id=None):
+OFFLINE_NOT_CONSULTED = "offline: network egress unavailable; not consulted"
+OFFLINE_NO_COPY = "offline: network egress unavailable; no local mirror copy"
+
+
+def _offline_metadata(mirror):
+    return {"offline": True, "mirror": os.path.abspath(mirror) if mirror else None}
+
+
+def _mirror_hepdata(inspire, mirror):
+    if mirror:
+        path = os.path.join(os.path.abspath(mirror), "hepdata", f"ins{inspire}", "record.json")
+        try:
+            with open(path) as stream:
+                record = json.load(stream)
+            if isinstance(record, dict):
+                return {"status": "OK", "source": "local-mirror", "path": path,
+                        "keys": sorted(record)}
+        except (OSError, ValueError):
+            pass
+    return {"status": "SKIPPED", "reason": OFFLINE_NO_COPY}
+
+
+def census_one(inspire, arxiv=None, analysis_id=None, *, offline=False, mirror=None):
     """Walk R1-R5 for one analysis -> the per-analysis census record."""
     inspire = discovery_http.inspire_digits(inspire)
     rungs = {}
@@ -755,6 +777,12 @@ def census_one(inspire, arxiv=None, analysis_id=None):
         ("R4_github", rung_github, ([analysis_id, arxiv, f"ins{inspire}"],)),
         ("R5_citations", rung_inspire_zenodo, (inspire, analysis_id or "")),
     ]:
+        if offline and name == "R1_hepdata":
+            rungs[name] = _mirror_hepdata(inspire, mirror)
+            continue
+        if offline and name != "R2_routines":
+            rungs[name] = {"status": "SKIPPED", "reason": OFFLINE_NOT_CONSULTED}
+            continue
         if fn is None:
             rungs[name] = {"status": "SKIPPED", "reason": "no --arxiv given"}
             continue
@@ -765,6 +793,7 @@ def census_one(inspire, arxiv=None, analysis_id=None):
     return {"schema_version": 1, "kind": "analysis", "id": f"ins{inspire}",
             "analysis_id": analysis_id, "inspire": inspire, "arxiv": arxiv,
             "rungs": rungs, "manual_rungs": MANUAL_RUNGS,
+            **(_offline_metadata(mirror) if offline else {}),
             "rungs_ok": [k for k, v in rungs.items() if _rung_ok(v)]}
 
 
@@ -772,11 +801,14 @@ def _slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:60] or "query"
 
 
-def keyword_search(query, limit=5):
+def keyword_search(query, limit=5, *, offline=False, mirror=None):
     """HEPData + INSPIRE searches for a topic -> the search record with merged candidates."""
     searches = {}
     for name, fn in (("hepdata_search", discovery_http.search_hepdata),
                      ("inspire_search", discovery_http.search_inspire)):
+        if offline:
+            searches[name] = {"status": "SKIPPED", "reason": OFFLINE_NOT_CONSULTED}
+            continue
         try:
             searches[name] = fn(query, size=max(limit, 1) * 2)
         except Exception as e:
@@ -802,7 +834,9 @@ def keyword_search(query, limit=5):
     ordered = sorted(candidates.values(), key=lambda c: -len(c["found_by"]))
     return {"schema_version": 1, "kind": "search", "id": "search-" + _slug(query),
             "query": query, "searches": searches, "candidates": ordered,
-            "rungs": {k: {"status": v.get("status"), "n_hits": len(v.get("hits") or [])}
+            **(_offline_metadata(mirror) if offline else {}),
+            "rungs": {k: {"status": v.get("status"), "n_hits": len(v.get("hits") or []),
+                          **({"reason": v["reason"]} if offline and "reason" in v else {})}
                       for k, v in searches.items()},
             "rungs_ok": [k for k, v in searches.items() if v.get("status") == "OK"]}
 
@@ -880,6 +914,13 @@ def write_index(rundir, timestamp=""):
 
 
 def _markdown(census):
+    if census.get("offline"):
+        lines = [f"\n### Resource census: {census.get('analysis_id') or census['id']} (offline)"]
+        for name, rung in census["rungs"].items():
+            detail = (f"local-mirror {rung['path']}; keys: {', '.join(rung['keys'])}"
+                      if rung.get("source") == "local-mirror" else rung.get("reason", "local lookup"))
+            lines.append(f"- {name}: {rung.get('status')}; {detail}")
+        return "\n".join(lines)
     rungs = census["rungs"]
     r1 = rungs.get("R1_hepdata", {})
     r2 = rungs.get("R2_routines", {})
@@ -915,9 +956,12 @@ def _markdown(census):
 
 def _search_markdown(search):
     lines = [f"\n### Resource search: \"{search['query']}\""]
+    if search.get("offline"):
+        lines.append("- Offline; remote searches not consulted")
     for k, v in search["searches"].items():
+        failure_status = v.get("status", "ERROR") if search.get("offline") else "ERROR"
         lines.append(f"- {k}: " + (f"{v.get('total', '?')} total, {len(v.get('hits') or [])} read"
-                                   if v.get("status") == "OK" else f"ERROR {v.get('reason', '')}"))
+                                   if v.get("status") == "OK" else f"{failure_status} {v.get('reason', '')}"))
     for c in search["candidates"][:15]:
         lines.append(f"- ins{c['inspire']} {c.get('analysis_id') or ''} {c.get('title') or ''} "
                      f"[{', '.join(c['found_by'])}]".replace("  ", " "))
@@ -942,13 +986,58 @@ def _parse_analysis(spec):
     return fields
 
 
+def reading_targets(reading):
+    """``(analyses, keywords)`` a pinned request reading names, for a census with no hand-typed ids.
+
+    Identifier facts give analyses: an INSPIRE id anchors one record (with the arXiv id and analysis
+    code the reading also states); an arXiv id or analysis code alone is a keyword search. Without
+    identifiers, publication titles, else model terms with experiments, are the topic keywords.
+    Nothing is inferred beyond what the reading states.
+    """
+    if not isinstance(reading, dict):
+        raise ValueError("the reading is not a JSON object")
+    facts = [f for f in reading.get("facts") or () if isinstance(f, dict)]
+    ids = {}
+    for fact in facts:
+        value = fact.get("value") if isinstance(fact.get("value"), dict) else {}
+        if fact.get("type") == "identifier" and isinstance(value.get("id"), str):
+            ids.setdefault(value.get("scheme"), []).append(value["id"])
+    analyses, keywords = [], []
+    inspire = ids.get("inspire") or []
+    arxiv, codes = ids.get("arxiv") or [], ids.get("analysis") or []
+    for index, record in enumerate(inspire):
+        analyses.append({"inspire": record, "arxiv": arxiv[index] if len(inspire) == 1 and arxiv else None,
+                         "id": codes[index] if len(inspire) == 1 and codes else None})
+    if not inspire:
+        keywords += list(dict.fromkeys(arxiv + codes))
+    if not analyses and not keywords:
+        titles = [str((f.get("value") or {}).get("text") or "").strip() for f in facts
+                  if f.get("type") == "publication_title"]
+        keywords += [t for t in titles if t]
+    if not analyses and not keywords:
+        terms = [str((f.get("value") or {}).get("text") or "").strip() for f in facts
+                 if f.get("type") in ("model_term", "experiment")]
+        terms = [t for t in dict.fromkeys(terms) if t]
+        if terms:
+            keywords.append(" ".join(terms))
+    return analyses, keywords
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
+    if "--fetch-published-data" in argv:
+        # The registered acquisition operation keeps one implementation entry. Numeric
+        # data acquisition retains the data reader's source-policy and completeness guards.
+        from ravel.workflow import hepdata_fetch
+        return hepdata_fetch.main([a for a in argv if a != "--fetch-published-data"])
     # New modes dispatch BEFORE the required-arg parse (--inspire is required=True): a recipe search
     # keyed on a free-text model has no INSPIRE id (shape_fit's pre-parse intercept pattern).
     if "--selftest" in argv:
         return _selftest()
     if "--debug" in argv:
+        if "--offline" in argv:
+            print("resource_census: --offline is unavailable for --debug", file=sys.stderr)
+            return 2
         return _recipe_search_main(argv)
     if "--assert-recipe-search" in argv:
         return _assert_recipe_search_main(argv)
@@ -974,16 +1063,46 @@ def main(argv=None):
                     help="write inputs/resource_census/<id>.json + the inputs/resource_census.json index")
     ap.add_argument("--markdown", action="store_true", help="print the CHECK-IN 1 block")
     ap.add_argument("--timestamp", default=None)
+    ap.add_argument("--offline", action="store_true", help="consult local sources only")
+    ap.add_argument("--mirror", help="local source mirror directory (requires --offline)")
+    ap.add_argument("--reading", default=None, metavar="READING_JSON",
+                    help="census the analyses and topic a pinned request reading names "
+                         "(identifier facts; else its publication titles, model terms and experiments)")
+    ap.add_argument("--controller-output", default=None,
+                    help="write one self-contained census record with every member embedded")
     args = ap.parse_args(argv)
+    if args.mirror and not args.offline:
+        ap.error("--mirror requires --offline")
+    offline_fields = _offline_metadata(args.mirror) if args.offline else {}
     analyses = list(args.analysis)
     if args.inspire:
         analyses.insert(0, {"inspire": args.inspire, "arxiv": args.arxiv, "id": args.analysis_id})
     elif args.arxiv or args.analysis_id:
         ap.error("--arxiv/--analysis-id describe the --inspire analysis; use --analysis for several")
+    if args.reading:
+        try:
+            from ravel.workflow.state_io import read_json
+            found, keywords = reading_targets(read_json(args.reading))
+        except (OSError, ValueError) as exc:
+            ap.error(f"--reading: {exc}")
+        analyses += found
+        args.keyword = list(args.keyword) + keywords
     if not analyses and not args.keyword:
-        ap.error("give --inspire, --analysis or --keyword")
+        if args.reading and args.controller_output and not args.rundir:
+            # The controller's census of a pinned reading that names no analysis or topic: the sweep's first
+            # rung (the request's own stated facts) definitively found nothing to sweep. That is a record of
+            # this request, never a network finding; no public source was consulted or read as absent.
+            _write_json(args.controller_output, {
+                "schema_version": 1, **offline_fields, "records": [], "targets": {"analyses": [], "keywords": []},
+                "rungs": {"reading/targets": {
+                    "status": "ABSENT",
+                    "reason": "the pinned reading names no analysis identifier, publication title, model term "
+                              "or experiment; no public source was consulted"}}})
+            return 0
+        ap.error("give --inspire, --analysis, --keyword or a --reading that names an analysis or topic")
 
-    searches = [keyword_search(q, args.limit) for q in args.keyword]
+    local_options = {"offline": True, "mirror": args.mirror} if args.offline else {}
+    searches = [keyword_search(q, args.limit, **local_options) for q in args.keyword]
     if not args.search_only:
         seen = {discovery_http.inspire_digits(a["inspire"]) for a in analyses}
         for search in searches:
@@ -992,24 +1111,34 @@ def main(argv=None):
                     seen.add(c["inspire"])
                     analyses.append({"inspire": c["inspire"], "arxiv": c.get("arxiv"),
                                      "id": c.get("analysis_id")})
-    censuses = [census_one(a["inspire"], a.get("arxiv"), a.get("id")) for a in analyses]
+    censuses = [census_one(a["inspire"], a.get("arxiv"), a.get("id"),
+                           **local_options) for a in analyses]
 
     records = censuses + searches
-    if not any(r["rungs_ok"] for r in records):
+    if not args.offline and not any(r["rungs_ok"] for r in records):
         print("resource_census: EVERY rung failed -- that is a network/environment finding, "
               "NOT evidence that nothing exists. Do not proceed as if the sweep ran.",
               file=sys.stderr)
         print(json.dumps(records, indent=1)[:2000], file=sys.stderr)
         return 3
 
-    if args.rundir:
+    if args.controller_output:
+        if args.rundir:
+            ap.error("--controller-output and --rundir are separate output modes")
+        _write_json(args.controller_output, {"schema_version": 1, **offline_fields, "records": records,
+                    "rungs": {f"{index}/{name}": rung for index, rec in enumerate(records)
+                              for name, rung in (rec.get("rungs") or {}).items()}})
+    elif args.rundir:
         folder = os.path.join(args.rundir, "inputs", "resource_census")
         write_index(args.rundir, _resolve_timestamp(args.timestamp))   # keeps a prior census
         for rec in records:
             dest = os.path.join(folder, rec["id"] + ".json")
             _write_json(dest, rec)
             print(f"wrote {dest}")
-        index_path, _ = write_index(args.rundir, _resolve_timestamp(args.timestamp))
+        index_path, index = write_index(args.rundir, _resolve_timestamp(args.timestamp))
+        if offline_fields:
+            index.update(offline_fields)
+            _write_json(index_path, index)
         print(f"wrote {index_path}")
     elif len(records) == 1:
         print(json.dumps(records[0], indent=1))

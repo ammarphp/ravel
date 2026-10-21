@@ -8,6 +8,10 @@ from .options import identifier, normalize
 
 LABELS = {'local': 'local configuration; dry-run checks only',
           'htcondor': 'HTCondor shared-filesystem profile; awaits site qualification'}
+# The brokered variant's commands; the client module is ravel.workflow.wms_broker_client.
+BROKER_COMMANDS = ('submit', 'status', 'cancel')
+BROKER_SCRIPT = ('#!/bin/sh\nexec "${{RAVEL_WMS_BROKER_PYTHON:?the controller submission broker is not available}}" '
+                 '-m ravel.workflow.wms_broker_client {command} "$@"\n')
 
 
 def render(name, *, cores=1, retries=0, jobs=None, options=None, project_id=None):
@@ -27,18 +31,26 @@ def render(name, *, cores=1, retries=0, jobs=None, options=None, project_id=None
                'project_id': project_id, 'requirements': []}
     if name == 'htcondor':
         effective = normalize(options)
+        # The executor variant keeps its original bytes: its mode is the default and no option.
+        brokered = effective.get('submission') == 'broker'
         encoded = base64.urlsafe_b64encode(json.dumps(effective, sort_keys=True, separators=(',', ':')).encode()).decode()
         arguments = ['--options-base64', encoded]
         if project_id is not None:
             arguments += ['--project-id', project_id]
-        profile['scripts'] = {
-            'ravel-' + command + '.sh': '#!/bin/sh\nexec ' + shlex.join(
-                ['ravel-wms-condor-' + command, *arguments]) + ' \"$@\"\n'
-            for command in ('submit', 'status')}
+        if brokered:
+            # A confined workflow child holds no capability and no scheduler command: each
+            # command is a typed request to the controller's submission broker.
+            profile['scripts'] = {'ravel-' + command + '.sh': BROKER_SCRIPT.format(command=command)
+                                  for command in BROKER_COMMANDS}
+        else:
+            profile['scripts'] = {
+                'ravel-' + command + '.sh': '#!/bin/sh\nexec ' + shlex.join(
+                    ['ravel-wms-condor-' + command, *arguments]) + ' \"$@\"\n'
+                for command in ('submit', 'status')}
         config.update({'executor': 'cluster-generic',
                        'cluster-generic-submit-cmd': 'ravel-submit.sh',
                        'cluster-generic-status-cmd': 'ravel-status.sh',
-                       'cluster-generic-cancel-cmd': 'condor_rm',
+                       'cluster-generic-cancel-cmd': 'ravel-cancel.sh' if brokered else 'condor_rm',
                        # One sweep per snapshot interval. The executor applies the
                        # per-second limit to each job's call, and those read the snapshot.
                        'max-status-checks-per-second': 10,

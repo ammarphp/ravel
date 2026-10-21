@@ -1,0 +1,17 @@
+{
+  "title": "judgment action.v1",
+  "description": "The classification inputs of one judgment call or effectful step. The consequence class is computed by code from these fields; declared_class can only raise it.",
+  "type": "object",
+  "required": ["summary"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "kind": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_]*$"},
+    "gate": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_]*$"},
+    "research_choice": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_]*$"},
+    "step_kind": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_]*$"},
+    "rung": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_]*$"},
+    "effects": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_]*$"}},
+    "declared_class": {"type": "string", "enum": ["R0", "R1", "R2", "R3"]}
+  }
+}

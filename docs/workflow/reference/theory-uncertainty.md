@@ -46,7 +46,7 @@ their declared independent-class quadrature. Central values are retained.
 
 | Class | Required prescription and semantics |
 |---|---|
-| Scale | `7pt-envelope` excludes the two opposite pairs; `9pt-envelope` retains them; `independent-muR-muF` combines axis envelopes in quadrature. Ratios are 0.5, 1 and 2. A repeated nominal point may be omitted. Missing points, duplicates and mixed dynamical-scale choices refuse. |
+| Scale | `7pt-envelope` excludes the two opposite pairs; `9pt-envelope` retains them; `independent-muR-muF` combines axis envelopes in quadrature. Ratios are 0.5, 1 and 2. A repeated nominal point can be omitted. Missing points, duplicates and mixed dynamical-scale choices refuse. |
 | PDF | `lhapdf-error-type` with source-bound `.info` metadata and all members. An incompatible ErrorType refuses. The isolated library handles Hessian, symmetric Hessian or replicas and confidence rescaling. |
 | α_s | `pdf-set-members` or `plus-minus-delta` with `delta`, two bracketing predictions, each member's `alpha_s_mz` and equal `pdf_alpha_s_mz`. Error is half their difference. A delta without predictions is insufficient. |
 | EW | `multiplicative`, `additive` or `difference-as-uncertainty`. Supply both absolute predictions with those roles. The first two report deviation of the selected prediction from central and retain the comparison; the third reports their absolute difference. |
@@ -58,7 +58,7 @@ coupling metadata is `unknown`; a mismatch is `failed`. Both prevent completenes
 `read_pdf_info(text)` retains full text and digest. A composite ErrorType ending
 in `+as` needs explicit PDF prescription `components: [pdf, alphas]` and refuses
 separate α_s members or prescriptions. Its library band is a declared combined
-group; covariance records `component_groups` so consumers cannot count it twice.
+group; covariance records `component_groups` so consumers must not count it twice.
 
 Declare normalization to a different-order cross section with
 `normalization_order` and `normalization_declaration`: `shape_order`,

@@ -44,7 +44,7 @@ The perturbative contract is explicit: `hard_order: "LO"`,
 `alpha_s_policy: "unchanged_all_members"`, `response_policy: "fixed_supplied"`,
 and `group_rule: "independent_single_event"`. No scale is inferred from SCALUP.
 The normalization maps a supplied integral contribution to expected events using
-one positive factor common to every member. It cannot use this ratio formula on
+one positive factor common to every member. Use a separately derived normalization formula for
 NLO subtraction/counterterm records or correlated event groups, change alpha_s,
 retune the shower, or alter amplitudes, branching fractions, selection or response.
 Using this NLO PDF set does not convert an explicitly LO hard calculation to NLO.

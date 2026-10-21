@@ -65,12 +65,11 @@ and selection. Agreement with a final contour does not by itself validate the ra
    mismatch produces no events *with exit 0* (the most dangerous silent failure).
 3. **Pythia8 cfg** — turn on matching: `JetMatching:merge = on`, `JetMatching:scheme = 1` (MLM),
    `JetMatching:qCut = 1.25×xqcut`, `JetMatching:nJetMax = 2`, `JetMatching:setMad = off` (set qCut
-   explicitly — `setMad=on` often can't parse MG's header and silently defaults qCut). `qCut` must
+   explicitly — `setMad=on` can fall back to its default qCut while parsing MG's header). `qCut` must
    sit above the generation resolution scale. The example's factor 1.25 is a historical choice;
    its sensitivity must be studied with enough events to distinguish variation from noise.
    CKKW-L is a different prescription: use its documented `Merging:*` configuration, process and
-   multiplicity handling, and merging-weight normalization. Switching names in an MLM card does
-   not implement or validate CKKW-L.
+   multiplicity handling, and merging-weight normalization. Validate CKKW-L using its own configuration and prescription.
 4. **Validate the merging prescription** — inspect differential jet rates across the scale,
    leading-jet and recoil spectra, missing momentum, and the selections that determine acceptance.
    Report rate/shape variation and its uncertainty. Preserve all attempted/accepted counts,
@@ -79,7 +78,7 @@ and selection. Agreement with a final contour does not by itself validate the ra
    which before changing it.
 
 ## Expected effect
-Merging may change low- as well as high-multiplicity acceptance when recoil enters selection.
+Merging can change low- as well as high-multiplicity acceptance when recoil enters selection.
 The direction is not prescribed. Re-run cutflows and shape comparisons with the same detector,
 PDF, normalization and statistical model so the intended change can be isolated.
 Record in `provenance.json`: per-subprocess pre-veto σ ± integration error (from the banner), the

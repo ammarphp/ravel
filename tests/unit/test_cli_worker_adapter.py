@@ -28,6 +28,17 @@ if args == ['--version']:
 if '--help' in args:
     sys.stdout.write((here / 'help.txt').read_text()); sys.exit(0)
 mode = (here / 'mode.txt').read_text().strip()
+if args == ['login', 'status']:
+    try:
+        login = json.loads((Path(os.environ['CODEX_HOME']) / 'auth.json').read_text())
+        valid = isinstance(login, dict) and not login.get('OPENAI_API_KEY') and login.get('auth_mode') not in ('apikey', 'api_key', 'api-key')
+    except Exception:
+        valid = False
+    sys.stdout.write('Logged in using ChatGPT' if valid else 'Login required'); sys.exit(0 if valid else 1)
+if args == ['auth', 'status', '--json']:
+    if mode == 'auth_expired':
+        sys.stderr.write('OAuth session expired and could not be refreshed\\n'); sys.exit(1)
+    sys.stdout.write(json.dumps({{'loggedIn': True, 'authMethod': 'claude.ai'}}) + '\\n'); sys.exit(0)
 prompt = sys.stdin.read()
 Path('scratch/seen.json').write_text(json.dumps({{'argv': args, 'env': sorted(os.environ), 'prompt': prompt,
     'config_dir': os.environ.get('CLAUDE_CONFIG_DIR'), 'user': os.environ.get('USER'),
@@ -70,6 +81,10 @@ def cli(tmp_path, monkeypatch):
     bin_dir.mkdir()
     for name in ('state', 'home', 'claude-login', 'run/inputs'):
         (tmp_path / name).mkdir(parents=True)
+    (tmp_path / 'claude-login').chmod(0o700)
+    login = tmp_path / 'claude-login/.credentials.json'
+    login.write_text('opaque-owner-fixture')
+    login.chmod(0o600)
     monkeypatch.setenv('RAVEL_STATE_DIR', str(tmp_path / 'state'))
     monkeypatch.setenv('HOME', str(tmp_path / 'home'))
     monkeypatch.setenv('PATH', f'{bin_dir}:/usr/bin:/bin')
@@ -78,6 +93,38 @@ def cli(tmp_path, monkeypatch):
     monkeypatch.delenv('RAVEL_WORK_ROOT', raising=False)
     (bin_dir / 'mode.txt').write_text('ok')
     (bin_dir / 'session.txt').write_text('sess-1')
+    original_home = cli_worker._cli_home
+    def owner_files(agent, document, ws):
+        if agent == 'claude' and document['auth']['kind'] == 'login':
+            import shutil
+            source = tmp_path / 'claude-login/.credentials.json'
+            target = sandbox.cli_home_for(ws) / 'claude/.credentials.json'
+            target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            if (source.exists() or source.is_symlink()) and not target.exists():
+                if source.is_symlink():
+                    target.symlink_to(source)
+                elif source.is_fifo():
+                    os.mkfifo(target, mode=0o600)
+                else:
+                    shutil.copyfile(source, target)
+                    target.chmod(source.stat().st_mode & 0o777)
+                    if source.stat().st_nlink != 1:
+                        os.link(target, target.with_name('linked-fixture'))
+        if agent == 'codex':
+            import shutil
+            folder = sandbox.cli_home_for(ws) / 'codex'
+            folder.mkdir(parents=True, exist_ok=True, mode=0o700)
+            target = folder / 'auth.json'
+            source = tmp_path / 'home/.codex/auth.json'
+            if source.exists() and source.stat().st_mode & 0o777 == 0:
+                target.write_text('{"owner": "fixture"}')
+            elif source.is_file() and not source.is_symlink():
+                shutil.copyfile(source, target)
+            elif not target.exists():
+                target.write_text('{"owner": "fixture"}')
+            target.chmod(0 if source.exists() and source.stat().st_mode & 0o777 == 0 else 0o600)
+        return original_home(agent, document, ws)
+    monkeypatch.setattr(cli_worker, '_cli_home', owner_files)
     return tmp_path
 
 
@@ -233,11 +280,14 @@ def test_descriptor_is_built_in_code_from_declaration_probe_selection_and_schema
     assert allowed and all(name.startswith('mcp__ravel__') for name in allowed) and 'mcp__ravel__ws_write' in allowed
     mcp = json.loads(Path(argv[argv.index('--mcp-config') + 1]).read_text())
     assert list(mcp['mcpServers']) == ['ravel'] and 'work_cli' in ' '.join(mcp['mcpServers']['ravel']['args'])
+    assert d['transport']['mcp_command'] == [mcp['mcpServers']['ravel']['command'],
+                                             *mcp['mcpServers']['ravel']['args']]
     # USER and LOGNAME come from the password database in the supervisor, never from the parent.
     assert d['pass_env_names'] == ['CLAUDE_CONFIG_DIR', 'LOGNAME', 'USER']
     transport = d['transport']
     assert transport['probe_sha256'] == tr.digest(record) and transport['executable_sha256'] == record['executable_sha256']
-    assert transport['cli_home'] == str(broker.ordinary(cli / 'claude-login')) and transport['cli_home_owned'] is False
+    assert transport['cli_home'] == str(sandbox.cli_home_for(ws)) and transport['cli_home_owned'] is False
+    assert transport['launch_env']['CLAUDE_CONFIG_DIR'] == str(sandbox.cli_home_for(ws) / 'claude')
     assert transport['verified_env'] == ['CLAUDE_CONFIG_DIR'] and transport['network'] == 'provider'
     runtime = sandbox.runtime_paths(argv)
     assert all(any(Path(p).is_relative_to(r) for r in runtime) for p in d['read_paths'])
@@ -251,10 +301,68 @@ def test_descriptor_is_built_in_code_from_declaration_probe_selection_and_schema
     assert d['model'] == {'requested': 'claude-fixture-model', 'observed': None, 'family': 'anthropic', 'effort': 'high'}
 
 
+def test_login_home_uses_owner_provided_files_without_copying(cli):
+    source = cli / 'claude-login'
+    credential = source / '.credentials.json'
+    before = credential.read_bytes()
+    ws = worker.materialize(cli / 'run', spec(cli))
+    home, owned, environment, verified, config = cli_worker._cli_home('claude', tr.load('claude-cli-worker'), ws)
+    assert home == sandbox.cli_home_for(ws) and owned is False
+    assert environment == {'CLAUDE_CONFIG_DIR': str(home / 'claude')} and verified == ['CLAUDE_CONFIG_DIR']
+    assert config == ws / 'inputs/mcp' and (home / 'claude/.credentials.json').is_file()
+    cli_worker.remove_home(ws, {'transport': {'cli_home': str(home), 'cli_home_owned': owned}})
+    assert credential.read_bytes() == before
+
+
+@pytest.mark.parametrize('hostile', ['symlink', 'hardlink', 'fifo', 'file-mode', 'dir-mode', 'empty'])
+def test_login_file_metadata_refuses_unsafe_owner_entries(cli, hostile):
+    source = cli / 'claude-login/.credentials.json'
+    if hostile == 'symlink':
+        source.unlink(); source.symlink_to(cli / 'outside')
+    elif hostile == 'hardlink':
+        os.link(source, cli / 'outside')
+    elif hostile == 'fifo':
+        source.unlink(); os.mkfifo(source, mode=0o600)
+    elif hostile == 'file-mode':
+        source.chmod(0o644)
+    elif hostile == 'empty':
+        source.write_text('')
+    ready(cli)
+    s = spec(cli)
+    ws = worker.materialize(cli / 'run', s)
+    if hostile == 'dir-mode':
+        directory = sandbox.cli_home_for(ws) / 'claude'
+        directory.mkdir(parents=True)
+        directory.chmod(0o755)
+    with pytest.raises(cli_worker.LaunchRefused) as error:
+        cli_worker.prepare_launch(cli / 'run', s, ws)
+    assert error.value.missing == ['worker_login_file_unsafe']
+
+
+def test_refused_preparation_preserves_owner_login_material(cli, monkeypatch):
+    monkeypatch.setattr(sandbox, 'available', lambda: 'macos')
+    ready(cli)
+    source = cli / 'claude-login/credentials.json'
+    source.write_text('synthetic login')
+    source.chmod(0o600)
+    s = spec(cli)
+    ws = worker.materialize(cli / 'run', s)
+
+    def refuse(*args, **kwargs):
+        assert (sandbox.cli_home_for(ws) / 'claude/.credentials.json').is_file()
+        raise cli_worker.LaunchRefused('synthetic preparation refusal', ['adapter-file'])
+
+    monkeypatch.setattr(cli_worker, '_write_once', refuse)
+    with pytest.raises(cli_worker.LaunchRefused, match='synthetic preparation refusal'):
+        cli_worker.prepare_launch(cli / 'run', s, ws)
+    assert (sandbox.cli_home_for(ws) / 'claude/.credentials.json').is_file() and source.read_text() == 'synthetic login'
+
+
 def test_reviewer_runs_full_tool_but_a_blind_toolbelt_keeps_workspace_tools_only(cli, monkeypatch):
     monkeypatch.setattr(sandbox, 'available', lambda: 'macos')
     card = role_registry.load('physics-critic')
     assert card['requires']['tools'] == 'none'
+    assert card['stop']['max_broker_calls'] > 0
     full = cli_worker.toolbelt_for(card, tr.load('claude-cli-worker'), False)
     blind = cli_worker.toolbelt_for(card, tr.load('claude-cli-worker'), True)
     actions = lambda belt: {t['executes_through']['action'] for t in belt['tools']}
@@ -364,47 +472,22 @@ def test_api_routes_need_an_enforceable_cost_budget(cli, monkeypatch):
     assert home == sandbox.cli_home_for(ws) and d['transport']['cli_home_owned'] is True
     assert d['transport']['launch_env'] == {'CLAUDE_CONFIG_DIR': str(home / 'claude'),
                                             'CLAUDE_CODE_TMPDIR': str(ws / 'scratch/tmp'), 'TMPDIR': str(ws / 'scratch/tmp'),
-                                            'HOME': str(sandbox.user_home_for(ws))}
+                                           }
 
 
-def _fake_keychains(cli, monkeypatch):
-    real = cli / 'account/Library/Keychains'
-    real.mkdir(parents=True)
-    (real / 'login.keychain-db').write_text('synthetic')
-    monkeypatch.setattr(sandbox, 'login_keychains', lambda: real)
-    return real
-
-
-def test_claude_worker_home_holds_only_the_login_keychain_link(cli, monkeypatch):
+def test_claude_worker_uses_file_backed_home_on_every_platform(cli, monkeypatch):
     monkeypatch.setattr(sandbox, 'available', lambda: 'macos')
-    real = _fake_keychains(cli, monkeypatch)
     ready(cli)
     s = spec(cli)
     ws = worker.materialize(cli / 'run', s)
     d = cli_worker.prepare_launch(cli / 'run', s, ws)
-    home = sandbox.user_home_for(ws)
-    assert d['transport']['user_home'] == str(home) and d['transport']['launch_env']['HOME'] == str(home)
-    assert [p.name for p in home.iterdir()] == ['Library'] and [p.name for p in (home / 'Library').iterdir()] == ['Keychains']
-    link = home / 'Library/Keychains'
-    assert link.is_symlink() and Path(os.readlink(link)) == real
-    assert worker._cli_launch(d, ws)[3]['HOME'] == str(home) and worker._user_home(d, ws) == home
-    # The profile the supervisor builds from this descriptor reads the keychain directory.
-    profile = sandbox.macos_profile(ws, network='provider', keychain_home=worker._user_home(d, ws))
-    assert '(allow file-read* (subpath ' + sandbox.quote(str(real)) + ')' in profile
-    # A home with anything else in it is refused, not reused.
-    (home / 'extra').write_text('x')
-    s2 = spec(cli, attempt=1)
-    with pytest.raises(cli_worker.LaunchRefused) as refused:
-        cli_worker.prepare_launch(cli / 'run', s2, ws)
-    assert refused.value.missing == ['keychain_home']
-    (home / 'extra').unlink()
-    cli_worker.remove_home(ws, d)
-    assert not home.exists() and (real / 'login.keychain-db').read_text() == 'synthetic'
+    assert d['transport']['user_home'] is None and 'HOME' not in d['transport']['launch_env']
+    assert worker._user_home(d, ws) is None
+    assert not sandbox.user_home_for(ws).exists()
 
 
-def test_a_forged_keychain_home_is_refused_by_the_supervisor(cli, monkeypatch):
+def test_a_forged_external_home_is_refused_by_the_supervisor(cli, monkeypatch):
     monkeypatch.setattr(sandbox, 'available', lambda: 'macos')
-    _fake_keychains(cli, monkeypatch)
     ready(cli)
     s = spec(cli)
     ws = worker.materialize(cli / 'run', s)
@@ -414,9 +497,8 @@ def test_a_forged_keychain_home_is_refused_by_the_supervisor(cli, monkeypatch):
         worker._user_home(d, ws)
 
 
-def test_codex_and_non_macos_claude_workers_get_no_keychain_home(cli, monkeypatch):
+def test_cli_workers_keep_their_private_file_backed_homes(cli, monkeypatch):
     monkeypatch.setattr(sandbox, 'available', lambda: 'macos')
-    _fake_keychains(cli, monkeypatch)
     (cli / 'home/.codex').mkdir()
     (cli / 'home/.codex/auth.json').write_text('{"synthetic": true}')
     qualification_record('codex-cli-worker', probe('codex-cli-worker', install(cli, 'codex')))
@@ -437,7 +519,7 @@ def test_codex_and_non_macos_claude_workers_get_no_keychain_home(cli, monkeypatc
     assert d['transport']['user_home'] is None and not sandbox.user_home_for(ws).exists()
 
 
-def test_codex_home_and_gemini_home_carry_only_login_material_and_the_broker_server(cli, monkeypatch):
+def test_codex_home_keeps_owner_login_and_generated_broker_configuration(cli, monkeypatch):
     monkeypatch.setattr(sandbox, 'available', lambda: 'macos')
     codex_home = cli / 'home/.codex'
     codex_home.mkdir()
@@ -460,7 +542,8 @@ def test_codex_home_and_gemini_home_carry_only_login_material_and_the_broker_ser
         cli_worker.prepare_launch(cli / 'run', s2, worker.materialize(cli / 'run', s2))
     assert refused.value.missing == ['cost_unenforceable']
     cli_worker.remove_home(ws, d)
-    assert not home.parent.exists()
+    assert (home / 'auth.json').is_file()
+    assert (codex_home / 'auth.json').read_text() == '{"synthetic": true}'
 
 
 def test_observe_parses_session_turns_cost_and_enforces_limits(cli, monkeypatch):
@@ -555,10 +638,17 @@ def test_login_folder_admits_what_a_real_login_creates_and_nothing_else(cli, mon
         target = cli / 'claude-login' / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text)
+        target.chmod(0o600)
+        for parent in target.parents:
+            if parent == cli:
+                break
+            parent.chmod(0o700)
     s = spec(cli)
     ws = worker.materialize(cli / 'run', s)
     if admitted:
-        assert cli_worker.prepare_launch(cli / 'run', s, ws)['transport']['cli_home'] == str(cli / 'claude-login')
+        prepared = cli_worker.prepare_launch(cli / 'run', s, ws)
+        assert prepared['transport']['cli_home'] == str(sandbox.cli_home_for(ws))
+        assert prepared['transport']['launch_env']['CLAUDE_CONFIG_DIR'] == str(sandbox.cli_home_for(ws) / 'claude')
     else:
         with pytest.raises(cli_worker.LaunchRefused) as refused:
             cli_worker.prepare_launch(cli / 'run', s, ws)
@@ -718,14 +808,15 @@ def test_dispatch_runs_the_fake_cli_in_the_sandbox_through_the_broker_mcp_face(c
     assert receipt['isolation']['evidence']['network'] == 'tcp-443'
     assert receipt['isolation']['evidence']['computed_checks']['other_port_denied'] is True
     assert receipt['isolation']['evidence']['cli_home'] is True
-    assert receipt['isolation']['evidence']['login_keychain'] is (sandbox.available() == 'macos')
+    assert 'login_keychain' not in receipt['isolation']['evidence']
     assert not sandbox.user_home_for(ws).exists()
     assert (ws / 'outputs/conformance.txt').read_text() == 'n-0123456789'
     calls = [broker.verify_broker_receipt(cli / 'run', {'path': r['record']['path'], 'sha256': r['record']['sha256']},
                                           verify_outputs=False) for r in broker.ledger(cli / 'run', 'broker')]
     assert [c['action'] for c in calls] == ['read', 'write'] and all(c['status'] == 'ok' for c in calls)
     seen = json.loads((ws / 'scratch/seen.json').read_text())
-    assert seen['config_dir'] == str(broker.ordinary(cli / 'claude-login'))
+    assert seen['config_dir'] == str(sandbox.cli_home_for(ws) / 'claude')
+    assert (sandbox.cli_home_for(ws) / 'claude/.credentials.json').is_file()
     account = pwd.getpwuid(os.getuid()).pw_name
     assert seen['user'] == account and seen['logname'] == account
     assert receipt['pass_env_names'] == ['CLAUDE_CONFIG_DIR', 'LOGNAME', 'USER']

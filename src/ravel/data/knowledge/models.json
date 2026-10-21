@@ -1,0 +1,389 @@
+{
+ "schema_version": 1,
+ "description": "Pinned local literature models. Files are fetched only by the explicit prefetch operation and verified by size and sha256 before every load. Qualification probes are fictional texts; their reference outputs come from an independent implementation of the same revision.",
+ "runtime": {
+  "provider": "CPUExecutionProvider",
+  "threads": 4,
+  "batch_size": 16,
+  "pad_multiple": 16
+ },
+ "defaults": {
+  "embedding": "bge-small-en-v1.5",
+  "reranker": "ms-marco-minilm-l12-v2"
+ },
+ "models": {
+  "bge-small-en-v1.5": {
+   "id": "bge-small-en-v1.5",
+   "role": "embedding",
+   "host": "https://huggingface.co",
+   "repository": "BAAI/bge-small-en-v1.5",
+   "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+   "license": {
+    "spdx": "MIT",
+    "declared_by": {
+     "file": "README.md",
+     "value": "license: mit"
+    },
+    "notice": {
+     "url": "https://raw.githubusercontent.com/FlagOpen/FlagEmbedding/c086741f5e117b7b8ce1745ea00b6c262f281a01/LICENSE",
+     "size": 1065,
+     "sha256": "587a673933425dbc36ec61268d3b954051b2d3ef3c9b322ede357976055ffdd5"
+    }
+   },
+   "files": {
+    "pooling_config": {
+     "path": "1_Pooling/config.json",
+     "size": 190,
+     "sha256": "d1caf60c96f5fba2157c0c26b76d80818fad6cf0b8eb5e73ec372ff9818eba5c"
+    },
+    "model_card": {
+     "path": "README.md",
+     "size": 94783,
+     "sha256": "ddb964361a55c6e5dfca6361615854b260c9c960205d04c7520151aaa1d75837"
+    },
+    "config": {
+     "path": "config.json",
+     "size": 743,
+     "sha256": "094f8e891b932f2000c92cfc663bac4c62069f5d8af5b5278c4306aef3084750"
+    },
+    "model": {
+     "path": "onnx/model.onnx",
+     "size": 133093490,
+     "sha256": "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35"
+    },
+    "special_tokens_map": {
+     "path": "special_tokens_map.json",
+     "size": 125,
+     "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3"
+    },
+    "tokenizer": {
+     "path": "tokenizer.json",
+     "size": 711396,
+     "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+    },
+    "tokenizer_config": {
+     "path": "tokenizer_config.json",
+     "size": 366,
+     "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3"
+    }
+   },
+   "onnx": {
+    "inputs": [
+     "input_ids",
+     "attention_mask",
+     "token_type_ids"
+    ],
+    "output": "last_hidden_state"
+   },
+   "tokenizer": {
+    "max_tokens": 512,
+    "pad_token": "[PAD]",
+    "pad_id": 0
+   },
+   "embedding": {
+    "pooling": "cls",
+    "normalize": "l2",
+    "dimension": 384,
+    "query_prefix": "Represent this sentence for searching relevant passages: ",
+    "passage_prefix": ""
+   },
+   "qualification": {
+    "reference": {
+     "producer": "independent: slow tokenizer and torch forward pass from the safetensors weights of the same revision",
+     "torch": "2.5.1",
+     "transformers": "4.46.3",
+     "system": "Darwin",
+     "machine": "arm64",
+     "threads": 1,
+     "weights": {
+      "path": "model.safetensors",
+      "sha256": "3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad"
+     }
+    },
+    "tolerance": {
+     "max_abs": 0.0001,
+     "min_cosine": 0.99999
+    },
+    "probes": [
+     {
+      "kind": "query",
+      "text": "How is the energy resolution of a sampling calorimeter measured?",
+      "token_ids": [101, 5050, 2023, 6251, 2005, 6575, 7882, 13768, 1024, 2129, 2003, 1996, 2943, 5813, 1997, 1037, 16227, 10250, 10050, 22828, 7594, 1029, 102],
+      "vector_f32le_b64": "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"
+     },
+     {
+      "kind": "query",
+      "text": "uncertainty on the integrated luminosity",
+      "token_ids": [101, 5050, 2023, 6251, 2005, 6575, 7882, 13768, 1024, 12503, 2006, 1996, 6377, 11320, 10020, 25949, 102],
+      "vector_f32le_b64": "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"
+     },
+     {
+      "kind": "passage",
+      "text": "The energy resolution of the sampling calorimeter was determined with test-beam electrons between 10 and 200 GeV, giving a stochastic term of 10% and a constant term of 0.7%.",
+      "token_ids": [101, 1996, 2943, 5813, 1997, 1996, 16227, 10250, 10050, 22828, 2001, 4340, 2007, 3231, 1011, 7504, 15057, 2090, 2184, 1998, 3263, 16216, 2615, 1010, 3228, 1037, 2358, 11663, 20875, 2744, 1997, 2184, 1003, 1998, 1037, 5377, 2744, 1997, 1014, 1012, 1021, 1003, 1012, 102],
+      "vector_f32le_b64": "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"
+     },
+     {
+      "kind": "passage",
+      "text": "Résumé: the naïve estimate σ × B ≤ 2.5 fb at √s = 13 TeV requires Δφ(j₁, p_T^miss) > 0.4 and |η| < 2.5 — see Table 3 (中文 字符 test).",
+      "token_ids": [101, 13746, 1024, 1996, 15743, 10197, 1173, 1095, 1038, 1608, 1016, 1012, 1019, 1042, 2497, 2012, 1600, 2015, 1027, 2410, 8915, 2615, 5942, 1158, 29736, 1006, 1046, 11871, 1010, 1052, 1035, 1056, 1034, 3335, 1007, 1028, 1014, 1012, 1018, 1998, 1064, 1161, 1064, 1026, 1016, 1012, 1019, 1517, 2156, 2795, 1017, 1006, 1746, 1861, 100, 100, 3231, 1007, 1012, 102],
+      "vector_f32le_b64": "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"
+     },
+     {
+      "kind": "passage",
+      "text": "We fit $m_{\\gamma\\gamma}$ with a double-sided Crystal Ball function, \\textit{i.e.} a Gaussian core with power-law tails, and float the peak position.",
+      "token_ids": [101, 2057, 4906, 1002, 1049, 1035, 1063, 1032, 13091, 1032, 13091, 1065, 1002, 2007, 1037, 3313, 1011, 11536, 6121, 3608, 3853, 1010, 1032, 3793, 4183, 1063, 1045, 1012, 1041, 1012, 1065, 1037, 11721, 17854, 2937, 4563, 2007, 2373, 1011, 2375, 17448, 1010, 1998, 14257, 1996, 4672, 2597, 1012, 102],
+      "vector_f32le_b64": "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"
+     },
+     {
+      "kind": "passage",
+      "text": "Line one of a table caption.\n\tLine two  keeps   irregular spacing, a no-break space and the soft­hyphen.",
+      "token_ids": [101, 2240, 2028, 1997, 1037, 2795, 14408, 3258, 1012, 2240, 2048, 7906, 12052, 12403, 6129, 1010, 1037, 2053, 1011, 3338, 2686, 1998, 1996, 3730, 10536, 8458, 2368, 1012, 102],
+      "vector_f32le_b64": "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"
+     },
+     {
+      "kind": "passage",
+      "text": "Background processes are estimated from simulation normalised in dedicated control regions. The dominant contributions arise from top-quark pair production and from vector bosons produced in association with jets. Systematic uncertainties include the jet energy scale and resolution, the flavour-tagging efficiency, the modelling of initial- and final-state radiation, the choice of parton distribution functions and the limited size of the simulated samples. The integrated luminosity uncertainty is applied to all processes estimated directly from simulation. Correlations between regions are preserved by sharing nuisance parameters in the likelihood, and the fit is validated in regions kinematically adjacent to the signal regions but depleted in signal.",
+      "token_ids": [101, 4281, 6194, 2024, 4358, 2013, 12504, 3671, 5084, 1999, 4056, 2491, 4655, 1012, 1996, 7444, 5857, 13368, 2013, 2327, 1011, 24209, 17007, 3940, 2537, 1998, 2013, 9207, 8945, 23345, 2550, 1999, 2523, 2007, 9924, 1012, 11778, 9662, 7368, 2421, 1996, 6892, 2943, 4094, 1998, 5813, 1010, 1996, 28126, 1011, 6415, 4726, 8122, 1010, 1996, 19518, 1997, 3988, 1011, 1998, 2345, 1011, 2110, 8249, 1010, 1996, 3601, 1997, 2112, 2239, 4353, 4972, 1998, 1996, 3132, 2946, 1997, 1996, 23599, 8168, 1012, 1996, 6377, 11320, 10020, 25949, 12503, 2003, 4162, 2000, 2035, 6194, 4358, 3495, 2013, 12504, 1012, 16902, 2015, 2090, 4655, 2024, 6560, 2011, 6631, 16371, 28138, 11709, 1999, 1996, 16593, 1010, 1998, 1996, 4906, 2003, 9398, 4383, 1999, 4655, 12631, 14545, 25084, 5516, 2000, 1996, 4742, 4655, 2021, 22595, 1999, 4742, 1012, 102],
+      "vector_f32le_b64": "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"
+     }
+    ]
+   }
+  },
+  "ms-marco-minilm-l12-v2": {
+   "id": "ms-marco-minilm-l12-v2",
+   "role": "reranker",
+   "host": "https://huggingface.co",
+   "repository": "cross-encoder/ms-marco-MiniLM-L12-v2",
+   "revision": "7b0235231ca2674cb8ca8f022859a6eba2b1c968",
+   "license": {
+    "spdx": "Apache-2.0",
+    "declared_by": {
+     "file": "README.md",
+     "value": "license: apache-2.0"
+    },
+    "notice": {
+     "url": "https://raw.githubusercontent.com/huggingface/sentence-transformers/8df3ee50155394062734fde687fb1936e8396966/LICENSE",
+     "size": 11338,
+     "sha256": "624b030fd62b8b989dd502d5bb6322cbc0dbb524ab9c9708f32efe33d7275735"
+    }
+   },
+   "files": {
+    "model_card": {
+     "path": "README.md",
+     "size": 3676,
+     "sha256": "3efb007e589b9155d6977f548d9d7be1e7067adff595ce2c5defb33648b2d0e3"
+    },
+    "config": {
+     "path": "config.json",
+     "size": 791,
+     "sha256": "69a745055b0307584d2903ea5cf4e1899254e511834f358be80d049918b144d8"
+    },
+    "model": {
+     "path": "onnx/model.onnx",
+     "size": 133743863,
+     "sha256": "2ac389ab6abe08dcbddf2c41a69b6a18853e0dca440adbc2abc1adfcee46483f"
+    },
+    "special_tokens_map": {
+     "path": "special_tokens_map.json",
+     "size": 132,
+     "sha256": "3c3507f36dff57bce437223db3b3081d1e2b52ec3e56ee55438193ecb2c94dd6"
+    },
+    "tokenizer": {
+     "path": "tokenizer.json",
+     "size": 711396,
+     "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+    },
+    "tokenizer_config": {
+     "path": "tokenizer_config.json",
+     "size": 1330,
+     "sha256": "a5c2e5a7b1a29a0702cd28c08a399b5ecc110c263009d17f7e3b415f25905fd8"
+    }
+   },
+   "onnx": {
+    "inputs": [
+     "input_ids",
+     "attention_mask",
+     "token_type_ids"
+    ],
+    "output": "logits"
+   },
+   "tokenizer": {
+    "max_tokens": 512,
+    "pad_token": "[PAD]",
+    "pad_id": 0
+   },
+   "reranker": {
+    "score": "logit",
+    "truncation": "only_second",
+    "max_query_tokens": 128
+   },
+   "qualification": {
+    "reference": {
+     "producer": "independent: slow tokenizer and torch forward pass from the safetensors weights of the same revision",
+     "torch": "2.5.1",
+     "transformers": "4.46.3",
+     "system": "Darwin",
+     "machine": "arm64",
+     "threads": 1,
+     "weights": {
+      "path": "model.safetensors",
+      "sha256": "1ed84b90cdf3518f76ec9bb93a16f97887eea7c4e7ee5dfb03cc297e394fbbc3"
+     }
+    },
+    "tolerance": {
+     "max_abs": 0.001
+    },
+    "probes": [
+     {
+      "query": "How is the energy resolution of a sampling calorimeter measured?",
+      "passage": "The energy resolution of the sampling calorimeter was determined with test-beam electrons between 10 and 200 GeV, giving a stochastic term of 10% and a constant term of 0.7%.",
+      "token_ids": [101, 2129, 2003, 1996, 2943, 5813, 1997, 1037, 16227, 10250, 10050, 22828, 7594, 1029, 102, 1996, 2943, 5813, 1997, 1996, 16227, 10250, 10050, 22828, 2001, 4340, 2007, 3231, 1011, 7504, 15057, 2090, 2184, 1998, 3263, 16216, 2615, 1010, 3228, 1037, 2358, 11663, 20875, 2744, 1997, 2184, 1003, 1998, 1037, 5377, 2744, 1997, 1014, 1012, 1021, 1003, 1012, 102],
+      "score": 9.487424850463867
+     },
+     {
+      "query": "How is the energy resolution of a sampling calorimeter measured?",
+      "passage": "The trigger selects events containing at least one isolated muon with transverse momentum above 26 GeV.",
+      "token_ids": [101, 2129, 2003, 1996, 2943, 5813, 1997, 1037, 16227, 10250, 10050, 22828, 7594, 1029, 102, 1996, 9495, 27034, 2824, 4820, 2012, 2560, 2028, 7275, 14163, 2239, 2007, 18323, 11071, 2682, 2656, 16216, 2615, 1012, 102],
+      "score": -11.159579277038574
+     },
+     {
+      "query": "How is the energy resolution of a sampling calorimeter measured?",
+      "passage": "Résumé: the naïve estimate σ × B ≤ 2.5 fb at √s = 13 TeV requires Δφ(j₁, p_T^miss) > 0.4 and |η| < 2.5 — see Table 3 (中文 字符 test).",
+      "token_ids": [101, 2129, 2003, 1996, 2943, 5813, 1997, 1037, 16227, 10250, 10050, 22828, 7594, 1029, 102, 13746, 1024, 1996, 15743, 10197, 1173, 1095, 1038, 1608, 1016, 1012, 1019, 1042, 2497, 2012, 1600, 2015, 1027, 2410, 8915, 2615, 5942, 1158, 29736, 1006, 1046, 11871, 1010, 1052, 1035, 1056, 1034, 3335, 1007, 1028, 1014, 1012, 1018, 1998, 1064, 1161, 1064, 1026, 1016, 1012, 1019, 1517, 2156, 2795, 1017, 1006, 1746, 1861, 100, 100, 3231, 1007, 1012, 102],
+      "score": -10.367830276489258
+     },
+     {
+      "query": "which systematic uncertainties affect the background estimate",
+      "passage": "Background processes are estimated from simulation normalised in dedicated control regions. Systematic uncertainties include the jet energy scale and resolution, the flavour-tagging efficiency and the modelling of radiation.",
+      "token_ids": [101, 2029, 11778, 9662, 7368, 7461, 1996, 4281, 10197, 102, 4281, 6194, 2024, 4358, 2013, 12504, 3671, 5084, 1999, 4056, 2491, 4655, 1012, 11778, 9662, 7368, 2421, 1996, 6892, 2943, 4094, 1998, 5813, 1010, 1996, 28126, 1011, 6415, 4726, 8122, 1998, 1996, 19518, 1997, 8249, 1012, 102],
+      "score": 6.614971160888672
+     },
+     {
+      "query": "which systematic uncertainties affect the background estimate",
+      "passage": "Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit.",
+      "token_ids": [101, 2029, 11778, 9662, 7368, 7461, 1996, 4281, 10197, 102, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 1996, 2193, 1997, 9924, 1010, 1996, 4394, 18323, 11071, 1998, 1996, 26743, 2099, 7680, 1997, 6892, 2617, 2050, 1010, 1998, 1996, 16189, 2024, 4102, 2007, 1996, 17626, 2044, 1996, 4906, 1012, 2169, 2555, 2003, 4225, 2011, 5918, 2006, 102],
+      "score": -9.183355331420898
+     }
+    ]
+   }
+  },
+  "bge-reranker-base": {
+   "id": "bge-reranker-base",
+   "role": "reranker",
+   "host": "https://huggingface.co",
+   "repository": "BAAI/bge-reranker-base",
+   "revision": "2cfc18c9415c912f9d8155881c133215df768a70",
+   "license": {
+    "spdx": "MIT",
+    "declared_by": {
+     "file": "README.md",
+     "value": "license: mit"
+    },
+    "notice": {
+     "url": "https://raw.githubusercontent.com/FlagOpen/FlagEmbedding/c086741f5e117b7b8ce1745ea00b6c262f281a01/LICENSE",
+     "size": 1065,
+     "sha256": "587a673933425dbc36ec61268d3b954051b2d3ef3c9b322ede357976055ffdd5"
+    }
+   },
+   "files": {
+    "model_card": {
+     "path": "README.md",
+     "size": 34111,
+     "sha256": "b4223c8c1e95538f8c79168afc501f8b2da06c63221f013b79b28af78b59366d"
+    },
+    "config": {
+     "path": "config.json",
+     "size": 799,
+     "sha256": "289adf7ada1eb6b4afa7589a48a032d45a076cf2e46dcdb3b4cabc33be14f708"
+    },
+    "model": {
+     "path": "onnx/model.onnx",
+     "size": 1112459588,
+     "sha256": "15b9a8c3da82eddf263df571281166e00e9308fe19d077084b642ebfcaf06d2b"
+    },
+    "special_tokens_map": {
+     "path": "special_tokens_map.json",
+     "size": 279,
+     "sha256": "d5469a60db23249c7f8945013d78df30b44b6bf686c6bb4740f4223f77b1b535"
+    },
+    "tokenizer": {
+     "path": "tokenizer.json",
+     "size": 17098107,
+     "sha256": "9eb652ac4e40cc093272bbbe0f55d521cf67570060227109b5cdc20945a4489e"
+    },
+    "tokenizer_config": {
+     "path": "tokenizer_config.json",
+     "size": 443,
+     "sha256": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b"
+    }
+   },
+   "onnx": {
+    "inputs": [
+     "input_ids",
+     "attention_mask"
+    ],
+    "output": "logits"
+   },
+   "tokenizer": {
+    "max_tokens": 512,
+    "pad_token": "<pad>",
+    "pad_id": 1
+   },
+   "reranker": {
+    "score": "logit",
+    "truncation": "only_second",
+    "max_query_tokens": 128
+   },
+   "qualification": {
+    "reference": {
+     "producer": "independent: slow tokenizer and torch forward pass from the safetensors weights of the same revision",
+     "torch": "2.5.1",
+     "transformers": "4.46.3",
+     "system": "Darwin",
+     "machine": "arm64",
+     "threads": 1,
+     "weights": {
+      "path": "model.safetensors",
+      "sha256": "ced967c45fd1902eb92716c9ceeca7c95a936770ea9db611f5a841b926e33fbd"
+     }
+    },
+    "tolerance": {
+     "max_abs": 0.001
+    },
+    "probes": [
+     {
+      "query": "How is the energy resolution of a sampling calorimeter measured?",
+      "passage": "The energy resolution of the sampling calorimeter was determined with test-beam electrons between 10 and 200 GeV, giving a stochastic term of 10% and a constant term of 0.7%.",
+      "token_ids": [0, 11249, 83, 70, 48302, 158839, 111, 10, 57, 2676, 2069, 30713, 14, 29089, 72350, 71, 32, 2, 2, 581, 48302, 158839, 111, 70, 57, 2676, 2069, 30713, 14, 29089, 509, 83324, 71, 678, 3034, 9, 372, 302, 77556, 1779, 17721, 209, 136, 1781, 2206, 856, 4, 68772, 10, 3474, 1436, 28692, 13579, 111, 10662, 136, 10, 53697, 13579, 111, 757, 5, 14427, 5, 2],
+      "score": 7.338925361633301
+     },
+     {
+      "query": "How is the energy resolution of a sampling calorimeter measured?",
+      "passage": "The trigger selects events containing at least one isolated muon with transverse momentum above 26 GeV.",
+      "token_ids": [0, 11249, 83, 70, 48302, 158839, 111, 10, 57, 2676, 2069, 30713, 14, 29089, 72350, 71, 32, 2, 2, 581, 185553, 36849, 7, 47353, 70541, 214, 99, 19713, 1632, 54015, 3674, 842, 191, 678, 3900, 37676, 3095, 316, 36917, 1381, 2206, 856, 5, 2],
+      "score": -7.472186088562012
+     },
+     {
+      "query": "How is the energy resolution of a sampling calorimeter measured?",
+      "passage": "Résumé: the naïve estimate σ × B ≤ 2.5 fb at √s = 13 TeV requires Δφ(j₁, p_T^miss) > 0.4 and |η| < 2.5 — see Table 3 (中文 字符 test).",
+      "token_ids": [0, 11249, 83, 70, 48302, 158839, 111, 10, 57, 2676, 2069, 30713, 14, 29089, 72350, 71, 32, 2, 2, 18436, 11832, 446, 12, 70, 24, 9392, 272, 25902, 67, 8954, 34070, 335, 6, 237637, 27804, 108642, 99, 6, 193513, 7, 2203, 702, 1413, 856, 144570, 6732, 4639, 132, 170, 418, 4, 915, 454, 618, 8353, 45188, 16, 977, 6, 121254, 136, 6, 58745, 1997, 58745, 4426, 27804, 292, 1957, 112997, 138, 15, 32095, 6, 7234, 53853, 3034, 194, 2],
+      "score": -4.090915679931641
+     },
+     {
+      "query": "which systematic uncertainties affect the background estimate",
+      "passage": "Background processes are estimated from simulation normalised in dedicated control regions. Systematic uncertainties include the jet energy scale and resolution, the flavour-tagging efficiency and the modelling of radiation.",
+      "token_ids": [0, 3129, 242161, 51, 106290, 73, 2449, 52490, 70, 76615, 25902, 67, 2, 2, 26828, 64330, 9433, 90, 621, 25902, 3674, 1295, 40226, 1363, 3638, 52021, 23, 171332, 6226, 10776, 7, 5, 12353, 11, 9523, 51, 106290, 73, 2449, 26698, 70, 55, 18, 48302, 105994, 136, 158839, 4, 70, 12564, 141775, 9, 102, 36659, 227066, 136, 70, 3299, 2069, 111, 4567, 2320, 5, 2],
+      "score": 3.396395444869995
+     },
+     {
+      "query": "which systematic uncertainties affect the background estimate",
+      "passage": "Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit. Each region is defined by requirements on the number of jets, the missing transverse momentum and the scalar sum of jet momenta, and the yields are compared with the expectation after the fit.",
+      "token_ids": [0, 3129, 242161, 51, 106290, 73, 2449, 52490, 70, 76615, 25902, 67, 2, 2, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 154186, 678, 70, 41206, 2320, 7103, 70, 11177, 5, 98423, 10776, 83, 61924, 71, 390, 96679, 98, 70, 14012, 111, 55, 933, 4, 70, 132283, 3900, 37676, 3095, 316, 136, 70, 146232, 42, 10554, 111, 55, 18, 3095, 11, 4, 136, 70, 11180, 19388, 7, 621, 2],
+      "score": -5.903681755065918
+     }
+    ]
+   }
+  }
+ }
+}

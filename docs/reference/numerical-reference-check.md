@@ -82,7 +82,7 @@ For candidate enclosure `(c,r_c)` and reference `(e,r_e)`, the exact rule is
 `abs(c-e) + r_c <= r_e + atol + rtol*abs(e)`.
 
 Thus the complete candidate enclosure must lie in the reference enclosure
-enlarged by the declared band. A broad candidate radius cannot make a mismatch
+enlarged by the declared band. A broad candidate radius must not make a mismatch
 pass. A broad oracle enclosure can yield a weak comparison; exact-zero and
 nonzero-radius enclosures containing zero are reported separately. Radii are
 caller-supplied numerical enclosures; the operation does not derive or certify

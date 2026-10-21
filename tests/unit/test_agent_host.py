@@ -2,8 +2,10 @@
 from contextlib import contextmanager
 from copy import deepcopy
 import http.server
+import hashlib
 import json
 from pathlib import Path
+import shutil
 import sys
 import threading
 import time
@@ -71,6 +73,127 @@ def response(value=None, **changes):
                                       "annotations": [{"canary": "ANNOTATION-CANARY"}]}]}]}
     result.update(changes)
     return result
+
+
+class ScriptedReviewHost(host.AgentHost):
+    """Exercise real packet tools inside a scripted stateless model invocation."""
+
+    def __init__(self, *, read_mode="complete", **kwargs):
+        super().__init__(**kwargs)
+        self.read_mode = read_mode
+        self.contexts = []
+
+    def _responses(self, data, parameters, request, control, **kwargs):
+        context = json.loads(json.loads(data)["input"][0]["content"])
+        self.contexts.append(context)
+        packet = request["packet"]
+        manifest = review_context.verify_packet(packet["path"],
+            expected_manifest_sha256=packet["manifest_sha256"])
+        inline = {entry["id"] for entry in context["review_packet"]["artifacts"]}
+        mode = self.read_mode
+        if mode == "second_missing":
+            mode = "complete" if len(self.contexts) == 1 else "missing"
+        read_packet = packet
+        if mode == "foreign":
+            foreign = Path(packet["path"]).parent / (Path(packet["path"]).name + "-foreign")
+            shutil.copytree(packet["path"], foreign)
+            read_packet = {**packet, "path": str(foreign)}
+        if mode != "missing":
+            for entry in manifest["artifacts"]:
+                if entry["id"] in inline:
+                    continue
+                offset = 0
+                while True:
+                    tool_node = tool("review-read", {"artifact_id": entry["id"],
+                        "offset": offset, "max_bytes": 65536}, packet=read_packet)
+                    tool_request = globals()["request"](tool_node)
+                    page = self.execute(tool_node, tool_request, Control())["value"]
+                    if mode == "partial" or page["complete"]:
+                        break
+                    assert page["next_offset"] > offset
+                    offset = page["next_offset"]
+        fields = parameters["output_schema"]["properties"]
+        if "stage" in fields:
+            value = {key: fields[key]["const"] for key in ("stage", "role_id", "subject_sha256")}
+            value.update(verdict="accept", findings=[], attributed_claim_ids=[])
+        else:
+            value = {"answer": "supported fixture"}
+        result = self._result(value, parameters, request, observed_model=parameters["model"],
+            response_id="scripted-" + request["request_id"],
+            usage={"input_tokens": 13, "output_tokens": 7, "total_tokens": 20})
+        result["transport"].update(actor_id="scripted-role-" + request["request_id"],
+            invocation_id="scripted-invocation-" + request["request_id"])
+        return result
+
+
+def corrupt_review_pages(monkeypatch):
+    """A self-consistent page hash cannot authenticate altered whole-artifact bytes."""
+    actual = review_context.read_artifact_page
+    def altered(*args, **kwargs):
+        page = actual(*args, **kwargs)
+        assert page["content_encoding"] == "utf-8"
+        content = page["content"]
+        page["content"] = ("y" if content[0] != "y" else "z") + content[1:]
+        page["page_sha256"] = hashlib.sha256(page["content"].encode()).hexdigest()
+        return page
+    monkeypatch.setattr(review_context, "read_artifact_page", altered)
+
+
+def deferred_packet(tmp_path):
+    packet = tmp_path / "packet"
+    (packet / "artifacts").mkdir(parents=True)
+    artifacts = []
+    for identity, content in (("public_case", "A bounded public case."),
+                              ("source-large", "x" * (host.INLINE_TEXT_BUDGET + 131072))):
+        source = tmp_path / (identity + ".txt")
+        source.write_text(content)
+        copy = packet / "artifacts" / source.name
+        copy.write_bytes(source.read_bytes())
+        artifacts.append({"id": identity, "path": "artifacts/" + copy.name,
+            "sha256": execution.file_hash(copy), "source_sha256": execution.file_hash(source),
+            "source_path": str(source), "projection": "full_authenticated_source_or_evidence"})
+    manifest = {"schema_version": 1, "role": "critic", "artifacts": artifacts,
+                "omissions": [], "findings": [], "reviews": []}
+    manifest["sha256"] = execution.digest(manifest)
+    atomic_json(packet / "manifest.json", manifest)
+    return {"path": str(packet), "manifest_sha256": manifest["sha256"]}, manifest
+
+
+@pytest.mark.parametrize("mode", ["complete", "missing", "partial", "digest", "foreign"])
+def test_deferred_review_receipt_requires_complete_authenticated_reads(tmp_path, monkeypatch, mode):
+    packet, manifest = deferred_packet(tmp_path)
+    if mode == "digest":
+        corrupt_review_pages(monkeypatch)
+    adapter = ScriptedReviewHost(read_mode=mode)
+    n = node(role="critic", packet=packet)
+    result = adapter.execute(n, request(n), Control())
+    presentation = result["isolation"]["evidence_presentation"]
+    assert presentation["presentation"]["deferred_count"] == 1
+    inline = adapter.contexts[0]["review_packet"]["artifacts"]
+    assert presentation["presented_subject_sha256s"] == sorted({
+        hashlib.sha256(entry["content"].encode()).hexdigest() for entry in inline})
+    expected = {"manifest_sha256": packet["manifest_sha256"], "artifacts": [{
+        "id": entry["id"], "sha256": entry["sha256"],
+        "bytes": (Path(packet["path"]) / entry["path"]).stat().st_size}
+        for entry in sorted(manifest["artifacts"], key=lambda entry: entry["id"])
+        if entry["id"] not in {row["id"] for row in inline}]}
+    if mode == "complete":
+        assert presentation["deferred_content_read"] == expected
+    else:
+        assert presentation["deferred_content_read"] is False
+
+
+def test_deferred_review_reads_do_not_carry_into_next_role_invocation(tmp_path):
+    packet, _ = deferred_packet(tmp_path)
+    adapter = ScriptedReviewHost(read_mode="second_missing")
+    n = node(role="critic", packet=packet)
+    first = adapter.execute(n, request(n), Control())
+    assert isinstance(first["isolation"]["evidence_presentation"]["deferred_content_read"], dict)
+    second_node = deepcopy(n)
+    second_node["id"] = "n2"
+    second = adapter.execute(second_node, request(second_node), Control())
+    assert len(adapter.contexts) == 2
+    assert second["isolation"]["evidence_presentation"]["deferred_content_read"] is False
 
 
 @contextmanager

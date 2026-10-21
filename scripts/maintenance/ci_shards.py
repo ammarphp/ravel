@@ -30,9 +30,11 @@ ROOT = Path(__file__).resolve().parents[2]
 TIMINGS = ROOT / 'tests/file_timings.json'
 # pytest's default norecursedirs; a directory starting with "." is skipped as well.
 SKIPPED = ('*.egg', '.*', '_darcs', 'build', 'CVS', 'dist', 'node_modules', 'venv', '{arch}')
-# Files that alone take a large part of a shard's time limit (about 69 and 27 minutes
-# on the project cluster). Each runs in its own CI job; the shards leave them out.
-LONG = ('tests/unit/test_fresh_replication.py', 'tests/unit/test_wms_retry.py')
+# Files that alone take a large part of a shard's time limit (about 27 to 71 minutes
+# each on the project cluster). Each runs in its own CI job; the shards leave them out.
+LONG = ('tests/unit/test_fresh_replication.py', 'tests/unit/test_wms_retry.py',
+        'tests/unit/test_research_full_cycle.py', 'tests/unit/test_research_full_cycle_outer.py',
+        'tests/unit/test_research_full_cycle_receipt.py')
 # A test still running this many seconds before its file's time limit dumps every
 # thread's traceback once, so a stopped file names the test and the line where it waited.
 # The dump comes only near the limit: an asynchronous dump reads the frames of a running
@@ -72,6 +74,24 @@ def measured_seconds(path=TIMINGS):
                 or type(seconds) not in (int, float) or not math.isfinite(seconds) or seconds <= 0):
             raise ValueError(f'invalid measured file duration: {file}')
     return record['seconds']
+
+
+def prune_timings(root=ROOT):
+    """Retain historical measurements for the current declared public test population."""
+    import importlib.util
+    root = Path(root)
+    path = root / 'tests/file_timings.json'
+    measured_seconds(path)
+    specification = importlib.util.spec_from_file_location('public_timing_layout', ROOT / 'src/ravel/evidence_layout.py')
+    layout = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(layout)
+    public = {target for source, target in layout.selected_files(root) if source == target}
+    allowed = public & set(test_files(root))
+    record = json.loads(path.read_text())
+    before = len(record['seconds'])
+    record['seconds'] = {file: seconds for file, seconds in sorted(record['seconds'].items()) if file in allowed}
+    path.write_text(json.dumps(record, indent=2) + '\n')
+    return {'retained': len(record['seconds']), 'removed': before - len(record['seconds'])}
 
 
 def shard(files, index, count, durations=None):
@@ -206,8 +226,14 @@ def main(argv=None):
     parser.add_argument('--long', help='select one declared long test file instead of a shard')
     parser.add_argument('--tier', choices=('fast', 'medium', 'slow'), help='opt-in developer file tier')
     parser.add_argument('--run', action='store_true', help='run one pytest process per selected file')
+    parser.add_argument('--prune-timings', action='store_true', help='retain measured timings for current public test files')
     parser.add_argument('--file-timeout', type=int, help='seconds before a file is stopped and counted failed')
     args = parser.parse_args(argv)
+    if args.prune_timings:
+        if any(value is not None for value in (args.index, args.count, args.long, args.tier, args.file_timeout)) or args.run:
+            parser.error('--prune-timings is a separate maintenance action')
+        print(json.dumps(prune_timings(), sort_keys=True))
+        return 0
     if args.tier is None and (args.long is None) == (args.index is None or args.count is None):
         parser.error('give either --index and --count, or --long')
     try:

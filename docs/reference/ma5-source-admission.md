@@ -24,13 +24,13 @@ The additional configuration object contains:
 - `rec_state_after_explicit_reset`: source reset defaults, or null without reset.
 - `native_effective_configuration_observed`: always false in this source object.
 
-Dynamic IDs, unknown configuration APIs, aliases, conditional/deferred/nested
+Dynamic IDs, unknown configuration APIs, aliases, conditional/delayed/nested
 calls and mutations outside Initialize are refused. The source compiler is not a
 C++ interpreter and does not establish complete compilation, executable-source
-correspondence, detector response or native runtime semantics. Other unsupported
+correspondence, detector response or native runtime semantics. Other source
 booking families continue to refuse rather than omit outputs.
 
-Quoted SAF titles may contain `#`. The source CounterManager writer quotes the
+Quoted SAF titles can contain `#`. The source CounterManager writer quotes the
 literal cut name and appends an unquoted `#` comment. The reader therefore removes
 only comments outside quotes, preserving `#Phi` and trailing native comments.
 Unsafe path/title characters and malformed quotes retain their refusals. Native
@@ -41,12 +41,12 @@ The PAD worker materializes absolute configuration pins at their original
 booking-document base before reading its full SAF result. Its existing approval,
 fixed supplied-event command, whole output census and result semantics remain.
 No new runner, statistical engine or normalization is introduced. Native positive
-and negative channels, unavailable per-bin variance/cross covariance, and unknown
+and negative channels, missing per-bin variance/cross covariance, and unknown
 scientific applicability remain distinct.
 
 The real SVJ source case declares SR plus nine bins, 109 region-cut assignments
 and no histograms. This is not the publication's full 36-bin fitted endpoint: 27
-control-region bins remain unavailable in this recast source. Generated tagger
+control-region bins remain missing in this recast source. Generated tagger
 and smearer headers, native build/runtime/event response and complete physics
 qualification remain separate prerequisites. A source-admission pass grants no
 executed analysis coverage.

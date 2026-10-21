@@ -1,0 +1,392 @@
+{
+  "title": "step.v1: one typed step of a controller plan (CONTROLLER-SPEC 4.1)",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "inputs",
+    "outputs",
+    "depends_on",
+    "waypoint",
+    "rung",
+    "budget",
+    "protocols",
+    "review",
+    "instruction_sources",
+    "obligations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "acquire",
+        "operate",
+        "author",
+        "derive",
+        "compare",
+        "review",
+        "synthesize",
+        "ask",
+        "decide",
+        "subgraph",
+        "route"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "operation": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.:-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "role": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "graph": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        },
+        "instance": {
+          "type": "object"
+        }
+      }
+    },
+    "route": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "artifact"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9_.-]{0,127}:)?(?![/~])(?!.*(^|/)\\.\\.(/|$))[A-Za-z0-9_.@+=/:-]+$"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "kind",
+          "required"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/~])(?!.*(^|/)\\.\\.(/|$))[A-Za-z0-9_.@+=/:-]+$"
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"
+      }
+    },
+    "waypoint": {
+      "type": "boolean"
+    },
+    "rung": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "none",
+            "dry",
+            "smoke",
+            "pilot",
+            "full",
+            "scan"
+          ]
+        }
+      ]
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "wall_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "events": {
+          "type": "number",
+          "minimum": 0
+        },
+        "broker_calls": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tokens": {
+          "type": "number",
+          "minimum": 0
+        },
+        "cost_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "core_hours": {
+          "type": "number",
+          "minimum": 0
+        },
+        "children": {
+          "type": "number",
+          "minimum": 0
+        },
+        "review_rounds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "attempts": {
+          "type": "number",
+          "minimum": 0
+        },
+        "input_bytes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "input_files": {
+          "type": "number",
+          "minimum": 0
+        },
+        "batch_cpu_hours": {
+          "type": "number",
+          "minimum": 0
+        },
+        "batch_jobs": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "protocols": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5",
+          "P6",
+          "P7",
+          "P8"
+        ]
+      }
+    },
+    "review": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9_.-]{0,95}$"
+      }
+    },
+    "instruction_sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "consequence_class": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "R0",
+            "R1",
+            "R2",
+            "R3"
+          ]
+        }
+      ]
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "attempt_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16
+    },
+    "description": {
+      "type": "string"
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "checkin": {
+      "type": "string",
+      "enum": [
+        "checkin1",
+        "checkin2",
+        "checkin3",
+        "deviation"
+      ]
+    },
+    "seats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "properties": {
+          "seat": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_.-]{0,95}$"
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "engagement": {
+      "type": "object"
+    },
+    "engagement_folded_into": {
+      "type": "string",
+      "minLength": 1
+    },
+    "engagement_seats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "role"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_.-]{0,95}$"
+          }
+        }
+      }
+    },
+    "correction_rounds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "template_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

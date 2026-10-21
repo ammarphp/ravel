@@ -1,9 +1,7 @@
 # Native NLL finite differences
 
 The optional HS3 derivative selection uses the existing supplied-model import
-and fixed-point RooFit NLL evaluator. It adds no optimizer, likelihood formula,
-native runner, Gaussian constraint, or inference operation. The implementation
-is a private source candidate until independent review and integration.
+and fixed-point RooFit NLL evaluator. The supplied anchor and axes define a fixed-NLL numerical diagnostic.
 
 Add `derivatives` to an HS3 configuration and select exactly one ordinary source
 anchor. For example, a nonzero signal-strength anchor can retain the original
@@ -48,16 +46,14 @@ fit the explicit bound, at most 256 points and seven axes.
 
 The adapter retains `derivative-plan.json`, `derivative-observations.json`, and
 `derivative-estimates.json`. The pure reducer requires every ordered point,
-coordinate and constant flag, with finite NLLs and the exact planned identity.
+coordinate and constant flag, with finite NLLs and the exact declared identity.
 It subtracts the common anchor and reduces the returned binary64 values with
 exact rational arithmetic. This avoids extra cancellation introduced by the
-reducer; it cannot recover information already lost during native NLL
-evaluation or rounding. The h/2-minus-h differences are diagnostics, not error
+reducer; the estimate retains the precision of the native NLL evaluation and rounding. The h/2-minus-h differences are diagnostics, not error
 bounds, convergence proofs, or certified arithmetic enclosures.
 
 Differentiability is not established by this operation. A stencil crossing a
-source interpolation kink is a finite difference across that kink; it cannot
-certify a gradient or Hessian of a smooth model. A source-backed regularity
+source interpolation kink is a finite difference across that kink; smooth-model gradients or Hessians require a regularity contract. A source-backed regularity
 contract is still required before a smooth profiler consumes these estimates.
 Boundary directions and all assigned nodes remain explicit. No KKT,
 stationarity, covariance, global-optimum, fit-quality, CLs, coverage or physics

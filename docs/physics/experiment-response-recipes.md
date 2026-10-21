@@ -32,8 +32,8 @@ prepares inputs for the existing `CalibrationProvider`. The request has kind
 
 Every primary file in the decoded census must occur exactly once. The retained
 physical-key census must bind the same complete original files and every decoded
-key/cycle/class. This authenticates supplied source records; it does not decode
-ROOT again or independently validate their numerical extraction. Scope and
+key/cycle/class. This authenticates supplied source records. Numerical extraction
+requires independent validation. Scope and
 population documents retain the complete requested channels, eras, producer
 configuration and missing physical prerequisites. They are input declarations
 requiring applicability review. Naming a namespace does not qualify it.
@@ -54,7 +54,7 @@ and up/down object cycles remain bound. Recommended and affecting native CP
 nuisance identities remain distinct from released likelihood modifier mappings;
 no string matching invents that mapping. A shared native nuisance ID is retained
 across recipes. Each nuisance is a separate coherent up/down alternative;
-recommended source sets cannot be combined with other variations. The compiler
+recommended source sets must not be combined with other variations. The compiler
 does not compose event weights or multiply nested working-point recipes.
 
 The native trigger tool uses `sf_<period>_<WP>_<prong>`.
@@ -68,7 +68,7 @@ supported TF1s retain the existing bounded zero-parameter evaluator.
 
 TES containers describe kinematic smearing/migrations, `eveto_cutvals` contains
 selection thresholds, and the retained EleBDT campaign/substructure modes need
-unimplemented native key routing. They remain in the output census without SF
+native key routing outside the declared source schema. They remain in the output census without SF
 bindings. TH1 objects ignored by the pinned native CommonEfficiencyTool remain
 visible; they are never converted to unity or to another class. A marginal
 data/MC scale factor is not an absolute reconstruction or detector efficiency.
@@ -81,7 +81,7 @@ The Host identity includes the preparation and existing provider/math sources.
 The operation writes `binding-NNNN.json` files and `preparation.json`, then checks
 their initially generated commitments, source bytes and exact output membership
 before returning. Failed outputs remain evidence. Each public call captures
-inputs afresh; there is no cross-call cache. Input observations are time-local,
+inputs afresh. Input observations are time-local,
 not a filesystem lock or persistent sandbox.
 
 Load one selected binding using the ordinary existing API:
@@ -102,9 +102,7 @@ and explicit source coordinates/truth/prongs. The 8 MiB per-file input/output,
 source/provider proof reads and serialization are real work; these limits do
 not claim a total-operation I/O or wall-time ceiling.
 
-This preparation does not produce reconstructed objects, detector migrations,
-joint calibrated probabilities, a native build/event run, a review vote or
-scientific acceptance. It composes with existing native response construction,
+This preparation composes with existing native response construction,
 calibrated-event, LLP and RS1 consumers after their original physical inputs and
 fresh ordinary reviews are supplied. Preserve complete event/group identities,
 all named signed weights, rejected/zero events and the applicable uncertainty

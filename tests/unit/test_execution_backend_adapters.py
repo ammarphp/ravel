@@ -102,6 +102,30 @@ def test_oci_round_trip_with_readonly_mounts_and_limits(tmp_path, podman):
     assert '--connection' in journal
 
 
+def test_explicit_container_task_limit_is_set_and_checked_at_the_action(tmp_path, podman):
+    spec = oci_spec(tmp_path)
+    spec['resources']['processes'] = 12
+    plan = eb.prepare(spec)
+    handle = eb.submit(plan, tmp_path / 'attempt')
+    state = json.loads(podman.read_text())
+    container = next(iter(state['containers'].values()))
+    assert container['host']['PidsLimit'] == 12
+    assert plan['backend']['limits_enforced']['pids'] == 12
+    assert plan['backend']['resource_enforcement']['filesystem_receipt_headroom'] == 'not reserved'
+    container['host']['PidsLimit'] = 13
+    podman.write_text(json.dumps(state))
+    with pytest.raises(ValueError, match='resource limits differ'):
+        eb.observe(plan, handle)
+
+
+def test_container_retained_disk_request_refuses_before_any_client_effect(tmp_path, podman):
+    spec = oci_spec(tmp_path)
+    spec['resources']['disk_mib'] = 1
+    with pytest.raises(ValueError, match='resource_limit_unsupported'):
+        eb.prepare(spec)
+    assert not podman.exists()
+
+
 def test_oci_client_uses_prefix_xdg_dirs(tmp_path, podman, monkeypatch):
     env = oci_local.client_environment()
     home = tmp_path / 'container-home'

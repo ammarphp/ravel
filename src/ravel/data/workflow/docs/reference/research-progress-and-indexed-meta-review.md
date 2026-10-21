@@ -28,7 +28,7 @@ ravel research-cycle progress --cycle /absolute/campaign \
   --request /absolute/current-report-recipe.json --base-dir /absolute/input-base
 ```
 
-Every fact must map to a currently applicable, scope-accepted experiment and the
+Every fact must map to a applicable, scope-accepted experiment and the
 exact requested output source. Equal numbers from a different source do not
 substitute for that evidence. The existing artifact/report composer retains
 coordinates, units and tool provenance. An exact existing parent-completion
@@ -37,7 +37,7 @@ obligations remain open. The wrapper always returns `final_delivery=false` and
 `parent_task_accepted=false`.
 
 The existing final `synthesize` function and scientific-report/task-completion
-gates are unchanged. Reporting incomplete work cannot satisfy them. The fixed
+gates are unchanged. Reporting incomplete work must not satisfy them. The fixed
 report text bound refuses an oversized complete census instead of truncating it.
 Current evidence and parent dependencies are checked again before return.
 
@@ -80,8 +80,7 @@ cache exists.
 The bounded core retains the complete question/parent, candidate/cell/stage/
 comparison/claim census, actual typed scientific results, domains/units/laws,
 failed/null states, resource history and actual review/objection content.
-Binary native result content is explicitly deferred. Bulky sources are not
-copied wholesale into the role packet. If mandatory material cannot fit the
+The role packet uses indexed textual source slices with pinned original identities. If mandatory material exceeds the
 unchanged finite presentation budget, preparation refuses honestly. A narrower
 review does not discharge unseen whole-question obligations.
 
@@ -91,7 +90,7 @@ Select source content explicitly, for example:
 {"artifact_id":"source000023","offset":0,"max_bytes":4096}
 ```
 
-At most32 selections, each up to65,536 bytes, may reference only the exact
+At most32 selections, each up to65,536 bytes, can reference only the exact
 current inventory. The whole selected source is authenticated within the
 existing64MiB role-artifact bound, existing role-sensitive projection is applied,
 and the exact byte interval is embedded into a fresh role packet. Split UTF-8 or
@@ -114,19 +113,26 @@ Indexed Host preparation writes the core, full external inventory and a small
 exact inventory commitment. Only request/core/commitment are normal Graph inputs,
 within the unchanged128-input and per-input2MB limits. The normal Host operation
 freshly verifies the external inventory and every original through its full
-ordinary gates, both at preparation and consumption. A rebound inventory cannot
-replace them. The current Graph reservation is the only allowed intervening
+ordinary gates, both at preparation and consumption. The original input population remains bound after inventory regeneration. The current Graph reservation is the only allowed intervening
 ledger change. Read-only `status`, `context`, `progress`, and the existing scoped
 comparison preparation remain on the ordinary `research-protocol` tool route.
 
 Generated core, inventory, selected page, manifest, Graph spec, Host subject
 and request commitments derive from intended serialized bytes before writing.
 An immediate reread and the ending checks must match those original commitments;
-changed first-read bytes cannot become a new baseline. Default small JSON
+changed first-read bytes must not become a new baseline. Default small JSON
 serialization is preserved, and occupied generated paths refuse before overwriting.
 
 Fresh output directories and exact ending output commitments preserve old role
 packets. Source/path/leaf/membership checks are time-local observations, not
 filesystem locks, perpetual namespace guarantees or OS-enforced blinding.
 
-## Qualification boundary
+A meta action changes protocol state only with independent credit from
+`review_independence.decide`; by default that is the graph runner's record of an
+observed fresh model request without tools. Unauthenticated external and control
+transport meta responses are retained as `review_advice`, with the proposed action
+intact and `independent=false`. They do not alter protocol state, premises, stage
+validity or objection resolution. Objection closure requires a fresh authenticated resolution. Historical conservative holds remain until a fresh
+authenticated resolution; existing premise changes are not silently undone.
+`meta_review_independence` in the protocol status reports current evidence for
+saved actions.

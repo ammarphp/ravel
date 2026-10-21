@@ -1,5 +1,25 @@
 # Query discovery, record resolution and located citations
 
+## Governed model operations
+
+The explicit `research_tools.expand_literature_query`, `score_literature_evidence`
+and `crawl_literature` operations use the existing research-controller host when
+called within its bound scope. The controller selects from the run's frozen
+preferences and protected transport qualifications, then dispatches the installed
+query-expander, evidence-scorer or discovery-selector card through the ordinary
+governed step and sandboxed seat. Each model graph names its registered card;
+the generic graph role never substitutes for it. The step repeats admission,
+builds the card's blind projection and broker toolbelt, and retains its observed
+usage and adopted output custody. The campaign reserves the graph before work
+and retains its persistent checkpoints and receipts.
+
+Caller-supplied role changes leave a governed seat unchanged. Missing qualification,
+model tier, isolation, allowance or authentic output leaves a recorded refusal;
+expansion retains deterministic terms and scoring retains unscored original
+passages. Outside a bound controller scope, a sandbox worker still requires a
+governed dispatcher and the one-shot Host records `transport_unsupported`.
+Expansion terms and assessments remain reading aids, with no scientific credit.
+
 `literature-discover` is an ordinary research coordinator extension. It calls
 `research_tools.discover_literature(root, request_pin, fresh_output, host,
 max_wall_seconds=...)`. The existing campaign Graph reserves and charges exactly
@@ -126,13 +146,13 @@ units, round values, infer conditions, or certify scientific truth.
 
 The decision display contains at most five cards and lists the remaining valid
 cards by ID. Its administrative card census retains every supplied ID, failure,
-refusal and speculation. Speculation and superseded cards cannot establish a
+refusal and speculation. Speculation and superseded cards must not establish a
 recipe value or an RDJ anchor. `evidence_card.rdj_anchor` and `recipe_row` are the
 RDJ/CJ-2 export seams; the RDJ anchor consumer also rejects structured speculation
 card values. Unknown recipe values remain DATA work. Before consumption,
 `literature.consume_cards(report, complete_cards, broker=...)` re-derives the
 entire census from current originals and checks the matching broker receipts.
-A previously checked status cannot survive changed source bytes.
+A previously checked status must not survive changed source bytes.
 
 Use `ravel literature follow --rundir RUN --workspace WORKSPACE --request
 inputs/follows.json` for a finite explicit citation and code graph. The request

@@ -71,7 +71,14 @@ def test_workload_chain_runs_through_the_registered_graphs(wid, tmp_path, monkey
     assert {'agent_worker.launch', 'broker.call'} <= set(record['tripwire']['layers'])
     lines = [json.loads(line) for line in (tmp_path / 'tripwire.jsonl').read_text().splitlines()]
     assert len(lines) == record['tripwire']['verdicts'] and all(v['ok'] and v['mode'] == '1' for v in lines)
-    assert all(v['context']['ravel_kind'] == 'agent' and v['context']['graph_id'] in registered for v in lines)
+    # Every verdict ran in a registered graph, inside a node kind its layer is sanctioned for; dispatch and
+    # broker calls ran inside acting agent nodes.
+    from ravel.validation import check_agent_paths
+    sanctioned = {row['layer']: set(row['acting_kinds']) for row in check_agent_paths.load_sanctioned()['tripwire_layers']}
+    misplaced = [v for v in lines if v['context']['graph_id'] not in registered
+                 or v['context']['ravel_kind'] not in sanctioned[v['layer']]
+                 or (v['layer'] in ('agent_worker.launch', 'broker.call') and v['context']['ravel_kind'] != 'agent')]
+    assert misplaced == [], misplaced
     assert record['refused_connections'] == []
 
     # Each call carries its registered card digest, its graph and a framework step.
@@ -176,8 +183,10 @@ def test_skipped_assertion_catches_an_unlisted_role_and_a_missing_slot():
     assert wc.skipped_problems(record, workload) == []
     unlisted = {**record, 'skipped': [r for r in rows if r['role'] != 'literature-scout']}
     assert wc.skipped_problems(unlisted, workload) == ['W1: design role literature-scout neither dispatched nor skipped']
-    slotless = {**record, 'skipped': [dict(r, landing=None) if r['role'] == 're-deriver' else r for r in rows]}
-    assert any('re-deriver' in p and 'no landing slot' in p for p in wc.skipped_problems(slotless, workload))
+    # A design role the chain does not dispatch (the delivery-stage assumption auditor) without its slot is caught.
+    assert any(r['role'] == 'assumption-auditor' and r['source'] == 'design' for r in rows)
+    slotless = {**record, 'skipped': [dict(r, landing=None) if r['role'] == 'assumption-auditor' else r for r in rows]}
+    assert any('assumption-auditor' in p and 'no landing slot' in p for p in wc.skipped_problems(slotless, workload))
 
 
 def test_every_skipped_point_kind_and_design_role_has_a_slot():

@@ -12,23 +12,15 @@
   effort, the code-owned final-record schema and the broker MCP configuration from the
   declaration's ``worker_surface.mcp`` row (``ravel work mcp`` over the card's toolbelt);
 - the executable is the absolute path of a current probe whose sha256 still matches;
-- the CLI's configuration home is either a fresh per-worker directory beside the workspace
-  (``<attempt>.cli-home``, removed after the child) or, for the Claude login route, a
-  dedicated login-only ``CLAUDE_CONFIG_DIR`` that is checked to hold no instructions,
-  skills, agents, hooks or installed plugins, and settings with display keys only (the
-  account-synced ``skills/synced`` and ``plugins/synced`` folders every login creates are
-  admitted: the launch flags load neither);
-- Claude-family CLIs list ``USER`` and ``LOGNAME`` in ``pass_env_names``; the supervisor sets
-  both from the password database (the CLI reads its login with ``security -a $USER``);
-- Claude-family CLIs get ``CLAUDE_CODE_TMPDIR`` and ``TMPDIR`` set to the worker's own
-  ``scratch/tmp`` (the CLI ignores ``TMPDIR`` for its own temporary directory);
-- on macOS, Claude-family CLIs get ``HOME`` set to an adapter-owned ``<attempt>.home`` whose
-  only entry is ``Library/Keychains``, a link to the account's login keychain directory (the
-  CLI finds its stored login there); the sandbox reads that directory and never writes it;
+- each worker uses its private CLI configuration home beside the workspace. External owner setup
+  supplies its login files. Authentication admission checks file metadata and the CLI's status;
+- Claude-family CLIs receive account names from the password database and temporary paths within
+  the worker scratch directory;
 - the toolbelt the broker enforces is pinned by its manifest digest in the descriptor;
 - native tools are off where the CLI allows it: Claude runs with no built-in tools and
-  Codex with a read-only sandbox, so a native write is refused; Gemini cannot turn its
-  native tools off, and nothing it writes natively is credited (only broker output pins are);
+  Codex with a read-only sandbox and generated native-tool exclusions; Gemini workers get
+  generated core-tool exclusions and an empty context-file list. Qualification must confirm
+  the resulting surface; native outputs are never credited (only broker output pins are);
 - the prompt is written to worker custody with a complete audit record and reaches the
   CLI on standard input (never in argv);
 - a run that pins a project instruction document (``project_instructions``) gets its text
@@ -53,6 +45,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import sys
 import time
 import uuid
@@ -88,9 +81,9 @@ CREDENTIAL_FILES = {'AWS_CONFIG_FILE': '.aws/config', 'AWS_SHARED_CREDENTIALS_FI
                     'GOOGLE_APPLICATION_CREDENTIALS': '.config/gcloud/application_default_credentials.json'}
 # Configuration directories a declared variable names; each becomes a fresh empty directory.
 CONFIG_HOMES = ('CLOUDSDK_CONFIG',)
-# CLIs with no flag that excludes the configuration they find (declaration notes).
-DECLARED_CONFIGURATION_LOADED = ('gemini',)
 PROMPT_HINT = 'Follow the RAVEL worker instructions given on standard input.'
+# The controller's instruction packet, copied into a seat's workspace by the dispatcher.
+CONTROLLER_PACKET = 'packet.md'
 
 FINAL_JSON_SCHEMAS = {
     'producer.v1': {'type': 'object', 'additionalProperties': False, 'required': ['completed', 'summary'],
@@ -166,7 +159,11 @@ def run_preferences(run, spec, card):
 
 def _select(run, spec, card):
     try:
-        return tr.select(card, run_preferences(run, spec, card))
+        from ..review_independence import controller_store
+        store = controller_store(run)
+        options = {} if store is None else {
+            'controller': True, 'qualifications': tr.store_qualifications(store)}
+        return tr.select(card, run_preferences(run, spec, card), **options)
     except tr.TransportRefusal as exc:
         raise LaunchRefused(str(exc), exc.missing) from None
 
@@ -238,7 +235,8 @@ def _login_config_dir():
     """The operator's dedicated Claude login directory, checked to carry no user configuration."""
     value = os.environ.get('CLAUDE_CONFIG_DIR')
     if not value:
-        _refuse('CLAUDE_CONFIG_DIR', 'set it to a login-only directory; the account default is your own configuration')
+        from . import cli_login
+        _refuse('CLAUDE_CONFIG_DIR', cli_login.remedy('LOGIN_DIRECTORY'))
     path = Path(value)
     if not path.is_absolute() or path.is_symlink() or not path.is_dir():
         _refuse('CLAUDE_CONFIG_DIR', 'must be an absolute, existing, non-symlinked directory')
@@ -301,22 +299,14 @@ def _synced_only(path):
     return (path / CLAUDE_SYNCED).is_dir() and not any(found.is_symlink() for found in path.rglob('*'))
 
 
-def _copy_credentials(document, home, environment):
-    """Copy each declared credential file into the home; repoint its variable. Bytes are copied, never read."""
+def _configuration_paths(document, home, environment):
+    """Point declared file variables at owner-provided files inside the CLI home."""
+    from . import cli_login
     launch_env = {}
     names = set(document['pass_env']) | set(document['auth']['env_names'])
-    real = Path(environment.get('HOME') or Path.home())
     for name in sorted(names & set(CREDENTIAL_FILES)):
-        source = Path(environment[name]) if environment.get(name) else real / CREDENTIAL_FILES[name]
-        if source.is_symlink():
-            _refuse('credential:' + name, 'a symbolic link is refused')
-        if not source.is_file():
-            continue
         target = home / 'credentials' / name
-        if not target.exists():
-            target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-            shutil.copyfile(source, target, follow_symlinks=False)
-            target.chmod(0o600)
+        cli_login.require_file(target, environment.get(name) or target.parent)
         launch_env[name] = str(target)
     for name in sorted(names & set(CONFIG_HOMES)):
         target = home / 'config' / name
@@ -330,12 +320,17 @@ def _cli_home(agent, document, ws):
     from .. import cli_agent_host as host
     environment = dict(os.environ)
     if agent == 'claude' and document['auth']['kind'] == 'login':
-        return _login_config_dir(), False, {}, ['CLAUDE_CONFIG_DIR'], ws / 'inputs' / 'mcp'
+        _login_config_dir()
+        home = sandbox.cli_home_for(ws)
+        config = home / 'claude'
+        config.mkdir(parents=True, exist_ok=True, mode=0o700)
+        home.chmod(0o700)
+        return home, False, {'CLAUDE_CONFIG_DIR': str(config)}, ['CLAUDE_CONFIG_DIR'], ws / 'inputs' / 'mcp'
     home = sandbox.cli_home_for(ws)
     fresh = not home.exists()
     if fresh:
         home.mkdir(mode=0o700)
-    launch_env = _copy_credentials(document, home, environment)
+    launch_env = _configuration_paths(document, home, environment)
     if agent == 'claude':
         (home / 'claude').mkdir(exist_ok=True, mode=0o700)
         launch_env['CLAUDE_CONFIG_DIR'] = str(home / 'claude')
@@ -353,39 +348,19 @@ def _cli_home(agent, document, ws):
     return home, True, launch_env, sorted(launch_env), config_dir
 
 
-def _keychain_home(ws):
-    """The worker's own HOME holding exactly one entry: ``Library/Keychains`` linked to the login keychains.
-
-    The one link RAVEL creates on purpose (see ``sandbox.user_home_for``); it is made fresh,
-    and an existing home with anything else in it is refused.
-    """
-    home = sandbox.user_home_for(ws)
-    target = sandbox.login_keychains()
-    link = home / 'Library' / 'Keychains'
-    if home.exists() or home.is_symlink():
-        if (home.is_symlink() or [p.name for p in home.iterdir()] != ['Library']
-                or [p.name for p in (home / 'Library').iterdir()] != ['Keychains']
-                or not link.is_symlink() or Path(os.readlink(link)) != target):
-            _refuse('keychain_home', 'the worker home holds something other than the keychain link')
-        return home
-    (home / 'Library').mkdir(parents=True, mode=0o700)
-    home.chmod(0o700)
-    link.symlink_to(target, target_is_directory=True)
-    return home
-
-
 def remove_home(ws, descriptor):
-    """Remove the per-worker CLI home and keychain home after the child is gone.
-
-    ``rmtree`` removes the keychain link itself, never what it points to.
-    """
+    """Clean generated CLI configuration while preserving owner-provided login files."""
     transport = descriptor.get('transport') or {}
     home = transport.get('cli_home')
     if transport.get('cli_home_owned') and home and broker.ordinary(home) == sandbox.cli_home_for(ws):
+        # External setup owns login files and their containing homes.
+        if (Path(home) / 'credentials').exists():
+            return
+        for name in ('.credentials.json', 'credentials.json', '.claude.json', 'auth.json',
+                     'oauth_creds.json', 'google_accounts.json', 'application_default_credentials.json'):
+            if any(Path(home).rglob(name)):
+                return
         shutil.rmtree(home, ignore_errors=True)
-    user_home = transport.get('user_home')
-    if user_home and Path(user_home) == sandbox.user_home_for(ws):
-        shutil.rmtree(user_home, ignore_errors=True)
 
 
 def _socket_path(run, ws, spec):
@@ -410,6 +385,58 @@ def _gemini_settings(config_dir):
     return json.loads(settings.read_text()) if settings.is_file() else {}
 
 
+def _subscription_selectors(agent, document, launch_env):
+    if document['billing'] != 'subscription' or document['auth']['kind'] != 'login' or agent not in ('codex', 'gemini'):
+        return
+    item = 'subscription_auth:' + agent
+    remedy = ('Use a Codex subscription login or a budgeted HTTP API route.' if agent == 'codex' else
+              'Use a Gemini OAuth subscription login or a budgeted HTTP loop.')
+    selectors = (('OPENAI_API_KEY', 'AZURE_OPENAI_API_KEY') if agent == 'codex' else
+                 ('GEMINI_API_KEY', 'GOOGLE_API_KEY', 'GOOGLE_APPLICATION_CREDENTIALS', 'GEMINI_USE_VERTEXAI'))
+    declared = set(document['pass_env']) | set(document['auth']['env_names'])
+    if any(launch_env.get(name) or (name in declared and os.environ.get(name)) for name in selectors):
+        _refuse(item, remedy)
+
+
+def _subscription_login_settings(agent, document, config_dir, launch_env):
+    """Validate subscription authentication through CLI status and nonsecret settings."""
+    if document['billing'] != 'subscription' or document['auth']['kind'] != 'login':
+        return None
+    if agent not in ('codex', 'gemini'):
+        return None
+    _subscription_selectors(agent, document, launch_env)
+    item = 'subscription_auth:' + agent
+    remedy = ('Use a Codex subscription login or a budgeted HTTP API route.' if agent == 'codex' else
+              'Use a Gemini OAuth subscription login or a budgeted HTTP loop.')
+    valid, settings = True, None
+    try:
+        if agent == 'codex':
+            from . import cli_login
+            try:
+                cli_login.preflight(launch_env['RAVEL_CLI_EXECUTABLE'], config_dir, agent='codex',
+                                    environment=os.environ)
+            except cli_login.LoginRefused:
+                valid = False
+        else:
+            settings = _gemini_settings(config_dir)
+            security = settings.get('security') or {}
+            auth = security.get('auth') or {}
+            mode = auth.get('selectedType')
+            if mode is None:
+                mode = settings.get('selectedAuthType')
+            valid = mode is None or mode == 'oauth-personal'
+            if valid:
+                settings['security'] = {**security, 'auth': {**auth, 'selectedType': 'oauth-personal'}}
+
+    except (OSError, UnicodeError, ValueError, TypeError, AttributeError):
+        valid = False
+    # The refusal is outside the exception handler: no credential-bearing parse
+    # error or source bytes enter its message or exception context.
+    if not valid:
+        _refuse(item, remedy)
+    return settings if agent == 'gemini' else None
+
+
 # ---------------------------------------------------------------- toolbelt and prompt
 
 def toolbelt_for(card, document, blind, *, atlas=None, blind_actions=None):
@@ -419,7 +446,12 @@ def toolbelt_for(card, document, blind, *, atlas=None, blind_actions=None):
     from .. import toolbelt
     effective = deepcopy(card)
     route = document['capabilities']['tools']
-    if tr.TOOLS.index(effective['requires'].get('tools', 'none')) < tr.TOOLS.index(route):
+    # requires.tools is a minimum. Only an explicit zero-call contract removes
+    # executable tools; ordinary reviewers still write their declared outputs.
+    no_calls = (effective['requires'].get('tools') == 'none'
+                and effective['stop'].get('max_broker_calls') == 0)
+    if (not no_calls
+            and tr.TOOLS.index(effective['requires'].get('tools', 'none')) < tr.TOOLS.index(route)):
         effective['requires']['tools'] = route
     executable = toolbelt.EXECUTABLE_ACTIONS
     if effective['family'] == 'production' and not blind:
@@ -468,11 +500,66 @@ def build_prompt(card, spec, ws, belt, *, agent, structured):
 
 # ---------------------------------------------------------------- the descriptor
 
-def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=None):
+def _controller_facts(spec, controller, ws):
+    """The controller seat's launch facts, checked: its packet copy, closed schema and selection."""
+    from .. import agent_worker
+    if spec['final_record_schema'] != agent_worker.CONTROLLER_SCHEMA:
+        _refuse('controller:schema', 'a controller seat spec names the controller final-record schema')
+    if (type(controller) is not dict or type(controller.get('schema')) is not dict
+            or type(controller.get('selection')) is not dict or type(controller.get('packet_sha256')) is not str):
+        _refuse('controller:facts', 'a controller seat carries its packet, closed schema and selection')
+    if tr.digest(controller['schema']) != controller.get('schema_sha256'):
+        _refuse('controller:schema-changed')
+    packet = ws / 'inputs' / CONTROLLER_PACKET
+    if packet.is_symlink() or not packet.is_file() or broker.sha(packet) != controller['packet_sha256']:
+        _refuse('controller:packet', 'the instruction packet copy differs from the one the controller built')
+    return packet.read_text(encoding='utf-8')
+
+
+def build_controller_prompt(packet_text, spec, ws, belt, *, structured):
+    """The controller seat's prompt: the instruction packet verbatim, then this route's worker surface."""
+    inputs = sorted(p.relative_to(ws).as_posix() for p in (ws / 'inputs').rglob('*')
+                    if p.is_file() and not p.is_symlink() and p.parent.name != 'mcp'
+                    and p.name not in ('toolbelt.json', 'final-schema.json', CONTROLLER_PACKET,
+                                       project_instructions.CARRIER_NAME))
+    tools = [t for t in belt['tools'] if t['executes_through']['action'] is not None]
+    lines = [packet_text.rstrip('\n'), '', '== Worker surface ==',
+             'Your workspace has inputs/ (read-only), outputs/ and scratch/. Paths are relative to it.',
+             f'Use only the `{MCP_SERVER}` MCP tools; every call is receipted by the RAVEL broker:']
+    lines += [f"- {t['name']}: {t['description']}" for t in tools] or ['- (no tools: answer from the packet)']
+    lines += ['', 'Inputs:'] + ([f'- {p}' for p in inputs] or ['- (none)'])
+    lines += ['', 'Declared outputs (write each with ws_write):']
+    lines += [f"- {o['path']} ({o['kind']}, {'required' if o['required'] else 'optional'})"
+              for o in spec['declared_outputs']] or ['- (none)']
+    budget = spec['budgets']
+    lines += ['', f"Budgets: at most {budget['max_turns']} turns and {budget['max_broker_calls']} tool calls.", '',
+              'Finish with one final record that matches the output contract of the packet: every field, the '
+              'instruction acknowledgement, one checklist row per duty unit and the escalation list.']
+    if not structured:
+        lines.append('Your final message must be that JSON object and nothing else.')
+    return '\n'.join(lines) + '\n'
+
+
+def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=None, controller=None):
+    """Build one trusted descriptor with owner-file admission and generated configuration."""
+    homes = []
+    try:
+        return _prepare_launch(rundir, spec, workspace, selection=selection, card=card, atlas=atlas,
+                               controller=controller, homes=homes)
+    except BaseException:
+        for transport in homes:
+            remove_home(workspace, {'transport': transport})
+        raise
+
+
+def _prepare_launch(rundir, spec, workspace, *, selection, card, atlas, controller, homes):
     """The trusted launch descriptor for one worker attempt, or ``LaunchRefused`` naming what is missing.
 
     ``selection``, ``card`` and ``atlas`` are for trusted code only (``qualify``); graph input
-    never supplies them.
+    never supplies them. ``controller`` carries a controller seat's launch facts (the governed
+    step built them): the selection made from the operator's frozen preferences, the instruction
+    packet the prompt is and the closed output schema the final record must match. A controller
+    seat runs only on a transport its admission rules allow.
     """
     from .. import agent_worker, broker_mcp, cli_agent_host as host
     run = broker.ordinary(rundir)
@@ -481,14 +568,27 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
     if ws != agent_worker.workspace(run, spec['node_id'], spec['attempt']):
         _refuse('workspace', 'not this attempt\'s workspace')
     card = _card(spec, card)
+    packet_text = None
+    if controller is not None or spec.get('final_record_schema') == agent_worker.CONTROLLER_SCHEMA:
+        packet_text = _controller_facts(spec, controller, ws)
+        selection = controller['selection']
     selected = deepcopy(selection) if selection is not None else _select(run, spec, card)
     document = tr.load(selected['transport_id'])
+    if packet_text is not None:
+        from ravel.controller.step.seats import admission_problem
+        problem = admission_problem(document)
+        if problem is not None:
+            _refuse('controller:transport', problem)
     from .. import provider_policy
     try:
         admission = provider_policy.admission(run, document, provider_policy.account_class(document),
                                              input_pins=spec['inputs'])
     except provider_policy.PolicyRefused as exc:
         raise LaunchRefused(str(exc), ['provider_policy']) from None
+    try:
+        egress = sandbox.require_provider_egress(admission)
+    except sandbox.EndpointConfinementRefused as exc:
+        raise LaunchRefused(str(exc), ['provider_endpoint_confinement']) from None
     if document['transport_kind'] != 'cli-worker':
         _refuse('transport_kind:' + document['transport_kind'], 'a CLI worker never falls back to another route')
     problem = tr.executor_problem(document)
@@ -506,7 +606,7 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
     usd = spec['budgets']['max_cost_usd']
     if document['billing'] == 'api' and usd is None:
         _refuse('cost_budget', 'an API-billed worker needs max_cost_usd')
-    if usd is not None and agent != 'claude':
+    if usd is not None and agent not in COST_ENFORCING:
         _refuse('cost_unenforceable', f'{agent} reports no cost; use a null cost budget on a subscription route')
     try:
         # A document that no longer matches its pin refuses here, with the re-pin command, before
@@ -525,9 +625,24 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
                             blind_actions=agent_worker.blind_actions(card) if card_blind else None)
     except toolbelt.ToolbeltError as exc:
         raise LaunchRefused(f'cli worker refused: toolbelt:{exc}', ['toolbelt']) from None
+    if packet_text is not None and (controller.get('toolbelt') or {}).get('manifest_sha256') != belt['manifest_sha256']:
+        _refuse('controller:toolbelt', 'the worker toolbelt differs from the one the governed step admitted')
+    _subscription_selectors(agent, document, {})
     home, owned, launch_env, verified, config_dir = _cli_home(agent, document, ws)
+    cleanup = {'cli_home': str(home), 'cli_home_owned': owned}
+    homes.append(cleanup)
+    login_preflight = None
+    if agent == 'claude' and document['auth']['kind'] == 'login':
+        from . import cli_login
+        try:
+            login_preflight = cli_login.preflight(executable, _login_config_dir(),
+                                                  config=launch_env['CLAUDE_CONFIG_DIR'])
+        except cli_login.LoginRefused as exc:
+            raise LaunchRefused(str(exc), [exc.code]) from None
+    subscription_settings = _subscription_login_settings(agent, document, config_dir,
+                                                          {**launch_env, 'RAVEL_CLI_EXECUTABLE': executable})
     belt_path = _write_once(ws / 'inputs' / 'toolbelt.json', json.dumps(belt, indent=1, sort_keys=True))
-    schema = FINAL_JSON_SCHEMAS[spec['final_record_schema']]
+    schema = controller['schema'] if packet_text is not None else FINAL_JSON_SCHEMAS[spec['final_record_schema']]
     schema_path = _write_once(ws / 'inputs' / 'final-schema.json', json.dumps(schema, sort_keys=True))
     command = mcp_command(ws, belt_path, _socket_path(run, ws, spec))
     surface = document['worker_surface']
@@ -535,7 +650,8 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
         mcp = {'config': surface['mcp']['config'], 'path': str(config_dir / 'mcp.json'), 'env': {}, 'fallback': None,
                'argv': [a.replace('{mcp_config}', str(config_dir / 'mcp.json')) for a in surface['mcp']['argv']]}
     else:
-        selected_auth = _gemini_settings(config_dir) if agent == 'gemini' else {}
+        selected_auth = (subscription_settings if subscription_settings is not None else
+                         _gemini_settings(config_dir) if agent == 'gemini' else {})
         mcp = broker_mcp.client_config(document, config_dir=config_dir, command=command)
         if agent == 'gemini' and selected_auth.get('security'):
             settings = Path(mcp['path'])
@@ -543,6 +659,26 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
                                            indent=1))
         if Path(mcp['path']).is_relative_to(ws / 'inputs'):
             Path(mcp['path']).chmod(0o400)
+    if agent == 'codex':
+        config = Path(mcp['path'])
+        text = config.read_text()
+        prefix = ('web_search = "disabled"\n[features]\nshell_tool = false\n'
+                  'apply_patch_freeform = false\ncollab = false\napps = false\n'
+                  '[tools]\nview_image = false\n')
+        if not text.startswith(prefix):
+            config.write_text(prefix + text)
+    elif agent == 'gemini':
+        config = Path(mcp['path'])
+        settings = json.loads(config.read_text())
+        settings['tools'] = {'core': [], 'exclude': [
+            'run_shell_command', 'read_file', 'read_many_files', 'write_file', 'replace',
+            'list_directory', 'glob', 'search_file_content', 'web_fetch', 'google_web_search',
+            'save_memory', 'write_todos', 'activate_skill', 'ask_user', 'enter_plan_mode', 'exit_plan_mode']}
+        settings['context'] = {'fileName': []}
+        settings['model'] = {'maxSessionTurns': spec['budgets']['max_turns']}
+        config.write_text(json.dumps(settings, indent=1))
+    if agent in ('codex', 'gemini'):
+        config.chmod(0o400)
     if mcp['env'] and any(launch_env.get(k) != v for k, v in mcp['env'].items()):
         _refuse('worker_surface.mcp:home-mismatch')
     if agent == 'claude':
@@ -551,10 +687,7 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
         tmp = ws / 'scratch' / 'tmp'
         tmp.mkdir(mode=0o700, exist_ok=True)
         launch_env.update(CLAUDE_CODE_TMPDIR=str(tmp), TMPDIR=str(tmp))
-    # Claude Code reads its stored login from the login keychain under $HOME/Library/Keychains.
-    user_home = _keychain_home(ws) if agent == 'claude' and sandbox.available() == 'macos' else None
-    if user_home:
-        launch_env['HOME'] = str(user_home)
+    user_home = None
     tools = [t['name'] for t in belt['tools'] if t['executes_through']['action'] is not None]
     structured = surface['structured_output'] == 'enforced'
     try:
@@ -564,7 +697,8 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
             carrier=ws / 'inputs' / project_instructions.CARRIER_NAME)
     except project_instructions.ProjectInstructionsError as exc:
         raise LaunchRefused(str(exc), exc.missing) from None
-    prompt = prefix + build_prompt(card, spec, ws, belt, agent=agent, structured=structured)
+    prompt = prefix + (build_controller_prompt(packet_text, spec, ws, belt, structured=structured)
+                       if packet_text is not None else build_prompt(card, spec, ws, belt, agent=agent, structured=structured))
     key = agent_worker._key(spec['node_id'], spec['attempt'])
     custody = broker.custody(run)
     prompt_path = custody / (key + '.prompt.txt')
@@ -591,7 +725,7 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
                       | (set(agent_worker.ACCOUNT_ENV) if agent == 'claude' else set()))
     read_paths = sandbox.runtime_paths(argv)
     allowed = sorted({t['executes_through']['action'] for t in belt['tools'] if t['executes_through']['action']})
-    declared_loaded = agent in DECLARED_CONFIGURATION_LOADED
+    declared_loaded = False  # generated homes carry only authentication and the broker configuration
     audit = {'schema_version': 1, 'kind': 'cli-worker-prompt-audit', 'node_id': spec['node_id'],
              'provider_policy': admission,
              'attempt': spec['attempt'], 'role': spec['role'], 'transport_id': document['id'],
@@ -599,6 +733,8 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
              'executable_path': executable, 'executable_sha256': executable_sha,
              'prompt': {'path': str(prompt_path), 'sha256': broker.sha(prompt_path), 'bytes': prompt_path.stat().st_size,
                         'channel': 'stdin'},
+             # The one context channel the builder controls: the controller packet, else the work order, on stdin.
+             'context_channels': ['stdin_packet' if packet_text is not None else 'stdin_work_order'],
              'argv': argv, 'argv_sha256': broker.digest(argv), 'pass_env_names': pass_env,
              'launch_env_names': sorted(launch_env), 'verified_env': verified,
              'final_schema_sha256': broker.sha(schema_path), 'toolbelt_manifest_sha256': belt['manifest_sha256'],
@@ -620,13 +756,31 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
                  'prompt_audit': {'path': str(audit_path), 'sha256': broker.sha(audit_path)},
                  'cli_home': str(home), 'cli_home_owned': owned, 'user_home': str(user_home) if user_home else None,
                  'launch_env': launch_env, 'verified_env': verified,
-                 'network': 'provider', 'structured_output': surface['structured_output'],
+                 'network': 'provider', 'egress': egress, 'structured_output': surface['structured_output'],
+                 'mcp_command': list(command),
                  'toolbelt': {'path': str(belt_path), 'manifest_sha256': belt['manifest_sha256']},
                  'user_configuration_declared_loaded': declared_loaded,
                  'limits': {'max_turns': spec['budgets']['max_turns'], 'max_cost_usd': usd},
-                 'receipt': None}
+                 'receipt': None,
+                 'config': {'path': mcp['path'], 'sha256': broker.sha(Path(mcp['path']))} if mcp['path'] else None,
+                 'configuration_sha256': broker.sha(Path(mcp['path'])) if mcp['path'] else None}
+    if login_preflight is not None:
+        transport['login_preflight'] = login_preflight
+        transport['login_source'] = str(_login_config_dir())
     if instruction_record is not None:
         transport['project_instructions'] = instruction_record
+    if packet_text is not None:
+        transport['controller'] = {'schema': deepcopy(schema), 'schema_sha256': tr.digest(schema),
+                                   'packet_sha256': controller['packet_sha256'],
+                                   'manifest_sha256': controller.get('manifest_sha256'),
+                                   'step_id': controller.get('step_id'), 'seat': controller.get('seat'),
+                                   # The research controller's role packet and node facts, for the packet read
+                                   # boundary the supervisor proves (none for any other controller step).
+                                   'research_packet': deepcopy(controller.get('research_packet')
+                                                               or (controller.get('research_node') or {}).get('packet')),
+                                   'research_inputs': deepcopy((controller.get('research_node') or {}).get('inputs')),
+                                   'research_packet_subject_sha256': controller.get('research_packet_subject_sha256'),
+                                   'research_role': (controller.get('research_node') or {}).get('role')}
     descriptor = {'argv': argv, 'transport': transport,
                   'model': {'requested': model, 'observed': None, 'family': selected.get('family')
                             or tr.family_of(document, model), 'effort': effort},
@@ -637,6 +791,15 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
 
 
 # ---------------------------------------------------------------- after the child
+
+def _error_tail(path):
+    path = Path(path)
+    if not path.is_file():
+        return ''
+    with path.open('rb') as stream:
+        stream.seek(max(0, path.stat().st_size - 8192))
+        return '\n'.join(stream.read(8192).decode('utf-8', errors='replace').splitlines()[-20:])
+
 
 def _final(agent, parsed):
     from ..cli_agent_host import extract_json
@@ -704,12 +867,33 @@ def observe(rundir, descriptor, ws, spec, execution):
         final = _final(agent, parsed)
         session = parsed.get('session_id') if type(parsed.get('session_id')) is str else None
         observed = parsed.get('observed_model')
+        if len(parsed.get('all_models') or []) > 1:
+            observed = None  # mixed-model totals cannot be attributed to a requested single-model seat
+        codex_home = (transport.get('launch_env') or {}).get('CODEX_HOME')
+        if agent == 'codex' and observed is None and codex_home:
+            observed, rollout_sha = host._codex_rollout(session, {'CODEX_HOME': codex_home})
+            if rollout_sha is not None:
+                transport['model_rollout_sha256'] = rollout_sha
         tokens = parsed.get('usage') or {}
         cost = (parsed.get('meter') or {}).get('total_cost_usd')
         usage.update(input_tokens=tokens.get('input_tokens'), output_tokens=tokens.get('output_tokens'),
                      cost_usd=cost if type(cost) in (int, float) else None, turns=_turns(agent, parsed, raw),
                      reported=bool(tokens))
         config_events = parsed.get('config_events') or []
+        if agent == 'gemini' and (transport.get('configuration_sha256') is not None):
+            # _google's declaration-only label describes unmanaged CLI calls. A worker has an isolated,
+            # generated home; actual config-load events are retained and still refuse attestation.
+            config_events = [event for event in config_events if event.get('type') != 'declared']
+        from . import provider_usage
+        counter = provider_usage.decode(raw, agent)
+        if counter.get('status') == 'reported':
+            split = counter['usage']
+            usage.update(input_tokens=sum(split[k] for k in ('input_tokens', 'cache_creation_input_tokens',
+                         'cache_read_input_tokens')), output_tokens=split['output_tokens'],
+                         turns=counter['requests'], reported=True)
+            if usage['cost_usd'] is None and observed is not None:
+                from .. import model_catalogue
+                usage['cost_usd'] = model_catalogue.price(split, observed)['cost_usd']
     limits = transport['limits']
     checks = {'turns': {'observed': usage['turns'], 'max': limits['max_turns'],
                         'within': usage['turns'] is not None and usage['turns'] <= limits['max_turns']
@@ -744,9 +928,21 @@ def observe(rundir, descriptor, ws, spec, execution):
             reported = any('memory_paths' in (event.get('names') or []) for event in config_events)
         transport['project_instructions'] = project_instructions.with_cli_report(
             transport['project_instructions'], reported)
+    from . import provider_usage
     transport['observation'] = {'envelope_error': error, 'limits': checks, 'config_events': config_events,
+                                'provider_usage': provider_usage.capture(run, spec['node_id'], spec['attempt'], agent),
                                 'stdout_sha256': broker.sha(stdout) if stdout.is_file() else None,
                                 'attestation_reasons': reasons}
+    if execution.get('exit_status') not in (None, 0):
+        from . import cli_login
+        stderr = agent_worker.capture_path(run, spec['node_id'], spec['attempt'], 'stderr')
+        transport['observation']['failure_diagnostic'] = {
+            'exit_status': execution.get('exit_status'), 'stderr_tail': cli_login.safe_error(_error_tail(stderr)),
+            'stdout_tail': cli_login.safe_error(_error_tail(stdout)),
+            'remedy': (cli_login.remedy(transport['login_source'],
+                                       config=(transport.get('launch_env') or {}).get('CLAUDE_CONFIG_DIR'))
+                       if transport.get('login_source')
+                       else 'Inspect the retained worker error, restore the CLI login, and retry the attempt.')}
     result = {'final': final, 'session_id': session, 'usage': usage, 'cli_version': transport['cli_version'],
               'model': {**descriptor['model'], 'observed': observed}, 'isolation': isolation,
               'attestation': 'transport_attested' if not reasons else 'host_attested', 'transport': transport}
@@ -809,9 +1005,10 @@ def conformance_spec(card):
             'parent': {'review_point_id': None, 'map_id': None, 'rca_ticket': None}}
 
 
-# The CLI's own channel for a --json-schema answer. It cannot read, write or run anything, so listing it is not a
-# capability beyond the RAVEL tools (live evidence: Claude Code 2.1.296 lists it beside mcp__ravel__*).
-ANSWER_CHANNEL_TOOLS = frozenset({'StructuredOutput'})
+# The worker's own channel for its final answer: the CLI's --json-schema answer, and the RAVEL loop's
+# ``submit_final`` tool. Neither can read, write or run anything, so listing one is not a capability beyond
+# the RAVEL tools (live evidence: Claude Code 2.1.296 lists StructuredOutput beside mcp__ravel__*).
+ANSWER_CHANNEL_TOOLS = frozenset({'StructuredOutput', 'submit_final'})
 
 
 def surface_names(reply, tools):
@@ -834,17 +1031,43 @@ def _surface(ws):
             'ravel': ravel}
 
 
-def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None, instructions=None):
+def _qualifier_adapter(document):
+    """The launch adapter of the declaration's kind: this module for a CLI worker, the loop adapter for a loop."""
+    if document['transport_kind'] == 'cli-worker':
+        return sys.modules[__name__]
+    if document['transport_kind'] == 'ravel-loop':
+        return tr.adapter_module('ravel-loop')
+    _refuse('transport_kind:' + document['transport_kind'], 'only a CLI worker or a RAVEL loop route is qualified here')
+
+
+def _current_executable(adapter, document, run):
+    """The sha256 of what would run now: the CLI on PATH, or the loop's code identity."""
+    if adapter is sys.modules[__name__]:
+        return tr.resolve_executable(document)[1]
+    return adapter.current_probe(document, run)[2]
+
+
+def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None, instructions=None,
+            controller_rundir=None):
     """Run the conformance task live through ``prepare_launch`` in the sandbox; write the record only if every step passed.
 
     Returns the qualification record. Raises ``LaunchRefused`` (nothing started) or
     ``QualificationFailed`` (the run happened; the failed steps are named; no record).
     ``instructions`` names a project instruction document: the conformance run pins it, and the
     added step ``project_instructions_recorded`` passes only when the receipt shows its delivery.
+    A RAVEL loop route is qualified the same way through its own adapter
+    (``ravel.workflow.transports.ravel_loop``); its record is written for the loop's code identity.
     """
     from .. import agent_worker
+    from ..review_independence import controller_store
+    # The operator may qualify into an existing controller run while keeping the
+    # conformance workspace empty and independent of its scientific inputs.
+    store = controller_store(controller_rundir if controller_rundir is not None else rundir)
+    if controller_rundir is not None and store is None:
+        _refuse('controller-rundir:not-owned', str(controller_rundir))
     document = tr.load(transport_id)
-    problem = unsupported(document) or tr.executor_problem(document)
+    adapter = _qualifier_adapter(document)
+    problem = adapter.unsupported(document) or tr.executor_problem(document)
     if problem:
         _refuse(problem)
     run = Path(rundir)
@@ -855,7 +1078,7 @@ def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None, inst
     from .. import gate_wiring
     # The qualification run is created here, empty; its worker launch needs the journal record.
     gate_wiring.initialize_steering(run, route='transport-qualification')
-    probe, executable, executable_sha = current_probe(document, run)
+    probe, executable, executable_sha = adapter.current_probe(document, run)
     pinned = None
     if instructions is not None:
         try:
@@ -875,7 +1098,7 @@ def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None, inst
     ws = agent_worker.materialize(run, spec)
     selection = {'transport_id': transport_id, 'model': model, 'effort': effort,
                  'family': tr.family_of(document, model), 'probe_sha256': tr.digest(probe)}
-    descriptor = prepare_launch(run, spec, ws, selection=selection, card=card, atlas=_conformance_atlas())
+    descriptor = adapter.prepare_launch(run, spec, ws, selection=selection, card=card, atlas=_conformance_atlas())
     receipt = agent_worker.launch(run, spec, launch_spec=descriptor)
     calls = [broker.verify_broker_receipt(run, {'path': r['record']['path'], 'sha256': r['record']['sha256']},
                                           verify_outputs=False)
@@ -895,7 +1118,7 @@ def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None, inst
          or not document['capabilities']['blind_capable']),
         ('transport_attested', receipt['attestation'] == 'transport_attested'
          or document['capabilities']['attestation'] != 'transport'),
-        ('executable_unchanged', tr.resolve_executable(document)[1] == executable_sha),
+        ('executable_unchanged', _current_executable(adapter, document, run) == executable_sha),
         ('surface_ravel_only', bool(surface['ravel']) and surface['unexpected'] == []),
     ]
     if pinned is not None:
@@ -915,6 +1138,8 @@ def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None, inst
                            'surface': surface},
               'steps': [{'step': name, 'passed': ok} for name, ok in steps], 'rundir': str(run),
               'qualified_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+    if store is not None:
+        tr.record_qualification(store, record)
     target = tr.qualification_path(transport_id)
     target.parent.mkdir(parents=True, exist_ok=True)
     atomic_json(target, record)
@@ -931,21 +1156,37 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog='ravel transport qualify', description=qualify.__doc__)
     parser.add_argument('transport_id')
     parser.add_argument('--rundir', type=Path, required=True, help='an empty directory for the conformance run')
+    parser.add_argument('--controller-rundir', type=Path,
+                        help='controller-owned run receiving the successful qualification observation')
     parser.add_argument('--model', required=True)
     parser.add_argument('--effort')
     parser.add_argument('--max-cost-usd', type=float)
     parser.add_argument('--project-instructions', type=Path,
                         help='a project instruction document to pin for the conformance run; the receipt must record it')
+    # Kept outside the qualification itself: the operator's own terminal retains the passed record for every later
+    # controller run, which adopts it at intake while it still matches (``controller.authority.qualifications``).
+    parser.add_argument('--for-operator', action='store_true',
+                        help='retain the qualification for every later controller run (adopted at intake)')
     args = parser.parse_args(argv)
     try:
         record = qualify(args.transport_id, rundir=args.rundir, model=args.model, effort=args.effort,
-                         max_cost_usd=args.max_cost_usd, instructions=args.project_instructions)
+                         max_cost_usd=args.max_cost_usd, instructions=args.project_instructions,
+                         controller_rundir=args.controller_rundir)
     except LaunchRefused as exc:
         print(json.dumps({'status': 'refused', 'missing': exc.missing, 'detail': str(exc)}, indent=2))
         return 3
     except QualificationFailed as exc:
         print(json.dumps({'status': 'failed', 'failed_steps': exc.failed,
-                          'receipt_status': exc.receipt.get('status'), 'failure': exc.receipt.get('failure')}, indent=2))
+                          'receipt_status': exc.receipt.get('status'), 'failure': exc.receipt.get('failure'),
+                          'failure_diagnostic': ((exc.receipt.get('transport') or {}).get('observation') or {}).get(
+                              'failure_diagnostic')}, indent=2))
         return 4
+    if args.for_operator:
+        from ravel.controller.authority import common as authority_common, qualifications
+        try:
+            record = {**record, 'operator_area': qualifications.record(record)}
+        except (authority_common.AuthorityRefused, ValueError, OSError) as exc:
+            print(json.dumps({'status': 'refused', 'missing': ['operator_area'], 'detail': str(exc)}, indent=2))
+            return 3
     print(json.dumps(record, indent=2, sort_keys=True))
     return 0

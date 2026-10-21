@@ -41,6 +41,18 @@ def decision_errors(root, action):
 
 def run_contract(root):
     root = Path(root)
+    from .research_cycle import CHILD_CONTRACT_ORIGIN, verify_experiment_contract
+    if (root / CHILD_CONTRACT_ORIGIN).exists():
+        # Gate intake preserves the original request; the scientific operation
+        # remains the scoped child, not a second independent research campaign.
+        verify_experiment_contract(root)
+        return state_io.read_json(root / 'inputs/science.json')
+    if (root / 'inputs/task_contract.json').is_file() and (root / 'inputs/science.json').is_file():
+        from ravel.controller.routes.study.child_contract import paths
+        if paths(root) is not None:
+            # The controller-approved child executes its scoped specification;
+            # the retained parent intake defines review and unresolved parent duties.
+            return state_io.read_json(root / 'inputs/science.json')
     for relative in ('inputs/task_contract.json', 'task_contract.json'):
         path = root/relative
         if path.exists():

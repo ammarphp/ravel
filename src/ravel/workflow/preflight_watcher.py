@@ -22,6 +22,7 @@ if not __package__:
     __package__ = "ravel.workflow"
 
 import argparse, hashlib, json, os, re, shlex, subprocess, sys
+from pathlib import Path
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
@@ -113,12 +114,119 @@ def probe_fire_command(fire, target=None):
     return ("pass" if ok else "fail"), checks
 
 
+def durable_target_errors(rundir, target):
+    """A durable watcher target is a regular, nonlinked run member outside transient scratch."""
+    from pathlib import Path
+    if not target:
+        return ['watcher_target_not_durable']
+    root = Path(rundir).absolute()
+    if ('..' in Path(target).parts
+            or any(parent.is_symlink() for parent in (root, *root.parents))):
+        return ['watcher_target_not_durable']
+    root, path = root.resolve(), Path(target).absolute()
+    try:
+        relative = path.relative_to(root)
+    except ValueError:
+        return ['watcher_target_not_durable']
+    if (not path.is_file() or any(parent.is_symlink() for parent in (path, *path.parents))
+            or any(part in ('scratch', '.work', 'tmp') for part in relative.parts)):
+        return ['watcher_target_not_durable']
+    return []
+
+
+def _controller_watcher(rundir):
+    try:
+        from ravel.controller.store import controller_owned
+    except ModuleNotFoundError as exc:
+        if exc.name in {'ravel', 'ravel.controller'}:
+            return False
+        raise
+    return controller_owned(__import__('pathlib').Path(rundir)) is not None
+
+
+def _retained_target(rundir, fire, target):
+    """Controller watchers use declared inputs with current, digest-checked custody.
+
+    An accepted custody destination under inputs/ is a controller declaration. A step
+    output must additionally be a declared input of the retained plan. Legacy runs keep
+    their existing preflight; a damaged controller claim never falls back to that path.
+    """
+    from ravel.controller.store import controller_owned, store_for
+    try:
+        root = Path(rundir).resolve()
+        if controller_owned(root) is None:
+            return None
+        store = store_for(root)
+        if store.check_binding(root):
+            raise ValueError("the controller run binding is not current")
+        if not target:
+            raise ValueError("the controller watcher names no retained target")
+        path = Path(target)
+        path = path if path.is_absolute() else root / path
+        relative = path.relative_to(root)
+        if ".." in relative.parts or not relative.parts or relative.parts[0] not in ("inputs", "steps"):
+            raise ValueError("the target is outside durable controller inputs and adopted outputs")
+        if any(p.is_symlink() for p in (path, *path.parents) if p == root or root in p.parents):
+            raise ValueError("the target has a symbolic link in its custody path")
+        if not path.is_file():
+            raise ValueError("the retained target is absent")
+        lexer = shlex.shlex(fire, posix=True, punctuation_chars=";&|<>()")
+        lexer.whitespace_split = True
+        tokens = list(lexer)
+        if not tokens or any(token and all(c in ";&|<>()" for c in token) for token in tokens):
+            raise ValueError("the controller fire command must be one retained target invocation")
+        executable = os.path.basename(tokens[0])
+        if executable in ("python", "python3", "sh", "bash"):
+            invoked = tokens[1] if len(tokens) > 1 else None
+        else:
+            invoked = tokens[0]
+        if invoked not in (str(path), relative.as_posix()):
+            raise ValueError("the fire command does not name the retained target")
+        latest = {}
+        for entry in store.scan("custody"):
+            row = entry["record"]
+            if isinstance(row.get("artifact"), str):
+                latest[row["artifact"]] = row
+        declared = set()
+        plan_record = store.latest("plan")
+        if plan_record:
+            plan = json.loads(store.get_blob(plan_record["record"]["blob"]))
+            declared = {row.get("artifact") for step in plan.get("steps") or ()
+                        for row in step.get("inputs") or () if isinstance(row, dict)}
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        retained = any(row.get("status") == "accepted" and row.get("destination") == relative.as_posix()
+                       and row.get("sha256") == actual
+                       and (relative.parts[0] == "inputs" or artifact in declared)
+                       for artifact, row in latest.items())
+        if not retained:
+            raise ValueError("the target has no current controller-retained input declaration with matching bytes")
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        return {"name": "retained-target", "level": "FAIL", "code": "watcher_target_not_durable",
+                "msg": str(exc)[:500]}
+    return {"name": "retained-target", "level": "PASS", "msg": "target is a controller-retained declared input"}
+
+
 def arm_watcher(rundir, name, fire, target):
-    verdict, checks = probe_fire_command(fire, target)
+    # A controller watcher's target must be a durable run member and a current, retained declared input;
+    # either refusal is recorded before the target runs.
+    durable = durable_target_errors(rundir, target) if _controller_watcher(rundir) else []
+    retained = None if durable else _retained_target(rundir, fire, target)
+    if durable:
+        verdict, checks = probe_fire_command(fire, None)
+        verdict = 'fail'
+        checks.append({'name': 'durable-target', 'level': 'FAIL', 'code': 'watcher_target_not_durable',
+                       'msg': '; '.join(durable)})
+    elif retained and retained["level"] == "FAIL":
+        verdict, checks = "fail", [retained]
+    else:
+        verdict, checks = probe_fire_command(fire, target)
+        if retained:
+            checks.insert(0, retained)
     rec = {"schema_version": 1, "generated_utc": _resolve_timestamp(),
            "generator": "preflight_watcher.py", "generated_by": "preflight_watcher.py --arm",
            "input_fingerprint": _fingerprint(name, fire, target or ""),
            "watcher": name, "fire": fire, "target": target, "checks": checks, "verdict": verdict}
+    rec["refusal_codes"] = [c["code"] for c in checks if c.get("code") and c["level"] == "FAIL"]
     dest = os.path.join(rundir, "logs", f"{name}.preflight.json")
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, "w") as f:

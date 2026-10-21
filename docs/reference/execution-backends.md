@@ -5,8 +5,8 @@ A supervised stage can run in four places:
 | Backend | Runs on | Use it for |
 |---|---|---|
 | `native` | this machine, as a subprocess | tools installed on the host (MadGraph, Pythia, Delphes, Rivet, Python analyses) |
-| `oci-local` | this machine, in a podman container | Linux-only tools on macOS (MCFM, CMS Combine, AnalysisBase) |
-| `site` | an HTCondor or SLURM cluster (for example lxplus) | large or many jobs on an analysis facility |
+| `oci-local` | this machine, in a podman container | Linux-only tools on macOS (MCFM, Combine, AnalysisBase) |
+| `site` | an HTCondor or Slurm cluster | large or many jobs on an analysis facility |
 
 The approval, CHECK-IN and recovery rules are the same for all four. Choose the
 backend at CHECK-IN 1 from what the stage needs: the platform the engine
@@ -80,7 +80,7 @@ replaced. A job that exits 0 without its outputs fails the stage.
 
 - `argv` writes its outputs to `$RAVEL_OUTPUT_DIR`; each output `name` is
   relative to it. `destination` is relative to the run directory. A `site`
-  output may instead name a `remote_uri` (for example an EOS path); the job
+  output can instead name a `remote_uri` (for example an EOS path); the job
   copies it there without overwriting, and the receipt records its size.
 - Images must be pinned by digest (`name@sha256:...`) or by a local image id.
   Tags such as `:latest` are refused. A `source` block needs a full commit SHA.
@@ -88,6 +88,36 @@ replaced. A job that exits 0 without its outputs fails the stage.
   are refused. Credentials stay in each tool's own configuration.
 - `resources` are ceilings: podman and the batch schedulers enforce CPU and
   memory; the worker enforces the wall time for every backend.
+
+Resource scope is explicit. The local container adapter sets and verifies its
+aggregate memory boundary and task limit (`resources.processes`, default 4096)
+against the created container. It refuses `disk_mib`: writable bind mounts and
+retained input/attempt copies have no cumulative quota or receipt-headroom
+reservation. Scheduler `disk_mib` requests concern job scratch and depend on site
+policy; they do not bound cumulative retained run storage. An explicit process
+limit holds on adapters that lack its enforcement.
+
+Generic local launches and the standalone native backend carry `RESOURCE
+PROTECTION INCOMPLETE`. Their default is an explicitly narrowed support contract:
+no aggregate memory/process/disk safety or reserved receipt headroom. Linux's
+legacy `memory_mib` in a confined launch controls per-process address space;
+cooperative thread variables on other hosts are not an aggregate CPU boundary.
+The operator can require retained-storage protection with `--budget
+retained_disk_bytes=N`; the generic launcher refuses that requirement rather than
+discarding it. Select an execution adapter separately qualified for every required
+guarantee. These labels stay in place until an enforcing action, such as a generic
+aggregate monitor with a filesystem reservation, supplies that evidence.
+
+Publication source payloads stream through acquisition and digest-bound member
+adoption. Original logical paths and source bytes are retained, including offline
+table/model files. The member index has an 8 MiB metadata ceiling and at most
+32768 filesystem entries; it contains no encoded payloads. Record/index metadata
+has a separate 16 MiB ceiling. JSON payload validation keeps bounded grammar/key
+state and small description/identifier summaries while arrays and skipped strings
+stream; explicit parser-limit or malformed-input failures refuse the handoff.
+Copy admission is serialized through retained writes, rechecks current authority
+and space, and records its accounting. It still supplies no kernel storage quota
+or physically reserved receipt headroom.
 
 ## Capacity
 
@@ -99,8 +129,7 @@ ceiling, and is then refused.
 - **One location per machine.** The lease lives in a fixed per-user directory,
   `~/.local/state/ravel/machine/` resolved from the user database, not from
   `HOME` or `RAVEL_STATE_DIR` (`native-job.lock`, `native-job.json`,
-  `native-job-fence.json`). A worktree, a test or a placement environment cannot
-  create a second lease. User-wide stores (custody, the ML exposure ledger) use
+  `native-job-fence.json`). Every worktree, test and placement environment shares this lease. User-wide stores (custody, the ML exposure ledger) use
   that directory through `machine_lease.machine_state_root()`; machine locks use
   the lease root, `machine_lease.machine_dir()` and `machine_lease.machine_lock(name)`.
   On a cluster the lease root is scoped: inside a Slurm allocation (`SLURM_JOB_ID`
@@ -149,7 +178,7 @@ ceiling, and is then refused.
 - **One computation per lease.** Each computation is reserved before it starts.
   A reservation is admitted only when every live computation of the lease is its
   own ancestor job, so two concurrent submissions under one lease are refused, and
-  a partition that may still run keeps the next partition from starting.
+  a partition that can still run keeps the next partition from starting.
 - **Held for the life of the job.** Each computation is fenced before its first
   process exists, by three ties: its log file, opened and locked before the start
   and inherited by every job process as its output (the lock lasts while any of
@@ -162,9 +191,9 @@ ceiling, and is then refused.
   A reused leader pid removes only that pid from the group census.
 - **Operator recovery.** An unreadable fence record blocks the machine, and so
   does a row RAVEL did not write (not an object, or without a lease id and a tie).
-  A fence entry whose ties cannot be proven live or dead also blocks: a group
+  A fence entry with unresolved live/dead ownership evidence also blocks: a group
   recorded without a start identity, or a job token while the process census
-  (`ps`) is unavailable. Unknown is not live: an operator clears such an entry
+  (`ps`) is missing. Unknown is not live: an operator clears such an entry
   with a recorded action, `ravel lease clear-fence --token T --reason TEXT
   --operator NAME` (or `--pgid N`, `--unreadable`, `--malformed`). The action is
   appended to `native-job-fence-actions.jsonl` with what was observed. It is
@@ -172,17 +201,13 @@ ceiling, and is then refused.
   Clearing an entry of a backend job also resolves that job's handle as
   `operator-cleared`, so the next launch of the stage is not blocked by it. The
   action is journalled in order: an `intent` row, the handle's resolution, the
-  fence removal, then a `completed` row. If the handle cannot be written, the
+  fence removal, then a `completed` row. If writing the handle fails, the
   fence entry stays, a `partial` row records the error, and the same command
   completes the action when run again.
-- **Known limit on macOS: detached daemons.** macOS gives an unprivileged user no
-  process containment. A payload descendant that leaves its process group,
-  replaces both standard streams and removes the job token from its environment
-  (or runs a system binary, whose environment macOS hides from `ps`) cannot be
-  detected without kernel containment. RAVEL does not see such a process, does
-  not count it, and a second job can then start. The supported native tools
-  (MadGraph, Pythia, Delphes, Rivet, SimpleAnalysis and RAVEL's own workers) do
-  not daemonise. Before each native job, run the read-only preflight:
+- **Process ownership on macOS.** Native ownership checks use the recorded process group,
+  standard streams and job token. A descendant that detaches from that group, replaces
+  its streams and removes its token requires kernel containment for a complete census.
+  Require that stronger containment when the payload can daemonise. Before each native job, run the read-only preflight:
 
   ```sh
   ravel lease preflight
@@ -192,7 +217,7 @@ ceiling, and is then refused.
   current fence entry or one an operator cleared) or belongs to a recorded
   process group, with its command. It signals nothing. It exits 1 when it lists a
   process, when the fence record is unreadable or holds a malformed row
-  (`malformed_rows`), or when the process census is unavailable; stop what it
+  (`malformed_rows`), or when the process census is missing; stop what it
   lists before you start the next job.
   Cancellation signals only the job's own process group, and only while that group
   is provably the job's (its leader or payload keeps its recorded identity, or,
@@ -220,7 +245,7 @@ A science (version 2, one attempt) or scoped specification can place its stage:
 Planning writes `inputs/backend-plan.json`, makes the backend worker the
 supervised command and shows the placement in CHECK-IN 1: backend, resources,
 plan digest, the placement `env` and `readonly_trees`, and the lease wait bound.
-Placement `env` may not set RAVEL control variables, `HOME`, `TMPDIR`, `PYTHON*`
+Placement `env` must not set RAVEL control variables, `HOME`, `TMPDIR`, `PYTHON*`
 or the runtime keys the payload verifies. A changed placement changes the plan
 digest, so it needs a new approval. The wall clock is the
 specification's `max_seconds`. The scientific worker runs as the job's payload
@@ -230,7 +255,7 @@ worker's child, and the launcher acknowledged the payload's process identity.
 The payload keeps the approved runtime environment and writes into the
 attempt's staging; the fetch hashes and moves the result to the declared output.
 Placement supports the `native` backend; container and site placement of a
-RAVEL worker are refused because their payload identity cannot yet be proven.
+RAVEL worker require an authenticated payload identity before admission.
 
 ## Stopping and recovery
 
@@ -279,8 +304,8 @@ nothing is fetched or saved before that check passes. It then reconciles
 partitions an earlier run left running or unresolved before it selects work: a
 job that ended is adopted (a success is fetched), a launch that started nothing
 does not count as an attempt, a job an operator cleared is settled whether or
-not its identity is known, and a job that may still run stays unresolved and is
-never submitted over. A remote job that may still run is observed by the new
+not its identity is known, and a job that can still run stays unresolved and is
+never submitted over. A remote job that can still run is observed by the new
 run with the deadline it started with, and its remaining wall time counts
 against the approved ceiling before anything is admitted; a local one keeps
 every other local partition from starting.
@@ -324,10 +349,10 @@ in-container build. Without `--execute` it prints the command. With
 approval still holds, and holds that stage's machine lease.
 
 **site.** The job directory must be on a file system the batch nodes share
-(AFS or EOS on lxplus). RAVEL writes `job.sh`, which runs the argv and records the
+(for example, a shared filesystem). RAVEL writes `job.sh`, which runs the argv and records the
 exit code, and `job.sub` (HTCondor) or `job.sbatch` (SLURM) with the resource
 requests, the wall limit and the RAVEL tag. `site.options` adds scheduler
-settings such as `+JobFlavour` or `partition`; RAVEL-controlled fields cannot be
+settings such as `+JobFlavour` or `partition`; RAVEL-controlled fields must not be
 replaced. `ravel backend site-submit-file --plan P --job-dir D` prints the
 submission for review. Check the site first with `ravel site doctor`.
 
@@ -368,7 +393,7 @@ written into the partition ledger. In Python, `authority` names the run, the
 stage and `spec`, the pinned specification file; the supplied specification must
 match it. The approval bounds the work: the entries of attempts already spent in
 the work directory plus the selected partitions times their remaining attempts
-may not exceed the stage's approved events, and the selected partitions plus any
+must not exceed the stage's approved events, and the selected partitions plus any
 adopted remote job must fit its wall-clock ceiling. Each member checksum is verified before its partition is
 submitted, and a resumed work directory's `inputs.json` files must match the
 specification. With a local backend the partitions run one at a time under the

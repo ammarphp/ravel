@@ -30,7 +30,7 @@ observable semantics, SM baseline, coupling contamination, coefficient baseline,
 theory double counting, datacard roundtrip and documentation. Full coverage is
 checked separately for each required method and observable. Missing bins,
 unknown fiducial/total meanings, unmapped couplings and unexecuted native checks
-stay inconclusive. Blindspot triage locates work; it cannot verify that work.
+stay inconclusive. Blindspot triage locates work; it must not verify that work.
 
 Implemented artifact recomputations are:
 
@@ -52,7 +52,7 @@ Implemented artifact recomputations are:
   `provenance: constructed_input|returned_parameter_card`, `model_source`,
   `parameter_card` pin, `execution`, `dim6_parameters`, `parameter_locations`,
   `parameter_operators` and `active_values`. Pre-activation values are all zero;
-  a final scanned card may activate only its exactly declared selected-axis values.
+  a final scanned card can activate only its exactly declared selected-axis values.
   The existing SLHA recipe parser is reused. A construction-only card/command
   ledger stays inconclusive, even if its intended values are correct. Returned
   provenance requires exact current ordinary stage/attempt/output custody.
@@ -63,9 +63,9 @@ Implemented artifact recomputations are:
   extraction, SM and coefficient handoffs and validate native semantic scope.
 - `native_parser_roundtrip`: read a current successful ordinary SFitter attempt's
   initialized tensors and source/runtime receipt; compare measurements, SM,
-  coefficients and widths without importing Torch or evaluating Q. It cannot
+  coefficients and widths without importing Torch or evaluating Q. It must not
   qualify the covariance, fit convergence, intervals or calibration.
-- `document_inventory`: locate measurement/model/method/uncertainty/limitation
+- `document_inventory`: locate measurement/model/method/uncertainty/qualification
   documentation for the complete population.
 - `prescribed`: retain a necessary unexecuted probe with available evidence.
   Its status always remains inconclusive.
@@ -86,7 +86,7 @@ Graph inputs. Public consumption refuses control-only transport by default.
 
 `consume(rundir, binding)` freshly recomputes the report, checks the exact current
 role/case/scope and records through the original physics-review journal. Failed or
-unknown material concerns cannot be turned into acceptance by a model label.
+unknown material concerns must not be turned into acceptance by a model label.
 Original source pins are retained by that journal, so delivery/reuse checks also
 refuse later source drift. Unresolved warnings remain in the displayed report and
 role context. Raw numerical delivery does not imply scientific resolution.
@@ -109,7 +109,7 @@ Adequate repair design is not actual repair closure.
 
 Failed native outputs remain on the canonical `failed-review`/research-cycle
 diagnostic route. This protocol can display their prescribed unresolved concerns;
-it cannot open an ordinary successful receipt or accept a failed numerical result.
+it must not open an ordinary successful receipt or accept a failed numerical result.
 Scientific effectiveness, native accuracy, covariance and full-study comparison
 remain separate qualification work.
 # Finite recomputation

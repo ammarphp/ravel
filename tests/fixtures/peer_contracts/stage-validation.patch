@@ -1,0 +1,173 @@
+--- a/src/ravel/controller/step/validate.py
++++ b/src/ravel/controller/step/validate.py
+@@ -1,163 +1,170 @@
+ """What a worker's final record must satisfy before anything it produced is adopted.
+ 
+ - the final record validates against the packet's closed output schema and against the card's
+   own output schema in controller form (``toolbelt.validate_final``; M11, CF06);
+ - the instruction acknowledgement and one checklist row per duty unit check against the
+   delivered manifest (``instructions.check_ack``; M13);
+ - the ``escalation`` field is present and its value is one the card's role may raise (CF01);
+ - the session is fresh and transport-attested, and the model and effort that ran are the ones
+   the card asked for (I05, I08);
+ - the controller itself runs every runnable ``must_check`` validator of the card and the
+   producer's owed reviewer self-checks before an adopted artifact is accepted (M10, I09); a
+   check that needs an input the step does not name is inconclusive, which never passes.
+ """
+ from __future__ import annotations
+ 
+ from copy import deepcopy
+ import json
+ from pathlib import Path
+ 
+ from .services import StepHold, digest
+ 
+ ESCALATIONS = ('stop', 'checkin_flag', 'decision_block', 'new_experiment_required')
+ SEVERITY = ('stop', 'decision_block', 'new_experiment_required', 'checkin_flag')
+ NONE = (None, 'none')
+ 
+ 
+ def schema_document(packet, card=None):
+     """The closed output schema the packet carries: inline, or a registered output schema id."""
+     from ravel.workflow import toolbelt
+     schema = (packet or {}).get('schema')
+     if type(schema) is dict:
+         return deepcopy(schema)
+     if type(schema) is str and card is not None:
+         try:
+             return toolbelt.output_schema({**card, 'output': {**card['output'], 'schema': schema}})
+         except (OSError, ValueError, toolbelt.ToolbeltError) as exc:
+             raise StepHold('output_schema_unavailable', f'{schema}: {exc}') from None
+     raise StepHold('output_schema_unavailable', 'the packet carries no closed output schema')
+ 
+ 
+ def schema_errors(record, schema):
+     from jsonschema import Draft202012Validator
+     return [('/'.join(str(p) for p in e.absolute_path) or '$') + ': ' + e.message
+             for e in Draft202012Validator(schema).iter_errors(record)]
+ 
+ 
+ def card_schema_errors(card, record, controller_schema):
+     """``toolbelt.validate_final`` against the card's output schema in its controller form."""
+     from ravel.workflow import toolbelt
+     effective = {**card, 'output': {**card['output'], 'schema': controller_schema}}
+     try:
+         _, errors = toolbelt.validate_final(effective, record)
+     except (OSError, ValueError, toolbelt.ToolbeltError) as exc:
+         raise StepHold('output_schema_unavailable', f'{controller_schema}: {exc}') from None
+     return errors
+ 
+ 
+ def escalation(record, card):
+     """``(escalations, errors)``: the field is required; each raised value is one the card declares.
+ 
+     The acknowledging schemas carry a list of ``{kind, statement, evidence, options}``; an empty
+     list raises nothing. A bare value or object is read the same way.
+     """
+     if type(record) is not dict or 'escalation' not in record:
+         return [], [{'code': 'escalation_field_missing'}]
+     value = record['escalation']
+     rows = value if type(value) is list else [value]
+     found, errors = [], []
+     for item in rows:
+         if item in NONE:
+             continue
+         if type(item) is str:
+             item = {'kind': item}
+         if type(item) is not dict:
+             errors.append({'code': 'escalation_invalid'})
+             continue
+         kind = item.get('kind', item.get('value', item.get('type')))
+         if kind in NONE:
+             continue
+         if kind not in ESCALATIONS:
+             errors.append({'code': 'escalation_invalid', 'value': kind})
+         elif kind not in card['escalation']:
+             errors.append({'code': 'escalation_not_declared', 'value': kind, 'declared': list(card['escalation'])})
+         else:
+             statement = item.get('statement', item.get('reason', item.get('detail')))
+             found.append({'kind': kind, 'statement': statement if type(statement) is str else None,
+                           'evidence': [e for e in item.get('evidence') or () if type(e) is str],
+                           'options': [o for o in item.get('options') or () if type(o) is str],
+                           'record_sha256': digest(item)})
+     return found, errors
+ 
+ 
+ def primary(escalations):
+     """The escalation the step outcome reports: the most consequential one raised."""
+     kinds = {row['kind'] for row in escalations}
+     return next((kind for kind in SEVERITY if kind in kinds), None)
+ 
+ 
+ def ack_errors(manifest, record, outputs):
+     """``instructions.check_ack`` errors for the delivered manifest (empty when complete)."""
+     from .services import module
+     errors = module('instructions').check_ack(manifest, record, list(outputs))
+     if type(errors) is not list:
+         raise StepHold('instruction_ack_unchecked', 'the instruction check returned no error list')
+     return [str(e) for e in errors]
+ 
+ 
+ def split_ack(errors):
+     """``(holding, failing)``: blocked duty rows hold the step; every other fault fails it."""
+     holding = [e for e in errors if e.startswith('blocked:')]
+     return holding, [e for e in errors if not e.startswith('blocked:')]
+ 
+ 
+ # ---- controller-run validators -----------------------------------------------------------
+ 
+ def validator_ids(card):
+     """``(runnable must_check ids, reviewer-only ids)`` of the card, owed producer self-checks included."""
+     from ravel.workflow import role_registry, review_projection_checks, run_validator_checks
+     ids = set(role_registry.resolve_self_checks(card['must_check']))
+     if card['independence']['kind'] == 'producer' or card['family'] == 'production':
+         ids |= set(role_registry.self_checks(card['id']))
+     # A reviewer item has a registered check that computes nothing; it is owed as a reviewer verdict.
+     computes = getattr(review_projection_checks, 'computes', None)
+     if callable(computes):
+         runnable = sorted(i for i in ids if computes(i))
+     else:
+         runnable = sorted(i for i in ids if i in run_validator_checks.ADAPTERS or i in review_projection_checks.CHECKS)
+     return runnable, sorted(ids - set(runnable))
+ 
+ 
+ def run_validators(card, step, *, run_dir, scratch):
+     """Run each runnable validator; ``inconclusive`` and ``failed`` never pass."""
+     from ravel.workflow import review_projection_checks, run_validator_checks
+     runnable, reviewer_only = validator_ids(card)
+     parameters = deepcopy(step.get('check_inputs') or {})
+     results = []
+     for check_id in runnable:
++        if check_id in review_projection_checks.ML_RESULT_CHECKS:
++            from ravel.workflow.review_independence import controller_store
++            value = review_projection_checks.observed_ml_result(
++                controller_store(run_dir), parameters.get(check_id), check_id=check_id)
++            results.append({'check_id': check_id, 'status': value['status'],
++                            'result_sha256': digest(value), 'diagnostics': _short(value.get('diagnostics'))})
++            continue
+         if check_id in run_validator_checks.ADAPTERS:
+             Path(scratch).mkdir(parents=True, exist_ok=True)
+             value = run_validator_checks.run(check_id, run_validator_checks.RunCheckInput(
+                 Path(run_dir), {'check_inputs': parameters}, Path(scratch)))
+             status = value['status'] if value.get('validator_executed') else 'inconclusive'
+             results.append({'check_id': check_id, 'status': status, 'result_sha256': digest(value),
+                             'diagnostics': _short(value.get('diagnostics'))})
+             continue
+         named = (parameters.get(check_id) or {}).get('document')
+         if type(named) is not str:
+             results.append({'check_id': check_id, 'status': 'inconclusive', 'reason': 'validator_input_missing'})
+             continue
+         try:
+             document = json.loads((Path(run_dir) / named).read_text())
+             value = review_projection_checks.run_check(check_id, document)
+             status = value['status']
+         except (OSError, ValueError, KeyError, TypeError) as exc:
+             value, status = {'error': type(exc).__name__}, 'failed'
+         results.append({'check_id': check_id, 'status': status, 'result_sha256': digest(value), 'document': named})
+     return {'results': results, 'reviewer_items': reviewer_only,
+             'passed': all(r['status'] == 'passed' for r in results)}
+ 
+ 
+ def _short(value):
+     text = json.dumps(value, sort_keys=True, default=str) if value is not None else None
+     return text[:2000] if text else None

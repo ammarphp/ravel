@@ -18,7 +18,8 @@ def prompt_hash(prompt):
 # stages. Each is planned under the zero-compute parent whose completion
 # contract fits it, and the stored intake keeps the operation.
 OPERATION_KINDS = {"manuscript": "research", "diagram": "calculation",
-                   "measurement_fit": "calculation", "supplied_events": "calculation"}
+                   "measurement_fit": "calculation", "supplied_events": "calculation",
+                   "published-classifier": "calculation", "ml-training": "research"}
 
 
 def validate_interpretation(value, prompt):

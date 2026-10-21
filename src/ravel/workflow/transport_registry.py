@@ -11,7 +11,10 @@ Help text confirms flags only: tools, isolation and attestation are never confir
 from it. Selection walks the run's preference list for the role's family and takes
 the first transport whose effective capabilities meet the role card's ``requires``;
 otherwise it raises ``TransportRefusal`` naming what is missing, before any process
-starts. Effective capabilities are also capped by where a declaration came from: a
+starts. The model comes from the preferences' ``tier_models`` for the card's tier; a card marked
+``cheap_ok`` uses the ``cheap`` tier instead whenever the preferences name a cheap model for that
+transport, and the selection records both tiers and whether the model catalogue lists the model
+(a label, never a refusal). Effective capabilities are also capped by where a declaration came from: a
 declaration under ``.ravel/transports`` or ``$RAVEL_TRANSPORT_PATH`` cannot claim
 blind review or isolation above ``cli-policy``, and a sandbox isolation counts only
 when the sandbox module exists and the declaration is ``live_qualified``.
@@ -57,6 +60,9 @@ OPTIONAL_KEYS = {'endpoint', 'notes', 'worker_surface', 'account_class'}
 MCP_CONFIGS = ('mcp_config_flag', 'codex_home', 'settings_json', 'opencode_config', 'probe_required')
 STRUCTURED_OUTPUT = ('enforced', 'validated_text')
 BLIND_KINDS = ('http-model', 'ravel-loop', 'external-relay')
+# A seat of a controller-owned run never goes to a route whose fresh context and blinding are the
+# delivering host's own statement; controller selection refuses these kinds.
+CONTROLLER_SEATLESS = ('external-relay', 'host-subagent', 'cli-oneshot')
 SECRET_NAME = re.compile(r'(_API_KEY|_AUTH_TOKEN|_TOKEN|_SECRET)$|^(ANTHROPIC|OPENAI)_')
 NAME = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
 IDENT = re.compile(r'^[a-z0-9][a-z0-9.-]{0,79}$')
@@ -71,10 +77,20 @@ EXECUTOR_MODULES = {'cli-worker': ('ravel.workflow.agent_worker', 'ravel.workflo
                     'ravel-loop': ('ravel.workflow.transports.ravel_loop',),
                     'host-subagent': ('ravel.workflow.transports.host_subagent',)}
 # Kinds whose executor runs the model inside the RAVEL sandbox; without a sandbox backend they are not selectable.
-SANDBOXED_KINDS = ('cli-worker',)
+# The RAVEL loop runs as a sandboxed worker executable (``ravel.transports.ravel_loop_worker``).
+SANDBOXED_KINDS = ('cli-worker', 'ravel-loop')
+# The requirements only the OS worker sandbox enforces (relaxed, and named, under the reviewer fallback).
+SANDBOX_ENFORCED = ('isolation', 'blind')
+# The operator's unsandboxed reviewer fallback admits only the restricted CLI worker kind; a RAVEL loop worker
+# always runs inside the OS sandbox.
+FALLBACK_KINDS = ('cli-worker',)
 # The adapter that says which declarations of a kind it can launch (``unsupported(document)``).
 ADAPTER_MODULES = {'cli-worker': 'ravel.workflow.transports.cli_worker',
+                   'ravel-loop': 'ravel.workflow.transports.ravel_loop',
                    'host-subagent': 'ravel.workflow.transports.host_subagent'}
+# Kinds a live qualification is written for: a CLI's probed executable, or the RAVEL loop's code identity
+# (``ravel.workflow.transports.ravel_loop.current_probe``), which stands in for the probe record.
+QUALIFIED_KINDS = CLI_KINDS + ('ravel-loop',)
 QUALIFICATION_RECORD_KEYS = {'schema_version', 'kind', 'transport_id', 'status', 'record_path', 'executable_path',
                              'executable_sha256', 'declaration_sha256', 'probe_sha256', 'receipt', 'observed',
                              'steps', 'rundir', 'qualified_utc'}
@@ -214,9 +230,15 @@ def is_loopback(url):
         return False
 
 
-def search_dirs():
-    """Built-ins first, then the user's directories; a later file with the same id is refused."""
+def search_dirs(*, installed_only=False):
+    """Built-ins first, then the user's directories; a later file with the same id is refused.
+
+    ``installed_only`` (controller selection) reads the installed package's declarations alone:
+    ``$RAVEL_TRANSPORT_PATH`` and a project's ``.ravel/transports`` add nothing.
+    """
     dirs = [BUILTIN_DIR]
+    if installed_only:
+        return dirs
     for entry in filter(None, os.environ.get('RAVEL_TRANSPORT_PATH', '').split(os.pathsep)):
         dirs.append(Path(entry).expanduser())
     local = Path.cwd() / '.ravel' / 'transports'
@@ -228,9 +250,9 @@ def search_dirs():
 _ORIGINS = {}
 
 
-def all_declarations():
+def all_declarations(*, installed_only=False):
     found = {}
-    for directory in search_dirs():
+    for directory in search_dirs(installed_only=installed_only):
         if not directory.is_dir():
             continue
         for path in sorted(directory.glob('*.json')):
@@ -273,16 +295,17 @@ def sandbox_available():
     return _importable(SANDBOX_MODULES)
 
 
-def executor_problem(document):
+def executor_problem(document, *, sandbox_fallback=False):
     """Why this installation cannot execute the transport (None when it can).
 
     The executor modules must import; a sandboxed kind also needs a sandbox backend on this
-    host; and the kind's adapter must support the declaration (it names what is missing).
+    host (unless the controller selects under the operator's restricted unsandboxed reviewer
+    fallback, ``sandbox_fallback``); and the kind's adapter must support the declaration.
     """
     kind = document['transport_kind']
     if not _importable(EXECUTOR_MODULES.get(kind, ())):
         return 'unimplemented:' + kind
-    if kind in SANDBOXED_KINDS:
+    if kind in SANDBOXED_KINDS and not (sandbox_fallback and kind in FALLBACK_KINDS):
         from . import sandbox
         if sandbox.available() is None:
             return 'sandbox_unavailable'
@@ -292,13 +315,26 @@ def executor_problem(document):
     return None
 
 
+def adapter_module(kind):
+    """The launch adapter module of a transport kind, or None when the kind has none."""
+    if kind not in ADAPTER_MODULES:
+        return None
+    import importlib
+    return importlib.import_module(ADAPTER_MODULES[kind])
+
+
+def loop_identity(document):
+    """The RAVEL loop's code identity record for ``document`` (its qualification stands in for a probe)."""
+    return adapter_module('ravel-loop').current_probe(document)[0]
+
+
 def executor_available(document):
     """True when the executor this transport kind needs exists and can run this declaration here."""
     return executor_problem(document) is None
 
 
-def load(transport_id):
-    for document in all_declarations():
+def load(transport_id, *, installed_only=False):
+    for document in all_declarations(installed_only=installed_only):
         if document['id'] == transport_id:
             return document
     raise KeyError(f'no transport declaration {transport_id!r}')
@@ -614,14 +650,102 @@ def qualification_path(transport_id):
     return state_dir() / f'{transport_id}.qualification.json'
 
 
-def read_qualification(document, probe_record):
+QUALIFICATION_REGISTER = 'transport-qualifications.jsonl'
+QUALIFICATION_KIND = 'transport-qualification'
+QUALIFICATION_STEPS = frozenset({'receipt_ok', 'final_record_valid', 'broker_read', 'broker_write',
+                                'output_nonce', 'session_id', 'isolation_confirmed',
+                                'user_configuration_excluded', 'transport_attested',
+                                'executable_unchanged', 'surface_ravel_only'})
+
+
+def _store_qualification_valid(record):
+    if (type(record) is not dict or set(record) != QUALIFICATION_RECORD_KEYS
+            or record.get('schema_version') != 1 or record.get('kind') != QUALIFICATION_KIND
+            or record.get('status') != 'live_qualified'):
+        return False
+    steps = record.get('steps')
+    if (type(steps) is not list or any(type(s) is not dict or set(s) != {'step', 'passed'}
+                                     or type(s['step']) is not str or s['passed'] is not True for s in steps)):
+        return False
+    names = [s['step'] for s in steps]
+    return len(names) == len(set(names)) and QUALIFICATION_STEPS <= set(names)
+
+
+def record_qualification(store, record):
+    """Controller-only: retain the full operator-observed qualification in its protected store.
+
+    The qualifier calls this only after its live conformance task succeeds. It is not a worker
+    tool or an import operation for user-authored records. The store owns the clock and custody.
+    """
+    if not _store_qualification_valid(record):
+        raise ValueError('only a passed live qualification record can be stored')
+    return store.append(QUALIFICATION_KIND, record)
+
+
+def store_qualifications(store):
+    """Digest-keyed qualification records from the controller store, with no worker-state reads."""
+    records = {}
+    for entry in store.scan(QUALIFICATION_KIND):
+        record = entry.get('record', entry) if type(entry) is dict else None
+        if _store_qualification_valid(record):
+            records[digest(record)] = record
+    return records
+
+
+def register_qualification(record, register):
+    """Operator-run qualification only: register a passed record's digest in the controller register.
+
+    ``register`` is the register file under the operator's controller store root, outside every
+    worker sandbox. Controller selection counts a stored qualification record only while this
+    register names its exact digest; a record written by any other means raises nothing. Like
+    ``record_qualification``, it accepts only a record whose every conformance step passed.
+    """
+    if not _store_qualification_valid(record):
+        raise ValueError('only a passed live qualification record can be registered')
+    register = Path(register)
+    register.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    row = {'transport_id': record['transport_id'], 'record_sha256': digest(record),
+           'declaration_sha256': record['declaration_sha256'], 'probe_sha256': record['probe_sha256'],
+           'executable_sha256': record['executable_sha256']}
+    with register.open('a', encoding='utf-8') as stream:
+        stream.write(json.dumps(row, sort_keys=True) + '\n')
+    return row
+
+
+def registered_qualifications(register):
+    """The record digests the operator registered; an absent or unreadable register registers none."""
+    try:
+        rows = [json.loads(line) for line in Path(register).read_text(encoding='utf-8').splitlines() if line.strip()]
+    except (OSError, ValueError):
+        return frozenset()
+    return frozenset(row['record_sha256'] for row in rows
+                     if type(row) is dict and type(row.get('record_sha256')) is str)
+
+
+def read_qualification(document, probe_record, *, registered=None):
     """The stored live qualification record for this declaration and probe, or None.
 
     ``ravel transport qualify`` writes it after a live conformance run. It counts only while
     the declaration digest, the probe record's digest and the probed executable's sha256
-    are the ones it was written for; any other record is ignored.
+    are the ones it was written for; any other record is ignored. ``registered`` (controller
+    selection) is the set of record digests the operator registered: a record outside it counts
+    for nothing, whoever wrote it.
     """
-    if probe_record is None or document['transport_kind'] not in CLI_KINDS:
+    if probe_record is None or document['transport_kind'] not in QUALIFIED_KINDS:
+        return None
+    # Controller composition passes the full records from store_qualifications. Never fall back
+    # to same-user state when that store has no matching observation. Digest sets retain the
+    # older protected-register interface for callers that have not moved their records yet.
+    if type(registered) is dict:
+        for sha, record in registered.items():
+            if (_store_qualification_valid(record)
+                    and digest(record) == sha and record['kind'] == QUALIFICATION_KIND
+                    and record['schema_version'] == 1 and record['status'] == 'live_qualified'
+                    and record['transport_id'] == document['id']
+                    and record['declaration_sha256'] == declaration_sha256(document)
+                    and record['probe_sha256'] == digest(probe_record)
+                    and record['executable_sha256'] == probe_record.get('executable_sha256')):
+                return record
         return None
     path = qualification_path(document['id'])
     try:
@@ -635,34 +759,44 @@ def read_qualification(document, probe_record):
             or record['probe_sha256'] != digest(probe_record)
             or record['executable_sha256'] != probe_record.get('executable_sha256')):
         return None
+    if registered is not None and digest(record) not in registered:
+        return None
     return record
 
 
-def qualification_status(document, probe_record=None):
+def qualification_status(document, probe_record=None, *, registered=None):
     """The declaration's status, raised to ``live_qualified`` by a matching stored qualification record."""
     status = document['qualification']['status']
-    if status != 'live_qualified' and read_qualification(document, probe_record) is not None:
+    if registered is not None and document['transport_kind'] in QUALIFIED_KINDS:
+        if read_qualification(document, probe_record, registered=registered) is not None:
+            return 'live_qualified'
+        return 'declared' if status == 'live_qualified' else status
+    if status != 'live_qualified' and read_qualification(document, probe_record, registered=registered) is not None:
         return 'live_qualified'
     return status
 
 
-def _qualification_pending(document, probe_record):
+def _qualification_pending(document, probe_record, *, registered=None):
     """True when a shipped sandbox worker would be blind-capable once live-qualified."""
     declared = document['capabilities']
-    return (document['transport_kind'] == 'cli-worker' and declared['isolation'] in SANDBOX_ISOLATION
+    return (document['transport_kind'] in ('cli-worker', 'ravel-loop') and declared['isolation'] in SANDBOX_ISOLATION
             and declared['blind_capable'] and origin(document) == 'builtin' and sandbox_available()
-            and qualification_status(document, probe_record) != 'live_qualified')
+            and qualification_status(document, probe_record, registered=registered) != 'live_qualified')
 
 
-def effective_capabilities(document, probe_record, *, executable_sha256=None):
+def effective_capabilities(document, probe_record, *, executable_sha256=None, registered=None,
+                           sandbox_fallback=False):
     """Declared AND confirmed AND permitted by origin and implementation. Returns (capabilities, reasons).
 
-    ``executable_sha256``, when given, must equal the probed executable's digest.
+    ``executable_sha256``, when given, must equal the probed executable's digest. ``sandbox_fallback``
+    admits a sandboxed kind's executor on a host without the sandbox; its isolation is then the CLI's
+    own policy and it is never blind (``sandbox_available`` is false, so neither is claimed).
     """
     capabilities = dict(document['capabilities'])
     if document['id'] in UNIMPLEMENTED_ROUTES:
         return None, ['unimplemented:' + document['id']]
-    problem = executor_problem(document)
+    # The fallback keyword is passed only when selected, so every existing caller's contract is unchanged.
+    problem = executor_problem(document, sandbox_fallback=True) if sandbox_fallback else executor_problem(document)
     if problem:
         return None, [problem]
     if document['transport_kind'] in CLI_KINDS:
@@ -679,14 +813,26 @@ def effective_capabilities(document, probe_record, *, executable_sha256=None):
         for key in BOOLEAN_CAPABILITIES:
             capabilities[key] = bool(capabilities[key] and confirmed.get(key))
     builtin = origin(document) == 'builtin'
-    qualified = qualification_status(document, probe_record) == 'live_qualified'
+    qualified = qualification_status(document, probe_record, registered=registered) == 'live_qualified'
     if document['transport_kind'] != 'http-model' and capabilities['isolation'] in SANDBOX_ISOLATION \
             and not (builtin and qualified and sandbox_available()):
         capabilities['isolation'] = 'cli-policy'
+    if (document['transport_kind'] in CLI_KINDS and builtin and qualified and sandbox_available()
+            and capabilities['isolation'] in SANDBOX_ISOLATION and document['capabilities']['blind_capable']):
+        # Help text never confirms blindness; the live conformance qualification of a shipped sandbox
+        # worker (confined to its workspace) does. Without that qualification the worker is not blind.
+        capabilities['blind_capable'] = True
     if not builtin:
         if _rank(capabilities['isolation'], ISOLATION) > _rank('cli-policy', ISOLATION):
             capabilities['isolation'] = 'cli-policy'
         capabilities['blind_capable'] = False
+    if sandbox_fallback and document['transport_kind'] in FALLBACK_KINDS:
+        from . import sandbox
+        if sandbox.available() is None:
+            # No OS sandbox on this host: the worker's confinement is its CLI policy alone, and it is not blind.
+            if _rank(capabilities['isolation'], ISOLATION) > _rank('cli-policy', ISOLATION):
+                capabilities['isolation'] = 'cli-policy'
+            capabilities['blind_capable'] = False
     return capabilities, []
 
 
@@ -707,7 +853,7 @@ def is_voting(card):
         or str(card.get('id', '')).split('.')[-1] in VOTING
 
 
-def unmet(document, capabilities, card, probe_record=None):
+def unmet(document, capabilities, card, probe_record=None, *, registered=None):
     """The requirement names a transport fails for a role card (empty when it qualifies).
 
     A voting role runs with the route's full tools; its independence comes from isolation.
@@ -718,7 +864,7 @@ def unmet(document, capabilities, card, probe_record=None):
     requires = card.get('requires') or {}
     model = card.get('model') or {}
     voting = is_voting(card)
-    pending = _qualification_pending(document, probe_record)
+    pending = _qualification_pending(document, probe_record, registered=registered)
     missing = []
     if 'tools' in requires and _rank(capabilities['tools'], TOOLS) < _rank(requires['tools'], TOOLS):
         missing.append('tools')
@@ -733,7 +879,7 @@ def unmet(document, capabilities, card, probe_record=None):
         missing.append('attestation')
     if requires.get('blind') and not blind_admissible(document, capabilities):
         missing.append('qualification' if pending else 'blind')
-    if voting and qualification_status(document, probe_record) == 'declared':
+    if voting and qualification_status(document, probe_record, registered=registered) == 'declared':
         missing.append('qualification')
     tier = model.get('tier')
     if tier and not any(tier in m['tiers'] for m in document['models']):
@@ -774,6 +920,58 @@ def _model_for(document, tier, preferences):
     return None
 
 
+def effective_tier(card, document, preferences):
+    """The tier a card selects its model by on this transport.
+
+    A card whose ``model.cheap_ok`` is true takes the ``cheap`` tier when the preferences'
+    ``tier_models`` name a cheap model for this transport; every other card keeps its own tier.
+    """
+    spec = card.get('model') or {}
+    cheap = ((preferences.get('tier_models') or {}).get('cheap') or {}).get(document['id'])
+    if spec.get('cheap_ok') is True and cheap and catalogue_requirement_problem(cheap, 'cheap', spec.get('effort')) is None:
+        return 'cheap'
+    return spec.get('tier')
+
+
+def catalogue_module():
+    """The model catalogue module, or None when this build has none."""
+    import importlib
+    try:
+        return importlib.import_module('ravel.workflow.model_catalogue')
+    except ImportError:
+        return None
+
+
+def catalogue_label(model_id):
+    """``catalogued``, ``uncatalogued`` or ``unavailable`` (no readable catalogue): a label only."""
+    catalogue = catalogue_module()
+    if catalogue is None:
+        return 'unavailable'
+    try:
+        problem = catalogue.problem(model_id)
+    except (OSError, ValueError):
+        return 'unavailable'
+    return 'catalogued' if problem is None else 'uncatalogued'
+
+
+def catalogue_requirement_problem(model_id, tier, effort):
+    """Known model capabilities constrain selection; an unknown row keeps its existing boundary label."""
+    catalogue = catalogue_module()
+    if catalogue is None:
+        return None
+    try:
+        row = catalogue.lookup(model_id)
+    except (OSError, ValueError):
+        return None
+    if row is None:
+        return None
+    if tier not in row['tiers']:
+        return 'model:tier'
+    if effort is not None and effort not in row['efforts']:
+        return 'model:effort'
+    return None
+
+
 def _local_problem(document, model, local_models):
     if local_models is None:
         return None
@@ -791,18 +989,35 @@ def _local_problem(document, model, local_models):
     return None
 
 
-def select(card, preferences, *, probes=None, assigned=None, local_models=None, executables=None):
+def select(card, preferences, *, probes=None, assigned=None, local_models=None, executables=None, controller=False,
+           qualifications=None, sandbox_fallback=False):
     """The first preferred transport that meets the card; TransportRefusal names what is missing.
 
+    Any model family serves any role: review independence rests on separate observed sessions and
+    artifact-only packets, never on the selected model's family. The selection records the family.
+    ``assigned`` remains accepted for legacy callers; it never restricts model families.
+    ``controller`` selects a seat of a controller-owned run: installed declarations only, no
+    relay, host-subagent or one-shot route (``controller:<kind>``), and a CLI qualification
+    counts only when ``qualifications`` names it: the full records of the controller store
+    (``store_qualifications``) or, for older callers, the record digests the operator registered
+    (``registered_qualifications``).
     ``probes`` maps transport ids to probe records (default: the stored records).
-    ``assigned`` maps role ids to earlier selections, for ``distinct_family_from``; a named role
-    that has no assignment yet refuses, as does a family that cannot be determined.
     ``local_models`` (a list) restricts selection to loopback, locally billed HTTP routes serving those
     models; CLI routes have no verified local destination and are refused.
     ``executables`` maps transport ids to the sha256 of the executable that will run (default: the
     launcher on PATH now); a probe of another executable is stale.
     An effort the card asks for that the transport cannot carry refuses with ``effort``.
+    The model is chosen for ``effective_tier``: the card's tier, or ``cheap`` for a ``cheap_ok``
+    card when the preferences map a cheap model to the transport. The selection records the
+    effective ``tier``, the ``card_tier`` and the model's ``catalogue`` label (``catalogued``,
+    ``uncatalogued`` or ``unavailable``); the label never refuses.
+    ``sandbox_fallback`` (controller only: the operator's restricted unsandboxed reviewer on a host without
+    the OS worker sandbox) admits a qualified sandboxed-kind worker whose only unmet requirements are the
+    ones the sandbox enforces (``isolation``, ``blind``); the selection lists them under ``sandbox_fallback``.
+    Every other requirement, the live qualification included, still applies.
     """
+    if sandbox_fallback and not controller:
+        raise TransportRefusal('the unsandboxed reviewer fallback applies only to controller seats', ['controller'])
     if type(preferences) is not dict or preferences.get('kind') != 'agent-preferences' or preferences.get('schema_version') != 1:
         raise TransportRefusal('run preferences must be an agent-preferences record, schema_version 1', ['preferences'])
     family = card.get('family')
@@ -812,38 +1027,49 @@ def select(card, preferences, *, probes=None, assigned=None, local_models=None, 
     model_spec = card.get('model') or {}
     tier, effort = model_spec.get('tier'), model_spec.get('effort')
     bindings = preferences.get('model_families') or {}
-    avoid, missing = {}, []
-    for role in model_spec.get('distinct_family_from') or []:
-        other = (assigned or {}).get(role)
-        if other is None:
-            missing.append(f'distinct_family_from:{role}:unassigned')
-            continue
-        avoid[role] = other.get('family') or family_of(load(other['transport_id']), other['model'], bindings)
-        if avoid[role] == 'unknown':
-            missing.append(f'distinct_family_from:{role}:unknown-family')
-    if missing:
-        raise TransportRefusal(f'role {card.get("id")!r} cannot check model-family diversity: ' + ', '.join(missing),
-                               missing)
-    tried = []
+    registered = (qualifications if type(qualifications) is dict else frozenset(qualifications or ())) \
+        if controller else None
+    tried, missing = [], []
     for transport_id in order:
         try:
-            document = load(transport_id)
+            document = load(transport_id, installed_only=controller)
         except KeyError:
             tried.append(f'{transport_id}: undeclared')
             missing.append('declaration:' + transport_id)
             continue
+        if controller and document['transport_kind'] in CONTROLLER_SEATLESS:
+            reason = 'controller:' + document['transport_kind']
+            tried.append(f'{transport_id}: {reason}')
+            missing.extend([reason] if reason not in missing else [])
+            continue
         record = (probes or {}).get(transport_id) if probes is not None else read_probe(transport_id)
+        if record is None and document['transport_kind'] == 'ravel-loop' and executor_problem(document) is None:
+            # The loop's qualification is written for its code identity; it has no stored CLI probe.
+            record = loop_identity(document)
         sha = None
         if document['transport_kind'] in CLI_KINDS:
             sha = (executables or {}).get(transport_id) if executables is not None else resolve_executable(document)[1]
-        capabilities, reasons = effective_capabilities(document, record, executable_sha256=sha)
+        fallback = bool(sandbox_fallback and document['transport_kind'] in FALLBACK_KINDS)
+        capabilities, reasons = effective_capabilities(document, record, executable_sha256=sha, registered=registered,
+                                                       **({'sandbox_fallback': True} if fallback else {}))
+        relaxed = []
         if capabilities is not None:
-            reasons = unmet(document, capabilities, card, record)
+            reasons = unmet(document, capabilities, card, record, registered=registered)
+            if fallback:
+                # Only what the OS sandbox enforces is relaxed, and it is named; a missing live qualification is
+                # never relaxed (``unmet`` reports it as ``qualification``).
+                relaxed = [r for r in reasons if r in SANDBOX_ENFORCED]
+                reasons = [r for r in reasons if r not in SANDBOX_ENFORCED]
             if effort is not None and not capabilities['effort_control']:
                 reasons.append('effort')
-        model = _model_for(document, tier, preferences) if not reasons else None
+        chosen_tier = effective_tier(card, document, preferences)
+        model = _model_for(document, chosen_tier, preferences) if not reasons else None
         if not reasons and model is None:
-            reasons = ['model:' + str(tier)]
+            reasons = ['model:' + str(chosen_tier)]
+        if not reasons:
+            problem = catalogue_requirement_problem(model, chosen_tier, effort)
+            if problem:
+                reasons = [problem]
         if not reasons:
             problem = model_problem(document, model, bindings)
             if problem:
@@ -852,13 +1078,6 @@ def select(card, preferences, *, probes=None, assigned=None, local_models=None, 
             local = _local_problem(document, model, local_models)
             if local:
                 reasons = [local]
-        if not reasons:
-            chosen_family = family_of(document, model, bindings)
-            if avoid and chosen_family == 'unknown':
-                reasons = ['distinct_family_from:unknown-family']
-            clashes = [r for r, f in avoid.items() if f == chosen_family]
-            if clashes:
-                reasons = ['distinct_family_from:' + r for r in clashes]
         if reasons:
             tried.append(f'{transport_id}: ' + ', '.join(reasons))
             missing.extend(r for r in reasons if r not in missing)
@@ -866,31 +1085,25 @@ def select(card, preferences, *, probes=None, assigned=None, local_models=None, 
         return {'transport_id': transport_id, 'model': model, 'family': family_of(document, model, bindings),
                 'effort': effort, 'declaration_sha256': declaration_sha256(document),
                 'declaration_origin': origin(document),
-                'probe_sha256': digest(record) if document['transport_kind'] in CLI_KINDS else None}
+                'probe_sha256': digest(record) if document['transport_kind'] in QUALIFIED_KINDS and record else None,
+                'tier': chosen_tier, 'card_tier': tier, 'catalogue': catalogue_label(model),
+                **({'sandbox_fallback': {'kind': 'restricted-unsandboxed', 'isolation': capabilities['isolation'],
+                                         'blind_capable': capabilities['blind_capable'],
+                                         'relaxed_requirements': relaxed}} if fallback else {})}
     raise TransportRefusal(f'no preferred transport meets role {card.get("id")!r}: ' + '; '.join(tried), missing)
 
 
 def check_distinct_families(card, observed):
-    """Receipt-time check: ``observed`` maps role ids to the observed model ids, including this card's role.
+    """Label only, never a refusal: how this role's observed model family relates to the roles its card names.
 
-    A missing role, or a family that cannot be read from a model id, refuses.
+    ``observed`` maps role ids to observed model ids, including this card's role. The roles compared
+    are those in the card's retired ``model.distinct_family_from`` list. Returns ``same``,
+    ``different`` or ``unknown`` (``review_independence.family_relation``); an empty list compares
+    nothing and returns ``unknown``. Independence rests on separate sessions and packets.
     """
-    required = (card.get('model') or {}).get('distinct_family_from') or []
-    if not required:
-        return
-    missing = [r for r in [card.get('id'), *required] if not observed.get(r)]
-    if missing:
-        raise TransportRefusal(f'role {card.get("id")!r} has no observed model for ' + ', '.join(map(str, missing)),
-                               ['distinct_family_from:' + str(r) + ':unobserved' for r in missing])
-    mine = model_family(observed[card['id']])
-    unknown = [r for r in [card['id'], *required] if model_family(observed[r]) == 'unknown']
-    if unknown:
-        raise TransportRefusal(f'role {card.get("id")!r}: model family unknown for ' + ', '.join(unknown),
-                               ['distinct_family_from:' + r + ':unknown-family' for r in unknown])
-    clashes = [role for role in required if model_family(observed[role]) == mine]
-    if clashes:
-        raise TransportRefusal(f'role {card.get("id")!r} shares model family {mine!r} with ' + ', '.join(clashes),
-                               ['distinct_family_from:' + r for r in clashes])
+    from .review_independence import family_relation
+    named = (card.get('model') or {}).get('distinct_family_from') or []
+    return family_relation({'reviewer': observed.get(card.get('id')), **{r: observed.get(r) for r in named}})
 
 
 # ------------------------------------------------------------ model classes

@@ -384,7 +384,12 @@ def test_reviewers_of_a_run_receive_the_selected_rubric_with_its_overlay(run, tm
     (run / 'note.txt').write_text('plain text')
     manifest, _ = rp.build(run, 'physics-critic', subjects=['note.json', 'note.txt'])
     ids = [a['id'] for a in manifest['artifacts']]
-    assert ids[:2] == ['s0000', 's0001'] and ids[-1] == 'rubric' and not any(i.startswith('rubric-check') for i in ids)
+    capabilities = [i for i in ids if i.startswith('capabilities-')]
+    context = [i for i in ids if not i.startswith('capabilities-')]
+    assert context[:2] == ['s0000', 's0001'] and context[-1] == 'rubric'
+    assert context.count('rubric') == 1
+    assert capabilities and ids[-len(capabilities):] == capabilities
+    assert not any(i.startswith('rubric-check') for i in ids)
     # The evaluation control arm holds its subjects and nothing else.
     manifest, _ = rp.build(run, 'integrity-auditor', subjects=['review_packet.json'], arm='manuscript-only')
     assert [a['id'] for a in manifest['artifacts']] == ['s0000']

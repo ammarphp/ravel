@@ -57,6 +57,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "ablation-critic",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -85,16 +94,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_task_contract_validate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "ablation-critic",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:analysis-author",
@@ -254,6 +253,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "assumption-auditor",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -282,16 +290,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_assumption_audit_check"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "assumption-auditor",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:baseline-producer",
@@ -544,6 +542,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "comparative-reviewer",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -572,16 +579,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_input_closure_check"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "comparative-reviewer",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:consult-columnar",
@@ -890,6 +887,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "consult-higgs",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -918,16 +924,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_higgs_framework_declared"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "consult-higgs",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:consult-inference",
@@ -2174,6 +2170,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "discrepancy-attributor",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -2212,16 +2217,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_cutflow"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "discrepancy-attributor",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:extended-scalar-modeler",
@@ -2287,6 +2282,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "extended-scalar-modeler",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -2325,16 +2329,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_higgs_theory_constraints"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "extended-scalar-modeler",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:consult-higgs",
@@ -2401,6 +2395,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "figure-critic",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -2449,16 +2452,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_run_state_check_figure_contract"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "figure-critic",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:generator",
@@ -2618,6 +2611,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "higgs-combination-reviewer",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -2656,16 +2658,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_higgs_measurement_bundle"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "higgs-combination-reviewer",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:higgs-coupling-analyst",
@@ -2731,6 +2723,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -2769,16 +2770,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_higgs_parameterization_closure"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "higgs-coupling-analyst",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:consult-higgs",
@@ -2845,6 +2836,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -2873,16 +2873,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_higgs_theory_correlation"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "higgs-theory-uncertainty-auditor",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:idea-proposer-a",
@@ -3228,6 +3218,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "integrity-auditor",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -3266,16 +3265,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_certificates_validate_certificate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "integrity-auditor",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:investigation-worker",
@@ -3464,6 +3453,120 @@
    "tool": "check_validation_validate_task_contract_validate"
   },
   {
+   "atlas_id": "role:literature-discovery-selector",
+   "executes_through": "structured_output",
+   "role": "literature-discovery-selector",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "literature-discovery-selector",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "literature-discovery-selector",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "literature-discovery-selector",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "role:literature-evidence-scorer",
+   "executes_through": "structured_output",
+   "role": "literature-evidence-scorer",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "literature-evidence-scorer",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "literature-evidence-scorer",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "literature-evidence-scorer",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "role:literature-query-expander",
+   "executes_through": "structured_output",
+   "role": "literature-query-expander",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "literature-query-expander",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "literature-query-expander",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "literature-query-expander",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
    "atlas_id": "role:literature-scout",
    "executes_through": "structured_output",
    "role": "literature-scout",
@@ -3525,6 +3628,42 @@
    "status": "typed",
    "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
    "tool": "knowledge_coverage"
+  },
+  {
+   "atlas_id": "cmd:literature",
+   "executes_through": "broker:literature query",
+   "role": "literature-scout",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "literature_search"
+  },
+  {
+   "atlas_id": "cmd:literature",
+   "executes_through": "broker:literature query",
+   "role": "literature-scout",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "literature_get_paper"
+  },
+  {
+   "atlas_id": "cmd:literature",
+   "executes_through": "broker:literature query",
+   "role": "literature-scout",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "literature_list_papers"
+  },
+  {
+   "atlas_id": "cmd:literature",
+   "executes_through": "broker:literature query",
+   "role": "literature-scout",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "literature_compare_measurements"
   },
   {
    "atlas_id": "cmd:work",
@@ -4251,6 +4390,15 @@
    "tool": "knowledge_for_node"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "ml-reviewer",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -4359,16 +4507,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_ml-claim-scope"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "ml-reviewer",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:consult-inference",
@@ -4702,6 +4840,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "model-critic",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -4750,16 +4897,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_physics_model_authoring_adjudicate_gauge_checks"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "model-critic",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:normalization-auditor",
@@ -4816,6 +4953,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "normalization-auditor",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -4854,16 +5000,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_input_closure_check"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "normalization-auditor",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:novelty-scout",
@@ -4920,6 +5056,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "novelty-scout",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -4948,16 +5093,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_task_contract_validate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "novelty-scout",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:object-selection-mapper",
@@ -5014,6 +5149,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "object-selection-mapper",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -5052,16 +5196,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_cutflow"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "object-selection-mapper",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:physics-critic",
@@ -5229,6 +5363,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "plan-critic",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -5267,16 +5410,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_run_state_check_route"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "plan-critic",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:rca-investigator",
@@ -5426,6 +5559,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "rdj-critic",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -5454,16 +5596,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_task_contract_validate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "rdj-critic",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:rdj-edge-reviewer",
@@ -5520,6 +5652,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "rdj-edge-reviewer",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -5548,16 +5689,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_task_contract_validate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "rdj-edge-reviewer",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:rdj-verifier",
@@ -5614,6 +5745,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "rdj-verifier",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -5642,16 +5782,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_task_contract_validate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "rdj-verifier",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:re-deriver",
@@ -5708,6 +5838,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "re-deriver",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -5746,16 +5885,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_input_closure_check"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "re-deriver",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:rebuttal-planner",
@@ -6091,6 +6220,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "research-meta-reviewer",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -6119,16 +6257,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_task_contract_validate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "research-meta-reviewer",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:routine-constructor",
@@ -6371,6 +6499,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "second-method-deriver",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -6399,16 +6536,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_input_closure_check"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "second-method-deriver",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:sf-convention-translator",
@@ -7954,6 +8081,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "sufficiency-verifier",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -7982,16 +8118,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_task_contract_validate"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "sufficiency-verifier",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:trap-auditor",
@@ -8048,6 +8174,15 @@
    "tool": "knowledge_coverage"
   },
   {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": "broker:review-context read",
+   "role": "trap-auditor",
+   "schema_source": "none",
+   "status": "generic",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "cmd:work",
    "executes_through": null,
    "owner": "broker workspace listing action",
@@ -8086,16 +8221,6 @@
    "status": "absent",
    "test": null,
    "tool": "check_validation_validate_run_state_check_trap_sweep"
-  },
-  {
-   "atlas_id": "cmd:review-context read",
-   "executes_through": null,
-   "owner": "broker action registration",
-   "role": "trap-auditor",
-   "schema_source": null,
-   "status": "absent",
-   "test": null,
-   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:upstream-agentrivet-analyst",

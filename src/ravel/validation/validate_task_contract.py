@@ -42,7 +42,7 @@ DETECTOR_MODES = (
     "parton-level", "none",
 )
 STAT_MODES = (  # canonical source: result_pack.py STAT_MODES + the routing placeholder
-    "published-likelihood", "simplified-likelihood", "best-sr-counting", "combined-counting",
+    "published-likelihood", "simplified-likelihood", "constructed-likelihood", "best-sr-counting", "combined-counting",
     "stability-only", "shape-fit", "blocked-shape-fit", "sensitivity-expected-only", "none-survey",
     "prescribed-statistic",
     "TBD-judgment", "none-generation", "provided-likelihood",
@@ -221,7 +221,8 @@ _TASK_REQUIREMENTS = _object({"schema_version": {"type": "integer", "const": 1},
 
 # Concrete operations a host may name directly as the interpretation kind. The
 # stored intake keeps the planning parent kind and records the operation.
-OPERATION_KINDS = ("manuscript", "diagram", "measurement_fit", "supplied_events")
+OPERATION_KINDS = ("manuscript", "diagram", "measurement_fit", "supplied_events",
+                   "published-classifier", "ml-training")
 INTERPRETATION_SCHEMA = _object({
     "schema_version": {"type": "integer", "const": 1},
     "prompt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},

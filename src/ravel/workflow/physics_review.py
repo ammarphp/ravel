@@ -232,6 +232,11 @@ def _registration(root, *, create=False, _session=None, _capture_session=None):
         rec["sha256"] = execution.digest(rec)
         _exclusive(path, rec)
         atomic_json(root / HEAD, {"sequence": 0, "sha256": rec["sha256"]})
+        from .review_independence import controller_store
+        store = controller_store(root)
+        if store is not None:
+            # The controller's own record: deleting the run's registration files later waives nothing.
+            store.append(REGISTRATION_KIND, {'registration_sha256': rec['sha256'], 'run_id': rec['run_id']})
     rec = (_session.read_document if _session is not None else read_json)(path)
     _object(rec, {"schema_version", "run_id", "policy", "bindings", "attestation", "sha256"}, "registration")
     if rec["sha256"] != execution.digest({k: v for k, v in rec.items() if k != "sha256"}) or validate_policy(rec["policy"]):
@@ -643,9 +648,10 @@ def _context_support(root, pin, session):
         raise ValueError("supporting role context has a foreign cycle")
     if session.hash_file(manifest_path) != pin["sha256"]:
         raise ValueError("supporting role context manifest changed")
-    allowed = _empty_input_paths(reg, cycle)
+    # A role context copies every retained snapshot, so its empty copies are exactly the
+    # empty snapshots the cycle itself admitted (bound inputs and incidental outputs).
     empty_sources = {p["path"]: p["sha256"] for p in cycle["snapshots"]
-                     if p.get("size") == 0 and p["path"] in allowed and _empty_snapshot_allowed(p, reg, cycle)}
+                     if p.get("size") == 0 and _empty_snapshot_allowed(p, reg, cycle)}
     for entry in index.entries.values():
         path = index.paths[entry["id"]]
         session.regular_file(str(path), root)
@@ -1470,6 +1476,9 @@ def _capture_limitation_disposition(root, reg, events, payload, *, _session=None
 def _judgments_live(root, view, *, _session=None):
     for event in [*view["reviews"], *([view["correction"]] if view["correction"] else [])]:
         _live_pins(root, event.get("supporting_artifacts", []), _session=_session)
+        if event.get('event') == 'review':
+            from . import review_independence
+            review_independence.require(review_independence.journal_decision(root, event))
 
 
 def computed_checks(cycle):
@@ -1499,9 +1508,48 @@ def _refuse_computed_failures(reg, cycle, required):
                          + ". Accept a diagnostic scope or send back for a correction.")
 
 
+REGISTRATION_KIND = 'review-registration'
+
+
+def _controller_refusal(root, action):
+    """A controller-owned run takes verdicts and decider decisions only from seats the controller
+    dispatched and credited, in its own process; a command naming a role or actor decides nothing
+    there. Binding-backed calls inside the controller keep their ordinary checks."""
+    from .review_independence import controller_run
+    try:
+        owned = controller_run(root) is not None
+    except Exception:
+        owned = True  # Unknown ownership is not an ungoverned run.
+    if owned:
+        raise ValueError(f'{action} under a caller-declared actor is refused for a controller-owned run; '
+                         'only a seat the controller dispatched and credited decides')
+
+
+def _controller_registered(root):
+    """Whether review enforcement stays active for a run without registration files.
+
+    Outside the controller the absence of registration files permits the initial smoke. Every
+    controller-owned run requires review registration, so its enforcement is active, and so is that
+    of a run whose ownership cannot be read: missing or unreadable records never turn it off.
+    """
+    from .review_independence import controller_store
+    try:
+        store = controller_store(root)
+        return store is not None
+    except Exception:
+        return True
+
+
 def submit_review(root, *, role, actor_id, verdict, summary, findings=None, closes=None,
-                  claim_scope=None, supporting_artifacts=None, retained_study=False):
+                  claim_scope=None, supporting_artifacts=None, retained_study=False, binding=None):
     root = _root(root)
+    from . import review_independence
+    verified = None
+    if binding is not None:
+        from . import scientific_judgment
+        verified = scientific_judgment.verify_binding(binding)
+        if verified["contract"]["rundir"] != str(root):
+            raise ValueError("review binding belongs to another run")
     # Waypoint verdicts gate further compute, not claims; the research record is
     # enforced where a reviewed result is delivered, reused or adopted (gate_errors).
     findings, closes = [] if findings is None else findings, [] if closes is None else closes
@@ -1533,6 +1581,15 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
         _text(summary, "review summary")
         if verdict not in ("accept", "send_back", "stop"):
             raise ValueError("review verdict must be accept, send_back or stop")
+        supplied = {'role': role, 'actor_id': actor_id, 'verdict': verdict, 'summary': summary,
+                    'findings': findings, 'closes': closes, 'claim_scope': claim_scope}
+        if verified is None:
+            return review_independence.retain_advice(root, supplied,
+                review_independence.advisory('declared_name_advice'))
+        independence_evidence = {'query': review_independence.graph_query(root, verified['receipt']),
+                                 'response': verified['value'], 'request': binding['request']}
+        review_independence.require(review_independence.journal_decision(root,
+            {**supplied, 'cycle_id': view['cycle']['cycle_id'], 'independence_evidence': independence_evidence}))
         _findings(root, findings, view["cycle"], reg["policy"])
         if any(f.get('reclassifications') for f in findings):
             raise ValueError('use the decider reclassification journal operation')
@@ -1546,7 +1603,9 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
                 raise ValueError("a rejected cycle cannot be accepted or silently overridden")
             # Declared reviewer names are not authenticated: an epoch-two acceptance needs the attested receipts.
             from . import review_points
-            refusal = review_points.legacy_accept_refusal(root)
+            refusal = (review_points.legacy_accept_refusal(root)
+                       if (root / 'inputs/task_contract.json').is_file()
+                       and review_points._facts(root).get('agent_layer_epoch') == 2 else None)
             if refusal: raise ValueError(refusal)
             scopes = reg["policy"]["claim_scopes"]
             if claim_scope not in scopes:
@@ -1575,6 +1634,7 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
         payload = {"event": "review", "cycle_id": view["cycle"]["cycle_id"],
             "role": role, "actor_id": actor_id, "verdict": verdict, "summary": summary,
             "findings": findings, "closes": closes, "claim_scope": claim_scope, "attestation": ATTESTATION,
+            "independence_evidence": independence_evidence,
             **({"supporting_artifacts": support} if support is not None else {})}
         if role == 'physics_decider' and verdict == 'accept':
             _capture_limitation_disposition(root, reg, events, payload, _session=retained_session)
@@ -1927,7 +1987,9 @@ def gate_errors(root, action, stage=None, *, _session=None, retained_study=False
                 raise ValueError(f"scientific review is {view['state']}; acceptance by all three reviewers is required")
             # A recorded acceptance stays readable; on an epoch-two run it authorizes only with the attested receipts.
             from . import review_points
-            refusal = review_points.legacy_accept_refusal(root)
+            refusal = (review_points.legacy_accept_refusal(root)
+                       if (root / 'inputs/task_contract.json').is_file()
+                       and review_points._facts(root).get('agent_layer_epoch') == 2 else None)
             if refusal: raise ValueError(f"recorded acceptance does not authorize {action}: {refusal}")
             scope = _accepted_scope(view)
             authorized_action = "delivery" if action == "final_task" else action
@@ -1974,7 +2036,11 @@ def status(root, *, _session=None, retained_study=False):
                 live_errors = [str(exc)]
         else:
             live_errors = gate_errors(root, "delivery", _session=_session)
+        from . import review_independence
+        review_credit = [{'role': e['role'], **review_independence.journal_decision(root, e)}
+                         for e in view['reviews']]
         return {"schema_version": 1, "state": view["state"],
+            "review_independence": review_credit,
             "cycle_id": view["cycle"]["cycle_id"] if view["cycle"] else None,
             "correction_id": view["correction"]["correction_id"] if view["correction"] else None,
             "claim_scope": next((r["claim_scope"] for r in view["reviews"] if r["verdict"] == "accept"), None) if view["state"] == "accepted" else None,
@@ -2033,11 +2099,15 @@ def registered(root):
 
 
 def active(root, *, _session=None):
-    """Any recorded or corrupt cycle activates enforcement; absence permits initial smoke."""
+    """Any recorded or corrupt cycle activates enforcement; absence permits initial smoke.
+
+    For a controller-owned run, absence of registration files permits nothing: the review gate
+    stays active and refuses the missing record, including before the first registration.
+    """
     if _session is not None:
         execution._check_validation_session(root, _session)
     if not registered(root):
-        return False
+        return _controller_registered(root)
     try:
         reg, events = _read(_root(root), _session=_session)
         _base_live(_root(root), reg, _session=_session)
@@ -2098,7 +2168,7 @@ def validate_snapshot(document, *, require_admission=True):
             kind = e.get("event") if isinstance(e, dict) else None
             if kind not in fields:
                 raise ValueError("unknown review journal event")
-            _object(e, base_keys | fields[kind] | ({"final_results"} if kind == "cycle" and "final_results" in e else set()) | ({"supporting_artifacts"} if kind in {"review", "correction"} and "supporting_artifacts" in e else set()) | ({"limitation_disposition"} if kind == "review" and "limitation_disposition" in e else set()) | ({"finding_reworks"} if kind == "correction" and "finding_reworks" in e else set()), "review journal event")
+            _object(e, base_keys | fields[kind] | ({"independence_evidence"} if kind == "review" and "independence_evidence" in e else set()) | ({"final_results"} if kind == "cycle" and "final_results" in e else set()) | ({"supporting_artifacts"} if kind in {"review", "correction"} and "supporting_artifacts" in e else set()) | ({"limitation_disposition"} if kind == "review" and "limitation_disposition" in e else set()) | ({"finding_reworks"} if kind == "correction" and "finding_reworks" in e else set()), "review journal event")
             if "supporting_artifacts" in e:
                 pins = e["supporting_artifacts"]
                 if not isinstance(pins, list) or len(pins) > 512 or len({p.get("path") for p in pins}) != len(pins):
@@ -2260,6 +2330,13 @@ def validate_snapshot(document, *, require_admission=True):
             raise ValueError("detached review checkpoint changed")
         view = _view(reg, events)
         if require_admission:
+            from . import review_independence
+            for event in view['reviews']:
+                evidence = event.get('independence_evidence') or {}
+                query = evidence.get('query') or {}
+                if type(query.get('run')) is not str:
+                    raise ValueError('declared-name legacy review is advisory; no independent admission')
+                review_independence.require(review_independence.journal_decision(query['run'], event))
             if document["action"] == "correction":
                 if view["state"] != "correction_admitted" or document["stage"] not in view["correction"]["stages"]:
                     raise ValueError("snapshot does not authorize this correction")
@@ -2300,11 +2377,14 @@ def main(argv=None):
         elif args.action == "gate":
             result = {"errors": gate_errors(args.rundir, args.gate_action, args.stage, retained_study=args.retained_study)}
         else:
+            _controller_refusal(args.rundir, f'review journal action {args.action!r}')
             fn = {"open": open_cycle, "review": submit_review, "correct": authorize_correction, "fail": fail_correction, "hold": submit_hold, "reclassify": reclassify_finding, "escalate": escalate}[args.action]
             result = fn(args.rundir, **read_json(args.request))
         print(json.dumps(result, indent=2, allow_nan=False))
+        # Retained advice is not a recorded vote: the command reports it and exits 1.
         return 1 if (result.get("errors") or result.get("state") == "invalid"
-                     or result.get("qualified_ending", {}).get("status") == "unavailable") else 0
+                     or result.get("qualified_ending", {}).get("status") == "unavailable"
+                     or result.get("kind") == "review_advice") else 0
     except (OSError, ValueError, TypeError, KeyError) as exc:
         parser.exit(1, f"physics review: {exc}\n")
 

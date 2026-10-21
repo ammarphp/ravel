@@ -5,6 +5,7 @@ import pytest
 from ravel.workflow import review_context as c, physics_review as r, execution as e
 from ravel.workflow.state_io import atomic_json, read_json
 from test_physics_review import run,opened,finding,accept,make_attempt,check_packet
+from bound_review import bound_review
 
 @pytest.fixture(autouse=True)
 def inert_runtime_for_pure_reader_controls(monkeypatch):
@@ -82,7 +83,7 @@ def test_full_source_role_basis_cannot_be_relabelled_even_with_self_hash(context
 
 def test_context_after_new_journal_basis_requires_fresh_synthesis_packet(run,tmp_path):
     root,_=run;opened(run);packet=tmp_path/'synth';m=c.create(root,'synthesizer',packet)
-    r.submit_review(root,role='physics_critic',actor_id='critic',verdict='accept',summary='actual synthetic role',claim_scope='diagnostic')
+    bound_review(root,role='physics_critic',verdict='accept',summary='actual synthetic role',claim_scope='diagnostic')
     with pytest.raises(ValueError,match='role/source/journal'):
         c.read_artifacts(packet,[m['artifacts'][0]['id']],expected_manifest_sha256=m['sha256'],rundir=root,expected_role='synthesizer')
 
@@ -90,8 +91,8 @@ def test_context_after_new_journal_basis_requires_fresh_synthesis_packet(run,tmp
 def test_legitimate_prior_review_append_keeps_unchanged_critic_projection(context_case):
     root,packet,m=context_case
     before=len(r._read(root)[1])
-    r.submit_review(root,role='physics_critic',actor_id='critic',verdict='accept',
-                    summary='Synthetic retained review event',claim_scope='diagnostic')
+    bound_review(root,role='physics_critic',verdict='accept',
+                 summary='Synthetic retained review event',claim_scope='diagnostic')
     result=read(context_case)
     assert result['receipt']['journal_checkpoint']['sequence']==before+1
     assert result['receipt']['source_event_sha256']==m['source_event_sha256']
@@ -179,7 +180,7 @@ def test_final_error_or_exception_closes_and_never_returns_receipt(context_case,
 
 def test_pre_correction_source_and_new_current_source_stay_distinct(run,tmp_path):
     root,_=run;opened(run)
-    r.submit_review(root,role='physics_critic',actor_id='critic',verdict='send_back',summary='correction request',findings=[finding()])
+    bound_review(root,role='physics_critic',verdict='send_back',summary='correction request',findings=[finding()])
     (root/'inputs/settings.cfg').write_text('efficiency=0.85\n')
     r.authorize_correction(root,actor_id='physicist',changed_paths=['inputs/settings.cfg'],stages=['detector'],recheck_checks=['agreement'])
     packet=tmp_path/'verifier';m=c.create(root,'verifier',packet)

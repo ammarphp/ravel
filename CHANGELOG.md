@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.3.0
+
+Adds a checkpointed controller for open-ended research, cost-aware engagement, a research loop with a declared budget, a generated capability catalogue, literature retrieval with provenance screening, and governed model seats for any provider.
+
+**Controller**
+
+- Any question runs from request to reviewed delivery under a LangGraph controller with durable checkpoints. A resumed run keeps its pinned source and dependency identities.
+- When an input, tool or licence is missing, the run records an alternative or ends in a qualified result that lists its open obligations. Unaffected work continues after a failed step, and recorded assumptions travel with the result as qualification.
+- Each obligation is checked and recorded by the action it governs. A not-applicable entry carries a typed reason and its evidence.
+
+**Engagement and cost**
+
+- Lean, standard and full engagement tiers are chosen from the route, deliverables, consequence, compute and novelty of the task. A needed tool runs at every tier, and observed failures raise the tier.
+- `ravel operator set --compute-policy` selects bounded, generous or adaptive compute within the operator's ceiling.
+- Model usage and cost are measured per session alongside compute. `ravel setup-models` uses account usage and prior runs to choose the model mix per tier.
+
+**Statistics**
+
+- A catalogue of statistical situations covers limits, fits and measurements, with a probe for each situation. Deliveries state the uncertainties they include and the assumptions they rest on.
+
+**Capabilities and knowledge**
+
+- The capability catalogue is generated from code: science modes, operations, routes, role cards, tools and knowledge entries. Every role receives it in its instruction packet.
+- A searchable knowledge atlas links each entry to its source.
+
+**Research and literature**
+
+- The research loop declares its cycles, children, model calls, tokens, time and cost before CHECK-IN 1. It stops on a recorded low expected information gain or an exhausted budget, and reuse requires current source, premise and input identities.
+- Literature retrieval runs over immutable indexed snapshots with lexical, dense and hierarchy-aware search. Excluded roots and derived-origin lineage are screened together, and a citation names the material served.
+
+**Models and providers**
+
+- Roles, seats and transports are separate. Any wired provider reaches the governed path, and selection checks the executable, tool surface and qualification record for the seat.
+- `ravel doctor` reports the wired transports.
+
+**Sites and batch**
+
+- Prepared studies submit and run as batch jobs through `ravel site study-job`, including HTCondor, and export to Snakemake with `ravel site-workflow`.
+- Sandbox detection and site setup adapt a run to its host, and optional tools fall back to compatible alternatives.
+
+**Safety**
+
+- Inputs default to restricted classification and narrow the provider policy of the run. Artifacts are private, destinations are checked, and a resumed run checks the integrity of its record.
+- `ravel operator init` and `ravel operator set` keep the operator ledger in a user-owned file. `ravel operator export-run` backs up a quiescent run for restore.
+- A conditional approval labels the results it covers, and a tampered autonomy or batch ledger ends the run.
+
 ## 1.2.3
 
 Fixes HTCondor submission and Snakemake profile loading.

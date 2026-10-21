@@ -10,7 +10,7 @@ A `calculation` draft preserves the numerical quantity, units and precision. Its
 initial budget is zero. Compact requests such as `Compute 2+2` use the ordinary
 `literal-calculation` adapter: exact decimal rational arithmetic with tracked units
 (`Compute 1.2 pb * 139 fb^-1 in events`), explicit source binding, CHECK-IN 1 and the
-supervised scientific worker. Literals may carry barn-family areas, inverse-area
+supervised scientific worker. Literals can carry barn-family areas, inverse-area
 luminosities, eV-family energies, metres and seconds with decimal prefixes; sums need
 matching dimensions and a requested result unit needs the value's dimensions.
 The complete prompt must match the operation. A physical lifetime, supplied
@@ -52,7 +52,7 @@ what would make it possible:
 | `no_scientific_object` | whole request | nothing remains once negated and quoted text is removed |
 | `ungrounded_identifier` | whole request | a context label that carries a scientific qualifier |
 | `unsupportable_claim` | the obligations it names | a demand to claim an observed discovery |
-| `inaccessible_input` | the obligations it names | private experiment data the request does not supply |
+| `inaccessible_input` | the obligations it names | private experiment data requiring authorized source custody |
 | `contradiction` | the obligations it names | one span uses a source that another span forbids |
 | `control_bypass_request` | one sentence | "skip the review"; it is refused and the rest proceeds |
 
@@ -66,7 +66,7 @@ construction of an Nσ prescription) is answered by the requester or a cited sou
 default. A missing operation, input or method stays an open obligation in the census. `ravel
 initiate` prints each gap and each open row.
 
-A host may extend the reading componently: pass a `request-reading-additions` document (facts,
+A host can extend the reading componently: pass a `request-reading-additions` document (facts,
 constraints, deliverables and ambiguity rows with exact spans and an author envelope) as
 `--interpretation`. Deleting or weakening a reader item is refused. A value marked
 `user_quoted` without a matching span becomes `inferred`, and an inferred physics-critical
@@ -75,7 +75,7 @@ authority.
 
 Requested tools select registered operations whose signatures declare those tools and stages.
 The draft preserves typed outputs and dependencies and requests missing operation inputs; an
-unavailable tool or incompatible operation keeps a concrete development or composition gap.
+missing tool or incompatible operation keeps a concrete development or composition gap.
 Outcome-open question forms bind a research coordinator independently of template order.
 Explicit publication titles are `publication_title` witnesses: their words supply no route,
 parameter or statistic. Source resolution adds identifiers with receipts through the programly
@@ -94,7 +94,7 @@ intake records it as `operation` on a zero-compute planning parent:
 | `measurement_fit` | `calculation` | fit coefficients or couplings to published measurements |
 | `supplied_events` | `calculation` | run a named Rivet routine over supplied HepMC or LHE events |
 
-A host interpretation may name the operation directly as its `kind`, or give the
+A host interpretation can name the operation directly as its `kind`, or give the
 planning parent as `kind` together with `operation`. The handoff lists
 `candidate_modes`, the scientific modes whose declared descriptors serve the operation.
 Generation requests that also name a shower, detector simulation or PDF set keep each
@@ -112,7 +112,7 @@ population, layout or recipe. It names what it is bound to (`bound_to`), the ter
 request must match before it is offered (`select_when`: every group, any term in it) and
 the general operation to use instead (`general_operation`, or `null`). Suggestions, host
 intents in `capability_routing.plan` and the operation lists of intake skip a source-bound
-operation unless the request matches its predicate; a withheld host intent is reported
+operation unless the request matches its predicate; a protected host intent is reported
 under `withheld_candidates`. The registered predicates select an adapter by its exact
 operation identifier. The CHECK-IN 1 of a source-bound study states its binding.
 
@@ -198,7 +198,7 @@ verifier and other review roles still require an attested fresh context.
 
 A delivery that fails validation leaves the node in `awaiting_external` with its
 attempt intact; deliver a corrected response for the same request. When the host
-cannot produce a valid response, return the node to `pending` and prepare again:
+fails to produce a valid response, return the node to `pending` and prepare again:
 
 ```bash
 ravel agent-graph release-external --graph GRAPH --node choose --reason "why the response cannot be delivered"
@@ -224,8 +224,7 @@ After a literal calculation finishes, `calculation_completion.collect` binds the
 actual child's approved plan, current runtime/source, completed stage, exact result
 and dimensionless units to `inputs/calculation_delivery.json` in the parent.
 `validate_run_state.evaluate` verifies that delivery anew. This route requires no
-comparison curves, detector stages or research CI2/CI3 vote. A bare `result.json`
-cannot complete it. The exact complete parent prompt determines this shortcut;
+comparison curves, detector stages or research CI2/CI3 vote. Completion requires the full authenticated calculation-delivery record. The exact complete parent prompt determines this shortcut;
 the word `calculation` alone grants no exemption. Physical and symbolic calculations
 use their actual schema-2 scientific children, scoped source/quantity/unit reviews
 and `inputs/task_completion.json`. The parent validates this existing whole-task

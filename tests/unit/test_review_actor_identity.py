@@ -12,8 +12,9 @@ import os
 
 import pytest
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from test_review_points import receipt, run
-from worker_supervision import descriptor, supervised
+from worker_supervision import descriptor, review_packet, supervised
 
 from ravel.workflow import (agent_worker as worker, machine_lease, rdj_custody, rdj_loop, review_points as rp,
                             role_registry)
@@ -78,7 +79,7 @@ class FakeSupervisor:
     pid = 2 ** 22 + 7
 
 
-def test_launch_assigns_the_actor_at_spawn_and_the_receipt_takes_it_from_custody(study, monkeypatch):
+def test_launch_assigns_the_actor_at_spawn_and_the_receipt_takes_it_from_custody(study, monkeypatch, inert_dispatch):
     """Where assigned (launch, before the supervisor starts), where bound (custody record, receipt, registration)."""
     started = []
     monkeypatch.setattr(worker.sandbox, 'available', lambda: 'test')
@@ -160,14 +161,16 @@ def test_a_completion_the_host_writes_itself_is_never_transport_attested(study):
 def test_a_supervised_launch_with_a_transport_observation_earns_the_credit(study):
     """The same worker through launch and supervise: the adapter's observation is the label."""
     s = review_spec(study, 'supervised', SPECIALIST, 'discrepancy-attributor')
-    done = supervised(study, s, final=FINAL, session='observed-session')
+    done = supervised(study, s, final=FINAL, session='observed-session',
+                      packet=review_packet(study, SPECIALIST, 'discrepancy-attributor'))
     assert done['status'] == 'ok' and done['attestation'] == 'transport_attested'
     actor = worker._record(study, 'supervised', 1)['actor']
     assert done['actor_id'] == actor['actor_id'] and actor['transport_id'] == 'synthetic-cli'
     assert report(study, 'supervised')['independent'] and rp.satisfied(study, SPECIALIST)
     # An observation that falls short of transport attestation stays short.
     weak = review_spec(study, 'weak', CRITIC, 'physics-critic')
-    assert supervised(study, weak, final=FINAL, session='weak-session', attestation='host_attested')['status'] == 'ok'
+    assert supervised(study, weak, final=FINAL, session='weak-session', attestation='host_attested',
+                      packet=review_packet(study, CRITIC, 'physics-critic'))['status'] == 'ok'
     assert not report(study, 'weak')['independent'] and not rp.satisfied(study, CRITIC)
 
 
@@ -185,7 +188,8 @@ def test_custody_refuses_an_actor_row_that_is_not_its_own_digest(study):
 
 @pytest.mark.parametrize('point_id, role', [(CRITIC, 'physics-critic'), (SPECIALIST, 'discrepancy-attributor'),
                                             (AUDITOR, 'normalization-auditor'), (MAPPER, 'object-selection-mapper')])
-def test_a_dispatcher_assigned_actor_earns_credit_and_a_declared_or_missing_one_does_not(study, point_id, role):
+def test_a_dispatcher_assigned_actor_earns_credit_and_a_declared_or_missing_one_does_not(study, point_id, role,
+                                                                                         inert_dispatch):
     assert point(study, point_id)['mode'] in rp.ACTOR_MODES
     receipt(study, point_id, role, 1, actor_id='declared-actor')
     receipt(study, point_id, role, 2, actor_id=None)
@@ -195,8 +199,10 @@ def test_a_dispatcher_assigned_actor_earns_credit_and_a_declared_or_missing_one_
         assert found['advisory'] == 'actor_unassigned' and not found['independent']
     receipt(study, point_id, role, 3)
     assert rp.satisfied(study, point_id)
+    # A credited seat reports its family label; the inert controller records no models, so it is unknown.
     assert report(study, role + '3') == {'path': f'agent-work/{role}3/1/receipt.json',
-                                         'attestation': 'transport_attested', 'independent': True, 'advisory': None}
+                                         'attestation': 'transport_attested', 'independent': True, 'advisory': None,
+                                         'family_relation': 'unknown', 'label': 'separate session, model family unknown'}
 
 
 def test_a_receipt_cannot_borrow_another_sessions_actor(study):
@@ -214,25 +220,30 @@ def test_a_receipt_cannot_borrow_another_sessions_actor(study):
     assert not rp.satisfied(study, SPECIALIST)
 
 
-def test_voting_points_need_distinct_actors_and_fresh_sessions(study):
+def test_voting_points_need_distinct_actors_and_fresh_sessions(study, inert_dispatch):
     """The three votes of one claim: a worker session, or an observed session, is credited once."""
     receipt(study, CRITIC, 'physics-critic', worker_session='shared-worker-session')
     receipt(study, VERIFIER, 'skeptical-verifier', worker_session='shared-worker-session')
     receipt(study, DECIDER, 'physics-decider', session_id='physics-critic1')
     # The critic's session is the one shared with both others; the verifier and the decider are
     # two distinct sessions. Never all three: the largest consistent set is those two.
+    # New rule: a context shared by two seats is independent for neither: the critic and decider share one observed session.
     assert not rp.satisfied(study, CRITIC)
-    assert rp.satisfied(study, VERIFIER) and rp.satisfied(study, DECIDER)
+    assert rp.satisfied(study, VERIFIER) and not rp.satisfied(study, DECIDER)
     receipt(study, CRITIC, 'physics-critic', 2)
-    assert rp.satisfied(study, CRITIC) and rp.satisfied(study, VERIFIER) and rp.satisfied(study, DECIDER)
+    assert rp.satisfied(study, CRITIC) and rp.satisfied(study, VERIFIER) and not rp.satisfied(study, DECIDER)
 
 
 def synthetic(node, role, point_id, *, family='alpha', worker_session=None, session=None):
     actor = rdj_custody.actor_record('synthetic-cli', 'synthetic-model', worker_session or 'ws-' + node, node + '/1',
                                      family=family)
+    session_id = session or 's-' + node
+    # The seat matcher reads the independence decision ``_receipt_records`` attaches to each record.
     return {'node_id': node, 'attempt': 1, 'review_point_id': point_id, 'role': {'id': role}, 'status': 'ok',
-            'run_tree': {'modified': False}, 'final_record': {'valid': True}, 'session_id': session or 's-' + node,
-            'actor_id': actor['actor_id'], 'model': {'family': family}, '_label': 'transport_attested', '_actor': actor}
+            'run_tree': {'modified': False}, 'final_record': {'valid': True}, 'session_id': session_id,
+            'actor_id': actor['actor_id'], 'model': {'family': family}, '_label': 'transport_attested', '_actor': actor,
+            '_independence': {'independent': True, 'advisory': None, 'dispatch_id': 'synthetic:' + node,
+                              'context_id': session_id, 'exposure': None}}
 
 
 def panel(count=3, **role):
@@ -256,19 +267,22 @@ def test_a_voting_point_with_count_k_needs_k_distinct_actor_ids():
     assert rp._missing([panel()], votes)['P1'] == []
 
 
-def test_cross_family_review_needs_a_different_transport_family():
+def test_a_same_family_reviewer_in_a_separate_session_is_credited():
     first = {'id': 'P0', 'row': 4, 'claim_id': 'C1', 'mode': 'voting', 'attestation_min': 'transport',
              'roles': [{'role': 'author', 'count': 1, 'distinct_family_from': []}]}
-    second = panel(count=1, distinct_family_from=['author'])
+    second = panel(count=1)
     author = synthetic('a1', 'author', 'P0', family='alpha')
-    assert rp._missing([first, second], [author, synthetic('v1', 'voter', 'P1', family='alpha')])['P1']
-    assert rp._missing([first, second], [author, synthetic('v2', 'voter', 'P1', family=None)])['P1']
-    assert rp._missing([first, second], [author, synthetic('v3', 'voter', 'P1', family='beta')])['P1'] == []
-    # The named role must itself be credited in the scope before another family can be shown.
-    assert rp._missing([first, second], [synthetic('v3', 'voter', 'P1', family='beta')])['P1']
+    # One family, two observed sessions: two independent seats. An unknown family changes nothing.
+    for family in ('alpha', None, 'beta'):
+        assert rp._missing([first, second], [author, synthetic('v1', 'voter', 'P1', family=family)]) == \
+            {'P0': [], 'P1': []}
+    # The author's session, observed again or drawn again by the dispatcher, earns no second seat.
+    for shared in (synthetic('v2', 'voter', 'P1', session='s-a1'), synthetic('v3', 'voter', 'P1', worker_session='ws-a1')):
+        assert rp._missing([first, second], [author, shared])['P1'] == [{'role': 'voter', 'count': 1,
+                                                                       'distinct_family_from': []}]
 
 
-def test_producer_points_need_distinct_actors_and_a_producer_never_reviews(study):
+def test_producer_points_need_distinct_actors_and_a_producer_never_reviews(study, inert_dispatch):
     assert point(study, PRODUCER)['mode'] == 'producer' and point(study, PRODUCER)['roles'][0]['count'] == 2
     receipt(study, PRODUCER, 'analysis-author', 1)
     receipt(study, PRODUCER, 'analysis-author', 2, worker_session='ws-analysis-author1')
@@ -291,7 +305,7 @@ def test_producer_points_need_distinct_actors_and_a_producer_never_reviews(study
     assert rp.satisfied(study, MAPPER)
 
 
-def test_blind_auditor_credit_needs_a_separate_attested_actor(study):
+def test_blind_auditor_credit_needs_a_separate_attested_actor(study, inert_dispatch):
     card = __import__('ravel.workflow.role_registry', fromlist=['load']).load('normalization-auditor')
     assert card['requires']['blind'] is True and point(study, AUDITOR)['attestation_min'] == 'transport'
     receipt(study, PRODUCER, 'analysis-author', 1)
@@ -374,7 +388,7 @@ def test_an_rdj_role_call_takes_no_identity_from_a_declared_or_missing_actor(stu
 
 
 @pytest.mark.parametrize('version', [1, 2, 3])
-def test_an_rdj_role_call_carries_the_actor_the_dispatcher_registered(study, version):
+def test_an_rdj_role_call_carries_the_actor_the_dispatcher_registered(study, version, inert_dispatch):
     ref, actor = rdj_receipt(study, 'rdj-assigned', version=version, declared=None, assigned=True)
     _, session, family = rdj_loop._resolve(study, REQUEST, ref)
     assert session == {'actor_id': actor['actor_id'], 'session_receipt': 'synthetic-cli:session-rdj-assigned',
@@ -385,7 +399,7 @@ def test_an_rdj_role_call_carries_the_actor_the_dispatcher_registered(study, ver
     assert rdj_loop._resolve(study, REQUEST, weak)[1]['attestation'] == 'self_attested'
 
 
-def test_the_dispatcher_registers_an_rdj_worker_with_its_actor_and_label(study):
+def test_the_dispatcher_registers_an_rdj_worker_with_its_actor_and_label(study, inert_dispatch):
     """Ordinary RDJ worker publication: the supervised launch registers the assigned actor and the observed label."""
     s = spec('rdj-worker')
     s['role'] = {'id': 'decision-critic', 'version': '1', 'card_sha256': '1' * 64}
@@ -552,18 +566,15 @@ AUTHOR = {'id': 'P0', 'row': 4, 'claim_id': 'C1', 'mode': 'voting', 'attestation
           'roles': [{'role': 'author', 'count': 1, 'distinct_family_from': []}]}
 
 
-def test_the_registered_family_decides_a_cross_family_comparison_not_the_receipt_body():
+def test_a_retired_family_list_on_a_role_entry_changes_nothing():
+    # A role entry that still names distinct_family_from is credited by sessions alone, whatever the families.
     reviewer = panel(count=1, distinct_family_from=['author'])
     author = synthetic('a1', 'author', 'P0', family='alpha')
-    # Registered alpha, body says beta: it is an alpha reviewer and earns nothing against an alpha author.
-    relabelled = {**synthetic('v1', 'voter', 'P1', family='alpha'), 'model': {'family': 'beta'}}
-    assert rp._missing([AUTHOR, reviewer], [author, relabelled])['P1']
-    # A named role whose family is unknown shows no diversity against any reviewer family.
-    unknown = synthetic('a2', 'author', 'P0', family=None)
-    assert rp._missing([AUTHOR, reviewer], [unknown, synthetic('v2', 'voter', 'P1', family='beta')])['P1']
-    # A family is compared with families only: one that happens to be spelled like a role name is a family.
-    named = synthetic('v3', 'voter', 'P1', family='author')
-    assert rp._missing([AUTHOR, reviewer], [author, named])['P1'] == []
+    for voter in (synthetic('v1', 'voter', 'P1', family='alpha'), synthetic('v2', 'voter', 'P1', family=None),
+                  {**synthetic('v3', 'voter', 'P1', family='alpha'), 'model': {'family': 'beta'}}):
+        assert rp._missing([AUTHOR, reviewer], [author, voter]) == {'P0': [], 'P1': []}
+    # Without the named role's receipt the reviewer seat is still filled; the author seat stays open.
+    assert rp._missing([AUTHOR, reviewer], [synthetic('v4', 'voter', 'P1', family='beta')])['P1'] == []
 
 
 def test_a_receipt_whose_family_differs_from_its_registration_has_no_actor(study):
@@ -583,7 +594,7 @@ def test_a_receipt_whose_family_differs_from_its_registration_has_no_actor(study
 
 # ---------------------------------------------------------------- a producer is excluded from its own output only
 
-def test_an_unregistered_producer_record_denies_no_reviewer(study):
+def test_an_unregistered_producer_record_denies_no_reviewer(study, inert_dispatch):
     """Producer identity comes from verified custody; a loose record naming a reviewer's session changes nothing."""
     reviewer = receipt(study, SPECIALIST, 'discrepancy-attributor', 1)
     assert rp.satisfied(study, SPECIALIST)
@@ -604,7 +615,8 @@ def test_an_unregistered_producer_record_denies_no_reviewer(study):
     assert rp.satisfied(study, SPECIALIST)
 
 
-def test_a_producer_is_excluded_from_its_own_claim_and_not_from_an_independent_one(tmp_path, monkeypatch):
+def test_a_producer_is_excluded_from_its_own_claim_and_not_from_an_independent_one(tmp_path, monkeypatch,
+                                                                                   inert_dispatch):
     monkeypatch.setenv('RAVEL_STATE_DIR', str(tmp_path / 'state'))
     root = tmp_path / 'run'
     root.mkdir()
@@ -613,8 +625,12 @@ def test_a_producer_is_excluded_from_its_own_claim_and_not_from_an_independent_o
     # The same session reviewing the claim it produced earns nothing ...
     receipt(root, MAPPER, 'object-selection-mapper', 1, session_id='analysis-author1')
     assert not rp.satisfied(root, MAPPER)
-    # ... and is a valid reviewer of the other claim, whose output it did not produce.
+    # ... and, new rule, an observed session the producer used is independent at no point, whatever the claim.
     receipt(root, 'RP6:C2', 'object-selection-mapper', 2, session_id='analysis-author1')
+    assert not rp.satisfied(root, 'RP6:C2')
+    # A reviewer that shares only the producer's worker session is a valid reviewer of the other claim, whose
+    # output it did not produce.
+    receipt(root, 'RP6:C2', 'object-selection-mapper', 4, worker_session='ws-analysis-author1')
     assert rp.satisfied(root, 'RP6:C2')
     # Review of the whole delivery covers every claim: no producer of the run reviews it.
     parent = next(p for p in rp.derive(rp._facts(root)) if p['row'] == 11 and p['mode'] in rp.REVIEWER_MODES)
@@ -624,19 +640,19 @@ def test_a_producer_is_excluded_from_its_own_claim_and_not_from_an_independent_o
 
 # ---------------------------------------------------------------- credit does not depend on traversal order
 
-def test_a_fresh_retry_of_another_family_is_chosen_when_it_satisfies_every_role():
-    reviewer = panel(count=1, distinct_family_from=['author'])
-    earlier = synthetic('a1', 'author', 'P0', family='alpha')
-    retry = synthetic('a2', 'author', 'P0', family='beta')
-    vote_ = synthetic('v1', 'voter', 'P1', family='alpha')
+def test_a_fresh_retry_is_chosen_when_the_first_receipt_shares_the_reviewers_session():
+    reviewer = panel(count=1)
+    earlier = synthetic('a1', 'author', 'P0', session='s-v1')
+    retry = synthetic('a2', 'author', 'P0')
+    vote_ = synthetic('v1', 'voter', 'P1')
     for receipts in ([earlier, retry, vote_], [retry, earlier, vote_], [vote_, earlier, retry]):
         assert rp._missing([AUTHOR, reviewer], receipts) == {'P0': [], 'P1': []}
 
 
-def test_a_dependent_point_listed_before_its_prerequisite_is_still_credited():
-    reviewer = panel(count=1, distinct_family_from=['author'])
-    receipts = [synthetic('a1', 'author', 'P0', family='alpha'), synthetic('v1', 'voter', 'P1', family='beta')]
-    assert rp._missing([reviewer, AUTHOR], receipts) == {'P1': [], 'P0': []}
+def test_points_are_credited_in_any_listed_order():
+    reviewer = panel(count=1)
+    receipts = [synthetic('a1', 'author', 'P0', family='alpha'), synthetic('v1', 'voter', 'P1', family='alpha')]
+    assert rp._missing([reviewer, AUTHOR], receipts) == rp._missing([AUTHOR, reviewer], receipts) == {'P1': [], 'P0': []}
 
 
 def test_one_session_string_from_two_transports_is_two_sessions():
@@ -660,16 +676,13 @@ def test_a_shared_session_does_not_cost_a_point_its_fresh_receipt():
     assert rp._missing([first, second], [shared, other])['PB']
 
 
-def test_a_dependent_role_waits_for_every_point_of_the_role_it_names():
-    """The named role is credited at two points, one of which itself depends on a third role."""
+def test_named_roles_no_longer_order_or_block_credit():
+    """Roles a point names in its retired family list are not waited for: sessions alone decide."""
     def at(point_id, role, **entry):
         return {**AUTHOR, 'id': point_id, 'roles': [{'role': role, 'count': 1, 'distinct_family_from': [], **entry}]}
     points = [at('P1', 'voter', distinct_family_from=['author']), at('P2', 'author'),
               at('P3', 'author', distinct_family_from=['source']), at('P4', 'source')]
     receipts = [synthetic('s1', 'source', 'P4', family='gamma'), synthetic('a1', 'author', 'P2', family='alpha'),
                 synthetic('a2', 'author', 'P3', family='beta'), synthetic('v1', 'voter', 'P1', family='beta')]
-    # The voter's family is the second author's: no order of evaluation credits it.
     for order in (points, points[::-1]):
-        assert rp._missing(order, receipts)['P1'] and not rp._missing(order, receipts)['P3']
-    receipts[-1] = synthetic('v2', 'voter', 'P1', family='delta')
-    assert not any(rp._missing(points, receipts).values())
+        assert not any(rp._missing(order, receipts).values())

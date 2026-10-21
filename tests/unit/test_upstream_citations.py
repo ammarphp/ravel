@@ -104,19 +104,19 @@ def test_renderer_formats_references_and_home_pages():
     assert after == 6
     assert lines == [
         "**[Tool](https://t.example/)**: work.", "",
-        f"4. A. Author et al., “A tool”, *J. Synth.* **1** (2000) 2, [arXiv:{new_style}](https://arxiv.org/abs/{new_style}), "
+        f"4. [arXiv:{new_style}](https://arxiv.org/abs/{new_style}), "
         "[doi:10.1/a(b)c](https://doi.org/10.1/a%28b%29c).",
-        f"5. For a stated case, also: B. Author, “Notes”, Archive (2001), [arXiv:{old_style}](https://arxiv.org/abs/{old_style})."]
+        f"5. For a stated case, also: [arXiv:{old_style}](https://arxiv.org/abs/{old_style})."]
     home = dict(row, basis="home-page", cite=[], also=[])
     assert renderer.render_row(home, 6) == (["**[Tool](https://t.example/)**: work. Home page: <https://t.example/home>."], 6)
     software = {"authors": "C. Author", "title": "Package", "url": "https://p.example/"}
-    assert renderer.render_reference(software) == "C. Author, “Package”, <https://p.example/>."
+    assert renderer.render_reference(software) == "<https://p.example/>."
     untitled = {"authors": "D. Author", "year": 2002, "arxiv": new_style}
-    assert renderer.render_reference(untitled) == f"D. Author (2002), [arXiv:{new_style}](https://arxiv.org/abs/{new_style})."
+    assert renderer.render_reference(untitled) == f"[arXiv:{new_style}](https://arxiv.org/abs/{new_style})."
     preprint = dict(untitled, title="Draft")
-    assert renderer.render_reference(preprint).startswith("D. Author, “Draft” (2002), [arXiv:")
+    assert renderer.render_reference(preprint).startswith("[arXiv:")
     block = renderer.render_block([row, home])
-    assert block.startswith("**[Tool]") and "\n\n1. A. Author" in block and block.endswith("<https://t.example/home>.")
+    assert block.startswith("**[Tool]") and "\n\n1. [arXiv:" in block and block.endswith("<https://t.example/home>.")
 
 
 def test_readme_appendix_b_is_collapsed_and_numbered_continuously():
@@ -137,3 +137,20 @@ def test_no_citation_row_names_a_withheld_tool():
     from ravel.setup import manifest as mf
     manifest = mf.load(ROOT)[0]
     assert [row["tool"] for row in _rows() if mf.release_mentions(manifest, [row["tool"], row["link"]])] == []
+
+
+def test_citation_appendix_covers_every_tool_without_personal_names():
+    renderer = _renderer()
+    rows = _rows()
+    path = ROOT / "docs/architecture/upstream-tools.md"
+    assert path.read_text() == renderer.render_appendix(rows)
+    for row in rows:
+        assert f"]({row['link']})" in path.read_text()
+        assert f"[{row['basis']}]({renderer.appendix_source(row)})" in path.read_text()
+    assert "arxiv.org/" not in path.read_text()
+    # Display uses exact identifiers while full metadata remains validated above.
+    for row in rows:
+        for ref in row['cite']:
+            rendered = renderer.render_reference(ref)
+            assert all(link in rendered for link in renderer.links(ref))
+            assert ref['authors'] not in rendered

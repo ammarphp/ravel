@@ -160,7 +160,7 @@ def parameter_values(raw):
 
 def validate_config(c):
     keys(c, ('schema_version', 'source', 'runtime', 'model_tree', 'cards', 'generation', 'shower', 'decay',
-             'reweight', 'weights', 'outputs', 'max_seconds', 'max_ram_mib', 'assumptions', *(['conventions'] if 'conventions' in c else []), *(['spectrum_origin'] if 'spectrum_origin' in c else []), *(['parameter_observation'] if 'parameter_observation' in c else []), *(['operative_seed_observation'] if 'operative_seed_observation' in c else []), *(['pre_shower_lhe_transform'] if 'pre_shower_lhe_transform' in c else []), *(['generator_reuse'] if 'generator_reuse' in c else []), *(['integration_checkpoint'] if 'integration_checkpoint' in c else [])), 'model-events configuration')
+             'reweight', 'weights', 'outputs', 'max_seconds', 'max_ram_mib', 'assumptions', *(['model_validation'] if 'model_validation' in c else []), *(['conventions'] if 'conventions' in c else []), *(['spectrum_origin'] if 'spectrum_origin' in c else []), *(['parameter_observation'] if 'parameter_observation' in c else []), *(['operative_seed_observation'] if 'operative_seed_observation' in c else []), *(['pre_shower_lhe_transform'] if 'pre_shower_lhe_transform' in c else []), *(['generator_reuse'] if 'generator_reuse' in c else []), *(['integration_checkpoint'] if 'integration_checkpoint' in c else [])), 'model-events configuration')
     require(c['schema_version'] == 1 and type(c['schema_version']) is int, 'model-events schema1 required')
     if 'integration_checkpoint' in c:
         from . import native_integration_checkpoint
@@ -171,6 +171,9 @@ def validate_config(c):
                 'regular released LO checkpoint requires complete operative seed observation')
     from . import generation_conventions
     generation_conventions.declaration(c.get('conventions', {}))
+    from ravel.physics.model_admission import evidence_request
+    if 'model_validation' in c:
+        evidence_request(c['model_validation'])
     text(c['source'], 'source')
     if 'generator_reuse' in c:
         from . import generator_reuse
@@ -260,7 +263,7 @@ def validate_config(c):
     points = c['weights']['variation_points']
     require(isinstance(points, list) and len(points) == len(ids) and {x.get('id') for x in points} == set(ids), 'every declared weight requires exact variation-point semantics')
     for point in points:
-        keys(point, ('id', 'kind', 'definition', 'source'), 'weight variation')
+        keys(point, ('id', 'kind', 'definition', 'source', *(['model_validation'] if 'model_validation' in point else [])), 'weight variation')
         require(point['kind'] in ('scale', 'pdf', 'parameter'), 'declared weight kind required')
         require(type(point['definition']) is dict and point['definition'], 'literal variation definition required')
         fields = {'scale': ('mu_r_factor', 'mu_f_factor', 'normalization'),
@@ -552,6 +555,8 @@ def check_cards(c, texts, *, observed=False):
 
 def inputs(task, base):
     path, c = _load(task, base)
+    from ravel.physics.model_admission import evidence_request
+    evidence_request(c.get('model_validation'))
     files = [path]
     for tree in [c['runtime']['madgraph_tree'], c['model_tree'], *[x['tree'] for x in c['runtime']['dependencies']]]:
         root, manifest, members = bridge._tree(tree, path.parent); files += [manifest, *members]
@@ -588,6 +593,7 @@ def inputs(task, base):
             p = bridge._pin(pin,path.parent); require(p.stat().st_size <= 2*1024**2, 'card exceeds source bound')
             texts[name] = authenticated_text(p,pin['sha256']); files.append(p)
     check_cards(c,texts)
+    files += [Path(p) for p in validation_evidence(c, path.parent, modelroot, texts)['inputs']]
     from . import generation_conventions
     generation_conventions.model_events_record(c,texts['process'],path.parent)
     if 'parameter_observation' in c:
@@ -608,6 +614,36 @@ def inputs(task, base):
         reuse=generator_reuse.probe(c,path.parent,texts)
         files += [Path(x) for x in [*reuse['inputs'],*reuse['compatibility']['toolchain_inputs']]]
     return sorted(set(files))
+
+
+def validation_evidence(c, base, modelroot, texts):
+    from ravel.physics.model_admission import generation_evidence, _evidence_pin, _evidence_record, ModelEvidenceError
+    result = generation_evidence(c.get('model_validation'), base, ufo=modelroot,
+        process=texts['process'], card=bridge._pin(c['cards']['parameter'], base))
+    points = {}
+    for point in c['weights']['variation_points']:
+        if point['kind'] != 'parameter':
+            continue
+        evidence = point.get('model_validation')
+        if not isinstance(evidence, dict) or 'widths' not in evidence:
+            raise ModelEvidenceError('absent', 'parameter reweight points require model_validation')
+        files = []
+        path = _evidence_pin(evidence['widths'], base, files)
+        width = _evidence_record(path)
+        card = _evidence_pin(width.get('parameter_card'), path.parent, files)
+        checked = generation_evidence(evidence, base, ufo=modelroot, process=texts['process'], card=card)
+        expected = parameter_values(texts['parameter'])
+        components = {row['name']: row for row in point['definition']['components']}
+        for row in point['definition']['ufo_mapping']:
+            expected[(row['block'].lower(), tuple(row['codes']))] = (
+                number(components[row['coefficient']][row['component']]) * number(row['factor']))
+        if expected != parameter_values(card.read_text()):
+            raise ModelEvidenceError('foreign', 'validated reweight card differs from declared parameter point')
+        points[point['id']] = checked
+        result['inputs'] = sorted(set(result['inputs'] + checked['inputs']))
+    if points:
+        result['parameter_points'] = points
+    return result
 
 
 def render_scripts(c, texts, *, model_path, process_path):
@@ -738,6 +774,8 @@ def _copied_source_custody(request, output, phase):
 
 def native_worker(request_path, output):
     request=bridge._read(request_path); c=validate_config(request['config']); out=Path(output)
+    from ravel.physics.model_admission import evidence_request
+    evidence_request(c.get('model_validation'))
     mg, model, process=map(Path,(request['madgraph'],request['model'],request['process']))
     from ravel.workflow.generation_efficiency import machine_observation
     operational_machine=machine_observation()
@@ -775,6 +813,7 @@ def native_worker(request_path, output):
     from ravel.physics import model_event_process as process_observer
     observer_driver=out/'native-process-observer.py'
     observer_driver.write_bytes(authenticated_text(process_observer.__file__,request['process_observer_sha256']).encode('utf-8'))
+    model_validation = validation_evidence(c, request['source_base'], model, texts)
     observer_request={'schema_version':1,'commands':process_commands(texts['process'],c),
         'build':_generated_pin(out/'build.mg5'),'commitment':{
             'build_sha256':bridge._hash(out/'build.mg5'),'model_import':'import model '+str(model)+'-full',
@@ -1058,7 +1097,7 @@ def native_worker(request_path, output):
         **({'integration_continuation':continuation_seed,'continuation_reservation':request['checkpoint_reservation']} if continuation_seed is not None else {}),
         **({'operative_seed_observation':seed_observation} if seed_observation is not None else {}),
         'copied_source_preparation':request.get('source_preparation'),
-        'generation_process_identity':process_identity,
+        'generation_process_identity':process_identity, 'model_validation':model_validation,
         **({'generator_reuse':reuse_info} if reuse_info is not None else {}),
         **({'parameter_card_observation':parameter_observation} if parameter_observation is not None else {}),
         **({'pre_shower_transport':split,'original_hard_population':split['transform']['original_population']} if split is not None else {}),
@@ -1152,6 +1191,10 @@ def run(task, base, output):
     receipt=execute_native([request['python'],'-I','-B',str(Path(__file__).resolve()),'--native-worker',str(out/'native-input.json'),'--out',str(out)],out,c,
         generated_event_ceiling=c['generation']['events'])
     result=bridge._read(out/'model-events-native.json')
+    texts = {name: authenticated_text(bridge._pin(pin, path.parent), pin['sha256'])
+             for name, pin in c['cards'].items() if pin is not None}
+    result['model_validation'] = validation_evidence(c, path.parent,
+        bridge._regular(c['model_tree']['root'], path.parent, directory=True), texts)
     require(result['status_scope']==SCOPE and result['generated_events']==c['generation']['events'] and result['physics_validated'] is False,'native returned wrong delivery scope/exposure')
     require(before=={str(p):bridge._hash(p) for p in inputs(task,base)},'original generator model/runtime/cards changed during execution')
     from ravel.physics import model_event_commitment

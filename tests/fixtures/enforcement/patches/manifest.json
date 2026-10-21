@@ -1,0 +1,106 @@
+{
+ "applied_to_product": false,
+ "kind": "integration-patch-manifest",
+ "patches": [
+  {
+   "patch": "cli-home.patch",
+   "patch_sha256": "f5f85640ca31517947244cdb124971af608b9091da5e55788867108544806d75",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_patch_fragments.py::test_cli_patch_copies_nested_login_privately_with_restrictive_modes"
+   ],
+   "result_sha256": "66296a69936287346cea59e98b0f7c177073d598974df97b605282d3b8d6526b",
+   "source_sha256": "7f1967634ab3234746e1224692257f2348f51eae84f5c8a35563e2861f87acb5",
+   "target": "src/ravel/workflow/transports/cli_worker.py"
+  },
+  {
+   "patch": "ml-route-admit.patch",
+   "patch_sha256": "862c447bb9e274f535a1bc05ac601d4d363f8fb3bb6dbd8b18f3d2aa85b5b62f",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_patch_fragments.py::test_ml_patch_forwards_all_plan_and_context_scope_pins_to_explicit_authority"
+   ],
+   "result_sha256": "16c97d9919e098a14c7a4a4db4f79b6b54aad8112a0d823ba39fd8c649328717",
+   "source_sha256": "6d6f4c6e1b58d56a3b79dd54fe4002d80a4149f12e0cd49408a735296cd11b8c",
+   "target": "src/ravel/controller/routes/ml/__init__.py"
+  },
+  {
+   "patch": "restricted-policy.patch",
+   "patch_sha256": "db853f6e220a8d7ea0eab5ebaa0f7a4d62634584e82e292c2c5121a3533b0156",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_switches_launch.py::test_SW22_the_restricted_source_policy_of_a_controller_run_does_not_follow_the_environment"
+   ],
+   "result_sha256": "05ba4da413f8373a0b3cba7df75d491096a033fcbef9216c014f62b876b2c4f4",
+   "source_sha256": "558a457db01cb3aa8c78ee70433563b558d44cffbf975ea3e4c1b0237e2a7236",
+   "target": "src/ravel/validation/check_generality.py"
+  },
+  {
+   "patch": "instruction-selector.patch",
+   "patch_sha256": "2fc90da8d741602d695e8245b0de3443968a02e7b5152852d5709ca9714fd664",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_integration_fragments.py::test_instruction_selector_fragment_changes_only_the_retired_anchor"
+   ],
+   "result_sha256": "0ad32172784bb33240fe0dee7dbd5e15c0494dfcbb97e928ecd1217f04019dda",
+   "source_sha256": "e8ebb87fca464379dd68a0d635f596da99074a5f630ce5395a1f6701ef70ac06",
+   "target": "src/ravel/data/instructions/sources.json"
+  },
+  {
+   "patch": "route-pin.patch",
+   "patch_sha256": "88a8fef846b5fe1c950f96caa18c526ab65aa4744bde660ea845bc9cf56cba29",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_routes_remaining.py::test_R01_a_development_phrase_cannot_authorize_effects_before_the_scientific_route_pin",
+    "tests/unit/enforcement/test_nc_integration_fragments.py::test_route_pin_fragment_matches_installed_guard_and_controls"
+   ],
+   "result_sha256": "ae4496e0ae3703f55b39e1d5422faf1bd8c31c7fd498b2ed6d56fd79b275a1a8",
+   "source_sha256": "d75baed465492f0970b211ae68a694f10ba1afeb480ab3ea4f8afc07744c8f5f",
+   "target": "src/ravel/controller/graph.py",
+   "source_basis": "current source with only the installed route-pin guard reversed",
+   "installed_guard": true
+  },
+  {
+   "patch": "routine-match.patch",
+   "patch_sha256": "089d159c9f8d899354b4d743fe2fbaae7f34248071ce8e9d724c8002b868b8ee",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_routes_remaining.py::test_E04_a_routine_selecting_another_final_state_cannot_claim_reproduction"
+   ],
+   "result_sha256": "9cb726f6f97fdc1836c0cc1ba338115c9f8394b6295e964d4eb6e5c0a301f319",
+   "source_sha256": "7b56d820b061f46ba6186fc439d9c2e0e9d5bf61e228486d296b49d3104e6700",
+   "target": "src/ravel/controller/routes/analysis/evidence.py"
+  },
+  {
+   "patch": "generation-recipe.patch",
+   "patch_sha256": "a7cd56ac7f74a501005d1dfb7d459f1cbdf2a644ee1307b64330336ff1378aab",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_routes_remaining.py::test_E09_generation_waits_for_retained_external_recipe_bytes"
+   ],
+   "result_sha256": "ad5dbc0a1e4b6692e3f3640d418ced6b0d8af58d3b24f9b346ecbab47807fe16",
+   "source_sha256": "69353db058cdc4785c09d51ca35a77ac563213935a85b29ea66edcc8c2051be8",
+   "target": "src/ravel/controller/routes/study/__init__.py"
+  },
+  {
+   "patch": "watcher-durable.patch",
+   "patch_sha256": "ed72fefcf08bc2a92856eea7fe1e1e0528a8ec4b53382d43c78cb8a579c97048",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_routes_remaining.py::test_E22_a_watcher_cannot_depend_on_a_transient_scratch_script"
+   ],
+   "result_sha256": "73ceecaf99e675661599ae917334a6246e6cdb13ef2276d3a24e2a8abc941f8c",
+   "source_sha256": "717f6c8ef3590f94c7587b469b3240d369e86827e25b8f6de19c4b553e25469b",
+   "target": "src/ravel/workflow/preflight_watcher.py"
+  },
+  {
+   "patch": "sink-runtime.patch",
+   "patch_sha256": "4e20f7f66ad83fa943ef160dc1bcd959395de01dc4d1b1d4c1d79f933531d38e",
+   "proving_tests": [
+    "tests/unit/enforcement/test_nc_delivery_remaining.py::test_E27_environment_evidence_controls_delivery"
+   ],
+   "result_sha256": "b64564e608f9f24c2633122cd0641e594e30ec39d21c4396c40a8a881e4fd194",
+   "source_sha256": "a84c633d9b80f20b3f969c1f87d15f960c2a3a8ab43861162befff4265e1044b",
+   "target": "src/ravel/controller/sink/checks.py"
+  }
+ ],
+ "retired_patches": [
+  {
+   "patch": "procedure-ceiling.patch",
+   "target": "src/ravel/workflow/procedure_export.py",
+   "reason": "Production procedure_export._byte_ceiling now reads the operator ceiling for controller-owned runs; production canaries replace this proposal."
+  }
+ ]
+}

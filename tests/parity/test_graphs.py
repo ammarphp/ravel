@@ -9,6 +9,7 @@ import pytest
 from parity_support import STUB_KINDS, cell, declarations
 from ravel.workflow import graph_registry, role_registry, transport_registry as tr
 from rdj_fixtures import Roles, Run, prepare_case, reviewer, critic, verifier
+from inert_dispatch import inert_dispatch  # noqa: F401
 from ravel.workflow import rdj_loop as rdj
 from test_receipt_schema import label_for
 
@@ -74,10 +75,18 @@ def case_receipt(tmp_path, document):
 
 
 def normalized(receipt):
-    return {k: v for k, v in receipt.items() if k not in VOLATILE}
+    value = {k: v for k, v in receipt.items() if k not in VOLATILE}
+    if isinstance(value.get('attestation_summary'), dict):
+        # Model-family relationships describe each transport's observed models; they are
+        # labels, not decision content, so they stay out of the cross-transport identity.
+        summary = dict(value['attestation_summary'])
+        for row in summary.pop('verifier_family_relationships', []):
+            assert row['label'] == 'separate session, ' + row['relationship'] + ' model family'
+        value['attestation_summary'] = summary
+    return value
 
 
-def test_rdj_receipts_are_identical_across_transports_and_attestation_reflects_the_transport(parity_env):
+def test_rdj_receipts_are_identical_across_transports_and_attestation_reflects_the_transport(parity_env, inert_dispatch):
     """T12 across the claude, codex, gemini, opencode, ravel-loop, http-model and relay stubs."""
     kinds = {'claude': 'claude-cli-worker', 'codex': 'codex-cli-worker', 'gemini': 'gemini-cli-worker',
              'opencode': 'opencode-worker', 'ravel-loop': 'ravel-loop-local', 'http-model': 'http-chat',

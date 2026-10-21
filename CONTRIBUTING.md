@@ -85,7 +85,7 @@ For changes to statistics, also run the engine selftests:
 .venv/bin/python -m ravel.physics.project_limits --selftest
 ```
 
-Report failures, skips and unavailable native dependencies explicitly. A passing synthetic gate case demonstrates the guard's behavior;
+Report failures, skips and missing native dependencies explicitly. A passing synthetic gate case demonstrates the guard's behavior;
 it does not establish scientific accuracy or autonomous task completion.
 
 ### Locked statistics environment
@@ -114,7 +114,7 @@ and shard indices break ties deterministically. Unknown durations cost at least
 60 seconds and at least the longest measured ordinary file. The committed
 timings record their measured source and digest; historical timings guide
 scheduling and do not certify the current source. The census retains only
-currently public-selected test paths; remaining source files use the unknown
+public-selected test paths; remaining source files use the unknown
 duration fallback. The long
 files listed in `ci_shards.LONG` each run in a job of their own:
 
@@ -129,7 +129,7 @@ and shard timings, and supplies a short private temporary root for Unix sockets.
 This runner sets umask `0002` for every pytest child; helper executables used by
 permission checks must explicitly set mode `0700`. Cluster rehearsals using other
 launchers must set `0002` inside the remote test process too: a batch script can
-reset the invoking shell's umask. Include a run with the sandbox unavailable.
+reset the invoking shell's umask. Include a run with the sandbox missing.
 Shared runners can take substantially longer than cluster nodes. Tests of custody
 or presentation should inject a scoped clock rather than depend on elapsed wall
 time; deadline tests must retain explicit clock advancement and exhaustion checks.
@@ -140,7 +140,7 @@ waiting line.
 The Linux CI job installs bubblewrap, logs and disables the AppArmor restriction
 on unprivileged user namespaces when that sysctl exists, and requires the actual
 worker denial probe to succeed before testing. Tests that need real confinement
-skip with `sandbox-blocked` when its launcher is unavailable; a failed denial
+skip with `sandbox-blocked` when its launcher is missing; a failed denial
 remains a test failure. Inert transport controls still run without a launcher.
 
 Do not infer numerical drift from a shared pytest process alone: module imports,
@@ -178,4 +178,4 @@ Reconcile `DIRECTORY.md` when the tree
 changes. Agent-specific instructions are in [AGENTS.md](AGENTS.md).
 
 In a pull request, state what changed, why, how it was checked, and any remaining
-limitations.
+scope qualifications.

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "kind": "judgment-consequence-classes",
+  "classes": ["R0", "R1", "R2", "R3"],
+  "unknown": "R3",
+  "requirements": {
+    "R0": "record",
+    "R1": "report_at_next_checkin",
+    "R2": "rdj_review",
+    "R3": "authority"
+  },
+  "action_kinds": {
+    "bookkeeping": "R0",
+    "naming": "R0",
+    "ordering": "R0",
+    "diagnostic_step": "R1",
+    "plot_style": "R1",
+    "cheaper_rung_first": "R1",
+    "reversible_choice": "R1",
+    "source_lookup": "R1",
+    "method_choice": "R2",
+    "basis_choice": "R2",
+    "selection_choice": "R2",
+    "statistic_within_request": "R2",
+    "stage_recovery": "R2",
+    "method_escalation": "R2",
+    "resource_unavailable": "R2",
+    "physics_critical_ambiguity": "R3",
+    "physics_critical_ambiguity_open": "R3",
+    "inferred_physics_critical_fact": "R3",
+    "agent_inferred_critical_field": "R3",
+    "statistic_differs_from_prescription": "R3",
+    "prescription_change": "R3",
+    "boundary_change": "R3",
+    "boundary_not_user_chosen": "R3",
+    "alternative_claim_not_user_chosen": "R3",
+    "adapter_default_unjustified": "R3",
+    "adopt_default_left_to_physicist": "R3",
+    "waypoint_none_delegated": "R3",
+    "deliverable_added": "R3",
+    "deliverable_dropped": "R3",
+    "unblinding": "R3",
+    "spend_above_ceiling": "R3",
+    "pinned_records_invalid": "R3"
+  },
+  "effects": {
+    "scope_change": "R3",
+    "deliverable_added": "R3",
+    "deliverable_dropped": "R3",
+    "prescription_change": "R3",
+    "boundary_change": "R3",
+    "physics_critical": "R3",
+    "adopt_default_left_to_physicist": "R3",
+    "unblind": "R3",
+    "spend_above_ceiling": "R3",
+    "irreversible": "R3"
+  },
+  "step_kinds": {
+    "acquire": "R1",
+    "operate": "R1",
+    "author": "R1",
+    "derive": "R1",
+    "compare": "R1",
+    "review": "R0",
+    "synthesize": "R1",
+    "ask": "R0",
+    "decide": "R1",
+    "subgraph": "R1",
+    "route": "R1"
+  },
+  "rungs": {
+    "dry": "R0",
+    "smoke": "R1",
+    "pilot": "R1",
+    "full": "R2",
+    "scan": "R2"
+  },
+  "gates": {
+    "classes_from": "rdj/policy.json#gates",
+    "always_r3": ["unblind", "spend_above_ceiling"]
+  },
+  "research_choices": {
+    "classes_from": "research/protocol-default.json#rdj_classes"
+  },
+  "rdj_action_kinds": {
+    "classes_from": "rdj/policy.json#action_kinds"
+  }
+}

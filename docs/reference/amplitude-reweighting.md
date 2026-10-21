@@ -93,7 +93,7 @@ Declare the same polynomial in the prediction and event documents. Alternatively
                 {"states": [1], "powers": {"y": 1}}]}
 ```
 
-The reference cannot contain scaled states. Constants and unlisted states stay
+The reference must not contain scaled states. Constants and unlisted states stay
 fixed. Each component multiplies an amplitude monomial, and its pair products
 give the signed cross-section terms, including mixed powers. The event streams
 use portable names: `<hypothesis>--constant`, `--interference`, `--pure-signal`
@@ -115,7 +115,7 @@ The fragment feeds the existing differential measurement model, including its
 prediction-dependent covariance and nuisance profiling. For several couplings,
 use `differential.Model` with the fragment's parameters, terms and covariance;
 the file-backed `differential-likelihood` adapter still scans one free parameter.
-This handoff supplies a signal model and does not add a multidimensional scan.
+This handoff supplies a signal model.
 
 The interference parent uses selected terms for its fit, ablation and signed
 delivery. Its Born/store comparison is a pinned diagnostic, with explicit value
@@ -190,15 +190,15 @@ check; it grants no study approval and is never a human review.
 
 `differential-likelihood` also accepts `operation: "cached-profile"`. This route
 re-evaluates complete cached amplitudes as masses, widths and couplings change;
-it does not interpolate a grid or extract a coupling polynomial. Use it for
+use it for
 conditional profiles whose covariance must change at each fitted state. The
-ordinary `ravel science` plan, approval and run path remains the execution entry.
+ordinary `ravel plan`, `ravel approve` and `ravel run` path remains the execution entry.
 The adapter task is `{"input": "profile.json"}`.
 
 For exact replay of a program's hypothesis-dependent pairing partition, set
 `retain_pairings: true` in the source document of the integration that writes the blocks. This adds
 every accepted point's two pairing amplitudes, normalization and flags to each
-completed block. A sample of audit amplitudes cannot substitute for this payload.
+completed block. A sample of audit amplitudes must not substitute for this payload.
 Existing Gram-only stores and consumers keep their format and behavior when the
 option is absent. The larger retained payload counts toward the cache budget.
 
@@ -270,16 +270,16 @@ failed/unissued fits and disconnected cells remain explicit.
 
 A supplied auxiliary source contains `parameters`, an additive bin-by-parameter
 `response`, and Gaussian `observed`, `offset`, `matrix`, `covariance`. Its mean is
-`offset + matrix @ nuisance`. The nuisance-shifted spectrum enters experimental
+`offset + matrix @ nuisance`. The nuisance-shifted spectrum enters measurement
 covariance rescaling. The auxiliary covariance must be SPD within the declared
-condition ceiling. Experimental component matrices are composite coefficients;
+condition ceiling. measurement component matrices are composite coefficients;
 their eigenvalue diagnostics are retained and no independent component sampling
-law is inferred. The experimental sum must pass strict SPD/condition admission
+law is inferred. The measurement sum must pass strict SPD/condition admission
 before optional MC covariance addition. Neither matrix is repaired. Gaussian
 scores retain the log determinant and normalization constants for both the
 spectrum and auxiliary observations.
 
-A `fiducial` source may define the generic Born two-pair projection in
+A `fiducial` source can define the generic Born two-pair projection in
 `amplitude_selection.validate`: four `particles` indices; per-species
 `acceptance` (`pt_min`, `abs_eta_max`); three `rank_pt_min` thresholds;
 `pairing_mass`; `primary_window`; a piecewise-linear `secondary_min` with `knots`
@@ -297,7 +297,7 @@ returned objective. Optional `fit.engine: roofit` uses the general
 `RavelCachedObjective.cxx` callback bridge and the existing RooMinimizer policy.
 It additionally requires a positive initial `error` on every parameter and
 `runtime: {version, files: [{path, sha256}, ...]}` covering the actual Python interpreter, ROOT module
-and loaded native libraries. Only the approved science worker may invoke it.
+and loaded native libraries. Only the approved science worker can invoke it.
 Each raw RooFitResult is saved and reread, with status history, covariance,
 EDM, errors and full state restoration retained. The objective itself is not a
 portable saved workspace. The callback uses the Python numerical evaluator;

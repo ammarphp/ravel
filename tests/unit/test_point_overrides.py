@@ -415,6 +415,9 @@ def test_native_default_and_override_outputs_remain_independently_harvestable(tm
     if supervised:
         stub_backend(root, monkeypatch)
     config = configuration(root)
+    if supervised:
+        from model_validation_fixture import native_evidence
+        native_evidence(config, native.native_build_root())
     (root / point['config']).write_bytes(config.read_bytes())
     point['quantities'] = [{'name': 'response', 'source': 'output/normalization.json', 'field': 'applied_cross_section_pb'}]
     manifest['quantities'] = point['quantities']

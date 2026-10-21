@@ -56,13 +56,14 @@ def test_multicore_plan_records_grant_and_renders_mg_commands(tmp_path):
         'set automatic_html_opening False', 'set nb_core 8', 'set run_mode 2']
 
 
-def test_default_mg_command_bytes_and_plan_stay_unchanged(tmp_path):
+def test_default_resource_commands_and_validated_card_are_exact(tmp_path):
     spec = core_spec(tmp_path)
     rd, g, plan, _ = prepared(tmp_path, spec)
     proc = rd / 'process'
     expected = ('set automatic_html_opening False\nset nb_core 1\nset run_mode 0\n'
                 f"set lhapdf {g['runtime']['lhapdf_config']}\nimport model sm\ngenerate e+ u > e+ u\noutput {proc}\n"
                 f'launch {proc}\nshower=OFF\ndetector=OFF\nanalysis=OFF\nmadspin=OFF\nreweight=OFF\ndone\n'
+                f'{rd / g["parameter_card"]}\n'
                 'set ebeam1 6500\nset ebeam2 6500\nset lpp1 1\nset lpp2 1\nset pdlabel lhapdf\nset lhaid 82400\n'
                 'set fixed_ren_scale False\nset fixed_fac_scale False\nset dynamical_scale_choice 4\nset scalefact 1\n'
                 'set nevents 3\nset iseed 11\nset use_syst False\nset systematics_program none\nset ickkw 0\ndone\n')
@@ -134,6 +135,8 @@ def pdf_spec(tmp_path, installed=True):
     record.parent.mkdir(parents=True)
     record.write_text(json.dumps({'schema_version': 1, 'steps': {'lhapdf-sets/sets': {
         'status': 'done', 'detail': {'sets': [name] if installed else [], 'data_path': str(data)}}}}))
+    from model_validation_fixture import scoped_evidence
+    scoped_evidence(g, tmp_path / 'pdf-validation')
     return spec, record, data / name
 
 
@@ -174,6 +177,14 @@ def ufo(path):
     (path / 'particles.py').write_text('n = Particle(pdg_code=1000022)\na = Particle(pdg_code=22)\n')
 
 
+def validated_generator_spectrum(g, base):
+    from model_validation_fixture import scoped_evidence
+    selected = base / 'validated-generator-card.dat'
+    document = ss.parse_slha(Path(g['parameter_card']).read_text())
+    selected.write_text(ss.write_slha(ss.generator_document(document, [1000039])))
+    scoped_evidence(g, base / 'spectrum-validation', selected_card=selected)
+
+
 def test_outside_model_without_stable_invisible_declaration_refuses():
     with pytest.raises(ValueError, match='stable and invisible'):
         ss.build(spectrum(invisible=False))
@@ -198,6 +209,7 @@ def test_scoped_plan_records_outside_model_and_keeps_full_shower_slha(tmp_path):
     full.write_text(ss.build(spectrum()))
     spec['generation'].update(parameter_card=str(full), process='p p > n1 n1',
                               decay_states={'stable': [1000039], 'invisible': [1000039], 'produced': [1000022]})
+    validated_generator_spectrum(spec['generation'], tmp_path)
     rd, g, plan, inputs = prepared(tmp_path, spec)
     assert plan['decay_states']['outside_model'] == [1000039]
     assert '1000039' not in (rd / g['parameter_card']).read_text()
@@ -221,6 +233,7 @@ def test_scoped_shower_plan_carries_tune_and_full_slha_without_a_native_probe(tm
              shower={'engine': 'pythia8', 'python': g['runtime']['python'], 'seed': 71,
                      'settings': [], 'tune': 'monash'})
     monkeypatch.setattr(scoped_shower, 'probe', lambda python: [])
+    validated_generator_spectrum(g, tmp_path)
     assert scoped_spec.validate(spec) == []
     rd, frozen, plan, inputs = prepared(tmp_path, spec)
     assert plan['shower_tune']['name'] == 'monash'

@@ -1,9 +1,7 @@
 # Continuously normalized dijet families
 
 This source implementation prepares ordinary regional likelihood and discrete
-background-population tasks. It does not run ROOT, fit data, select a family or
-qualify an analysis. The standalone legacy `shape_fit.py` midpoint/clipping
-implementation is not used by this route.
+background-population tasks. It emits source-bound construction requests under the regional mean-law contract.
 
 For a supplied mass `m`, energy scale `sqrt_s` and `q=m/sqrt_s`, the density is
 
@@ -24,12 +22,12 @@ the common Jacobian; both native integrals use the same dimensionless variable.
 The naming refers to the total rate-plus-shape parameter count. Rates and shape
 coefficients retain their supplied fixed flags, bounds, sources and meanings.
 The supplied complexity penalty counts every floating background coefficient,
-including the rate and each shape coefficient, consistently with other families.
+including the rate and each shape coefficient, consistently across the declared background models.
 
 Each bin receives its actual interval integral, with full-domain normalization.
 An absent `None` window contributes zero. Gaps retain unobserved mass; fractions
 are never renormalized to the observed windows. Different supplied regional
-observations may share a mass interval, but their existing declared Poisson
+observations can share a mass interval, but their existing declared Poisson
 partition must still justify distinct counts. This family does not infer that
 partition or remove contamination or signal/interference terms in control regions.
 
@@ -37,7 +35,7 @@ partition or remove contamination or signal/interference terms in control region
 
 The ordinary `ravel.physics.background_construction.construct(spec)` accepts a
 candidate family of the form below, inside a complete source-bound background
-specification. This example provides integration settings, not an experimental
+specification. This example provides integration settings, not an measurement
 fit specification:
 
 ```python
@@ -161,7 +159,7 @@ evaluations per integral invocation (32769 at the example's 16 steps, 524289 at
 20). This is not a ceiling for a fit, repeated integral calls, PDF normalization
 or total RooFit work. Existing task process budgets provide the execution ceiling.
 The integrator warns and returns its final estimate on nonconvergence; configured
-epsAbs/epsRel or RooFit success do not provide a certified error bound. Native
+Certified error bounds require a separately qualified numerical reference. Native
 diagnostics remain preserved by the existing adapter. Native parity/convergence
 qualification is required before scientific use.
 
@@ -179,10 +177,9 @@ lines 275..345; trapezoid evaluation counts, lines 390..416), and
 (configuration pointer, lines 90..150). The original source is provenance;
 configured runtime identity and behavior still require their own qualification.
 
-The conventional signed-coefficient mapping follows the functional form in
-the [CMS dijet-search presentation](https://indico.cern.ch/event/568360/contributions/2446908/attachments/1440404/2217258/CMS-dijet-searches_v4.pdf).
-The generalized degree cap and numerical envelopes are this implementation's
-explicit contract, not a claimed recommendation or experimental acceptance.
+The signed-coefficient mapping, generalized degree cap and numerical envelopes
+are explicit implementation contracts. A study binds its chosen functional form
+to supplied scientific sources and validates its applicability.
 
 Before scientific qualification, independently review source composition with
 floating-power and calibration-consumer changes; compare native persisted raw

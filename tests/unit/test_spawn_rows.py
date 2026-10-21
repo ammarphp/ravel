@@ -30,7 +30,7 @@ def test_each_planted_trigger_spawns(row, facts, role, count):
         assert any(r['role'] == 'normalization-auditor' for r in point['roles'])
         assert point['blind_to_producer_numbers']
     if row == 'K4':
-        assert point['min_model_families'] == 2
+        assert point['min_model_families'] == 1
     if row == 'K7':
         assert point['forbidden_method_nodes'] == ['n']
 
@@ -87,7 +87,7 @@ def test_data_catalogue_has_closed_row_identities():
     assert len({row['row'] for row in value['rows']}) == len(value['rows'])
 
 
-def test_candidate_receipts_require_multiple_families_and_custody(tmp_path):
+def test_XF06_same_family_candidates_require_custody_and_distinct_sessions(tmp_path):
     import hashlib
     import json
     from ravel.workflow import rdj_custody, review_points
@@ -108,13 +108,28 @@ def test_candidate_receipts_require_multiple_families_and_custody(tmp_path):
                'execution_mode': 'transport_attested_cli',
                'review_subject': review_points.review_subject(facts, point)}
         # The dispatcher assigns each worker session its actor at spawn and registers it with the receipt.
-        rec['actor_id'] = rdj_custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-' + str(index), f'{index}/1')['actor_id']
+        rec['actor_id'] = rdj_custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-' + str(index),
+                                                 f'{index}/1', family='alpha')['actor_id']
         path = work / 'receipt.json'; path.write_text(json.dumps(rec))
-    assert any(p['id'] == point['id'] for p in module().pending(tmp_path))
+    pending = next(p for p in module().pending(tmp_path) if p['id'] == point['id'])
+    assert pending['family_label'] == 'model family unknown' and not pending['family_diversity_pending']
     for path in (tmp_path / 'agent-work').glob('*/*/receipt.json'):
         index = path.parent.parent.name
         rdj_custody.register_worker_receipt(tmp_path, path.relative_to(tmp_path).as_posix(), verified_label='transport_attested',
-                                            actor=rdj_custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-' + index, f'{index}/1'))
+                                            actor=rdj_custody.actor_record('synthetic-cli', 'synthetic-model',
+                                                                         'ws-' + index, f'{index}/1', family='alpha'))
+    assert not any(p['id'] == point['id'] for p in module().pending(tmp_path))
+    filled = next(p for p in module().report(tmp_path) if p['id'] == point['id'])
+    assert not filled['pending'] and filled['family_label'] == 'single model family'
+    # Reusing a transport session cannot replace the third independent candidate.
+    path = tmp_path / 'agent-work' / '2' / '1' / 'receipt.json'
+    rec = json.loads(path.read_text())
+    rec['session_id'] = '1'
+    path.write_text(json.dumps(rec))
+    rdj_custody.register_worker_receipt(tmp_path, path.relative_to(tmp_path).as_posix(),
+                                      verified_label='transport_attested',
+                                      actor=rdj_custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-2',
+                                                                   '2/1', family='alpha'))
     assert any(p['id'] == point['id'] for p in module().pending(tmp_path))
 
 

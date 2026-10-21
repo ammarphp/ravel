@@ -10,7 +10,7 @@ a passing statistical regression does not establish experimental closure.
 Record the paper version, figure/table, data release, model states and branching
 fractions, collider energy, luminosity, observable, units, and normalization basis.
 Pair observed limits with observed references and expected limits with expected
-references, including the overlaid contours. Preserve the full planned population,
+references, including the overlaid contours. Preserve the full declared population,
 missing outputs, numerical bounds, and failed comparisons. Use exact published
 grid points for quantitative comparison. A residual in an upper limit is not an
 observed event excess.
@@ -44,7 +44,7 @@ diagnostic artifacts when deleting large event intermediates.
    there changes the simultaneous fit, even if its signal-region yields are
    identical. Removing signal-systematic/MC modifiers also changes the model.
    Use published benchmark patches for controlled omission tests; their nuisance
-   response cannot be transferred to a new model without supporting evidence.
+   response must not be transferred to a new model without supporting evidence.
 3. **Normalization and signal composition.** Write the complete yield equation
    `yield = luminosity * cross_section * branching_fraction * acceptance * efficiency`.
    Identify factors already included in cross section or event weights. Expand
@@ -73,7 +73,7 @@ diagnostic artifacts when deleting large event intermediates.
 7. **Generalization.** Freeze changes before evaluating held-out mass points,
    splittings, flavors and a second compatible model. If detector response is
    calibrated on benchmark limits, label those points as calibration data. They
-   cannot also establish out-of-sample accuracy. Use independent reference
+   requires separate evidence for out-of-sample accuracy. Use independent reference
    cutflows and object efficiencies where available.
 
 ## Design the next campaign
@@ -82,8 +82,8 @@ At the first inexpensive validation waypoint, record separate findings for rate,
 fitted-bin shape, per-bin MC precision, numerical validity and contour support.
 Include a figure on the same axes and color scale as the reference and inspect
 its contour, holes and isolated cells. A scalar limit or inclusive acceptance
-cannot establish shape agreement. If differential reference data or its
-covariance is unavailable, record that missing evidence and limit the claim;
+requires differential evidence to establish shape agreement. If differential reference data or its
+covariance is missing, record that missing evidence and limit the claim;
 do not invent an uncertainty or substitute agreement in one scalar statistic.
 This is a procedural review requirement, not a new automatic shape certificate.
 
@@ -101,11 +101,11 @@ only when the next experiment can distinguish remaining hypotheses. Do not tune
 a global signal scale or a color scale to make the reference map look correct.
 
 For a fresh control of a template-shape discrepancy, use the native `yields`
-adapter when a new likelihood fit cannot yet answer the diagnostic question.
+adapter for a diagnostic question with a declared descriptive comparison scope.
 Declare one driving bin or shape contrast before inspecting the new sample.
 Compare unit-normalized bin fractions with their normalization-induced
 covariance, alongside absolute yields and flavor components. Keep secondary
-scans descriptive. If an old effective seed or implementation cannot be recovered,
+scans descriptive. An exact historical replica requires the original effective seed and implementation; otherwise,
 label the run a current-code control rather than an exact historical replica;
 do not pool the samples under a false independence or equivalence claim.
 
@@ -126,4 +126,3 @@ Report signed residuals, absolute residuals, tails and regional breakdowns with
 MC precision, rather than only a median that can hide a bias or a red island.
 Certification requires the approved scope and complete evidence. An unresolved
 point remains unresolved, even when a neighboring point passes.
-

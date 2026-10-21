@@ -2,7 +2,7 @@
 
     guard ─► derive(review_points.pending at one ``when.at``) ─► fanout(item packets)
       ─► map(Send: one item per (point, role, n) of each ready point) ─► join ─► divergence ─► guard
-    nothing left to dispatch:  A finding ─► rca (skipped until rca.ticket is registered)
+    completed dispatch:        A finding ─► correction_required (evidence retained)
                                human approver ─► interrupt(checkin2|3_response) ─► gate
                                otherwise ─► gate(<point gate>)
 
@@ -21,18 +21,38 @@ import json
 from pathlib import Path
 from typing import TypedDict
 
-from .. import graph_nodes as nodes, graph_substrate
+from .. import graph_nodes as nodes, graph_registry, graph_substrate
 from ..agent_graph import GraphError
 from ..state_io import atomic_json, read_json
 
 POINTS = 'review.points'
 ITEM = 'review.item'
 MAX_ROUNDS = 6
-# Review rows 1, 4-8, 10, 11 and 14. Row 9 belongs to rca.ticket; RDJ and
-# protocol rows are satisfied by their own providers and graphs.
+ITEM_BUDGETS = {'max_turns': 60, 'max_wall_seconds': 3600, 'max_broker_calls': 400, 'max_cost_usd': None}
+# Review rows 1, 4-8, 10, 11 and 14 use the panel dispatcher. Investigation,
+# decision and protocol rows retain their dedicated providers and graphs.
 ROLES = ('analysis-author', 'discrepancy-attributor', 'figure-critic', 'integrity-auditor', 'normalization-auditor',
          'object-selection-mapper', 'physics-critic', 'physics-decider', 'plan-critic', 'skeptical-verifier',
          'trap-auditor')
+# Every seat the item graph can dispatch: the core panel plus each specialist seat the conditional
+# staffing catalogue adds. A finite source vocabulary keeps the graph's node declarations statically
+# enumerable; the test suite checks it against the catalogue, and dispatch_roles() routes installed seats.
+DISPATCH_ROLES = ('analysis-author', 'assumption-auditor', 'comparative-reviewer', 'discrepancy-attributor',
+                  'figure-critic', 'higgs-combination-reviewer', 'higgs-theory-uncertainty-auditor',
+                  'integrity-auditor', 'model-critic', 'normalization-auditor', 'object-selection-mapper',
+                  'physics-critic', 'physics-decider', 'plan-critic', 're-deriver', 'second-method-deriver',
+                  'skeptical-verifier', 'trap-auditor')
+
+
+def dispatch_roles():
+    """Installed specialist seats declared by the conditional staffing policy."""
+    from .. import role_registry, spawn_rows
+    installed = role_registry.registry_document()['roles']
+    conditional = {role['role'] for row in spawn_rows.catalogue()['rows']
+                   if row['mode'] == 'specialist' for role in row['roles']}
+    return tuple(sorted(set(ROLES) | (conditional & installed.keys())))
+
+
 GATES = ('approve_plan', 'checkin2_accept', 'correction', 'delivery', 'failed_stage_feedback', 'final_task',
          'launch', 'report_integrity')
 UNDISPATCHED_MODES = ('rdj', 'protocol', 'investigation')
@@ -40,6 +60,12 @@ FINDING_FIELDS = ('id', 'materiality', 'severity', 'evidence_class', 'evidence_l
                   'location', 'status')
 APPROVER = 'ravel.workflow.science.approve'
 PACKETS = 'review/packets'
+
+
+def dispatchable(point):
+    """Core panel seats and conditional specialist reviews use the review dispatcher."""
+    return (point['mode'] not in UNDISPATCHED_MODES
+            and (type(point['row']) is int or point['mode'] == 'specialist'))
 
 
 class State(nodes.BaseState, total=False):
@@ -125,16 +151,18 @@ def _a_findings(root, facts, point_ids):
 
 def derive(root, at, round_):
     """Pending points at ``at``, the items to dispatch this round, and the route."""
-    from .. import review_points
+    from .. import review_points, spawn_rows
     facts = review_points._facts(root)
     if facts.get('agent_layer_epoch') != 2:
         raise nodes.RecoveryHold('review_points_epoch_two_only',
                                  'epoch-one runs keep the legacy research-orchestrate review path')
-    every = [p for p in review_points.derive(facts) if p['when']['at'] == at]
-    pending = [p for p in review_points.pending(root) if p['when']['at'] == at]
+    every = [p for p in review_points.population(facts) if review_points.matches_at(p, at)]
+    require_roles(every)
+    pending = [p for p in [*review_points.pending(root), *spawn_rows.pending(root)]
+               if review_points.matches_at(p, at)]
     items = []
     for point in pending:
-        if point['mode'] in UNDISPATCHED_MODES or not point['ready']:
+        if not dispatchable(point) or not point.get('ready', True):
             continue
         subject = review_points.subject_digest(facts, point)
         evidence = (_receipt_findings(root, facts, set(point['depends_on'])) if point['depends_on'] else {})
@@ -142,9 +170,11 @@ def derive(root, at, round_):
             for n in range(1, entry['count'] + 1):
                 key = f"r{round_}:{point['id']}:{entry['role']}:{n}"
                 items.append({'key': key, 'point_id': point['id'], 'role': entry['role'], 'n': n, 'round': round_,
-                              'at': at, 'subject_sha256': subject, 'claim_id': point.get('claim_id'),
+                              'at': point['when']['at'], 'subject_sha256': subject, 'claim_id': point.get('claim_id'),
                               'node_id': point.get('node_id'), 'gate': point['gate'], 'mode': point['mode'],
                               'findings': evidence})
+                if isinstance(point['row'], str):
+                    items[-1]['policy'] = deepcopy(next(p for p in every if p['id'] == point['id']))
     a_findings = _a_findings(root, facts, {p['id'] for p in every})
     from .. import review_projection  # a divergence beyond tolerance is an A finding
     a_findings += review_projection.divergence_a_findings(root, {p['id'] for p in every if p['id'].endswith(':divergence')})
@@ -152,7 +182,7 @@ def derive(root, at, round_):
     if items:
         branch = 'dispatch'
     elif a_findings:
-        branch = 'rca'
+        branch = 'correction_required'
     elif not facts.get('delegated') and at.startswith('checkin2'):
         branch = 'checkin2'
     elif not facts.get('delegated') and at == 'checkin3':
@@ -162,8 +192,24 @@ def derive(root, at, round_):
     else:
         branch = 'unrouted'
     points = {p['id']: {'gate': p['gate'], 'mode': p['mode'], 'blocking': p['blocking'], 'missing': p['roles'],
-                        'ready': p['ready']} for p in pending}
+                        'ready': p.get('ready', True)} for p in pending}
     return {'points': points, 'items': items, 'branch': branch, 'findings': {'A': a_findings}}
+
+
+def require_roles(points):
+    """Resolve every applicable dispatched role before reserving or starting its panel."""
+    from .. import role_registry
+    missing = []
+    for identity in sorted({role['role'] for point in points if dispatchable(point)
+                            for role in point['roles']}):
+        try:
+            role_registry.load(identity)
+        except ValueError:
+            missing.append(identity)
+    if missing:
+        raise nodes.RecoveryHold('review_role_unavailable',
+                                 'Install the required specialist cards and their knowledge bindings: '
+                                 + ', '.join(missing))
 
 
 def _digest(value):
@@ -180,6 +226,8 @@ def write_packets(root, items):
     for item in items:
         packet = {'schema_version': 1, 'kind': 'review-item-packet', **{k: deepcopy(item[k]) for k in (
             'point_id', 'role', 'n', 'round', 'at', 'subject_sha256', 'claim_id', 'node_id', 'gate', 'findings')}}
+        if 'policy' in item:
+            packet['policy'] = deepcopy(item['policy'])
         path = root / packet_path(item)
         if not path.exists():
             atomic_json(path, packet)
@@ -199,14 +247,15 @@ def authentic_packet(root, rel, document):
     from .. import review_points
     fields = {'schema_version', 'kind', 'point_id', 'role', 'n', 'round', 'at', 'subject_sha256', 'claim_id',
               'node_id', 'gate', 'findings'}
-    if (type(document) is not dict or set(document) != fields or document['kind'] != 'review-item-packet'
+    if (type(document) is not dict or set(document) not in (fields, fields | {'policy'})
+            or document['kind'] != 'review-item-packet'
             or type(document['n']) is not int or type(document['round']) is not int):
         return False
     key = f"r{document['round']}:{document['point_id']}:{document['role']}:{document['n']}"
     if rel != packet_path({'key': key}):
         return False
     facts = review_points._facts(root)
-    point = next((p for p in review_points.derive(facts) if p['id'] == document['point_id']), None)
+    point = next((p for p in review_points.population(facts) if p['id'] == document['point_id']), None)
     entry = next((r for r in (point or {}).get('roles', []) if r['role'] == document['role']), None)
     if entry is None or not 1 <= document['n'] <= entry['count']:
         return False
@@ -215,10 +264,31 @@ def authentic_packet(root, rel, document):
                         'role': entry['role'], 'n': document['n'], 'round': document['round'],
                         'at': point['when']['at'], 'subject_sha256': review_points.subject_digest(facts, point),
                         'claim_id': point.get('claim_id'), 'node_id': point.get('node_id'), 'gate': point['gate'],
-                        'findings': evidence}
+                        'findings': evidence, **({'policy': point} if isinstance(point['row'], str) else {})}
 
 
-def worker_spec(root, item):
+def reservation_budget(root, instance):
+    """Bound all direct workers from the pinned population, including later dependent points.
+
+    Items do not reserve controller child steps. Their parent reserves this entire bound;
+    settlement sums authenticated item usage, including parallel worker seconds.
+    Token and cost usage have no per-item ceiling and retain M17's measured-after policy.
+    """
+    from .. import review_points
+    graph_registry.check_instance(graph_registry.get(POINTS), instance)
+    facts = review_points._facts(root)
+    if facts.get('agent_layer_epoch') != 2:
+        raise ValueError('review reservations require the pinned epoch-two population')
+    points = [point for point in review_points.population(facts) if review_points.matches_at(point, instance['at'])]
+    require_roles(points)
+    items = sum(role['count'] for point in points if dispatchable(point)
+                for role in point['roles'])
+    workers = MAX_ROUNDS * items
+    return {'wall_seconds': workers * ITEM_BUDGETS['max_wall_seconds'],
+            'model_calls': workers * ITEM_BUDGETS['max_turns'], 'children': max(1, workers)}
+
+
+def worker_spec(root, item, *, invocation=None):
     """The governed reviewer worker for one item; credit is checked by review_points, not here."""
     from .. import review_points, role_registry
     card = role_registry.load(item['role'])
@@ -226,14 +296,15 @@ def worker_spec(root, item):
     preferences_path = root / 'inputs/agent_preferences.json'
     preferences = read_json(preferences_path) if preferences_path.exists() else {}
     preference = preferences.get('transport_preference') if type(preferences) is dict else None
-    return {'schema_version': 1, 'kind': 'agent-worker-spec', 'node_id': 'review-' + _digest(item['key'])[:24],
+    identity = item['key'] if invocation is None else {'item': item['key'], 'parent': invocation}
+    return {'schema_version': 1, 'kind': 'agent-worker-spec', 'node_id': 'review-' + _digest(identity)[:24],
             'attempt': 1,
             'role': {'id': card['id'], 'version': card['version'], 'card_sha256': role_registry.card_sha256(item['role'])},
             'transport_preference': list(preference) if type(preference) is list and preference else ['default'],
             'inputs': [{'pin': {'path': packet_path(item), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()},
                         'as': 'inputs/review-packet.json'}],
             'declared_outputs': [{'path': 'outputs/review.json', 'kind': 'review-findings', 'required': True}],
-            'budgets': {'max_turns': 60, 'max_wall_seconds': 3600, 'max_broker_calls': 400, 'max_cost_usd': None},
+            'budgets': deepcopy(ITEM_BUDGETS),
             'final_record_schema': 'reviewer.v1', 'work_order': None, 'rdj_challenges': None,
             # The subject rides on the dispatch, so the worker writes a version-2 receipt that can earn credit.
             'parent': {'review_point_id': item['point_id'], 'map_id': 'review:' + item['at'], 'rca_ticket': None,
@@ -339,10 +410,12 @@ def build_item(ctx):
     run = ctx.scope_root
     _standard(builder, ITEM, 'review_item_hold')
     paths = {}
-    for role in ROLES:
+    roles = dispatch_roles()
+    for role in DISPATCH_ROLES:
         name = role.replace('-', '_')
         paths[role] = name
-        agent = nodes.agent('review.worker', rundir=run, spec=lambda s: worker_spec(Path(run), s['item']),
+        agent = nodes.agent('review.worker', rundir=run, spec=lambda s: worker_spec(Path(run), s['item'],
+                            invocation=ctx.extras.get('worker_usage_binding')),
                             segment=lambda s: {'point': s['item']['point_id'], 'round': s['item']['round'],
                                                'role': s['item']['role'], 'n': s['item']['n']},
                             packet=lambda s: _projection(run, s['item']),
@@ -357,7 +430,7 @@ def build_item(ctx):
                                                  'register the role in review.item before dispatching it'), graph_id=ITEM)
     paths['unregistered'] = 'unregistered'
     nodes.connect(builder, START, nodes.route(
-        lambda s: s['item']['role'] if s['item']['role'] in ROLES else 'unregistered', paths))
+        lambda s: s['item']['role'] if s['item']['role'] in roles else 'unregistered', paths))
     return builder
 
 
@@ -365,7 +438,8 @@ def build(ctx):
     from langgraph.graph import END, START, StateGraph
     builder = StateGraph(State)
     add = lambda name, node: nodes.add(builder, name, node, graph_id=POINTS)
-    child_ctx = graph_substrate.BuildContext(ctx.scope_root, ITEM, 1, ctx.instance, extras=ctx.extras)
+    child_ctx = graph_substrate.BuildContext(ctx.scope_root, ITEM, graph_registry.get(ITEM)['version'],
+                                             ctx.instance, extras=ctx.extras)
     child = graph_substrate.build(ITEM, child_ctx)
     _standard(builder, POINTS, 'review_point_pending')
 
@@ -379,14 +453,22 @@ def build(ctx):
     def derive_node(state):
         return {**derive(_root(state), _at(state), state.get('round', 0)), 'round': state.get('round', 0)}
     add('derive', nodes.Node('effect', derive_node))
-    routes = {'dispatch': 'fanout', 'rca': 'rca', 'checkin2': 'checkin2', 'checkin3': 'checkin3',
+    routes = {'dispatch': 'fanout', 'correction_required': 'correction_required', 'checkin2': 'checkin2', 'checkin3': 'checkin3',
               'unrouted': 'hold', **{g: 'gate_' + g for g in GATES}}
     nodes.connect(builder, 'derive', nodes.route(lambda s: s['branch'], routes))
+
+    def publish_items(state, identity):
+        written = write_packets(_root(state), state['items'])
+        record = ctx.extras.get('record_worker_items')
+        if callable(record):
+            record([{'spec': worker_spec(_root(state), item, invocation=ctx.extras.get('worker_usage_binding')),
+                     'graph': {'id': ITEM, 'version': child_ctx.version}} for item in state['items']])
+        return written
 
     add('fanout', nodes.effect('review.packets', kind='journal',
         segment=lambda s: {'round': s['round']},
         identity=lambda s: {'at': _at(s), 'items': _digest(s['items'])},
-        run=lambda s, identity: write_packets(_root(s), s['items']),
+        run=publish_items,
         to_state=lambda s, result: {}))
     edge, mapped = nodes.map_node(lambda s: s['items'], lambda item: item['key'], child,
                                   lambda s, item: {'item': item}, name='review_item')
@@ -408,14 +490,8 @@ def build(ctx):
     builder.add_edge('divergence', 'guard')
     builder.add_edge('join', 'divergence')
 
-    def rca(state):
-        # Until rca.ticket is registered, the routing is recorded, never silently passed.
-        return {'results': {'rca:' + str(state['round']): {
-            'status': 'skipped', 'reason': 'awaits rca.ticket', 'findings': state['findings']['A']}}}
-    add('rca', nodes.Node('effect', rca))
-    add('rca_hold', nodes.hold('rca_ticket_required', 'investigate the A finding through rca.ticket, '
-                               'then a correction and re-review of the affected points'))
-    builder.add_edge('rca', 'rca_hold')
+    add('correction_required', nodes.hold('review_correction_required',
+        'Record a correction for the evidence-bearing findings, then re-review the affected subjects.'))
 
     for schema_id, gate_name in (('checkin2_response', 'checkin2_accept'), ('checkin3_response', 'final_task')):
         name = schema_id.split('_')[0]

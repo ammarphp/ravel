@@ -273,6 +273,22 @@ def lease_scope(state_root=None, *, environ=None, cgroup_text=None, mounts_text=
     return {'kind': 'machine', 'key': None}
 
 
+def cpu_grant():
+    """The CPUs this process may use now: its affinity set (Linux) or the online processors.
+
+    A Slurm allocation this process provably runs in (``slurm_allocation``) narrows the grant to
+    its ``SLURM_CPUS_PER_TASK``. A confined launch may never ask for more than this.
+    """
+    try:
+        cpus = sorted(os.sched_getaffinity(0))
+    except AttributeError:
+        cpus = list(range(os.cpu_count() or 1))
+    value = os.environ.get('SLURM_CPUS_PER_TASK', '')
+    if value.isdigit() and 0 < int(value) < len(cpus) and slurm_allocation() is not None:
+        cpus = cpus[:int(value)]
+    return cpus
+
+
 def allocation_identity():
     """The host or Slurm allocation a cluster lease stands for, for receipts; None outside a cluster scope."""
     current = scope()
@@ -298,7 +314,20 @@ def allocation_identity():
 
 
 def _state_root_path():
-    return Path(pwd.getpwuid(os.getuid()).pw_dir) / '.local/state/ravel/machine'
+    try:
+        home = pwd.getpwuid(os.getuid()).pw_dir
+    except KeyError:
+        # A confined launch: its uid has no entry in the sandbox's password database. Its state root is
+        # the persistent directory its controller declared for this child (RAVEL_LAUNCH_STATE: the
+        # child's lease, custody and steering records across the run's launches), else the launch's
+        # private HOME. The governing lease is its controller's.
+        declared = os.environ.get('RAVEL_LAUNCH_STATE')
+        if declared and os.path.isabs(declared):
+            return Path(declared) / 'machine'
+        home = os.environ.get('HOME')
+        if not home or not os.path.isabs(home):
+            raise ValueError('no state root: the password database names no home for this uid and HOME is unset')
+    return Path(home) / '.local/state/ravel/machine'
 
 
 def _resolve():

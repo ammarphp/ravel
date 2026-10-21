@@ -12,7 +12,7 @@ Use a schema2 scientific specification with mode `svj-recipe`, task
 `{"input":"/absolute/request.json"}`, the current closed review policy, and
 `goal_binding` equal to the request's parent binding. Prepare it with
 `ravel plan --rundir RUN --spec SPEC`; read `ravel status --rundir RUN --write`.
-Each worker and each future child requires the ordinary actual CHECK-IN 1,
+Each worker and each subsequent child requires the ordinary actual CHECK-IN 1,
 method-decision admission, launch guard and source-qualified runtime.
 Preparation grants no execution permission.
 
@@ -48,7 +48,7 @@ The closed schema1 document contains `study_id`, `source`, `goal_binding`,
   presentation file in the fresh destination. The internal custody receipt and
   complete source-generated child files remain independently authenticated.
 
-Resource admission currently bounds the request to 32 model points, 128 cells,
+Resource admission bounds the request to 32 model points, 128 cells,
 4096 expanded files and 200 MiB of source inputs. Generated members are bounded
 individually and the complete successful delivery remains within 128 MiB.
 These are engineering ceilings, never physical reference populations.

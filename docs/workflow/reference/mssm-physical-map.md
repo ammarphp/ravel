@@ -35,7 +35,7 @@ four-neutralino/two-chargino identities, every original SLHA line and every
 MASS/DECAY record. It records the explicit mixing scale and prescription, checks
 the complete N/U/V matrix census within a declared engineering band, and retains
 other mixing blocks without interpreting or filling them. Squared mixing entries
-are basis diagnostics. They do not supply rates, branching models or efficiencies.
+are basis diagnostics. Supply rates, branching models and efficiencies as separate source records.
 The sign and complex-phase conventions follow
 [SLHA1](https://arxiv.org/pdf/hep-ph/0311123) and
 [SLHA2](https://arxiv.org/pdf/0801.0045). The exact-header QNUMBERS reader preserves
@@ -54,7 +54,7 @@ resonant decay phase space.
 
 An `accepted_cmssm_spectrum` origin must pass the existing current accepted-review
 gate and bind the genuine generated CMSSM return and original solver-input hash.
-It cannot relabel an NMSSM result as a general MSSM solver. Supplied spectra use
+It must not relabel an NMSSM result as a general MSSM solver. Supplied spectra use
 `supplied_unqualified`. Neither route certifies spectrum or decay accuracy.
 
 `ravel mssm-physical-map --request <request> --llp-template <template>
@@ -62,7 +62,7 @@ It cannot relabel an NMSSM result as a general MSSM solver. Supplied spectra use
 The original complete Cartesian template must have explicit identity and
 `spectrum_total_width` lifetime placeholders. Rates, production/decay identities,
 luminosities, scenarios, all cells, masks, response/cohort records, child budgets
-and original goal binding survive. A prior cohort or response cannot be relabelled
+and original goal binding survive. A prior cohort or response must not be relabelled
 to a new point identity. Missing or stable lifetimes used by an LLP component
 produce an explicit blocked handoff without invented finite decay lengths.
 

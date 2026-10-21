@@ -1,4 +1,7 @@
-# Ravel package, intake, and locked environment
+# Command-line reference
+
+The [parser reference](cli/commands.md) enumerates every command, subcommand and
+option from source. This page explains common workflows and command families.
 
 The distribution name is `ravel-hep`; the import and command are `ravel`. Use Python 3.12 for the complete host and required isolated SModelS/SFitter setup. The host supports Python 3.11–3.12.
 
@@ -11,6 +14,8 @@ ravel --help
 ```
 
 The installer prepares `.venv`, `.venv-smodels` and `.venv-sfitter` using the complete requirements. An existing activated host can install the host environment with `python -m pip install -r requirements-full.txt` from the repository root; that file also installs RAVEL itself. Follow the [ordered installation guide](installation.md) for required native engines, source packages, model access and the research Host. The installed `ravel` command and `python -m ravel` use the active environment from any working directory.
+
+The installer ends by sealing the installed package into the read-only runtime that controller mode admits ([governed runtime](installation.md#the-governed-runtime)). `ravel governed-runtime seal` copies the imported `ravel` package into `<controller home>/runtime/<id>/`, writes its seal record `SEAL.json` and its launcher `bin/ravel`, removes every write bit and makes it the current runtime; sealing the same bytes again reuses it. `ravel governed-runtime status` prints the current runtime, whether it holds the imported package and the admission `ravel ask` and `ravel drive --request-file` would get, and exits with status 1 when that admission refuses. Run `ravel governed-runtime seal` again after every upgrade of the package.
 
 The hash-locked Python environment in `requirements-replay.lock` pins the statistics layer
 (pyhf, NumPy, SciPy) for Python 3.12 and is the environment CI uses for its test suite.
@@ -34,6 +39,64 @@ Installed source catalogues inspect the imported `ravel` package. An explicit
 `--source-root` still names a checkout containing `src/ravel`; it never falls back to
 another installation if that selected checkout is missing or changed.
 
+## Work-command outcomes
+
+```bash
+ravel drive --resume <run-id> --require-complete --outcome-file <new-outcome.json>
+```
+
+Use `--require-complete` with any public `ravel` command to select delivery-aware exit codes.
+`--outcome-file` writes a private JSON record at a new path with an existing parent, outside run and store directories.
+
+| Outcome | Exit with `--require-complete` | Meaning |
+|---|---:|---|
+| `delivered_accepted` | 0 | Current verified receipt accepts the delivery |
+| `qualified` | 10 | Delivery carries qualifications |
+| `held` | 11 | A prerequisite remains; read `next_action` |
+| `refused` | 2 | Invocation or custody requirements require correction |
+| `failed` | 1 | Execution failed; inspect the diagnostic evidence |
+
+Controller `drive` and `ask` responses include `outcome`: `schema_version`, `status`,
+`reason_code`, `reason`, `run_id`, `evidence`, `next_action` and `require_complete_exit_code`.
+Standalone tool completion reports `held` until a controller delivery receipt establishes acceptance.
+
+The worker MCP server preserves each broker reply and its receipt, including a
+typed retrieval refusal, and serves subsequent workspace calls in the same
+session. Literature presentation uses the authenticated output bytes and the
+shared envelope bound; schema validation runs at the serving boundary.
+
+Ordinary commands retain their existing exits by default, including exit 0 for a normal waiting
+or qualified return. Interruption exits 130; parser errors exit 2. Full tracebacks stay in private diagnostic files.
+
+See [private runs and sharing](workflow/run-directory.md#private-runs-and-sharing),
+[classified inputs and network access](workflow/reference/provider-policy.md), and
+[backup and restore](workflow/run-directory.md#export-and-restore).
+
+## Choosing models
+
+Run `ravel setup-models` to choose `premium`, `balanced` or `economy` spending.
+Use `ravel setup-models --yes` for the balanced default. Detect and adopt available
+configuration, then inspect a prospective estimate:
+
+```sh
+ravel models detect --adopt --yes
+ravel setup-models
+ravel models estimate --preset balanced
+```
+
+Add `--usage-context account-usage.json` and repeat `--prior-run RUN_ID` to choose
+models using account plans, remaining capacity, reset windows and measured prior-run
+demand. `--prior-usage usage.json` accepts an exported model-cost record. The private
+recommendation receipt retains input digests and unknown usage components. See
+[usage-aware setup](reference/model-usage-setup.md) for the snapshot fields and
+installation startup options.
+
+Maintain model metadata and prices in `.ravel/models/catalogue.json`, or select a
+catalogue overlay with `RAVEL_MODEL_CATALOGUE`. Estimates are uncached upper
+bounds for the stated workload; unknown prices stay unknown. See
+[Choosing models](reference/transports.md#choosing-models) for the selection and
+transport boundaries.
+
 ## Discover public analysis routines
 
 These commands read a routine catalogue: the file `RAVEL_ANALYSIS_CATALOG` names, the one
@@ -45,7 +108,7 @@ requirements:
 
 ```sh
 ravel analyses summary
-ravel analyses list --experiment CMS --query "Drell"
+ravel analyses list --query "lepton"
 ravel analyses list --framework simpleanalysis --family long-lived --json
 ravel analyses show rivet:SYN_9015_I1254
 ravel analyses check-source <routine-name> --source /path/to/simple-analysis
@@ -153,7 +216,7 @@ For generation-only or supplied-likelihood calculations, the supported sequence 
 `initiate` → `plan --spec` → `approve` → `run` → `status`. Use
 `compare-recipes --left --right` before treating two controls as the same physics calculation.
 See the [scoped workflow guide](workflow/reference/scoped-workflows.md) for exact specifications,
-scripted experimental approval, output artifacts, one-attempt budgets and capability gaps.
+scripted measurement approval, output artifacts, one-attempt budgets and capability gaps.
 The commands work from an installed wheel; generation needs a supplied native MadGraph runtime.
 
 ```sh
@@ -185,13 +248,13 @@ Exact accepted products can be checked with `python -m ravel.workflow.physics_re
 The explicit API `physics_review.snapshot(root, action='reuse', retained_study=True)`
 returns the existing schema1 snapshot only after the same fresh immutable validation and
 original policy's accepted scope/action check. Holds and changed evidence refuse. This
-opt-in path cannot admit bulk work, corrections, hold lifts or new computation; consumers
+opt-in path must not admit bulk work, corrections, hold lifts or new computation; consumers
 still need their own new plans. Omitting the option preserves normal current-study gates
 and admission. Pending-role submission remains limited to awaiting_review/send_back.
 
 The packet is a view, not permission or a scientific certificate. Executors and serving gates
 revalidate the original artifacts. Do not edit the packet to unblock work or rerun intake to resume.
-Exit 0 means the packet was derived; lifecycle blockers or absent approval may still be present.
+Exit 0 means the packet was derived; lifecycle blockers or absent approval can still be present.
 Exit 1 indicates invalid execution evidence; input/command errors exit 2.
 
 `python -m ravel.validation.check_status_packet /path/to/existing-run` regenerates the packet from
@@ -220,7 +283,9 @@ ravel result-pack --rundir /path/to/run --stat-mode <mode> --detector-mode <mode
 Hook governance covers Claude Code only. `ravel result-pack` refuses generation output that has no
 approved launch record and records the host's enforcement in `result.json`. A pack that delivers absolute SR yields needs
 `--normalization-ledger <file in the run>`; the pack pins the ledger and the delivery checks recompute
-the delivered yields from it. Without a ledger the pack is refused. `ravel stage`,
+the delivered yields from it. Without a ledger the pack is refused.
+`--delivery-label diagnostic|governed|accepted`, default `diagnostic`; non-diagnostic requests fail
+closed against current custody. `ravel stage`,
 `ravel scan`, `ravel cost`, `ravel trap-sweep` and `ravel certify` run the corresponding stage
 supervisor, scan orchestrator, cost preflight, trap sweep and acceptance certification.
 
@@ -291,8 +356,7 @@ python -m ravel.validation.check_agent_paths census --write   # after editing a 
 `--mode block_new` fails on a bypass missing from the baseline. `--mode empty` fails until the
 baseline is empty. A static census is not proof that no dynamic path escapes. With
 `RAVEL_AGENT_TRIPWIRE=1`, the lowest layers refuse calls made outside a substrate node.
-`report` records those calls without refusing them. Gates G1-G7 are not yet available
-through this command.
+`report` records those calls. This command exposes gate G8.
 
 ## Supplied-data scientific studies
 
@@ -463,8 +527,7 @@ native weight selection or scientific qualification.
 [`pdf-variations`](workflow/reference/pdf-variations.md) studies. This first
 operation reweights supplied LO parton records across all members of one pinned
 NNPDF replica set with fixed supplied response. PDF ensemble and nominal finite-MC
-covariances remain distinct. It does not provide NLO counterterms, scale or
-alpha_s variations, authenticated generator extraction or physics acceptance.
+covariances remain distinct. The operation uses the supplied LO response and pinned replica-set basis.
 
 ## Analysis challenges and submissions
 
@@ -506,7 +569,7 @@ are preserved; this option does not initialize or rerun science, waive failed
 stages, accept a claim, or allow empty scientific check evidence.
 
 Approved generated marker families expand only to their exact committed zero
-members and retain the source-defined family proof. Fresh SFitter specs may
+members and retain the source-defined family proof. Fresh SFitter specs can
 call `sfitter_native.source_output_policy(task, base)` before planning to bind
 the exact eight empty copies from released upstream commit 6072a79e. The source
 must be captured as a singleton approved stage input; the copied output path
@@ -591,7 +654,7 @@ Use ordinary schema2 mode `symbolic-evaluation` for reviewed, source-bound Wolfr
 
 ### Native source-graph diagnostics and calibration
 
-Ordinary `native-statistical-construction` cells may explicitly declare fixed-NLL
+Ordinary `native-statistical-construction` cells can explicitly declare fixed-NLL
 derivatives or full-auxiliary fixed-truth calibration. Read the [source graph
 diagnostics and calibration contract](reference/source-graph-diagnostics-calibration.md)
 before preparing these studies. Observed data, explicitly generated Asimov data,
@@ -632,8 +695,12 @@ ravel backend prepare --spec stage.json --out stage-plan.json
 ravel backend handles --rundir RUN        # jobs of a run, with their state
 ravel backend recover --handle DIR        # adopt an interrupted job; never resubmits
 ravel partitions run --rundir RUN --stage parts --spec partitions.json --workdir W --merge  # supervised, approved stage only
-ravel site doctor --profile lxplus --eos-dir /eos/user/a/me/work
+ravel site doctor --profile generic --runs-dir /work/ravel/runs
+ravel site init --seed generic --scheduler auto --network auto   # observe this host once; save the site profile
+ravel site show                                                   # the saved site profile
+ravel site doctor --site-profile active                           # check the saved site settings
 ravel site study-job submit --rundir RUN --account A --partition P --cpus 16 --time 720 -- AGENT ...  # one study per Slurm job
+ravel site study-job submit --scheduler htcondor --universe local --rundir RUN --cpus 4 --time 5760 -- AGENT ...  # one HTCondor driver job
 ravel ntuples resolve --declaration samples.json --out resolved.json
 ravel ntuples normalize --resolved resolved.json --out dataset.json \
   --xsec-db xsec.txt --xsec-descriptor xsec-columns.json --lumi lumi.json --bookkeeper bookkeeper.json
@@ -641,8 +708,8 @@ ravel ntuples normalize --resolved resolved.json --out dataset.json \
 
 Run a backend plan through `stage_supervisor --backend-plan`; machine, image and
 launch commands are dry runs until `--execute`. `ravel site study-job` runs a whole
-study, agent included, inside one Slurm allocation; heavy rungs need the run's
-approval ([batch allocations](reference/batch-allocations.md)). `backend launch --execute` and
+study, agent included, inside one Slurm allocation or one HTCondor job; heavy rungs need the
+run's approval ([batch allocations](reference/batch-allocations.md)). `backend launch --execute` and
 `partitions run` run only as supervised stages of an approved run. Science and
 scoped specifications place their stage with `execution.backend_plan`.
 
@@ -656,7 +723,7 @@ ravel figure measurement --spec overlay.json --out overlay/      # data, predict
 ravel figure plan --task task.json                               # files a figure-comparison study reads
 ```
 
-Inside a run, the `figure-comparison` scientific study runs these as planned operations.
+Inside a run, the `figure-comparison` scientific study runs these as declared operations.
 See [figures and comparison](reference/figures-and-comparison.md).
 
 ## Command index
@@ -679,6 +746,7 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel research-protocol` | Bind staged research protocols and prepare comparison studies |
 | `ravel intake-plan` | Prepare and record the designer choice for a calculation intake |
 | `ravel task-completion` | Inspect coverage of the original task or require whole-task acceptance |
+| `ravel output-contract` | Read the output paths a request declares, or check a run's declared deliverables now |
 | `ravel fill-template` | Fill a supplied result template from an accepted result |
 | `ravel figure` | Digitise published figures and draw parameter-plane and measurement figures |
 | `ravel compare` | Compare a result with a reference under declared transformations and tolerances |
@@ -716,7 +784,7 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel root-stream` | Inspect a site ROOT sample, DSID and weight contract |
 | `ravel site-workflow` | Export prepared studies for a site analysis and WMS profile |
 | `ravel wms adopt`, `adopt-run`, `adopt-status` | Pin an external Snakefile, plan its approved inspection and its supervised run, and show the state of an adoption |
-| `ravel site` | Check Linux analysis-site readiness, print a no-root install plan and run one study per Slurm allocation |
+| `ravel site` | Check Linux analysis-site readiness, save and show a reusable site profile, print a no-root install plan and run one study per Slurm allocation |
 | `ravel study-grid` | Submit, observe, resume and harvest a finite grid of prepared studies, each cell in its own batch allocation ([batch allocations](reference/batch-allocations.md)) |
 | `ravel ntuples` | Resolve grid datasets into ROOT members and build MC normalization |
 | `ravel backend` | Inspect execution backends, prepare plans, and follow, recover or cancel backend jobs |
@@ -772,12 +840,18 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel graph` | Run, observe, answer and drain registered agent graphs (`run`, `status`, `stop`, `respond`, `events`, `list`) |
 | `ravel check:event_accounting` | Reconcile event counts and signed moments under declared transformations |
 | `ravel lease` | Show the machine lease holder, run the read-only preflight of earlier jobs' live processes and clear an operator fence |
+| `ravel governed-runtime` | Seal the installed RAVEL into the read-only runtime controller mode admits (`seal`), or show the current runtime and the admission decision (`status`) |
 | `ravel gate-wiring` | Record CHECK-IN responses (approve, reopen, withdraw) and steering in custody, and report RDJ cost |
 | `ravel steer` | Record steering through gate-wiring |
 | `ravel respond` | Record responses through gate-wiring |
 | `ravel research-preregister` | Derive and record the research preregistration from an approved CHECK-IN 1 plan |
 | `ravel method-decision` | Validate and render the cheapest sufficient method in CHECK-IN 1 |
 | `ravel literature` | Check evidence cards, follow located citations and code commits, and resolve publication titles |
+| `ravel literature search\|get-paper\|locate\|list-papers\|compare-measurements` | Retrieve located literature candidates through the governed broker action from the installation's admitted index (`--rundir RUN --request ARGS.json`); an unconfigured installation refuses with a receipted `retrieval_unavailable` |
+| `ravel literature replay\|audit` | Supervisor replay of a delivered literature result (`--serving-id`) and the custody audit of a run's literature calls |
+| `ravel literature models inspect\|prefetch\|qualify` | Inspect, fetch (the only networked step) or qualify the pinned local literature models |
+| `ravel literature-query` | Expand a literature search query with the curated notation and synonym vocabulary (deterministic; no model call) |
+| `ravel literature-score` | Prepare governed relevance scoring of served literature passages and assemble its record (no model call here) |
 | `ravel catalogue` | Build the local analysis catalogue from your Rivet and SimpleAnalysis checkouts |
 
 Run `ravel <command> --help` for each command's arguments.

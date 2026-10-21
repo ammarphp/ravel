@@ -3,11 +3,9 @@
 Anyone holding a completed ordinary science run, or a submission package with its `run/`
 records, can run it again and get a comparison receipt. The replay is a new run with its own
 plan, its own approval and its own attempt. It never reuses the original approval or reopens a
-spent attempt. The comparison checks declared quantities, not bytes. Agreement shows that the
-run reproduces; it does not validate the physics.
+spent attempt. The comparison checks declared quantities, not bytes. Agreement establishes reproduction of the declared quantities. Physical validity requires the applicable scientific review.
 
-(`ravel replay` needs one of the operation words below; the earlier bundled re-fit is
-no longer shipped.)
+Use `ravel replay` with one of the operation words below.
 
 ## 1. Prepare
 
@@ -29,7 +27,7 @@ the mode, the limits and the Python version. The run-directory, base-directory a
 locations are replaced by placeholders before the comparison. The interpreter binary, platform,
 package census and environment digests are not compared; differences in them are recorded under
 `disclosed_differences` in `replay-of.json` and shown at CHECK-IN 1 with their original and
-replay values. Any other difference refuses the replay and removes the freshly planned
+replay values. Any other difference refuses the replay and removes the freshly declared
 directory. Correct the cause and repeat `prepare` into the same target. A refused preparation
 leaves no CHECK-IN claiming an identical plan.
 
@@ -120,8 +118,8 @@ ignored by name, including durations and process identifiers. Keys `generated`, 
 Suffix rules `_utc`, `_at`, `_timestamp`, `_uuid` and `_pid` apply only to string values.
 A number, boolean, list or object is never ignored by its key below the top level. To ignore
 a duration or process id elsewhere, declare its JSON pointer and reason in the tolerance file.
-An `ignore` pointer must be non-empty; `""` cannot suppress the whole document. A statistical
-quantity pointer may be the root pointer. A seed is skipped and listed, never compared, so a
+An `ignore` pointer must be non-empty; `""` must not suppress the whole document. A statistical
+quantity pointer can be the root pointer. A seed is skipped and listed, never compared, so a
 `seed_pointer` must name the recorded seed only: the tolerance file is refused when a seed
 pointer is empty or covers a sampled quantity of its document.
 
@@ -147,7 +145,7 @@ A sampled quantity without a recorded seed in either run is reported as
 `not comparable: seed not recorded`, never as equal. The receipt is written to
 `<replay>/replay-comparison.json`, or to `--out`. Its `verdict` is `equal`, `equal_json_only`,
 `mismatch` or `not_comparable`, and it always carries `physics_validated: false`.
-`equal` requires at least one compared leaf. Empty documents cannot establish equality.
+`equal` requires at least one compared leaf. The comparison requires a nonempty leaf population.
 If every leaf of a nonempty paired document is suppressed by declared ignore rows or seed
 pointers, the receipt reports `not_comparable` and names that document, even when other
 documents have compared leaves.

@@ -49,6 +49,48 @@ def _utc():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _controller_owned(rundir):
+    """Use the binding owner index; an unreadable ownership claim never falls back."""
+    try:
+        from ravel.controller.store import controller_owned
+    except ModuleNotFoundError as exc:
+        if exc.name != 'ravel.controller.store':
+            raise
+        path = Path(rundir).absolute()
+        if any((parent / 'controller-run.json').exists() or (parent / 'controller-run.json').is_symlink()
+               for parent in (path, *path.parents)):
+            raise ValueError('controller ownership cannot be verified without its store interface') from None
+        return None
+    return controller_owned(Path(rundir))
+
+
+def controller_submission(jobscript, submit, *, run_id=None, launch_id=None,
+                          profile_sha256=None, resource_defaults=None, authorized_tasks=None):
+    """One final capability admission followed by submission of the frozen bytes.
+
+    The site-profile owner may use this boundary where its ordinary guarded
+    submit adapter is not already installed. Calling both would consume two
+    admissions, so integration selects exactly one final guard. The returned
+    scheduler handle is journalled in the controller store of the trusted launch
+    (``study-site-job``) so reconciliation can observe and drain it; that record
+    is custody of the handle, not evidence that the job ran or succeeded.
+    """
+    from ravel.controller.routes.study.site import record_submission, require_capability
+    admission = require_capability(jobscript, run_id=run_id, launch_id=launch_id,
+        profile_sha256=profile_sha256, resource_defaults=resource_defaults, authorized_tasks=authorized_tasks)
+    snapshot = Path(admission.get('snapshot_path', ''))
+    expected = admission.get('jobscript_sha256')
+    if (not snapshot.is_absolute() or snapshot.is_symlink() or not snapshot.is_file()
+            or any(parent.is_symlink() for parent in snapshot.parents)
+            or hashlib.sha256(snapshot.read_bytes()).hexdigest() != expected):
+        raise ValueError('the capability verifier must supply the exact frozen submission script')
+    if not callable(submit):
+        raise TypeError('the trusted scheduler submission primitive must be callable')
+    job = submit(snapshot)
+    record_submission(admission, job)
+    return job
+
+
 def _project(project):
     return Path(project).expanduser().absolute().resolve()
 
@@ -381,6 +423,11 @@ def launch(project, task, cores=1, *, jobs=None):
                  f'{wf / "profiles"} would be loaded by Snakemake as a workflow profile that no pin covers; a profile '
                  'rewrites the launch (dry run, executor, submit command): move it out of the project workflow')
     entry, _, _ = _parse_inputs(wf, task)
+    controller_run = _controller_owned(entry['rundir'])
+    if controller_run is not None:
+        from ravel.controller.routes.study.site import active_launch
+        core.require(active_launch(run_id=controller_run),
+                     'a controller-owned workflow requires its trusted per-launch capability context')
     # A run dir that lost its method decision is refused by name, before its plan is read or Snakemake starts.
     method_selection.require_launch(entry['rundir'])
     site_workflow.verify(entry['export']['path'], entry['export']['sha256'])
@@ -448,7 +495,8 @@ def launch(project, task, cores=1, *, jobs=None):
                'start_utc': start, 'end_utc': end, 'exit_code': code, 'parse_inputs': parse, 'snakemake_profile': profile,
                'completion_marker': None, 'dispatch_records': [], 'snakemake_locks_present_during_step': [],
                'log': site_workflow._pin(folder / f'{number:06d}.log'), 'incomplete': None,
-               'records': 'delivery only', 'scientific_acceptance_inferred': False}
+               'records': 'delivery only', 'scientific_acceptance_inferred': False,
+               'governance': 'controller' if controller_run is not None else 'NOT GOVERNED'}
     if site:
         receipt['scheduler_submissions'] = []
         for path in sorted({p for root in submit_roots for p in root.glob('submit-*/receipt.json')} - submit_before):

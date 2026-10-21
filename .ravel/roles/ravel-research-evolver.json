@@ -62,7 +62,7 @@
     },
     "protocol": [
       "Confirm on withheld cells. Carry every trace, re-inject seeds and retain failures. Stop at the success or round bound. Select by reviewed dominance.",
-      "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      "When a dedicated stage graph supplies the stage response schema as the final response contract, return stage, role_id, exact subject_sha256, accept or revise verdict, findings and attributed_claim_ids in that schema. In a governed instruction packet, follow the packet's Output contract for the final completion, including instruction_ack and checklist. Write the stage response to the declared output artifact whose path and stage response schema the step supplies; the route consumes that artifact. Point final-record evidence to the artifact. Escalate a required stage artifact binding to the controller when its path or schema needs resolution. Attribute mechanism gains from the actual controlled contrast in the ablation critic's response; use an empty attributed_claim_ids list for other responses."
     ],
     "purpose": "Perform the validate stage under its bound protocol. Return every required stage output.",
     "requires": {
@@ -99,5 +99,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
+  "registry_sha256": "2889e12595a211cf69a07c491b52f4f523c911f0f19a1b2759ef648c5bde704d"
 }

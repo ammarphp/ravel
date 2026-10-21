@@ -13,6 +13,7 @@ from ravel.workflow import (review_points as rp, rdj_custody as custody,
 from test_review_points import run as point_run, receipt, write
 from test_physics_review import run
 from test_scientific_judgment import cycle, FakeHost, prepare
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import Run, prepare_case
 
 
@@ -98,7 +99,7 @@ def test_checkin_snapshot_never_vouches_planted_ceiling(tmp_path):
 
 
 @pytest.mark.parametrize('gate', ['delivery', 'final_task', 'export'])
-def test_calibration_acceptance_replayed_with_own_action(tmp_path, gate):
+def test_calibration_acceptance_replayed_with_own_action(tmp_path, gate, inert_dispatch):
     from ravel.workflow import rdj_loop as rdj
     r = Run(tmp_path/'run', snapshot=False)
     plan = {'nodes': [{'id': 'N1', 'tuning_to_observed': True,
@@ -183,7 +184,7 @@ def test_all_mode_labels_respect_custody_ceiling(mode, registered):
         assert label == 'self_attested'
 
 
-def test_positive_launch_unblind_uses_same_launch_action(tmp_path):
+def test_positive_launch_unblind_uses_same_launch_action(tmp_path, inert_dispatch):
     from ravel.workflow import rdj_loop as rdj
     from rdj_fixtures import record_decision
     r = Run(tmp_path/'run', snapshot=False)

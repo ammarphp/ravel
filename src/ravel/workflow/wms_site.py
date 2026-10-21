@@ -3,20 +3,42 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
+import subprocess
 
 from ravel.physics import root_stream_core as core
 from . import site_workflow, wms_runtime
+
+
+EXECUTOR_ROSTER = ('config.yaml', 'profile.json', 'ravel-submit.sh', 'ravel-status.sh')
+# A brokered profile adds the cancel command its confined child sends to the controller broker.
+BROKER_ROSTER = (*EXECUTOR_ROSTER, 'ravel-cancel.sh')
+
+
+def _roster(folder):
+    """The exact member roster the profile's own manifest declares; executor unless brokered."""
+    manifest = folder / 'profile.json'
+    if not manifest.is_file() or manifest.is_symlink():
+        return EXECUTOR_ROSTER
+    try:
+        declared = json.loads(manifest.read_bytes())
+    except ValueError:
+        return EXECUTOR_ROSTER
+    options = declared.get('options') if isinstance(declared, dict) else None
+    if isinstance(options, dict) and options.get('submission') == 'broker':
+        return BROKER_ROSTER
+    return EXECUTOR_ROSTER
 
 
 def profile_pin(folder):
     """Pin the complete profile directory, including its exact member roster."""
     folder = Path(folder)
     core.require(folder.is_dir() and not folder.is_symlink(), 'ordinary site profile directory required')
-    core.require({p.name for p in folder.iterdir()} == {'config.yaml', 'profile.json', 'ravel-submit.sh', 'ravel-status.sh'},
-                 'site profile members changed')
+    roster = _roster(folder)
+    core.require({p.name for p in folder.iterdir()} == set(roster), 'site profile members changed')
     files = []
-    for name in ('config.yaml', 'profile.json', 'ravel-submit.sh', 'ravel-status.sh'):
+    for name in roster:
         path = folder / name
         core.require(path.is_file() and not path.is_symlink(), 'ordinary site profile files required')
         if name.endswith('.sh'):
@@ -145,3 +167,63 @@ def admit_command(argv, project, cwd):
             core.require(argv == expected_argv, 'command differs from governed site launch')
             return
     raise ValueError('site profiles run only inside a live `ravel wms launch`; arbitrary --profile/--executor refused')
+
+
+JOB_STATUS = {1: 'pending', 2: 'running', 3: 'cancelled', 4: 'exited', 5: 'held', 6: 'running', 7: 'pending'}
+
+
+def _cluster(job_id):
+    cluster = str(job_id).split('.')[0]
+    if not re.fullmatch(r'\d+', cluster):
+        raise ValueError('an HTCondor job id names a numeric cluster')
+    return cluster
+
+
+def _scheduler_query(executable, args):
+    """Run one bounded scheduler client call without the launch capability in its environment."""
+    from .wms_policy import CAPABILITY_ENV
+    command = shutil.which(executable)
+    if command is None:
+        raise FileNotFoundError(f'{executable} is not on PATH')
+    environment = {name: value for name, value in os.environ.items() if name != CAPABILITY_ENV}
+    done = subprocess.run([command, *args], capture_output=True, text=True, timeout=20,
+                          stdin=subprocess.DEVNULL, check=False, env=environment)
+    return command, done
+
+
+def observe_job(job_id, *, condor_q='condor_q', condor_history='condor_history'):
+    """Observe one recorded HTCondor job; an absent or unreadable status is unknown, never success."""
+    cluster = _cluster(job_id)
+    args = [f'{cluster}.0', '-af', 'JobStatus', 'ExitCode']
+    try:
+        command, done = _scheduler_query(condor_q, args)
+        if not done.stdout.strip():
+            command, done = _scheduler_query(condor_history, [*args, '-limit', '1'])
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {'state': 'unknown', 'error': str(exc)}
+    lines = done.stdout.strip().splitlines()
+    raw = lines[0].strip() if lines else ''
+    fields = raw.split()
+    status = int(fields[0]) if fields and fields[0].isdigit() else None
+    return {'state': JOB_STATUS.get(status, 'unknown'), 'raw': raw, 'command': command}
+
+
+def hold_reason(job_id, *, condor_q='condor_q'):
+    """The scheduler's hold reason code of one recorded held job (``{code, raw}``); unknown when unreadable."""
+    cluster = _cluster(job_id)
+    try:
+        command, done = _scheduler_query(condor_q, [f'{cluster}.0', '-af', 'HoldReasonCode'])
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {'code': None, 'error': str(exc)}
+    raw = (done.stdout.strip().splitlines() or [''])[0].strip()
+    return {'code': int(raw) if re.fullmatch(r'-?\d+', raw) else None, 'raw': raw, 'command': command}
+
+
+def cancel_job(job_id, *, condor_rm='condor_rm'):
+    """Request removal of one recorded HTCondor job; the caller re-observes its state."""
+    cluster = _cluster(job_id)
+    try:
+        command, done = _scheduler_query(condor_rm, [f'{cluster}.0'])
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {'returncode': None, 'command': shutil.which(condor_rm), 'error': str(exc)}
+    return {'returncode': done.returncode, 'command': command}

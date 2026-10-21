@@ -34,6 +34,12 @@
     "must_read": [
       "proto:P6",
       "checklist:data-acquisition"
+    ],
+    "literature_operations": [
+      "search",
+      "get_paper",
+      "list_papers",
+      "compare_measurements"
     ]
   },
   "model": {
@@ -47,7 +53,8 @@
   ],
   "operations": [
     "knowledge query",
-    "check run"
+    "check run",
+    "literature query"
   ],
   "output": {
     "declared_outputs": [
@@ -106,7 +113,8 @@
     "exec_argv_prefixes": [],
     "ravel_actions": [
       "knowledge query",
-      "check run"
+      "check run",
+      "literature query"
     ],
     "read_paths": [
       "inputs/"

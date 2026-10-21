@@ -74,6 +74,9 @@ qualification status to make this test pass.
 | `integrity-auditor` | no | `claude-cli-worker` | `[]` |
 | `investigation-worker` | no | `claude-cli-worker` | `[]` |
 | `limitation-census` | no | `claude-cli-worker` | `[]` |
+| `literature-discovery-selector` | no | `claude-cli-worker` | `[]` |
+| `literature-evidence-scorer` | no | `claude-cli-worker` | `[]` |
+| `literature-query-expander` | no | `claude-cli-worker` | `[]` |
 | `literature-scout` | no | `claude-cli-worker` | `[]` |
 | `ma-coupling-order-consultant` | no | `claude-cli-worker` | `[]` |
 | `ma-eft-consultant` | no | `claude-cli-worker` | `[]` |
@@ -150,84 +153,43 @@ Field sources, checked 2026-10-11: [Claude subagents](https://code.claude.com/do
 live host probes. A documented field name alone does not establish a mapping
 from Ravel policy to vendor policy.
 
-Redirect bodies contain only “Do not perform this role here. Run
-`ravel work dispatch --role <id>`.” They carry no card or protocol. Claude always
-has a `tools:` line, but Claude Code lists a profile with `tools: []` as having
-all tools, so a Claude redirect restricts instructions, not tool authority. Governed nodes retain the complete card. Dispatch execution
-belongs to the executor; adoption does not implement it.
+Every redirect calls the common role dispatcher with an exact run, node, role,
+worker spec and subject. Resolve these from the active request; missing bindings
+hold the role. The module command works in an installed package:
+
+```bash
+python -m ravel.workflow.transports.host_subagent dispatch --rundir RUN --node NODE --role ROLE --spec SPEC.json --subject SUBJECT.json
+```
+
+`ravel work dispatch` accepts the same arguments. SUBJECT.json contains the
+scope and sha256 returned by `host_subagent.subject_for(spec)`: the pinned review
+subject, sealed work order, or spec identity. Host integrations call
+`agent_host.dispatch_role` with the same bindings and a `NativeDelegateAdapter`
+for Claude Code/Codex or a `DelegateAdapter` for an MCP tool advertising the
+`ravel/role-dispatch` metadata and exact schemas in
+`src/ravel/data/agents/role-dispatch.json`. Tool names do not select adapters.
+Callbacks must launch a fresh child and collect its bound response. The complete
+role card, budgets, subject and gated broker reach that child.
+
+Required host roles need evidence establishing their declared guarantees. Explicit
+advisory mode requires the parent session identity, labels the result
+`ADVISORY - REQUIRED ROLE NOT SATISFIED`, and creates no worker acceptance
+receipt. A claimed child identity establishes no isolation or review credit.
+Blind or voting cards refuse host advisory dispatch before packet exposure.
+Uncertain host calls remain reserved and require reconciliation; they are never
+automatically repeated. A governed worker never launches on an attempt whose
+broker a host window served (`host_attempt`); dispatch a new attempt. Never
+perform a refused role as a parent persona.
+
+Claude always has a `tools:` line, but Claude Code lists a profile with
+`tools: []` as having all tools, so its redirect restricts instructions, not tool
+authority. Governed nodes retain the complete card. Qualified CLI workers retain
+their existing supervisor, tool gate, isolation checks and receipt semantics.
 
 Regenerate with `ravel agent-surface render --project .`. The coherence gate
 refuses missing files, byte drift and unproduced files in every owned profile
 directory and among manual shim siblings: `generated surface orphan: <path>`.
 Unprefixed registered legacy twins are removed.
-
-A single cross-host hook table is deferred. No `.codex/hooks.json`,
-`.gemini/settings.json`, `.claude/settings.ravel-gates.json` or
-`.ravel/gate-surface.json` is rendered. Codex, Gemini and opencode are hookless.
-`ravel-gate.sh` files are manual adapters with explicit CLI arguments; they do
-not register native events. Existing Claude hooks remain host-governance-owned.
-
-`owned_paths(project)` registers through `host_governance.SURFACE_EXTENSIONS`.
-It covers the registry, reserved overrides, generated profiles and manual shims.
-Package initialization registers it before governance-first consumers run.
-Its `metadata(project)` callback returns `role_registry_sha256` for CHECK-IN 1.
-Host governance must invoke it with the actual project and incorporate that
-metadata. A zero-argument invocation fails closed. The CHECK-IN 1 surface digest
-and physics-session write protection cover these files once host governance
-provides that project/metadata interface.
-
-Before approval, the executor seals `inputs/work-orders/<node>.json` with `role`,
-`review_points`, declared outputs and obligations. Run:
-
-```sh
-ravel work pin-obligations --rundir RUN
-```
-
-This writes `inputs/work-obligations.json` once, deriving obligations from
-`role_registry.self_checks(role)` and the order's review points. Its SHA-256 is
-pinned in `inputs/checkin1.json`, and the sidecar enters the approval fingerprint.
-Post-approval pinning is refused. Node IDs admit dots and refuse `..`.
-
-Derived obligations point under `/obligations/<escaped-id>` in a required JSON
-sidecar. `obligation_output` can explicitly select that output; otherwise an
-output of kind `obligations` is preferred, then the first required JSON output.
-Scientific code or document outputs may appear before that sidecar. Preserve
-each complete derived obligation in the order; extra obligations are allowed
-and checked. Required output and pointer content must be nonempty; zero and
-false remain valid observations.
-
-```sh
-ravel work adopt --rundir RUN --node-id N3.author --attempt 1
-```
-
-Adoption reads `agent-work/N3.author/1/outputs/`, verifies approved sidecar bytes,
-current card/review-point derivation, the order digest and obligation superset,
-then copies the exact checked bytes. JSON digests use sorted keys, compact
-separators and `ensure_ascii=False`. Legacy `work/<node>/attempt-<n>` workspaces
-are refused. Adoption never registers worker receipts, writes custody or grants
-execution credit, launch authority or scientific acceptance. Only the dispatcher
-registers receipts.
-
-`finding_effect(item, resolve=...)` ignores declared `evidence_class` and resolves
-evidence IDs. A resolved `code_check` or `new_receipt` can block severity A;
-cited/opinion evidence is advisory. Without a resolver, every ID is opinion.
-Pending/unresolved typed requests hold the finding; a self-declared failed
-result does not block. The review loop supplies the resolver from its recorded
-decision evidence.
-
-Aliases cover the five author/verifier names and every current tool name.
-`consult-cosmology`, `consult-onnx` and `consult-latex` are minimal purpose-only
-cards pending review through reserved overrides. They assert no tool
-qualification or new scientific protocol.
-
-The twelve failure-consult bindings are declared in
-`src/ravel/data/knowledge/consult_bindings.json`. The pyhf binding uses the
-registered inference alias. Site diagnostics currently use the registered
-read-only columnar card; a dedicated site card remains a role-owner handoff.
-Bindings name manifest groups and full handbooks; they establish neither tool
-qualification nor scientific acceptance. The failure graph refuses dispatch when
-its targeted knowledge provider or a required handbook is absent. See the
-specialist failure-advice APIs in `docs/workflow/steps/03-generate.md`.
 
 ## Scalar roles and supplied-declaration checks
 
@@ -235,7 +197,7 @@ The scalar role cards and bindings compose append-only fragments in
 `src/ravel/data/higgs/registration/`. `consult-higgs` advises on the declared
 framework; `higgs-coupling-analyst` and `extended-scalar-modeler` construct supplied
 inputs. `higgs-combination-reviewer` and `higgs-theory-uncertainty-auditor` review
-in fresh sessions distinct from those producers and cannot read producer headlines.
+in fresh sessions distinct from those producers and must not read producer headlines.
 Role-card check aliases must resolve even when an atlas row lists the name.
 
 Declare semantic facts in plan fields `/review/domain_tags` and
@@ -248,11 +210,11 @@ Use `check run` with a card-named `check:higgs.*` ID and one source-bound worksp
 JSON document. `src/ravel/validation/higgs_checks.py` checks framework declarations
 and signal-theory correlations and delegates measurement, parameterization, basis,
 theory-constraint and cross-engine checks to their operation owners. Missing owner
-implementations or inputs return `inconclusive`, which cannot close an obligation.
+implementations or inputs return `inconclusive`, which must not close an obligation.
 TH1–TH12 inspect supplied overlap, mass, loop, width, boundary, sign, basis, channel,
 statistic, release and tension declarations. The legacy T1–T12 sweep remains intact.
 Each validator row in the registration fragment states its input document. A missing
-field or an undeclared label is `inconclusive`. A role may run the check of every
+field or an undeclared label is `inconclusive`. A role can run the check of every
 trap its card must read. Any two measurements sharing an event set need a supplied
 joint likelihood; a signal-theory correlation below one needs located evidence. A
 confidence-region dimension counts the jointly estimated parameters of interest, and
@@ -270,7 +232,7 @@ for the requested statistic and likelihood scope.
 
 Each role card has a closed `ownership` contract: `owns` identifies produced
 quantity kinds, `judges` identifies review scope, and `inputs` identifies consumed
-quantity kinds. Only producers own quantities; a role cannot judge its own kind.
+quantity kinds. Only producers own quantities; a role must not judge its own kind.
 The role registry's controlled `quantity_kinds` records the existing source roles
 behind each kind. The vocabulary describes the cards' existing work and grants
 no new scientific capability.
@@ -283,4 +245,4 @@ own no quantities. See [the fit assembly contract](../workflow/steps/sfitter.md#
 for the exact kind names, graph bindings, required quantities and handoff rules.
 Registry validation checks the fit phase table, and graph validation refuses
 parallel ownership unless an explicit output-to-input chain is declared.
-These declarations do not enable any withheld setup group.
+These declarations do not enable any protected setup group.

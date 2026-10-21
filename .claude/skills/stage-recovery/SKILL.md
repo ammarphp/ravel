@@ -1,6 +1,6 @@
 ---
 name: stage-recovery
-description: Recover a FAILED pipeline stage the D8-RESOLVE way — run local diagnosis AND an external recipe/fix search CO-PRIMARY (resource_census.py --debug recipe-search), never search-last. A diagnosed generator-model failure cannot be closed until a recipe_search.json exists. Fire the moment a stage exits nonzero (MadGraph empty SRs, undecayed sparticles, a shower/Delphes crash) or a stage_supervisor failure.json lands.
+description: Recover a FAILED pipeline stage the D8-RESOLVE way — run local diagnosis AND an external recipe/fix search CO-PRIMARY (resource_census.py --debug recipe-search), never search-last. A diagnosed generator-model failure must not be closed until a recipe_search.json exists. Fire the moment a stage exits nonzero (MadGraph empty SRs, undecayed sparticles, a shower/Delphes crash) or a stage_supervisor failure.json lands.
 when_to_use: any pipeline stage failure (nonzero rc, empty/degenerate output, a logs/*.failure.json from the stage_supervisor); before writing off a stage as "the tool is broken"
 allowed-tools: Bash, Read, Edit, Grep
 ---
@@ -21,7 +21,7 @@ improvises. RESOLVE means the two branches run **in parallel, both first-class**
    --model <model> --symptom "<symptom keywords>" --rundir <rundir>` — writes
    `inputs/recipe_search.json` (GitHub code search finds recipes hidden in recast run configs;
    INSPIRE finds theses/recasts). LOOK at the hits before concluding "the tool is broken".
-4. **Close-block (mandatory for a generator-model failure).** You may NOT close a `tool_generator_model`
+4. **Close-block (mandatory for a generator-model failure).** You must not close a `tool_generator_model`
    failure until `inputs/recipe_search.json` exists:
    `python3 scripts/run.py ravel.workflow.resource_census --assert-recipe-search --rundir <rundir>`
    must exit 0. The Stop-dispatcher runs this at turn-end; a nonzero exit blocks the close.

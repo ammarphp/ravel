@@ -49,6 +49,10 @@ def _view(state):
     return {k: v for k, v in state.items() if k not in PRIVATE}
 
 
+def campaign_root(state):
+    return state['loop'].get('campaign_root') or state['meta']['scope_root']
+
+
 def plan(state):
     """The shared node table for this run (cached per request, output and host)."""
     from .. import research_orchestrator as orchestrator
@@ -57,7 +61,7 @@ def plan(state):
     with _PLANS_LOCK:
         found = _PLANS.get(key)
     if found is None:
-        found = service(lambda: orchestrator._open_plan(state["meta"]["scope_root"], loop["request"], loop["out"],
+        found = service(lambda: orchestrator._open_plan(campaign_root(state), loop["request"], loop["out"],
                                                         host=host(loop["host"]), pause=pause,
                                                         stage_runner=_stage_runner_refused))
         if found["operation"] != loop["operation"]:
@@ -100,7 +104,13 @@ def _open_node(name):
     def run(state, identity):
         found = plan(state)
         view = _view(state)
-        update = service(lambda: found["nodes"][name](view))
+        try:
+            update = service(lambda: found["nodes"][name](view))
+        except ServiceRefused as exc:
+            from ..research_cycle import OperationalBoundaryError
+            if isinstance(exc.__cause__, OperationalBoundaryError):
+                raise exc.__cause__
+            raise
         _current(found["operation"])
         return json.loads(json.dumps(update or {}, allow_nan=False))
     return graph_nodes.effect("research.open." + name, kind=KINDS.get(name, "journal"), run=run,
@@ -124,6 +134,8 @@ def _origin_checked(found, state):
     if (origin != state["origin"] or public.get("kind") != "research-action"
             or public.get("action") != state["action"] or _loads(public["arguments_json"]) != state["arguments"]):
         raise ValueError("routing checkpoint differs from actual source-bound model action")
+    from .. import research_controller
+    research_controller.admit_action(origin)
     return origin
 
 
@@ -141,7 +153,7 @@ def _stage_body(ctx):
         def checked():
             origin = _origin_checked(found, state)
             cycle.ce.keys(state["arguments"], {"artifact"})
-            _, campaign = cycle._load(meta["scope_root"])
+            _, campaign = cycle._load(campaign_root(state))
             return cycle._coordinator_effect(campaign, origin)
         committed = service(checked)
         if committed is not None:
@@ -149,7 +161,8 @@ def _stage_body(ctx):
         dest = _turn_dest(found, state)
         request = stage.request(artifact=state["arguments"]["artifact"], out=dest / "protocol",
                                 settings=found["value"]["runtime"], host_key=state["loop"]["host"],
-                                operation_sha256=state["loop"]["operation"]["sha256"])
+                                operation_sha256=state["loop"]["operation"]["sha256"],
+                                campaign_root=campaign_root(state))
         child_meta = {"graph_id": stage.GRAPH_ID, "version": _row(stage.GRAPH_ID)["version"],
                       "instance": deepcopy(meta.get("instance")), "scope_root": meta["scope_root"],
                       "path": graph_nodes.invocation(meta, {"stage": "turn-" + str(state["turn"])})}
@@ -171,7 +184,7 @@ def _commit(found, state, origin, effect):
     effect_pin = decisions._put(dest / "coordinator-effect.json", {
         "action": state["action"], "arguments": state["arguments"], "origin": state["origin"],
         "actual_effect": effect, "parent_task_accepted": False, "scientific_authority_from_checkpoint": False})
-    cycle._record_coordinator_effect(state["meta"]["scope_root"], state["origin"], effect_pin)
+    cycle._record_coordinator_effect(campaign_root(state), state["origin"], effect_pin)
     history = [*state.get("action_results", []), {"origin": state["origin"], "effect": effect_pin}]
     return {"action_results": history, "turn": state["turn"] + 1, "result": effect}
 
@@ -182,7 +195,7 @@ def _stage_commit(state, identity):
     def run():
         found = plan(state)
         origin = _origin_checked(found, state)
-        _, campaign = cycle._load(state["meta"]["scope_root"])
+        _, campaign = cycle._load(campaign_root(state))
         committed = cycle._coordinator_effect(campaign, origin)
         if committed is not None:
             if committed["pin"]["path"] != str(_turn_dest(found, state) / "coordinator-effect.json"):
@@ -217,6 +230,8 @@ def _record_failure(state, identity):
 
 
 def _route_failure(state, failure):
+    if failure['error_type'] in {'CampaignBudgetExhausted', 'OperationalBoundaryError'}:
+        return 'end'
     if failure["error_type"] == DeliveryRequired.__name__:
         return "await"
     if failure["node"] in ACTION_NODES and failure["failure_kind"] in RECORDED_KINDS:
@@ -234,6 +249,18 @@ def _delivery_payload(state):
 def _reenter(state):
     _, failure = _latest_failure(state)
     return failure["node"] if failure else "end"
+
+
+def _delivered_action(state):
+    from .. import research_orchestrator as orchestrator
+    failure_id, _ = _latest_failure(state)
+    payload = _delivery_payload(state)
+    where = graph_nodes.invocation(state['meta'], {'await': failure_id})
+    key = effect_ledger.digest({'path': where, 'payload_sha256': effect_ledger.digest(payload)})
+    row = state['responses'][key]
+    if row['schema_id'] != 'external_delivery' or row['value_sha256'] != effect_ledger.digest(row['value']):
+        raise ValueError('ordinary delivery differs from its recorded response')
+    return orchestrator.delivery_action(campaign_root(state), failure_id, row['value'])
 
 
 def _row(graph_id):
@@ -271,9 +298,7 @@ def build(ctx):
         identity=_identity("record_failure"), max_attempts=MAX_ATTEMPTS, to_state=lambda s, r: r))
     add("await_delivery", graph_nodes.interrupt(
         "external_delivery", _delivery_payload, segment=lambda s: {"await": _latest_failure(s)[0]}))
-    add("delivered", graph_nodes.gate("research_choice", lambda s: {
-        "kind": "research_ordinary_delivery", "summary": "ordinary outside effect delivered", "pins": [],
-        "digest": effect_ledger.digest({"failure": _latest_failure(s)[0], "responses": s.get("responses") or {}})}))
+    add("delivered", graph_nodes.gate("research_choice", _delivered_action))
     add("reenter", graph_nodes.Node("guard", lambda s: {"status": {
         "phase": "reenter", "verdict": "go", "terminal": None, "reason": _reenter(s), "would_make_possible": None}},
         then=graph_nodes.Edge(_reenter, "nodes")))

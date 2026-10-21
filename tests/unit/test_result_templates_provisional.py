@@ -173,7 +173,8 @@ def test_reviewed_fill_supersedes_the_provisional_one_in_place(study):
                        supersedes=first_path)
     assert study['requester'].read_bytes() == (study['base'] / 'reviewed.yaml').read_bytes()
     assert not study['requester'].read_text().startswith(rt.PROVISIONAL_MARK)
-    assert reviewed['provisional'] is False and reviewed['acceptance']['accepted'] is True
+    assert reviewed['provisional'] is False and reviewed['acceptance']['review_accepted'] is True
+    assert reviewed['acceptance']['delivery_label'] == 'diagnostic' and reviewed['acceptance']['accepted'] is False
     assert reviewed['delivered_into']['sha256_before'] == first['delivered_into']['sha256_after']
     assert reviewed['supersedes']['provisional_record']['sha256'] == hashlib.sha256(first_bytes).hexdigest()
     assert first_path.read_bytes() == first_bytes  # the provisional record is never rewritten

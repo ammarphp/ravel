@@ -58,23 +58,23 @@ its generation or fit descendants.
 
 ### Packaged published-table descriptors
 
-`source_package` may instead be `{"descriptor", "directory", "analysis"}`.
+`source_package` can instead be `{"descriptor", "directory", "analysis"}`.
 `descriptor` names a packaged descriptor (`ravel.physics.width_inputs.descriptor_names()`)
 or is an inline descriptor of the same closed shape. A descriptor is a package without
 paths: `files` (published file name to sha256), `submission`, `tables`, `reference_metadata`,
 `analysis`, `analysis_inputs` and `expect`. `directory` holds the files under their
 published names; every digest comes from the descriptor, so a changed byte refuses. The
-request's `analysis` supplies what the tables cannot, namely `pdg` and `generation`
+request's `analysis` supplies what the tables leave to that request, namely `pdg` and `generation`
 (and optional `references` pins). `expect` pins record facts beyond the digests (each
 table's DOI, the region window population, the limit mass population); a mismatch refuses.
 In a table mapping, a qualifier `value` written as a plain number matches the source
 qualifier by numeric value rather than by its literal text.
 
 One descriptor ships: the four regional distributions and the coupling and
-cross-section-times-branching-times-acceptance limit tables of the published ATLAS
+cross-section-times-branching-times-acceptance limit tables of the supplied experimental
 dijet-plus-photon search (HEPData release, version 1; see the descriptor's `source`), with the exact digests,
 ordered headers, region identities, units, applicability and source discrepancies the
-earlier source-specific producer carried. The downloaded files are not shipped.
+earlier source-specific producer carried.
 
 For another release, write a descriptor (or an external package) with its exact pins,
 ordered headers/qualifiers, region identities, quantity units, normalization

@@ -123,6 +123,8 @@ def connected_fixture(base):
   response=read_json(row['response']['path']);root=base/('generator'+str(i));config=generation_config(root)
   config['cards']['parameter']={k:response['model']['parameter_card'][k] for k in ('path','sha256')}
   config['cards']['process']={k:v for k,v in put(root/'photon-process.dat','define p = g u u~ d d~\ngenerate p p > a zp\n').items() if k!='size'}
+  from model_validation_fixture import record_model_events_validation
+  record_model_events_validation(config, root / 'point-validation')
   cp=put(root/'config.json',config);pol=put(root/'review-policy.json',policy())
   row['generation_request']=put(root/'request.json',{'schema_version':1,'config':{k:cp[k] for k in ('path','sha256')},'review_policy':{k:pol[k] for k in ('path','sha256')},'supervisor_seconds':90,'goal_binding':d['goal_binding']})
  nroot=base/'native';nroot.mkdir();_,native,_,_,_=native_fixture(nroot)

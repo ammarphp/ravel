@@ -1,5 +1,41 @@
 # Step 8 — Scan  ·  [judgment — script-assisted: `scan_orchestrator.py` drives; the axes, normalization and figures are approved at CHECK-IN 1]  · CHECK-IN
 
+## On the controller
+
+On a controller run a scan is the route `analysis.scan`. The grid is fixed before CHECK-IN 1: from the request's
+stated values and stepped ranges, or from the route analysis (`scan_grid`) when the request cites a source grid. A
+range without a step stays open and holds CHECK-IN 1; nothing is guessed. The plan pins the approved grid (axes,
+point identities and digest), and CHECK-IN 1 shows it. Filling an open range must retain every stated axis,
+all fixed coordinate values and their precision, and their units.
+
+- One governed plan step per approved point (`scan.point.<tag>`, rung `scan`), each with its own authority check
+  against the CHECK-IN 1 record and the CHECK-IN 2 GO, its own receipts and its own failure status.
+  Its reservation follows the prepared launch's declared execution effects: a launch without event generation
+  reserves zero generated events and counts its declared input files, retaining larger declared input-volume
+  allocations. A generating launch retains its event population even when it also reads supplied inputs.
+  The task's signature-resolved wall ceiling bounds both the reservation and the launch watchdog within the
+  plan budget. A missing ceiling stays unresolved; work exceeding the operator envelope still refuses.
+- The assembly is plan step `scan.assemble` (operation `lifecycle-scan-aggregation`). The route adapter compares
+  its `point_population` with the approved grid: an omitted point, an unmanifested or duplicate point, a point
+  claimed completed that the controller never saw complete, and a claim of full coverage with a hole are refused.
+  Completed result rows must also cover the completed population exactly once; reported totals and
+  failure statuses must agree with controller state.
+- A point that fails, or that a budget ends before it runs, stays an explicit hole: at a qualified ending the
+  controller records each such point with its status and reason. No point is dropped from the original domain.
+
+The host's long-running watchers have no role on a controller run: the controller supervises every point.
+The public watcher preflight also checks custody when its run directory is controller-owned. Its target
+must have current accepted custody with matching bytes: a controller-declared destination under `inputs/`,
+or an adopted step output named as an input in the retained plan. Scratch targets, missing custody,
+changed or revoked bytes and symbolic links refuse arming with `watcher_target_not_durable` in the saved
+preflight's `refusal_codes`. The fire command must name that target, then pass the ordinary syntax and
+positional-argument checks. This check grants no authority to launch a watcher.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
 Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
 this selects the native build and binary paths, including an existing local toolchain.
 `CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda` — every `$CONDA` below.
@@ -154,18 +190,18 @@ from another study. Report coverage explicitly (`scan.json` carries `n_done`/`n_
 crash, re-run it with a different seed; it is an equivalent sample.
 
 **Stage-hang CATCH (G6/D6).** Each native `run_stage` is wrapped by `stage_supervisor.py` — a hung
-stage is killed (wall-clock / progress-stall) and the point is FAILED, so it can't silently hold a
+stage is killed (wall-clock / progress-stall) and the point is FAILED, so it must not silently hold a
 scan slot forever. The supervisor writes `logs/<stage>.failure.json` **and** records the open failure
 to `run_state.open_failure_records[]` via `workflow_state.py record --kind failure`, so the Stop
 CATCH branch — and its `workflow_state.py status` fallback — see the failure at turn-end. That branch
 (`stop_dispatch.py` `branch_catch`) walks the rundir at turn-end and **BLOCKS** (exit 2) if any
 `logs/*.failure.json` carries a `status` outside `{resolved,handled,closed}` and no truthy `handled` —
-so an unresolved stage failure cannot be papered over by simply ending the turn. Its non-hook FALLBACK
+so an unresolved stage failure must not be papered over by simply ending the turn. Its non-hook FALLBACK
 is `workflow_state.py status`, which lists those same records under `open_failure_records[]` (populated
 by `stage_supervisor.py`'s `record --kind failure` — do **not** assume that list was
 filled by anything else). To clear it: on a stage failure, fire the `stage-recovery` skill (RESOLVE/D8 —
 diagnose locally AND recipe-search externally CO-PRIMARY, `resource_census.py --debug recipe-search`);
-a diagnosed generator-model failure cannot be closed until `inputs/recipe_search.json` exists
+a diagnosed generator-model failure must not be closed until `inputs/recipe_search.json` exists
 (`resource_census.py --assert-recipe-search` must exit 0). Then resolve each failure (diagnose+fix, or
 reset the point) and set that record's `"status":"resolved"` **before ending the turn**. If a stage
 hangs with **no** supervisor (`STAGE_SUPERVISED=0`, or an old driver), `scan_babysitter.py`'s HEAL loop
@@ -192,7 +228,7 @@ matching pipeline process (`run-pipeline-native`/`mg5_aMC`/`DelphesHepMC`/`scan_
 this rundir in `ps`. The logfile-mtime is the robust liveness signal: the DRIVE `workflow_state.py
 record --kind compute` command writes `logfile` onto the `compute_launched[]` entry (the PostToolUse
 observer does **not**) and a genuinely-live job keeps that file fresh; the `ps` scan is a
-best-effort backstop for an un-recorded job. FALLBACK (non-hook): **before claiming a job is running,
+additional backstop for an un-recorded job. FALLBACK (non-hook): **before claiming a job is running,
 confirm it** — run `workflow_state.py status` (or point at a live logfile) and only narrate a background
 job you actually started via the harness-tracked `run_in_background`. This closes the D5 phantom-
 background signature (a turn that ends by reporting a job that was never launched, so nothing ever
@@ -238,7 +274,7 @@ $CONDA run -n rivet python scripts/run.py ravel.plotting.figure_target compose \
 This final check-in takes the **RESULTS DECK** form (`docs/workflow/checklists/check-ins.md`) and is sent only
 after the step-9 verification panel (`docs/workflow/steps/09-verify.md`), its verdict + findings appended
 verbatim. Lead with the declared figures, each captioned per the caption rule; state coverage
-(done/planned points), the normalization operations applied, and the requested quantity over the
+(done/declared points), the normalization operations applied, and the requested quantity over the
 scanned axes. With a supplied reference, state the agreement under the declared metric. Confirm
 before closing. The scan's headline goes in the scan dir's `RESULT.md`, cross-checked against
 `scan.json` (numbers in the prose = numbers in the pack), exactly as a single run's `RESULT.md` is

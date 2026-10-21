@@ -157,6 +157,131 @@ def test_a_listed_identifier_its_file_no_longer_carries_is_a_finding():
     assert [(h.line, h.rule, h.text) for h in hits] == [(0, 'stale-citation', OTHER)]
 
 
+def test_instruction_units_carry_their_source_files_citations():
+    """A unit record copied into a derived catalogue carries exactly the identifiers listed for the
+    file it states as its source; a unit from an unlisted source, another file's identifier, or a
+    line that is not a unit record is refused as before."""
+    catalogue = 'src/ravel/data/instructions/catalogue.json'
+    citations = {LISTED: [CITED]}
+    listed_unit = json.dumps({'id': LISTED + '#section/1', 'source': LISTED, 'text': ['see arXiv:' + CITED]})
+    by_id = json.dumps({'id': LISTED + '#section/2', 'text': 'arXiv:' + CITED})
+    unlisted = json.dumps({'id': 'docs/other.md#section/1', 'source': 'docs/other.md', 'text': ['arXiv:' + CITED]})
+    foreign = json.dumps({'id': LISTED + '#section/3', 'source': LISTED, 'text': ['arXiv:' + OTHER]})
+    plain = '{"note": "arXiv:' + CITED + '"}'
+    assert _scan(catalogue, listed_unit + ',\n' + by_id + '\n', citations) == []
+    assert _scan(catalogue, listed_unit + ',\n' + unlisted + '\n', citations) == [(2, 'arxiv-id')]
+    assert _scan(catalogue, foreign + '\n', citations) == [(1, 'arxiv-id')]
+    assert _scan(catalogue, plain + '\n', citations) == [(1, 'arxiv-id')]
+    assert _scan(catalogue, listed_unit + '\n', {}) != []
+
+
+def test_overlapping_complete_citations_retain_each_source_occurrence():
+    name = 'Cobalt' + 'Search' + '2031'
+    qualified = name + '-specific'
+    assert _scan(LISTED, qualified, {LISTED: [name, qualified]}) == [(0, 'stale-citation')]
+    assert _scan(LISTED, qualified + '\n' + name, {LISTED: [name, qualified]}) == []
+
+
+def test_cited_routine_name_preserves_a_changed_hyphenated_identifier():
+    name = 'Cobalt' + 'Search' + '2031'
+    text = name + '\n' + name + '-other\n'
+    assert _scan(LISTED, text, {LISTED: [name]}) == [(2, 'routine-name')]
+
+
+@pytest.mark.parametrize('string', [CITED + ' extra', 'prefix ' + CITED, '10.' + '1103/Phys'])
+def test_citations_require_a_complete_identifier(tmp_path, string):
+    path = tmp_path / 'citations.json'
+    path.write_text(json.dumps(cg.citations_document({LISTED: [string]})))
+    with pytest.raises(ValueError, match='not a citable identifier'):
+        cg.load_citations(path)
+
+
+def test_one_citation_covers_one_identifier(tmp_path):
+    routine = U(['QX', '2098', 'I9999999'])
+    path = tmp_path / 'citations.json'
+    path.write_text(json.dumps(cg.citations_document({LISTED: [routine + '/' + OTHER]})))
+    with pytest.raises(ValueError, match='not a citable identifier'):
+        cg.load_citations(path)
+
+
+def test_complete_versioned_citations_include_the_earlier_number_width(tmp_path):
+    identifier = '1310' + '.9999v2'
+    path = tmp_path / 'citations.json'
+    path.write_text(json.dumps(cg.citations_document({LISTED: [identifier]})))
+    assert cg.load_citations(path) == {LISTED: [identifier]}
+    assert _scan(LISTED, 'https://arxiv.org/abs/' + identifier, {LISTED: [identifier]}) == []
+
+
+def test_complete_qualified_source_identifiers_preserve_numeric_counterfactuals(tmp_path):
+    routine = U(['QX', '2098', 'I9999999', 'ALT'])
+    prefixed = 'LOCAL_' + routine
+    code = J(['PX', 'ABCD', '2098', '11', 'TAG'])
+    doi = '10.' + '17182/hepdata.' + '999999.v1/t1'
+    path = tmp_path / 'citations.json'
+    path.write_text(json.dumps(cg.citations_document({LISTED: [routine, prefixed, code, doi]})))
+    citations = cg.load_citations(path)
+    assert _scan(LISTED, '\n'.join([routine, prefixed, code, doi]), citations) == []
+    for changed in [routine.replace('9999999', '8888888'), prefixed.replace('LOCAL_', 'OTHER_'),
+                    code.replace('11', '12'), doi.replace('.v1/', '.v2/')]:
+        assert _scan(LISTED, '\n'.join([routine, prefixed, code, doi, changed]), citations)
+
+
+def test_citation_masking_preserves_identifiers_with_changed_suffixes():
+    routine = U(['QX', '2098', 'I9999999'])
+    citations = {LISTED: [routine, CITED, DOI]}
+    assert _scan(LISTED, routine + ' arXiv:' + CITED + ' doi:' + DOI, citations) == []
+    for original, changed in [(routine, routine + '1'), (CITED, CITED + 'v2'), (DOI, DOI + '6')]:
+        text = routine + ' arXiv:' + CITED + ' doi:' + DOI + '\n' + changed
+        assert _scan(LISTED, text, citations), (original, changed)
+
+
+def test_cited_code_preserves_other_identifiers_with_extra_segments():
+    code = J(['ABCD', '2098', '11'])
+    text = code + '\nQX-' + code
+    assert _scan(LISTED, text, {LISTED: [code]}) == [(2, 'analysis-code')]
+
+
+@pytest.mark.parametrize('escape', ['\\n', '\\r', '\\t'])
+def test_exact_identifiers_follow_escaped_whitespace(escape):
+    routine = U(['QX', '2098', 'I9999999'])
+    assert _scan(LISTED, '"' + escape + routine + '"', {LISTED: [routine]}) == []
+    assert _scan(LISTED, '"' + escape + routine + '1"', {LISTED: [routine]})
+
+
+def test_prefix_migration_extracts_complete_identifiers_from_exact_source_bytes(tmp_path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('expand_citations',
+                ROOT / 'scripts/maintenance/expand_generality_citations.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    source = tmp_path / LISTED
+    source.parent.mkdir(parents=True)
+    first, second = DOI, DOI + '6'
+    source.write_text('doi:' + first + '\ndoi:' + second + '\n')
+    prefix = '10.' + '1103/Phys'
+    migrated = module.expand(tmp_path, cg.citations_document({LISTED: [prefix]}))
+    assert migrated['files'][LISTED] == sorted([first, second])
+    assert _scan(LISTED, source.read_text(), migrated['files']) == []
+    source.write_text('clean\n')
+    with pytest.raises(ValueError, match='requires a complete source identifier'):
+        module.expand(tmp_path, cg.citations_document({LISTED: [prefix]}))
+
+
+def test_migration_preserves_separate_complete_identifiers_in_resource_paths(tmp_path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('resource_citations',
+                ROOT / 'scripts/maintenance/expand_generality_citations.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    record, code = 'ins' + '9999991', J(['ABCD', '2098', '11'])
+    source = tmp_path / LISTED
+    source.parent.mkdir(parents=True)
+    source.write_text(record + '/' + code + '.pdf\n')
+    migrated = module.expand(tmp_path, cg.citations_document({LISTED: [record, code]}))
+    assert migrated['files'][LISTED] == sorted([record, code + '.pdf'])
+    assert _scan(LISTED, source.read_text(), migrated['files']) == []
+
+
 def test_a_cited_identifier_in_the_file_name_passes_only_for_the_listed_file():
     name = 'src/ravel/data/spectrum/decay-table-' + CITED + '.dat'
     text = 'see https://arxiv.org/abs/' + CITED + '\n'
@@ -254,12 +379,16 @@ def test_shipped_citation_list_is_exact_for_this_tree():
         # A source checkout holds every listed file; a released tree may lack the withheld ones.
         assert present == list(citations)
     assert present
+    source_findings = {}
     for name in present:
         data = (ROOT / name).read_bytes()
-        assert cg.scan_bytes(name, data, deny, citations) == [], name
+        findings = cg.scan_bytes(name, data, deny, citations)
+        if findings:
+            source_findings[name] = [(h.rule, h.text) for h in findings]
         copy = name.rpartition('/')[0] + '/copy-of-' + name.rpartition('/')[2] if '/' in name else 'copy-of-' + name
         assert cg.scan_bytes(copy, data, deny, citations) != [], name
         assert cg.scan_bytes(name, data, deny, {}) != [], name
+    assert source_findings == {}, json.dumps(source_findings, indent=1)
 
 
 def test_tracked_files_carry_no_placeholder_identifier():

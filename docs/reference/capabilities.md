@@ -1,52 +1,48 @@
 # Capabilities
 
-Choose a workflow from the resources available for the target analysis and the
-validation it can support. The [scope contract](scope.md) defines the task modes,
-required check-ins, and refusal conditions. The [limitations](limitations.md)
-record current scientific and implementation gaps.
+Start with the [release scope](scope.md), then choose a
+[study guide](../guides/study-types.md). The complete
+[documentation inventory](documentation-inventory.md) joins code declarations
+to reference pages. Its [JSON form](documentation-inventory.json) gives stable
+identifiers and source locations.
 
-## Available interfaces
+## Scientific work
 
-| Task | Interface | Meaning |
-|---|---|---|
-| Check a task contract | `ravel validate` | Validates schema and reference structure; grants no compute approval |
-| Inspect the development surface | `ravel audit` | Diagnostic report about a source checkout and its available records |
-| Reproduce or reinterpret an analysis | [Physics workflow](../workflow/start.md) | Plan, approve, execute the selected tools, then validate and review results |
+| Family | Reference |
+|---|---|
+| Generation, showering and simulation | [Event production](event-production.md) |
+| Event selections and supplied arrays | [Analysis admission](analysis-admission.md), [columnar modes](columnar-analysis-modes.md) |
+| Models, spectra, amplitudes and normalization | [Models and normalization](models-and-normalization.md), [domain adapters](domain-adapters.md) |
+| Likelihood construction, inference and uncertainty | [Statistics core](statistics-core.md), [inference engines](inference-engines.md), [statistical construction](statistical-construction.md) |
+| Supplied quantities and measurements | [Quantities and measurements](quantities-and-measurements.md) |
+| Parameter scans and sampling | [Parameter-space sampling](parameter-space-sampling.md) |
+| Research and literature | [Research appendix](../architecture/research.md), [knowledge](knowledge.md) |
+| Machine learning | [Execution appendix](../architecture/execution.md), [study guides](../guides/study-types.md) |
+| Reports, manuscripts and diagrams | [Scientific reports](scientific-reports.md), [manuscript production](manuscript-production.md), [model-bound diagrams](model-bound-diagrams.md) |
+| Batch workflows | [Site workflows](site-workflows.md), [batch allocations](batch-allocations.md) |
 
-Full physics runs use the native backend by default. Published selections,
-likelihoods, efficiency maps, and validation references determine which analysis
-route is defensible. An available engine does not establish that every analysis
-using it is certified.
+## How capability facts are assembled
 
-## Shape and template fits
+`ravel.workflow.capability_catalogue` joins science modes, operation signatures,
+route contracts, role cards, tools and knowledge entries. Deciding seats receive
+the catalogue through their governed instruction packets.
+`ravel.controller.capabilities` provides the sealed planning view.
+`ravel.workflow.knowledge_atlas` supplies searchable source-linked knowledge.
 
-Shape and template fits route to the scoped `shape_fit.py` engine (`stat_mode=shape-fit`), gated per analysis. Only an unrepresentable fit (unbinned / multi-observable / per-event NN) downgrades to the named `blocked-shape-fit` refusal + generator-level offer (docs/reference/scope.md §6.1).
+The catalogue distinguishes registration, adapter availability, prerequisites,
+tool qualification and scientific qualification. The selected adapter's contract
+defines its input, execution and output requirements.
+The [tool-status table](tool-status.md) records installation declarations;
+`ravel doctor` reports the current machine.
 
-The fit must meet the per-analysis validation requirements before serving a
-physics result. Self-consistency tests and the existence of an implementation do
-not replace a comparison with the published result.
+## Interfaces and evidence
 
-## What the validation establishes
+The [CLI reference](../cli.md) covers user commands. The
+[parser reference](../cli/commands.md) lists commands, subcommands and options.
+[Configuration](configuration.md) describes operator, model, transport, site
+and study settings. [Output records](outputs.md) connects results to the
+checkpoints, approvals, execution records and receipts that support them.
 
-Statistical recovery, selection acceptance, native implementation parity, and
-mass-plane agreement are different tests. Report each one's evidence and limitations
-separately; a regression gate can pass while an acceptance certification fails.
-
-The full workflow calls for source acquisition, explicit assumptions, reviewed
-plans, and verification before delivering figures or limits. Its safeguards are
-implemented through supported entry-point hooks and artifact checks.
-These checks do not measure agent task success.
-Whether an agent completes a request without guidance is a separate question that these checks do not answer.
-
-## Refusals and scripted check-ins
-
-A scope refusal names the missing capability and is reported as an unmet request, never as a
-delivery, even when the refusal is scientifically justified. Record the missing capability and
-an acceptance test for building it; the validity of the stop is assessed separately. The legacy
-`served-with-refusal` inventory label receives no delivery credit, and partial inventory credit
-describes existing components, not task success.
-
-The `scripted_yes` approval mode answers each physicist check-in with a declared affirmative
-response and must be authorized explicitly (`approval_mode: "scripted_yes"` and
-`approve --scripted`). Its proposal and approval records are kept, the approval is recorded as
-automated (`expert_review: false`), and it does not replace the physics-validity gates.
+Source registration, software tests, live tool checks and scientific closure
+answer separate questions. The [scope page](scope.md#scope-boundaries) states
+their boundaries; each delivered result records the evidence actually obtained.

@@ -279,7 +279,14 @@ class ChargedService:
                               "node_sha256": envelope["request"]["node_sha256"],
                               "attempt_id": self._control.attempt_id}}
 
+        from . import graph_nodes
+        node = graph_nodes.TRIPWIRE.get()
+
         def dispatch():
+            # The fresh context drops every ambient framework hook; the enclosing substrate node's record is the
+            # one exception, so the lowest layers this charged call reaches still see the node it runs in.
+            if node is not None:
+                graph_nodes.TRIPWIRE.set(node)
             _local_context()
             value = self._runnable.invoke(deepcopy(envelope), config=fixed)
             self._current(envelope)

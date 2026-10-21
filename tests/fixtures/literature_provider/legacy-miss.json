@@ -1,0 +1,24 @@
+{
+  "args": {
+    "floor": 0,
+    "text": "unknown"
+  },
+  "atlas_sha256": "db25c1747ade9ccf7b99a7968577f2aaeebe98a7bff903ac9ad3400a884e187c",
+  "floor": {
+    "best_score": 0.0,
+    "value": 0
+  },
+  "items": [],
+  "kind": "knowledge-result",
+  "missing": [],
+  "omitted": {
+    "count": 0,
+    "reasons": {}
+  },
+  "op": "find",
+  "reason": "below_floor",
+  "result_sha256": "2d12ddcc87903d1de138f3fab2dcd858c0362feb5cc3d603fe5b7ff6fd9b186b",
+  "results": [],
+  "schema_version": 1,
+  "served_ids": []
+}

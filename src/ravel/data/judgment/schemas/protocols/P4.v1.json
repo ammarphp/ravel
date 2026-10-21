@@ -1,0 +1,49 @@
+{
+  "title": "P4 anchor-chain: number, anchor and ratio rows",
+  "type": "object",
+  "required": ["rows"],
+  "additionalProperties": false,
+  "properties": {
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["quantity", "value", "unit", "anchor", "ratio", "tolerance", "regime_reason", "action"],
+        "additionalProperties": false,
+        "properties": {
+          "quantity": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "value": {"type": "number"},
+          "unit": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]},
+          "anchor": {
+            "type": "object",
+            "required": ["source", "value", "kind"],
+            "additionalProperties": false,
+            "properties": {
+              "source": {"type": "string", "minLength": 1, "pattern": "\\S"},
+              "value": {"type": "number"},
+              "kind": {"type": "string", "enum": ["published", "independent_calculation", "limiting_case", "dimensional",
+                                                  "sum_rule", "tool_output"]}
+            }
+          },
+          "ratio": {"type": "number"},
+          "tolerance": {"type": "number", "minimum": 0},
+          "regime_reason": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]},
+          "action": {"type": "string", "enum": ["proceed", "open_p5", "hold"]}
+        }
+      }
+    },
+    "unavailable": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["quantity", "reason", "bounded_test"],
+        "additionalProperties": false,
+        "properties": {
+          "quantity": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "reason": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "bounded_test": {"type": "string", "minLength": 1, "pattern": "\\S"}
+        }
+      }
+    }
+  }
+}

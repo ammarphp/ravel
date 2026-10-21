@@ -23,6 +23,11 @@ DEFAULTS = {'mem_mb': 1024, 'runtime': 60, 'runtime_attribute': '+MaxRuntime',
             'use_x509userproxy': False, 'x509userproxy_env': None, 'site_options': {},
             'hold_grace_seconds': 1800, 'status_cache_seconds': 20,
             'missing_grace_seconds': 600}
+# How the profile's scheduler commands reach the scheduler: the executor's own client (the default,
+# recorded as no option so an executor profile keeps its original bytes) or the controller
+# submission broker of a confined workflow child (``ravel.workflow.wms_broker``).
+SUBMISSION_MODES = ('executor', 'broker')
+OPTIONAL = ('submission',)
 
 
 def _field(key):
@@ -54,7 +59,7 @@ def single_line(value):
 def normalize(options=None):
     if options is None:
         options = {}
-    if not isinstance(options, dict) or set(options) - set(DEFAULTS):
+    if not isinstance(options, dict) or set(options) - set(DEFAULTS) - set(OPTIONAL):
         raise ValueError('known HTCondor profile options required')
     result = deepcopy(DEFAULTS)
     result.update(deepcopy(options))
@@ -70,6 +75,10 @@ def normalize(options=None):
     if (not isinstance(attr, str) or not KEY.fullmatch(attr) or not attr.startswith('+')
             or (_field(attr) in FIXED and attr.lower() != '+maxruntime')):
         raise ValueError('runtime_attribute must be a site ClassAd key that does not override fixed fields')
+    if result.get('submission', 'executor') not in SUBMISSION_MODES:
+        raise ValueError('submission must be executor or broker')
+    if result.get('submission') == 'executor':
+        del result['submission']
     if type(result['use_x509userproxy']) is not bool:
         raise ValueError('use_x509userproxy must be a boolean')
     proxy = result['x509userproxy_env']

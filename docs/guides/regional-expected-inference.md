@@ -5,14 +5,10 @@
 prescription. `mass_width_grid` carries the same prescription through its full mass/width,
 SR/CR and source-response construction. The child remains the ordinary
 `native-likelihood` operation with its existing supervised worker, runtime custody,
-prospective review policy and independent result review. Importing the adapter does
-not import ROOT or execute a fit.
+prospective review policy and independent result review. The ordinary worker performs the approved native fit after source preparation.
 
 This capability needs the complete supplied background, transfer, signal response,
-auxiliary law, physical domain and source/assumption pins. A fractional published
-plot is not a substitute for integer observations, a background model, an auxiliary
-measurement or a covariance. For the current width-recipe paper, those missing
-inputs stay missing; this extension supplies no paper-specific fit result.
+auxiliary law, physical domain and source/assumption pins. Supply integer observations, a complete background model and the declared auxiliary measurement or covariance. Paper-specific fit results require those complete source inputs.
 
 ## Data and conditioning
 
@@ -69,8 +65,8 @@ The new route admits a source-certified nonnegative family
 nonnegative `mu`, complete SR/CR membership, and supplied nuisance correlations.
 Admission checks every polynomial factor's sign on the declared rectangular
 physical/auxiliary domain, excludes POI-dependent shape slopes and requires
-nonzero signal. It deliberately does not turn signed interference, quadratic EFT
-strength, or nonmonotone responses into upper limits. Those models retain the
+nonzero signal. Signed interference, quadratic EFT
+strength and nonmonotone responses use the
 existing observed signed-profile route and need a separately specified interval
 construction for expected inference.
 
@@ -78,7 +74,7 @@ The existing fit contract must specify `AsymptoticLimits`, `asimov_background`,
 the same POI/domain, no grid, saved-fit or absolute-scan options. The admitted
 native source/API is Combine 9.2.1 with ROOT 6.22/00. The command adds
 `--run blind --picky --strictBounds --rule CLs --qtilde 1 --newExpected 1`.
-It does not use `-t -1`. For the conditional branch, the workspace already
+The explicit prepared-dataset path defines the expected-data request. For the conditional branch, the workspace already
 contains the independently retained conditioning result; `--run blind` prevents
 a second, implicit observed-data conditioning fit. The asymptotic calculation
 itself still performs native profile fits.
@@ -118,7 +114,7 @@ optimization, uniqueness, regularity or coverage.
 
 Omitting `expected_data.crossing` selects `{mode: "verify_only",
 max_profile_evaluations: 15}`. A failed original bracket then makes the operation
-unresolved. A study may instead prospectively declare:
+unresolved. A study can instead prospectively declare:
 
 ```json
 "crossing": {"mode": "verify_or_refine", "max_profile_evaluations": 100}
@@ -143,8 +139,7 @@ flag. `rows` remains the literal original tree and is labeled accordingly.
 `native-expected-crossings.json` retains original failed bracket diagnostics, every
 profile and its raw fit pin, and all resolved bracket indices. Canonical reference
 comparisons use qualified endpoints; the original comparisons remain available.
-A recovered result does not rewrite the upstream result or imply that its hidden
-internal Asimov dataset or optimizer diagnostics were observed.
+A recovered result preserves the unchanged upstream result and its original dataset and optimizer observation scope.
 
 ## Evidence and numerical limits
 
@@ -160,14 +155,10 @@ and checked afterward; changed evidence is refused, not regenerated.
 The normal native probe reopens the separate workspace and checks the full
 count-PDF/observable/region/role/POI linkage, functions, parameter domains and
 Gaussian support. Combine 9.2.1 then **regenerates its internal nominal Asimov**
-from this prepared state. Its internal `_Asymptotic_asimovDataset_` is not exported
-by the released implementation; `internal_asimov_dataset_independently_exposed`
-therefore stays false. Readback of our prepared data is not relabelled as readback
-of that hidden internal object. Native analytic qualification must test the
+from this prepared state. The result records `internal_asimov_dataset_independently_exposed: false`; prepared-data readback retains its distinct dataset identity. Native analytic qualification must test the
 resulting NLL contrasts and endpoints as well as preparation.
 
-Clean command exits and finite bands do not prove profile-fit globality, validity
-of supplied detector/MC laws, asymptotic regularity or coverage. Literal optimizer
+Profile-fit globality, detector/MC-law validity, asymptotic regularity and coverage require their own scientific evidence. Literal optimizer
 warnings stay visible for reviewers. The new conditional raw fit has its explicit
 diagnostic gates; AsymptoticLimits' internal fits retain existing log/row evidence
 without inventing saved fit diagnostics.

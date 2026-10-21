@@ -269,6 +269,7 @@ def execute(root, host, *, workers=1, clear_stop=False):
                 # recovered at start, and a stop request that dispatches no further node.
                 scope = root / 'effects'
                 if clear_stop:
+                    graph_substrate.refuse_controller_switches(scope, clear_stop=True)
                     (scope / effect_ledger.STOP).unlink(missing_ok=True)
                 lifecycle.enter_context(graph_substrate.scope_runner(effect_ledger._scope(scope), spec['graph_id'], thread))
                 effect_ledger.recover(scope)

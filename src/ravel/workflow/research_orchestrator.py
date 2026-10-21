@@ -13,6 +13,7 @@ import json
 import os
 import re
 from pathlib import Path
+from . import research_controller
 from typing import TypedDict
 
 from . import agent_graph as graph, state_io
@@ -23,7 +24,7 @@ class RecoveryHold(ValueError):
     """A domain effect without a reconciled receipt must not be replayed."""
 
 
-def _ordinary_approval_gate(rundir, *, selected, goal_binding):
+def _ordinary_approval_gate(rundir, *, selected, goal_binding, pause=None):
     """Fresh preparation may request CI1; an existing receipt is never replaced."""
     from langgraph.types import interrupt
     from . import science, scientific_autonomy
@@ -38,9 +39,14 @@ def _ordinary_approval_gate(rundir, *, selected, goal_binding):
             scientific_autonomy.plan_authority(rundir)
             science.approve_delegated(rundir)
         else:
-            interrupt({'kind': 'ordinary_checkin1_and_machine_lease_required',
+            request = {'kind': 'ordinary_checkin1_and_machine_lease_required',
                 'rundir': str(rundir), 'selected': selected,
-                'original_goal_binding': goal_binding, 'approval_from_resume': False})
+                'original_goal_binding': goal_binding, 'approval_from_resume': False}
+            # The selected engine's pause, else the legacy interrupt; both stay visible call sites.
+            if pause is not None:
+                pause(request)
+            else:
+                interrupt(request)
     # Neither an ordinary retry nor an interrupt response is approval. Missing
     # inputs and missing/invalid receipts refuse through the original verifier.
     try:
@@ -114,9 +120,10 @@ def _emitted(path, value):
 def _sources():
     # Framework libraries have their own runtime identity. This closure binds
     # the actual service adapters and prevents checkpoint reuse after edits.
-    from . import research_cycle, research_tools, scientific_judgment, physics_review, science, agent_host, scientific_autonomy, research_coordinator_decisions
+    from . import research_cycle, research_tools, scientific_judgment, physics_review, science, agent_host, scientific_autonomy, research_coordinator_decisions, research_history, research_protocol
     return [_pin(m.__file__) for m in (framework, graph, agent_host, research_cycle, research_tools,
-        scientific_judgment, physics_review, science, scientific_autonomy, research_coordinator_decisions)] + [_pin(__file__)]
+        scientific_judgment, physics_review, science, scientific_autonomy, research_coordinator_decisions,
+        research_history, research_protocol, research_controller)] + [_pin(__file__)]
 
 
 def _session(out, operation):
@@ -310,7 +317,7 @@ def _consumed(root, binding):
     if len(matches) != 1 or view['cycle']['sha256'] != contract['cycle_sha256']:
         raise ValueError('consumed role belongs to a different/superseded cycle')
     event = matches[0]
-    receipt = graph.role_receipt(binding['graph_root'], binding['node_id'],
+    receipt = research_controller.role_receipt(binding['graph_root'], binding['node_id'],
         expected_subject_sha256=binding['subject_sha256'], expected_packet_sha256=binding['context_manifest_sha256'],
         require_exact_subject=True, allowed_roles={contract['role']})
     value = receipt['public_value']
@@ -328,7 +335,21 @@ def review(root, out, *, host, model, reasoning_effort, max_output_tokens, max_w
            campaign=None, experiment=None, context_index_limits=None, evidence_pages=None, max_context_reworks=0):
     """Separate-role assess→prepare→dispatch→consume→revise/verify subgraph."""
     from .graphs import review as review_graph
-    if review_graph.delegates(root):  # epoch-two review points run on review.points
+    from . import research_cycle as cycle
+    rd = Path(root)
+    plan_path = rd / cycle.science.PLAN
+    plan = cycle.state_io.read_json(plan_path) if plan_path.exists() else {}
+    if not isinstance(plan, dict):
+        raise ValueError('scientific review requires an object science plan')
+    child = (rd / cycle.CHILD_CONTRACT_ORIGIN).exists() or plan.get('research_binding') is not None
+    if child:
+        cycle.verify_experiment_contract(rd)
+    delegated = review_graph.delegates(root)
+    if delegated and child:
+        # An authenticated ordinary operation keeps its original separate-role
+        # scientific policy. Its epoch-two intake still owns all other gates.
+        cycle.science.verify_plan(rd, approved=True)
+    elif delegated:  # Other epoch-two runs keep the generic review.points route.
         return review_graph.orchestrated(root, claim_scope)
     from . import scientific_judgment as j, scientific_autonomy
     from langgraph.types import interrupt
@@ -665,6 +686,21 @@ def _legacy_pause(payload):
     graph_substrate.legacy_pause(payload)
 
 
+def campaign_contract(value):
+    """The campaign contract an adopted (or bounded) open-research request fixes; the controller rechecks it."""
+    contract = {'schema_version': 1, **deepcopy(value['campaign']), 'question': value['handoff']['original_request'],
+                'scope': 'Complete original research assignment; planning/preparation remain intermediate.',
+                'context_request': value['context_request'] or value['planning_context'],
+                'goal_binding': value['handoff']['goal_binding'], 'research_protocol_required': True,
+                'research_regime': value.get('research_regime', 'open_exploratory')}
+    if 'bounded_step' in value:
+        from .bounded_research import validate as validate_bounded
+        source = validate_bounded(value)
+        contract.update(question=source['question'], bounded_step=value['bounded_step'],
+                        scope='One bounded progress decision; unfinished original duties remain open.')
+    return contract
+
+
 def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=None):
     """The open-research node table, edges and bounds shared by both engines.
 
@@ -680,11 +716,7 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
     output_dir=cycle._ordinary(output_dir)
     if output_dir==root or not output_dir.is_relative_to(root):
         raise ValueError('coordinator effects must be inside its original campaign')
-    contract={'schema_version':1,**deepcopy(value['campaign']), 'question':value['handoff']['original_request'],
-        'scope':'Complete original research assignment; planning/preparation remain intermediate.',
-        'context_request':value['context_request'] or value['planning_context'],
-        'goal_binding':value['handoff']['goal_binding'], 'research_protocol_required': True,
-        'research_regime':value.get('research_regime', 'open_exploratory')}
+    contract=campaign_contract(value)
     if not root.exists():
         cycle.create(root,contract,base_dir=Path(value['parent_contract']['path']).parent)
     else:
@@ -706,6 +738,10 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         return state
     def declaration_prepare(s):
         state=validate(s)
+        if 'bounded_step' in value:
+            # This form makes no scientific declaration or assessment. The full
+            # protocol is bound above and its pending duties survive synthesis.
+            return {'action': 'bounded-progress'}
         if s.get('action')!='revise-context' and (value['context_request'] is not None or 'scientific_context_declaration' in state):
             return {'action':'assess-context'}
         if s['method_round']>=value['max_decisions']:
@@ -739,10 +775,15 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         return {}
     def assessment_prepare(s):
         validate(s)
+        if 'bounded_step' in value:
+            return {'role': '', 'action': 'bounded-progress'}
         role=s.get('role') or 'critic'
         prepared=decisions.prepare_assessment(root,value,out/'methods'/str(s['method_round'])/role,role=role)
         return {'role':role,'prepared':prepared,'model_spec':decisions.decision_spec(root,prepared,value['runtime'],graph_id='method-'+role)}
     def assessment_call(s):
+        if 'bounded_step' in value:
+            validate(s)
+            return {'role': ''}
         origin=decisions.actual(root,out/'methods'/str(s['method_round'])/(s['role']+'-graph'),s['prepared'],s['model_spec'],host=host,settings=value['runtime'])
         decisions.assessment_receipt(origin,s['prepared'],allow_control=value['review']['allow_control'])
         public=origin['value']['value']
@@ -751,6 +792,8 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         return {'context_'+s['role']:{'origin':origin,'prepared':s['prepared']},'role':'verifier' if s['role']=='critic' else ''}
     def assessment_gate(s):
         validate(s)
+        if 'bounded_step' in value:
+            return {'action': 'bounded-progress', 'role': ''}
         feedback=[];receipts=[]
         for key in ('context_critic','context_verifier'):
             bound=s[key];actual=cycle._graph_result(bound['origin']['root'],bound['origin']['node_id'])
@@ -772,6 +815,8 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         return {'action':'method-adequate','role':''}
     def idea_prepare(s):
         validate(s)
+        if 'bounded_step' in value:
+            return {'action': 'bounded-progress', 'role': ''}
         from . import research_protocol
         methodology = research_protocol.methodology_status(root)
         if methodology['next_stage'] == 'limitation_census':
@@ -795,6 +840,9 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
                            'max_wall_seconds': value['runtime']['max_wall_seconds']}}
         return {'role': '', 'prepared_ideas': prepared, 'model_spec': spec}
     def idea_call(s):
+        if 'bounded_step' in value:
+            validate(s)
+            return {'role': ''}
         from . import graph_substrate
         graph_root = out/'parallel-ideas-graph'
         result = graph_substrate.execute_role_graph(root, graph_root, s['model_spec'], host,
@@ -818,6 +866,9 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
             origins[key] = origin
         return {**origins, 'role': ''}
     def idea_adopt(s):
+        if 'bounded_step' in value:
+            validate(s)
+            return {}
         validate(s)
         # Neither stream is adopted/presented until both source-separated turns
         # finish. Real rival ideas live only in the existing hypothesis journal.
@@ -838,6 +889,7 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         return {'origin':origin,'action':public['action'],'arguments':args}
     def selected_operation(s):
         validate(s)
+        decisions.research_controller.admit_action(s['origin'])
         # This node completes before approval/execution can interrupt. On
         # resume the chosen original identity survives selector exclusions.
         if s['action']!='run-selected':return {'selected':''}
@@ -851,6 +903,7 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         if (origin!=s['origin'] or public.get('kind')!='research-action'
                 or public.get('action')!=action or _loads(public['arguments_json'])!=args):
             raise ValueError('routing checkpoint differs from actual source-bound model action')
+        decisions.research_controller.admit_action(origin)
         dest=out/'turns'/str(s['turn'])/'effect'
         committed=cycle._coordinator_effect(state,origin)
         if committed is not None:
@@ -906,7 +959,7 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
                 state=cycle.prepare_experiment(root,selected,rundir)
             elif e['rundir']!=str(rundir):
                 raise RecoveryHold('selected effect already belongs to another ordinary run; retain and reconcile')
-            _ordinary_approval_gate(rundir, selected=selected, goal_binding=contract['goal_binding'])
+            _ordinary_approval_gate(rundir, selected=selected, goal_binding=contract['goal_binding'], pause=interrupt)
             status=science.packet(rundir)['execution']['status']
             if status in {'approved','planned'}:cycle.run_experiment(root,selected)
             elif status=='running':
@@ -962,12 +1015,17 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         for row in s.get('action_results',[]):_read(row['effect'])
         if s['action']=='synthesize':
             return {'result':cycle.synthesize(root,_read(s['arguments']['report_request']),base_dir=cycle._load(root)[1]['base_dir'])}
+        if s['turn'] >= value['max_decisions']:
+            result = cycle.bounded_synthesis(root, 'Original declared decision population exhausted.')
+            if 'bounded_step' in value:
+                result['coordinator_decision'] = cycle._graph_result(s['origin']['root'], s['origin']['node_id'])
+            return {'result':result}
         return {'result':cycle.progress_synthesis(root)}
     nodes={'declare_prepare':declaration_prepare,'declare_call':declaration_call,'declare_sources':declaration_sources,'declare_apply':declaration_apply,
         'assessment_prepare':assessment_prepare,'assessment_call':assessment_call,'assessment_gate':assessment_gate,
         'idea_prepare':idea_prepare,'idea_call':idea_call,'idea_adopt':idea_adopt,
         'decision_prepare':decision_prepare,'decision_call':decision_call,'selected_operation':selected_operation,'action_effect':action_effect,'whole_question':final}
-    return {'value':value,'contract':contract,'out':out,'operation':operation,'nodes':nodes,'final':final,
+    return {'value':value,'contract':contract,'out':out,'operation':operation,'campaign_root':str(root),'nodes':nodes,'final':final,
         'validate':validate,'edges':OPEN_EDGES,'conditional':OPEN_CONDITIONAL,
         'initial':deepcopy(OPEN_INITIAL),'steps':32+20*value['max_decisions']}
 
@@ -987,7 +1045,7 @@ def run_protocol_stage(root, artifact, output_dir, *, host, settings):
         if stage is None:
             raise ValueError('all bound research stages already complete')
         from .graphs import stage as stage_graph
-        options, _ = stage_graph.model_options(stage, settings)
+        options, _ = stage_graph.model_options(stage, settings, root=root)
         prepared = protocol.prepare_stage(root, stage, artifact, out/'review', **options)
         decisions._put(binding_path, prepared)
     graph_root = out / 'graph'
@@ -1001,7 +1059,7 @@ def run_protocol_stage(root, artifact, output_dir, *, host, settings):
     current = protocol.methodology_status(root)
     if next(r for r in current['record']['stages'] if r['id'] == prepared['stage'])['status'] == 'done':
         return {'complete': True, 'methodology': current, 'scientific_acceptance': False}
-    decisions.receipt_family_check(prepared['stage'], graph_root, settings)  # F8: observed models, R2+
+    decisions.receipt_family_check(prepared['stage'], graph_root, settings, root=root)  # F8: observed models, R2+
     completed = protocol.complete_stage(root, prepared, graph_root)
     return {'complete': True, 'methodology': completed, 'scientific_acceptance': False}
 
@@ -1046,15 +1104,26 @@ LOOP_GRAPH='research.loop'
 PARITY_RECORD=Path(__file__).resolve().parents[1]/'data/graphs/parity/research-loop.json'
 
 
-PARITY_FIXTURES=('synthetic-open-question','synthetic-protocol-stages','open-question-baseline-failure')
-# The loop's implementation: the shared node table, the two graph builders and their service adapter.
+PARITY_FIXTURES=('synthetic-open-question','synthetic-protocol-stages','open-question-baseline-failure',
+    'synthetic-research-full-cycle')
+# The loop's implementation (the shared node table, the two graph builders and their service
+# adapter) and the research stage, decision, execution and receipt modules its fixtures traverse.
 PARITY_SOURCES=('workflow/research_orchestrator.py','workflow/graphs/__init__.py','workflow/graphs/research_loop.py',
-    'workflow/graphs/stage.py')
-PARITY_FIXTURE_SOURCES=('tests/unit/test_research_loop_graph.py',)
-PARITY_NOTE=('R2 and higher stages need distinct-family critics, which need per-role stage models '
-    '(prepare_stage role_models); the fixtures stop at the first R2 stage, which both engines refuse at '
-    'dispatch. complete_stage re-checks a stage reservation with the campaign\'s inherited goal binding on '
-    'both engines (test_goal_bound_stage_completion).')
+    'workflow/graphs/stage.py', 'workflow/research_protocol.py', 'workflow/research_coordinator_decisions.py',
+    'workflow/research_cycle.py', 'workflow/research_history.py', 'workflow/research_controller.py', 'workflow/research_admission.py', 'workflow/science.py',
+    'workflow/architecture_receipt.py', 'workflow/research_architecture.py',
+    'workflow/research_child_plan.py', 'workflow/ordinary_review_observations.py',
+    'workflow/stage_supervisor.py', 'workflow/research_evaluation.py', 'workflow/rdj_anchor.py',
+    'workflow/rdj_loop.py')
+# The files that define the four parity fixtures and compute their kept rows, plus the
+# fixture case data; as before, shared test helpers are not part of the fixture identity.
+PARITY_FIXTURE_SOURCES=('tests/unit/test_research_loop_graph.py','tests/unit/test_research_full_cycle.py',
+    'tests/unit/test_research_full_cycle_parity.py','tests/fixtures/research_full_cycle/case.json')
+PARITY_NOTE=('The full-cycle control preserves actual intake, decision and ordinary execution authority '
+    'through separately dispatched stage roles, revision, confirmation, CI3 and delivery. '
+    'Stage roles are credited only from distinct observed actors, sessions and packets; '
+    'model families are descriptive labels and are never compared. '
+    'Synthetic transport responses establish engineering traversal, not scientific efficacy or live qualification.')
 
 
 def parity_bindings():
@@ -1138,10 +1207,11 @@ def engine_label(*, experimental=False):
 # Run-unique identifiers and clocks are excluded from the dual-run comparison set. Digests are
 # excluded too: an agent Graph request embeds a random attempt id, and every later document that
 # cites a model result carries it transitively. Requests, results and records are compared by
-# their normalized content instead.
+# their normalized content instead. A review cycle_id is such a digest or run-unique identifier:
+# a stage packet's cycle_id is its subject digest, whose complete content is compared in the request.
 VOLATILE_KEYS=('utc','epoch','instance_id','run_id','request_id','attempt_id','invocation_id','call_id','elapsed',
     'duration','pid','sequence','started','finished','deadline','created','timestamp',
-    'external_response_pin','external_completion_evidence')
+    'response_id','cycle_id','external_response_pin','external_completion_evidence')
 ATTEMPT_PATH=re.compile(r'(attempts|requests)/[0-9a-f]{32}')
 
 
@@ -1153,6 +1223,15 @@ def _normalized(value):
     if isinstance(value,list):
         return [_normalized(v) for v in value]
     if isinstance(value,str):
+        # Provider contexts and action arguments carry complete JSON as text.
+        # Apply the same comparison to those bodies, rather than comparing
+        # embedded run-specific receipt hashes as opaque strings.
+        try:
+            nested=json.loads(value)
+        except (ValueError,RecursionError):
+            nested=None
+        if isinstance(nested,(dict,list)):
+            return json.dumps(_normalized(nested),sort_keys=True,allow_nan=False)
         return ATTEMPT_PATH.sub(r'\1/<attempt>',value)
     return value
 
@@ -1174,7 +1253,8 @@ def parity_snapshot(root, graph_roots=None):
     stages,gates=[],{}
     for row in status['record']['stages']:
         stages.append({'id':row['id'],'status':row['status'],'reason':row.get('reason'),'round':row.get('round'),
-            'roles':row['roles'],'artifact':row.get('artifact'),
+            'roles':row['roles'],'artifact':({'path':row['artifact']['path'],
+                'content':document(row['artifact'])} if row.get('artifact') else None),
             'preparation':_normalized(row.get('active_preparation')),
             'receipts':{role:document(pin) for role,pin in sorted((row.get('worker_receipts') or {}).items())}})
         gates[row['id']]=[[e.code,e.message] for e in protocol.gate_errors(root,'research_choice',{'scope':row['id']})]
@@ -1245,6 +1325,106 @@ def campaign_gates(root, parent_rundir):
     return check
 
 
+def delivery_action(root, failure_id, response):
+    """Pin the exact outside response for a real resume decision; grant no authority.
+
+    The action belongs to the original parent whose decision gate owns resume.
+    The waiting operation still revalidates its own approval and current inputs.
+    """
+    from . import research_cycle as cycle, graph_registry, state_io
+    from . import effect_ledger
+    cycle.ce.sha(failure_id)
+    errors = graph_registry.response_errors('external_delivery', response)
+    if errors:
+        raise ValueError('invalid ordinary delivery: ' + '; '.join(errors))
+    root, state = cycle._load(root)
+    response_pin = response['response']
+    target = Path(response_pin['path'])
+    if not target.is_absolute(): target = root / target
+    actual = _pin(target)
+    if actual['sha256'] != response_pin['sha256']:
+        raise ValueError('ordinary delivery response pin changed')
+    binding = state['contract'].get('goal_binding')
+    if binding is None:
+        raise ValueError('ordinary delivery requires its original parent binding')
+    parent = Path(binding['contract']['path'])
+    if not parent.is_absolute(): parent = Path(state['base_dir']) / parent
+    parent = parent.parent.parent if parent.parent.name == 'inputs' else parent.parent
+    from . import research_protocol
+    methodology = research_protocol.methodology_status(root)
+    stage = methodology['next_stage'] or methodology['record']['stages'][-1]['id']
+    document = {'schema_version': 1, 'kind': 'research-ordinary-delivery',
+        'campaign': str(root), 'failure_id': failure_id,
+        'protocol_stage': stage,
+        'response': {'path': str(target.resolve()), 'sha256': actual['sha256']},
+        'execution_authorized': False, 'approval_from_resume': False}
+    path = parent / 'inputs/research-deliveries' / (effect_ledger.digest(document)+'.json')
+    if path.exists():
+        if state_io.read_json(path) != document:
+            raise ValueError('ordinary delivery action changed')
+    else:
+        state_io.atomic_json(path, document)
+    pin = _pin(path)
+    return {'kind': 'screening_choice', 'scope': stage,
+        'summary': 'Resume the existing operation after checking its exact outside response.',
+        'digest': pin['sha256'], 'pins': [{k: pin[k] for k in ('path', 'sha256')}]}
+
+
+def stage_delivery_action(root, payload, response):
+    """Pin one exact outside stage-role delivery for a real resume decision; grant no authority.
+
+    The stage subgraph's gate checks this action, so the decision covers named bytes rather
+    than run-internal state. As for ``delivery_action``, a goal-bound campaign's original
+    parent owns the decision; an unbound campaign owns its own. The stage still completes
+    only through its original checks.
+    """
+    from . import research_cycle as cycle, graph_registry, state_io, effect_ledger
+    errors = graph_registry.response_errors('external_delivery', response)
+    if errors:
+        raise ValueError('invalid stage delivery: ' + '; '.join(errors))
+    if (type(payload) is not dict or payload.get('kind') != 'research-stage-delivery-required'
+            or set(payload) != {'kind', 'stage', 'complete', 'graph_root', 'pending', 'execution_authorized'}):
+        raise ValueError('stage delivery requires its exact pending stage payload')
+    root, state = cycle._load(root)
+    from . import research_protocol
+    status = research_protocol.methodology_status(root)
+    stage = status['next_stage']
+    if payload['stage'] != stage:
+        raise ValueError('stage delivery is not for the current research stage')
+    # The delivered Graph is the one beside this campaign's active stage preparation.
+    prepared = next(row for row in status['record']['stages'] if row['id'] == stage).get('active_preparation')
+    graph_root = cycle._ordinary(payload['graph_root']).resolve()
+    if (prepared is None or graph_root.name != 'graph'
+            or graph_root.parent != Path(prepared['specification']['path']).resolve().parent.parent):
+        raise ValueError('stage delivery graph is not the active preparation of this campaign stage')
+    response_pin = response['response']
+    target = Path(response_pin['path'])
+    if not target.is_absolute(): target = root / target
+    actual = _pin(target)
+    if actual['sha256'] != response_pin['sha256']:
+        raise ValueError('stage delivery response pin changed')
+    owner = root
+    binding = state['contract'].get('goal_binding')
+    if binding is not None:
+        parent = Path(binding['contract']['path'])
+        if not parent.is_absolute(): parent = Path(state['base_dir']) / parent
+        owner = parent.parent.parent if parent.parent.name == 'inputs' else parent.parent
+    document = {'schema_version': 1, 'kind': 'research-stage-delivery', 'campaign': str(root),
+        'stage': stage, 'graph_root': str(graph_root), 'pending': deepcopy(payload['pending']),
+        'response': {'path': str(target.resolve()), 'sha256': actual['sha256']},
+        'execution_authorized': False, 'approval_from_resume': False}
+    path = owner / 'inputs/research-deliveries' / (effect_ledger.digest(document) + '.json')
+    if path.exists():
+        if state_io.read_json(path) != document:
+            raise ValueError('stage delivery action changed')
+    else:
+        state_io.atomic_json(path, document)
+    pin = _pin(path)
+    return {'kind': 'screening_choice', 'scope': stage,
+        'summary': 'Resume the bound research stage after checking its exact outside role delivery.',
+        'digest': pin['sha256'], 'pins': [{k: pin[k] for k in ('path', 'sha256')}]}
+
+
 def _parent_rundir(plan):
     contract=Path(plan['value']['parent_contract']['path'])
     return contract.parent.parent if contract.parent.name=='inputs' else contract.parent
@@ -1299,14 +1479,19 @@ def respond_graph(root, request_pin, output_dir, responses, *, host, gate_check=
 
 
 def _graph_outcome(root, plan, instance, observation):
-    from . import graph_substrate
+    from . import graph_substrate, research_cycle as cycle
     if observation['interrupts']:
         return {'phase':'ordinary_effect_required','engine':'graph','checkpoint':observation,
                 'execution_authorized':False}
     _,_,snapshot=graph_substrate._pending(root,LOOP_GRAPH,instance)
     values=snapshot.values or {}
+    failures=list((values.get('failures') or {}).values())
+    exhausted = next((row for row in reversed(failures) if row.get('error_type') in
+                      {'CampaignBudgetExhausted', 'OperationalBoundaryError'}), None)
+    if exhausted is not None:
+        return cycle.bounded_synthesis(plan.get('campaign_root', (plan.get('operation_document') or {}).get('cycle', root)),
+                                       exhausted['message'], boundary=exhausted)
     if observation['terminal'] is not None or observation['next']:
-        failures=list((values.get('failures') or {}).values())
         return {'phase':(observation['terminal'] or {}).get('status') or 'paused','engine':'graph',
                 'status':observation['terminal'],'failures':failures[-3:],'checkpoint':observation,
                 'execution_authorized':False,'scientific_acceptance':False}

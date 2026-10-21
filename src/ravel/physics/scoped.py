@@ -350,8 +350,9 @@ def mg_commands(rd, g, proc):
     for index, point in enumerate(points(g)):
         name = f" --name=point_{point['id']}" if point else ""
         commands += [f"launch {proc}{name}", *LAUNCH_SWITCHES]
-        if "parameter_card" in g:
-            commands.append(str(rd / g["parameter_card"]))
+        selected_card = (point or {}).get("parameter_card", g.get("parameter_card"))
+        if selected_card is not None:
+            commands.append(str(rd / selected_card))
         for o in (point or {}).get("overrides", []):
             commands.append(f"set {o['block'].lower()} {' '.join(str(c) for c in o['code'])} {o['value']}")
         settings = {**g["run_settings"], "nevents": g["events"], "iseed": g["seed"] + index,
@@ -394,6 +395,13 @@ def generate(rd, spec, out=None):
     from ravel.workflow.spec_reconciliation import reconcile, simulation_from_cards
     g = spec["generation"]
     require_core_lease(rd, g)
+    from ravel.physics import model_admission, model_events
+    runtime_source = rd / "inputs/madgraph"
+    models = [p for p in (runtime_source / "models").iterdir() if p.is_dir()
+              and (g["model"] == p.name or g["model"].startswith(p.name + "-"))]
+    if not models:
+        raise model_admission.ModelEvidenceError('foreign', 'generation model source is absent')
+    model_validation = model_admission.scoped_generation_evidence(g, rd, max(models, key=lambda p: len(p.name)))
     out = rd / "outputs" if out is None else out
     work = rd / "work"
     work.mkdir(exist_ok=False)
@@ -436,6 +444,10 @@ def generate(rd, spec, out=None):
         shutil.copyfile(files[0], target / "events.lhe.gz")
         audit = audit_lhe(target / "events.lhe.gz", g, seed=g["seed"] + index)
         header = audit.pop("header")
+        validation = model_validation[point["id"] if point else "single"]
+        expected_card = Path(validation["parameter_card"]["path"]).read_text()
+        if model_events.parameter_values(header["slha"]) != model_events.parameter_values(expected_card):
+            raise model_admission.ModelEvidenceError('foreign', 'generated parameter/width population differs from validated point')
         if "parameter_card" in g and not point and parameter_recipe((rd / g["parameter_card"]).read_text()) != parameter_recipe(header["slha"]):
             raise ValueError("executed parameter card differs from supplied scientific parameters")
         if point:
@@ -468,7 +480,8 @@ def generate(rd, spec, out=None):
         results.append((point, audit))
     atomic_json(out / "spec-reconciliation.json", reconciliations)
     model_identity = {"name": g["model"], "source_sha256": plan["model_source_sha256"],
-                      "origin": plan.get("model_origin") or {"kind": "installed in the generator runtime"}}
+                      "origin": plan.get("model_origin") or {"kind": "installed in the generator runtime"},
+                      "validation": model_validation}
     recipe_extra = {"model_source_sha256": plan["model_source_sha256"],
                     "generator_source_sha256": plan["generator_source_sha256"], "generator_version": version}
     if plan.get("generator_selection"):
@@ -510,6 +523,7 @@ def generate(rd, spec, out=None):
                              for p, a in results],
                   "recipe": {"kind": "parton_lo_batch", "points": [{"id": p["id"], "recipe": a["recipe"]} for p, a in results],
                              **recipe_extra}}
+    result["model_validation"] = model_validation
     if g.get("cross_section_only"):
         result["scope"] = "LO cross sections with integration uncertainty; events were generated only to integrate"
     result["reconciliation"] = {k: {"satisfied": v["satisfied"], "unknowns": v["unknowns"], "flags": v["flags"]}

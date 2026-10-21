@@ -105,7 +105,7 @@ The `prepare` request has exactly these fields:
 | `upstream` | `root` and complete `files` list of `{path, sha256}` relative members |
 | `paper` | `{path, sha256}` for the complete nonempty extracted UTF-8 paper text |
 | `hepdata` | `context` pin or null; complete explicit `assets` list |
-| `construction` | Optional: `analysis_spec`, `hepdata_record`, `normalization` and `checks` (each may be null) |
+| `construction` | Optional: `analysis_spec`, `hepdata_record`, `normalization` and `checks` (each can be null) |
 | `metadata` | Literal `arxiv_id`, `inspire_id`, `collaboration`, `preprint_year`; only `arxiv_id` is required nonnull |
 | `provider` | Exact `model`, `reasoning_effort`, `max_calls`, `max_output_tokens`, `max_wall_seconds` |
 | `initial_rounds` | Integer 1–3 original ReviewLoop rounds |
@@ -114,19 +114,18 @@ The `prepare` request has exactly these fields:
 | `approval_mode` | Existing ordinary approval mode; it does not itself grant approval |
 
 Include every `.py` under external `agentrivet/`, `pyproject.toml` and `COPYING`.
-Other explicit Markdown/source metadata may be retained. Members must be ordinary,
+Other explicit Markdown/source metadata can be retained. Members must be ordinary,
 unaliasable files, each ≤1 MiB, complete population ≤64 and aggregate ≤8 MiB.
 Paper/context/individual asset/request JSON inputs have an explicit 8 MiB bound.
 The normal Host retains its own complete-context ceiling (default 2,000,000
 bytes, configurable up to 16,000,000), UTF-8 input admission and response ceiling;
 exceeding these refuses rather than presenting a truncated paper. The Analyst's
 context holds the complete paper, so callers must budget for it. Binary reference/native inputs require the existing
-typed witness/native paths; this role bridge does not decode arbitrary binary
-assets as text.
+typed witness/native paths.
 There are at most 32 assets. Each asset is `{path, role, input}`: canonical distinct
 capsule-relative name, existing source role and `{path, sha256}` input. A HEPData
 context has exactly `hepdata_info` (string/null) and `hepdata_map` (object). These
-remain source declarations; preparation cannot certify their scientific meaning.
+remain source declarations; their scientific meaning requires independent review.
 
 Reserve `max_calls = 1 + 3*(initial_rounds + max_native_repairs)` (4–16), 16–32000
 output tokens per call and total wall time between that call count and 7200 s.
@@ -155,7 +154,7 @@ submission layout or the table JSON that `hepdata_fetch --tables` retains.
 `ravel rivet-hepdata-map build --record <document or fetch directory> --out map.json`
 builds the same map; `reference` writes the reference YODA and `verify` checks a
 routine source's `book()` calls. A table without contiguous numeric bin edges is
-mapped with `edges: null` and cannot be booked by identifier; no binning is invented.
+mapped with `edges: null` and must not be booked by identifier; no binning is invented.
 
 ### Construction checks
 
@@ -169,7 +168,7 @@ construction:
  "sample": {"events": {"path": "<HepMC>", "sha256": "<sha>"}, "max_events": 200, "timeout_seconds": 300, "tolerance": 0.02}}
 ```
 
-`sample` may be null. `environment` names only build variables (`PATH`,
+`sample` can be null. `environment` names only build variables (`PATH`,
 `LD_LIBRARY_PATH`, `DYLD_LIBRARY_PATH`, `PYTHONPATH`, `CXX` and the like).
 `max_probes` is at least `initial_rounds + max_native_repairs` and at most 12; each
 draft is checked once. Preparation records each tool's executable identity and
@@ -234,8 +233,7 @@ After the ordinary research decision Graph returns, the coordinator can call
 max_wall_seconds=...)`. It builds the deterministic preparation Graph itself,
 then invokes the original role loop through charged one-call Graphs. The planner
 need not receive a prewritten generation Graph or an existing catalogue routine.
-Calling this operation from inside an executing campaign Graph is unsupported:
-that Graph retains the campaign lock until it returns.
+Call this operation outside an executing campaign Graph, after that Graph releases its campaign lock.
 
 The choice is an authenticated JSON document, with either exactly
 `{"kind":"paper-first","request":<complete-preparation-request-pin>}` or
@@ -290,7 +288,7 @@ Cached upstream Memory prefixes are not admitted by this fresh-generation route.
 `reviewed_capsule`, `closure`, `runtime`, `workload` pins and the complete `probe` object. It
 requires the actual current successful ordinary source result, unchanged generated
 specification, every source/domain review obligation and complete transitive
-source/runtime closure. A new routine may supply:
+source/runtime closure. A new routine can supply:
 
 ```json
 {"schema_version": 1, "kind": "agentrivet-runtime-declaration", "runtime": {}}
@@ -326,7 +324,7 @@ work. It must fit the unchanged original campaign's remaining cumulative wall
 and native-attempt budget and its original elapsed deadline. Preparation does
 not debit, renew or approve those resources: the existing ordinary experiment
 admission must separately reserve a cost that contains this exact ceiling.
-The role-provider wall allowance cannot authorize native work. The unchanged
+The role-provider wall allowance must not authorize native work. The unchanged
 adapters' inner admission bounds must also fit the declared whole ceiling.
 
 Event transport resolves only typed filesystem operands against the caller's
@@ -341,7 +339,7 @@ once; conflicting identities, source aliases and duplicate original resolved
 inputs still refuse.
 
 Each preparation writes a distinct ordinary specification. Use normal plan,
-verify, approval and run commands; source preparation cannot launch the native
+verify, approval and run commands; source preparation must not launch the native
 job. Native success does not close the original paper task.
 
 ## Feedback and independent delivery
@@ -365,7 +363,7 @@ with compiler diagnostics; for a send-back it is the summary and the unresolved
 findings. The coder also gets its brief. The two original reviews follow; with
 the compile gate on, they are skipped as upstream does when RAVEL's check of the
 new draft fails. Repair preserves the old raw outputs, removes any earlier
-upstream accepted marker from the new Memory, and cannot rerun the Analyst,
+upstream accepted marker from the new Memory, and must not rerun the Analyst,
 renew the budget, replace a superseded predecessor or inherit a scientific vote.
 Exhaustion leaves the task open.
 
@@ -375,6 +373,6 @@ selected built routine in a current successful ordinary event outcome and then
 calls public `task_completion.require_final`. Complete original obligations,
 independent child reviews, original-parent report and CI3 authority remain the
 public gate's responsibility. Upstream approval, a compile result, agreement with
-one plot or this connector's presence cannot substitute for that gate. Returned
+one plot or this connector's presence must not substitute for that gate. Returned
 `parent_task_accepted` reflects that public acceptance; `physics_validated` remains
 false because this wrapper is not a physics certification service.

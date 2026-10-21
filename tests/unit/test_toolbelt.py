@@ -209,3 +209,27 @@ def test_final_records_validate_as_text_json():
     assert record is None and errors
     record, errors = toolbelt.validate_final(card, json.dumps({'handoff': None, 'unexpected': 1}))
     assert record is None and errors
+
+
+@pytest.mark.parametrize('arguments', [
+    {'path': 'inputs/data.json'}, {'artifact_id': 'a0000', 'path': '/private'},
+    {'artifact_id': 'a0000', 'offset': -1}, {'artifact_id': 'a0000', 'max_bytes': 65537},
+    {'section': 'artifacts', 'max_bytes': 1}, {'section': 'outside'}, {'query': 'x' * 257},
+])
+def test_review_reader_refuses_unbound_shapes_at_the_toolbelt(tmp_path, monkeypatch, atlas, arguments):
+    card = synthetic_card()
+    tools = toolbelt.for_card(card, atlas=atlas)
+    reader = next(t for t in tools if t['executes_through']['action'] == toolbelt.REVIEW_ACTION)
+    broker = make_broker(tmp_path, monkeypatch, tools, card)
+    reply = broker.call(toolbelt.to_request(tools, reader['name'], arguments, 'review-shape'))
+    assert reply['status'] == 'refused' and reply['error']['code'] == 'not_allowlisted'
+    assert reply['outputs'] == [] and list((broker.workspace / 'outputs').iterdir()) == []
+
+
+@pytest.mark.parametrize('arguments', [
+    {}, {'section': 'omissions', 'offset': 0, 'max_bytes': 1024, 'query': ''},
+    {'artifact_id': 'a0000', 'offset': 0, 'max_bytes': 1},
+])
+def test_review_reader_declares_each_bounded_page_shape(atlas, arguments):
+    tools = toolbelt.for_card(synthetic_card(), atlas=atlas)
+    assert toolbelt.match(tools, toolbelt.REVIEW_ACTION, arguments) is not None

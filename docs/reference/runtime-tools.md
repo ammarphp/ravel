@@ -1,48 +1,28 @@
-# Pipeline infrastructure (container runtime) — provenance record
+# Container runtime
 
-How the container runtime that the trial runs depend on was provisioned on this host
-(macOS 15.5, Apple Silicon arm64, no admin rights).
+The installer provisions the container client and platform helpers declared in
+the toolchain manifest. On macOS it uses a native Podman client, a matching
+virtual-machine image and the configured helper binaries. On Linux the selected
+runtime executes containers directly. The installation prefix keeps managed
+tools together.
 
-## Outcome: faithful containerized pipeline is viable here
-All three feasibility gates passed. The mapyde/ATLAS containers (linux/amd64) run under emulation
-inside an arm64 podman machine.
-
-## Components
-| Component | Version | Source | Arch |
-|---|---|---|---|
-| podman (client) | 5.8.2 | **native arm64** from github.com/containers/podman release zip | arm64 |
-| vfkit | 0.6.3 | github.com/crc-org/vfkit (signed) | arm64 (universal) |
-| gvproxy | 0.8.9 | conda-forge | arm64 |
-| podman machine image | machine-os:5.8 | quay.io | arm64 |
-| mapyde | 0.5.0 | conda-forge / PyPI | noarch |
-
-Tooling lives under `stages/01-event-generation/build/tools/` (gitignored): `podman-native/`
-(the arm64 client), conda env `pipeline` (gvproxy, vfkit, mapyde). The VM lives in
-`~/.local/share/containers/podman/machine/` (user home).
-
-## The key procedural gap (and fix)
-- **conda-forge's `podman` package is an x86_64 binary.** Run under Rosetta it reports `amd64` and
-  `podman machine init` pulled an **amd64** CoreOS image (`*-amd64.raw`). Apple Virtualization can
-  only boot a native (arm64) guest, so `podman machine start` failed with
-  `VZErrorDomain Code=1 "Internal Virtualization error"`.
-- **Fix:** use the **native arm64 podman client** (release zip), keep arm64 `vfkit`+`gvproxy`, and
-  point podman at them via `CONTAINERS_HELPER_BINARY_DIR`. Then init pulls `*-arm64.raw` and the VM
-  boots.
-
-## Reproduce the runtime
-```bash
-ENVBIN=stages/01-event-generation/build/tools/miniforge3/envs/pipeline/bin   # gvproxy, vfkit, mapyde
-PODMAN=stages/01-event-generation/build/tools/podman-native/podman-5.8.2/usr/bin/podman  # native arm64
-export CONTAINERS_HELPER_BINARY_DIR="$PWD/$ENVBIN"
-export CONTAINERS_MACHINE_PROVIDER=applehv
-export PATH="$PWD/$ENVBIN:$PATH"
-"$PODMAN" machine init --cpus 6 --memory 8192 --disk-size 50 mg-vm
-"$PODMAN" machine start mg-vm
+```sh
+bash scripts/setup/install.sh --only container-runtime
+.venv/bin/ravel doctor --group container-runtime
 ```
 
-## Gate results (logs in `logs/`)
-| Gate | Test | Result |
-|---|---|---|
-| 1 | `podman machine init && start` (arm64) | PASS — VM "mg-vm" running |
-| 2 | run native container (`alpine`) | PASS — `uname -m` → aarch64 |
-| 3 | run amd64 image (`--arch amd64`) | PASS — `uname -m` → x86_64 (emulation works) |
+The installed image architecture and the guest architecture are separate facts.
+An arm64 host requires an arm64 guest for native virtualization; an amd64 tool
+inside that guest additionally requires the configured emulation route. A
+successful guest boot establishes the guest runtime. Each scientific tool still
+requires its pinned image, output checks and operation-specific qualification.
+
+The doctor reports installation readiness and a repair command. It leaves
+virtual-machine startup to an explicit execution or operator action. Retain
+runtime versions, image digests, execution settings and output evidence with
+the run.
+
+See [installation](../installation.md), [execution backends](execution-backends.md)
+and the [environment reference](environment.md) for supported setup and dispatch.
+The [component inventory](component-inventory.md) identifies declared
+installation boundaries and licences.

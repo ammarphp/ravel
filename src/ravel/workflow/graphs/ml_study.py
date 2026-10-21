@@ -18,10 +18,10 @@ study's split_sha256; no partition file is read to compute them. Train,
 validation and confirm are claimed together before training, and the confirm
 file is decoded only after its one charged read.
 
-The merged ml_training.run is atomic and opens test data. It cannot implement
-train here. Until its staged producer/evaluator interface is provided this graph
-holds, without launching that atomic operation from a fan-out item. Graph
-software controls do not certify science.
+The supplied-data profile dispatches approved typed stages through controller.step.
+Extended method studies retain every S1-S16 check and hold when their executor or
+validator artifacts are missing. The atomic ml_training.run never substitutes for
+a training-only stage. Graph software controls do not certify science.
 """
 from __future__ import annotations
 
@@ -83,6 +83,9 @@ REMOTE_HOLD = 'remote placement awaits the owner decision on where remote work r
 class State(nodes.BaseState, total=False):
     spec: dict
     item: dict
+    ml_index: int
+    ml_status: str
+    ml_reason: str
 
 
 class ItemView(TypedDict, total=False):
@@ -92,7 +95,8 @@ class ItemView(TypedDict, total=False):
 
 
 def executor(ctx):
-    value = ctx.extras.get('ml_executor')
+    from .. import ml_executor
+    value = ctx.extras.get('ml_executor') or ml_executor.current(ctx)
     if value is None:
         raise nodes.RecoveryHold('awaits the staged ML executor interface',
                                  'provide the supervised training-only and evaluator-owned stage interface')
@@ -406,7 +410,7 @@ def _acceptance_authority(ctx, state, result):
     except (OSError, KeyError, TypeError, ValueError):
         return False
     return bool(accepted and accepted['case'].get('risk', {}).get('class') == 'R3'
-                and (accepted['receipt'].get('attestation_summary') or {}).get('human_approver'))
+                and (accepted.get('review_independence') or {}).get('human_approver') is True)
 
 
 def _record_rerun_replays(ctx, state, result):
@@ -737,6 +741,7 @@ def _role(ctx, role, name):
 
 
 def build(ctx):
+    from .. import ml_executor
     from langgraph.graph import START, END, StateGraph
     builder = StateGraph(State)
     child_ctx = graph_substrate.BuildContext(ctx.scope_root, ITEM_ID, 1, ctx.instance, extras=ctx.extras)
@@ -834,5 +839,12 @@ def build(ctx):
     nodes.connect(builder, 'final_gate', nodes.gate_route('final_task', passed='S16', refused='hold'))
     nodes.connect(builder, 'S16', nodes.route(lambda s: 'blocked' if s['results']['S16'].get('blocking') else 'pass',
                                             {'blocked': 'hold', 'pass': END}))
-    builder.add_edge(START, 'planner')
+    add('profile', nodes.Node(kind='guard', function=lambda state: {}))
+    add('governed_stage', ml_executor.stage_node(ctx))
+    builder.add_edge(START, 'profile')
+    nodes.connect(builder, 'profile', nodes.route(lambda state: 'staged' if (ml_executor.active() is not None
+        and ml_executor.active().extended is None) else 'extended',
+        {'staged': 'governed_stage', 'extended': 'planner'}))
+    nodes.connect(builder, 'governed_stage', nodes.route(ml_executor.next_stage,
+        {'next': 'governed_stage', 'end': END}))
     return builder

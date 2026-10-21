@@ -89,3 +89,42 @@ def test_cli_requires_an_owner_list_outside_the_scanned_tree(tmp_path, monkeypat
 
 def test_repository_src_cites_no_document_hash_without_a_public_url():
     assert scan_module.scan([ROOT / 'src'], None, root=ROOT) == []
+
+
+@pytest.mark.parametrize('suffix', ['zip', 'tar.gz'])
+def test_archive_fingerprints_are_scanned(tmp_path, suffix):
+    import io
+    import tarfile
+    import zipfile
+    root = tmp_path / 'stage'
+    root.mkdir()
+    target = root / ('bundle.' + suffix)
+    if suffix == 'zip':
+        with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr('note.txt', FINGERPRINT)
+    else:
+        with tarfile.open(target, 'w:gz') as archive:
+            info = tarfile.TarInfo('note.txt')
+            content = FINGERPRINT.encode()
+            info.size = len(content)
+            archive.addfile(info, io.BytesIO(content))
+    findings = scan_module.scan([root], scan_module.load_deny_list(deny_list(tmp_path)), root=root)
+    assert any(f['kind'] == 'fingerprint' and '!note.txt' in f['path'] for f in findings)
+    assert all(FINGERPRINT not in f['detail'] for f in findings)
+
+
+def test_malformed_archive_cannot_be_clean(tmp_path):
+    root = tree(tmp_path, {'broken.zip': 'not a zip file'})
+    findings = scan_module.scan([root], None, root=root)
+    assert any(f['kind'] == 'unscanned-archive-malformed' for f in findings)
+
+
+def test_raw_archive_metadata_findings_are_preserved(tmp_path):
+    import zipfile
+    root = tmp_path / 'stage'
+    root.mkdir()
+    with zipfile.ZipFile(root / 'bundle.zip', 'w') as archive:
+        archive.comment = FINGERPRINT.encode()
+        archive.writestr('note.txt', 'generic text')
+    findings = scan_module.scan([root], scan_module.load_deny_list(deny_list(tmp_path)), root=root)
+    assert any(f['kind'] == 'fingerprint' and f['path'] == 'bundle.zip' for f in findings)

@@ -21,6 +21,7 @@ from pathlib import Path
 import shutil
 import sys
 import shlex
+from contextlib import redirect_stdout
 
 from . import host_config
 from . import manifest as mf
@@ -301,6 +302,7 @@ class Installer:
                     self.say(f"[blocked] {gid}: {blocked[gid]}")
             if blocked:
                 self.say("Rerun: " + result["rerun"] + "\nFinished steps are skipped.")
+            self.say("next: ravel setup-models  (choose the models and spending level; ravel setup-models --yes picks a balanced default)")
             return result
 
     def _rerun_command(self, profile, only, skip):
@@ -450,6 +452,10 @@ def parser():
     ap.add_argument("--jobs", type=int, help="build parallelism (default: half the cores)")
     ap.add_argument("--accept-licenses", action="store_true", help="accept the upstream licences non-interactively")
     ap.add_argument("--yes", action="store_true", help="do not ask questions (licences still need --accept-licenses)")
+    ap.add_argument('--setup-models', action='store_true', help='run guided model setup after installation')
+    ap.add_argument('--model-usage-context', help='private account usage snapshot for guided model setup')
+    ap.add_argument('--model-prior-usage', action='append', default=[], help='prior model-cost JSON for guided model setup')
+    ap.add_argument('--model-prior-run', action='append', default=[], help='prior controller run id for guided model setup')
     return ap
 
 
@@ -457,6 +463,8 @@ def main(argv=None, *, repo=None):
     args = parser().parse_args(argv)
     repo = Path(repo or mf.repo_root())
     try:
+        if (args.model_usage_context or args.model_prior_usage or args.model_prior_run) and not args.setup_models:
+            raise ValueError('model usage inputs require --setup-models')
         prefix = resolve_prefix(repo, args.prefix)
         environ = dict(os.environ)
         if args.lcg_view is not None:environ['RAVEL_LCG_VIEW'] = args.lcg_view
@@ -489,11 +497,24 @@ def main(argv=None, *, repo=None):
     except (mf.ManifestError, LockedError, ValueError) as error:
         print("install: " + str(error), file=sys.stderr)
         return 2
+    exit_code = 0 if result['status'] in ('complete', 'complete_with_deferred') else 1
+    if args.setup_models and exit_code == 0:
+        from . import models_setup
+        model_args = ['--yes'] if args.yes else []
+        if args.model_usage_context:
+            model_args += ['--usage-context', args.model_usage_context]
+        for path in args.model_prior_usage:
+            model_args += ['--prior-usage', path]
+        for run_id in args.model_prior_run:
+            model_args += ['--prior-run', run_id]
+        with redirect_stdout(sys.stderr if args.json else sys.stdout):
+            exit_code = models_setup.main(model_args)
+        result['model_setup_exit_code'] = exit_code
     if args.json:
         print(json.dumps(result, indent=2))
-    elif result["status"] == "licences_not_accepted":
+    elif result['status'] == 'licences_not_accepted':
         print(f"Install licences not accepted. Logs: {result.get('log_dir')}")
-    return 0 if result["status"] in ("complete", "complete_with_deferred") else 1
+    return exit_code
 
 
 if __name__ == "__main__":

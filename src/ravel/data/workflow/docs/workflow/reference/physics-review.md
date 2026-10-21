@@ -14,7 +14,7 @@ or discriminating experiment with explicit possible outcomes. Separate absent
 evidence from an observed contradiction. Novel and speculative directions belong
 in the research program, with concrete resource bounds and an executable method.
 
-CHECK-IN 2 reviews what the executed evidence supports. A hypothesis may fail
+CHECK-IN 2 reviews what the executed evidence supports. A hypothesis can fail
 while the experiment succeeds as an informative diagnostic. Limit claims to the
 observations; preserve rejected and unresolved explanations for subsequent work.
 An unknown needed for a claimed conclusion can block that conclusion without
@@ -26,9 +26,9 @@ do not replace the distinct critic, verifier and decider on actual results.
 
 | Role | Receives | Must return |
 |---|---|---|
-| Critic | Published definition, effective settings, measured outputs, exposure, channels, precision; producer verdict withheld | Located defects or explicit acceptance of a named scope; no speculative defect without an evidence request |
+| Critic | Published definition, effective settings, measured outputs, exposure, channels, precision; producer verdict blinded | Located defects or explicit acceptance of a named scope; no speculative defect without an evidence request |
 | Improvement agent | Concrete findings, approved intervention envelope, frozen rejected evidence | Minimal proposed correction, affected stages, held-fixed quantities, discriminating prediction and stopping rule |
-| Skeptical verifier | Findings, admitted change, new receipts and outputs; improvement agent's favorable conclusion withheld | Whether every material objection is actually closed; new objections remain visible |
+| Skeptical verifier | Findings, admitted change, new receipts and outputs; improvement agent's favorable conclusion blinded | Whether every material objection is actually closed; new objections remain visible |
 | Synthesizer / physics decider | All original findings, repair evidence, independent verdicts and unresolved assumptions | Accept named scope, admit a bounded correction, stop, or request evidence; never vote away an unresolved objection |
 
 Use fresh contexts. The critic, verifier and decider must have distinct declared actor IDs and differ
@@ -36,11 +36,24 @@ from proposer/executor. Actor strings attest separation; they do not authenticat
 The improvement agent is the proposer/executor, not a fourth acceptance vote. Initial acceptance
 requires all three reviewing roles; an improvement pass is necessary when an objection requires repair.
 
+A journal vote is the bound response of an actually dispatched scientific role
+(`scientific_judgment.consume`). Independent credit is computed by `review_independence.decide`, in
+addition to ordinary receipt, subject and output validation: the evidence must show a context
+different from every author and other review seat, no inherited transcript, a RAVEL-built projected
+packet, permitted exposure, packet-only access (or disabled tools) and unchanged output. By default it
+is what RAVEL's dispatchers recorded while dispatching the role (`review_dispatch`): a supervised,
+sandbox-confirmed worker launch or the graph runner's record of an observed fresh model request without
+tools. Unknown identity, author-context review, shared-workspace access, control transports and
+declared-name submissions are advice. Advice is retained under `review-advice/`; it never enters the
+journal, must not close objections, admit a repair or satisfy independent review seats. Human
+authorization is separate. Historical records remain readable; current admission rechecks authority.
+See [scientific judgment](scientific-judgment.md#independent-credit).
+
 `ravel review-context create --rundir RUN --role critic --out NEW_DIRECTORY` creates an immutable
 role packet. Roles are `critic`, `improver`, `verifier`, `synthesizer`. Its reader exposes only listed
 artifacts. Retain the returned manifest digest outside the packet and require it when reading.
 This reader is **not an operating-system sandbox**. The orchestrator must provide only this packet,
-with no inherited producer narrative or unrestricted filesystem/browser tools. File contents may
+with no inherited producer narrative or unrestricted filesystem/browser tools. File contents can
 still reveal context; inspect projections and use counterbalanced prose controls when evaluating blinding.
 Critic/verifier projections also withhold classifications and interpretive reasons from the known
 diagnostic and decision-case reports, and reviewer/assumption dispositions from claim-graph inputs.
@@ -78,7 +91,7 @@ An overlay holds requirements that stay outside the repository. It is a JSON fil
 (`kind: review-rubric-overlay`) kept with the requester's private inputs and pinned by the sha256 of
 its bytes; a changed file refuses the reviewer packet. An overlay has two lists. `add` holds new
 items. `tighten` raises an item to blocking, or adds a rule that must hold together with the item's
-own rule. An overlay cannot remove an item, replace a rule or lower a severity. Rules are data, so an
+own rule. An overlay must not remove an item, replace a rule or lower a severity. Rules are data, so an
 added item is computed without a code change; `ravel.workflow.review_rubric` lists the rule forms.
 
 ## Prospective declaration
@@ -98,7 +111,7 @@ those definitions. A JSON `pass` is a reported check result, not an independentl
 
 Retain waypoint evidence in dedicated paths. Later bulk output must use distinct stage/output
 paths while keeping reviewed smoke artifacts available. Overwriting the same reviewed paths
-invalidates GO. Automatic same-path smoke-to-full replacement is not supported. Directory inputs
+invalidates GO. Give the full run its own approved input bindings. Directory inputs
 must be represented by explicit file manifests when opening review; do not hide mutable contents
 behind an unenumerated directory path.
 
@@ -111,7 +124,10 @@ a valid waypoint manifest. Checks contain `id`, `status` (`pass`, `fail`, `incon
 
 1. `ravel review --rundir RUN open --request REQUEST.json` freezes the cycle. Small evidence is stored once by content hash; large
    files retain hashes and sizes without copying whole ROOT/HepMC files. Preserve originals.
-2. Submit role verdicts with `ravel review --rundir RUN review --request REQUEST.json`. Accept a declared scope only if its required
+2. Record role verdicts from dispatched scientific roles: `ravel judgment prepare-role`, run the
+   prepared graph, then `ravel judgment consume --binding ROLE_DIRECTORY/binding.json` (or
+   `ravel review --rundir RUN review --request REQUEST.json` with that role's `binding`). A request
+   that only names a declared reviewer is retained as advice and changes no journal state. Accept a declared scope only if its required
    checks pass and all inherited findings are explicitly closed. `send_back` requires findings
    naming evidence, check IDs, setting paths and required stages. `stop` prevents further admission.
    Acceptance also recomputes the fit and scan alarms from the cycle's retained outputs
@@ -120,10 +136,10 @@ a valid waypoint manifest. Checks contain `id`, `status` (`pass`, `fail`, `incon
    failure refuses any scope that needs a scientific check; a diagnostic scope stays available.
 3. Prepare the minimal correction on the declared copies. `ravel review --rundir RUN correct --request REQUEST.json` records the exact
    changed bytes and stage specifications. The admission consumes a redo even if execution fails.
-   It cannot widen CHECK-IN 1's compute envelope. Changes to unlisted inputs are refused.
+   It must not widen CHECK-IN 1's compute envelope. Changes to unlisted inputs are refused.
 4. Execute admitted stages through the supervisor. Ordinary execution, reuse and delivery remain
    blocked. A failed attempt records correction failure; retries need a new admission and remaining
-   budget. A stage already successfully redone cannot run again under the same admission.
+   budget. A stage already successfully redone must not run again under the same admission.
 5. Open the successor with its correction ID, fresh successful receipts and rechecked outputs.
    All old material findings are inherited. Fresh critic/verifier/decider decisions must close them.
    Every inherited finding's requested checks must pass before closure, even when the accepted scope
@@ -144,7 +160,7 @@ against the approval the review registered. Every named path must be in the revi
 `allowed_changed_paths` and must be one of the correction's changed paths. Only then can the decider
 admit the correction. Under that amended approval, the native correction adapter adopts the prepared
 cards and manifest without regenerating them, and the full dependent chain runs. Preparation
-happens before admission; it cannot regenerate frozen settings while corrective execution is underway.
+happens before admission; it must not regenerate frozen settings while corrective execution is underway.
 Launch is refused for any other changed byte, an ordinary preparation stage or a dropped descendant.
 It is also refused when the compute plan, model, masses, detector, event count or statistical scope
 falls outside the amended approval. Without the amended approval, the changed cards are refused; no
@@ -158,7 +174,7 @@ Record a late finding and place a scientific hold on that exact accepted cycle
 and claim scope. Do not rewrite a historical acceptance as a failed calculation.
 
 The originally registered critic or verifier owns a new finding-context JSON
-document. Another independent reporter may supply evidence; this action does not
+document. Another independent reporter can supply evidence; this action does not
 enroll a new review actor. The context has `schema_version: 1`,
 `kind: "post_acceptance_scientific_finding"`, the original `run_id`, `cycle_id`,
 `cycle_sha256`, `claim_scope`, ordered `accepted_review_sha256` list,
@@ -182,7 +198,7 @@ This appends a `scientific_hold` event and advances the journal checkpoint. It
 retains the context and bounded evidence by content hash while preserving the
 accepted records. Status reports `scientific_hold`, the held scope and unresolved
 findings. Current delivery, reuse, bulk and correction admission refuse. A live
-source or input-inventory mismatch may be reported before the hold diagnostic;
+source or input-inventory mismatch can be reported before the hold diagnostic;
 either blocker prevents the action. The retained journal and detached admission
 checks also validate the hold independently of that live inventory.
 
@@ -208,7 +224,7 @@ and review. Keep the original held history visible alongside the replacement.
 ## Adaptive justification
 
 `ravel decision-case` validates a bounded graph of public assertions, evidence anchors and reviewed
-supporting links. Descend further only for an unsupported assumption, conflict, novelty or consequential
+supporting links. Descend further only for an unverified assumption, conflict, novelty or consequential
 choice. A branch ends in a pinned observation, tool result, source or explicit requirement; otherwise
 it produces a concrete evidence/experiment request. Cycles and unbounded elaboration are refused.
 It validates structure and custody, not the truth or entailment of arbitrary prose. Reviewers judge
@@ -218,7 +234,7 @@ those links. Store concise decision records, not private chains of thought.
 
 GO v3, supervised launches, stage reuse, lifecycle delivery, result packaging, scan harvest and
 verification inspect the current review. Launches retain the exact detached review and authorizations
-before process creation. Later acceptance cannot backfill an earlier launch. Local hash chains detect
+before process creation. Later acceptance must not backfill an earlier launch. Local hash chains detect
 inconsistency; they are not signatures or protection against an adversary rewriting the entire tree.
 Direct external tools outside these interfaces are not universally intercepted.
 
@@ -238,7 +254,7 @@ those systems' empirical benefits transfer to RAVEL without an evaluation.
 Binary outputs are retained as exact indexed bytes. Large packets use a bounded
 initial presentation containing complete text witnesses, byte-header witnesses
 for binary members, the complete index digest/count, and explicit omission
-commitments. A header, an index row, or a deferred hash does not establish that a
+commitments. A header, an index row, or an on-demand hash does not establish that a
 reviewer read the artifact or its physical meaning. The exact judgment request
 and public case must fit as complete text; otherwise preparation refuses and
 requires a declared bounded witness. No initial presentation silently closes an
@@ -254,7 +270,7 @@ byte range and remaining bytes. The deterministic Host actions `review-index`
 and `review-read` use the same allowlist and existing tool-call accounting.
 An omitted large original is not an indexed copy: request a source-bound bounded
 witness or a new complete packet before claiming to have inspected it. Projected
-review records withheld by the role policy remain withheld.
+review records blinded by the role policy remain blinded.
 
 Preparation authenticates the full copied index and ending custody. The reserved
 external request records its actual initial presentation. Exact-subject receipts
@@ -262,5 +278,5 @@ count complete inline content only; source provenance, catalogue entries,
 binary headers and later requested pages do not silently become proof that the
 initial model call read an exact scientific subject. Explicit reviewed findings
 and supporting page artifacts remain necessary. Freshness and host identity are
-attestations with the existing limitations; this does not authorize native work,
+attestations with the existing qualifications; this does not authorize native work,
 authenticate an actor, or establish physics acceptance.

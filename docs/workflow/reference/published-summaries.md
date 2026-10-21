@@ -31,12 +31,12 @@ rules must pass. Declared gaps must equal intervals with no retained curve in th
 census; this is not an exhaustive claim about all current searches.
 
 The renderer receives a separate window view. Full source arrays, out-of-window values and
-unavailable expected/theory entries remain in the result. A null-only visible series has no
+missing expected/theory entries remain in the result. A null-only visible series has no
 legend entry. No theory outside the requested window is extrapolated. Connecting retained
-plot points does not add a numerical interpolation sample. The public adapter always uses
+plot points retains the original unique interpolation sample population. The public adapter always uses
 the plot-lint gate; the legacy renderer CLI's explicit `--no-lint` option is separate.
 
-For a half-open window, an exact supplied point at the upper boundary may serve as a display
+For a half-open window, an exact supplied point at the upper boundary can serve as a display
 clipping anchor when there are selected samples below it. It is listed separately in
 `render_manifest.excluded_boundary_anchors` and remains `in_requested_window=false` in the
 complete series. No sample beyond the boundary or invented interpolated value is used.
@@ -63,15 +63,8 @@ ravel approve --rundir summary-study --quote 'The actual assent to this exact pr
 ravel run --rundir summary-study
 ```
 
-The recovered HVT summary preparation has no new ordinary approval or worker result. It keeps the
-historical digitized numbers and uses a derived metadata artifact to correct the stale 200 GeV
-HVT census/gap to 250 GeV. The reacquired paper's generic 200 GeV abstract range includes other
-models; its HVT quark-annihilation result begins at 250 GeV. The five retained historical
-candidates do not establish a complete current ATLAS/CMS search survey. The historical saved
-audit, figures and benchmark `partial` status remain unchanged.
-
 The private V2 successor additionally records primary-reader corrections to historical
-annotations and CMS figure version names. Its retained theory array has an unvalidated
+annotations and figure version names. Its retained theory array has an unvalidated
 model association: the old Model A label and inter-paper theory agreement are not identity
 evidence. The numerical values stay unchanged; no theory is displayed below 500 GeV and no
 Model B reassociation is inferred. Expected curves from different datasets are not treated

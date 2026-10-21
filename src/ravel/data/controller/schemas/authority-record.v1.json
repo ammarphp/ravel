@@ -1,0 +1,717 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "authority-record.v1",
+  "title": "Controller authority record",
+  "description": "One decision or control for a controller-owned run, written by the controller authority service into the run's protected store. Labels state the evidence, never an identity. Gates consume the record id (uid); files in the run tree are never authority. This file is the response form returned by the authority service (adds id and issuer); $defs.stored_body is the form held in the store, which carries issuer but not id.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "uid",
+    "run_id",
+    "kind",
+    "decision",
+    "option",
+    "comment",
+    "subject",
+    "subject_sha256",
+    "bounds",
+    "source",
+    "label",
+    "evidence",
+    "request",
+    "reason",
+    "mode_record",
+    "supersedes",
+    "authorizes_effects",
+    "review_credit",
+    "human_identity_authenticated",
+    "time_ns",
+    "issuer",
+    "id"
+  ],
+  "properties": {
+    "schema": {
+      "const": "authority-record.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "uid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "approve_plan",
+        "go",
+        "deviation",
+        "final",
+        "r3_action",
+        "escalation",
+        "steering",
+        "stop",
+        "pause",
+        "resume",
+        "revoke"
+      ]
+    },
+    "decision": {
+      "enum": [
+        "approve",
+        "adjust",
+        "reject",
+        "go",
+        "stop",
+        "accept",
+        "rework",
+        "answer",
+        "default",
+        "confirm"
+      ]
+    },
+    "option": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "comment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subject": {
+      "type": "object",
+      "description": "Decisions bind digests and record ids (pins), the rendered check-in digest, the R3 gate, a deviation's exact change row and any waived ledger obligations; controls bind the run and the control they follow.",
+      "properties": {
+        "pins": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "checkin_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gate": {
+          "enum": [
+            null,
+            "unblind",
+            "spend_above_ceiling"
+          ]
+        },
+        "change": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "parameter",
+            "from",
+            "to",
+            "why",
+            "touches",
+            "direction"
+          ],
+          "properties": {
+            "parameter": {
+              "type": "string",
+              "minLength": 1
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            },
+            "why": {
+              "type": "string",
+              "minLength": 1
+            },
+            "touches": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "direction": {
+              "enum": [
+                "tighten",
+                "loosen",
+                "input",
+                "plan",
+                "scope"
+              ]
+            }
+          }
+        },
+        "obligations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "previous_control": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "subject_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "bounds": {
+      "type": "object"
+    },
+    "source": {
+      "enum": [
+        "controller_terminal",
+        "operator_ledger",
+        "operator_ledger_root",
+        "operator_default",
+        "request_delegation",
+        "operator_cli"
+      ]
+    },
+    "label": {
+      "enum": [
+        "physicist_terminal_response",
+        "operator_configured_machine",
+        "delegated_machine",
+        "operator_command",
+        "terminal_operator_unattested"
+      ]
+    },
+    "evidence": {
+      "type": "object"
+    },
+    "request": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mode_record": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "authorizes_effects": {
+      "type": "boolean"
+    },
+    "review_credit": {
+      "const": false
+    },
+    "human_identity_authenticated": {
+      "const": false
+    },
+    "time_ns": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "issuer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "key_id",
+        "mac"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "hmac-sha256"
+        },
+        "key_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mac": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "stop",
+              "pause",
+              "resume",
+              "revoke"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "const": "confirm"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "enum": [
+              "physicist_terminal_response",
+              "operator_command",
+              "terminal_operator_unattested"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "final"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "authorizes_effects": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "default"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "label": {
+            "const": "operator_configured_machine"
+          },
+          "option": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "label": {
+            "const": "terminal_operator_unattested"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "authorizes_effects": {
+            "const": false
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "stored_body": {
+      "title": "Controller authority record, stored body",
+      "description": "One decision or control for a controller-owned run, written by the controller authority service into the run's protected store. Labels state the evidence, never an identity. Gates consume the record id (uid); files in the run tree are never authority.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "schema_version",
+        "uid",
+        "run_id",
+        "kind",
+        "decision",
+        "option",
+        "comment",
+        "subject",
+        "subject_sha256",
+        "bounds",
+        "source",
+        "label",
+        "evidence",
+        "request",
+        "reason",
+        "mode_record",
+        "supersedes",
+        "authorizes_effects",
+        "review_credit",
+        "human_identity_authenticated",
+        "time_ns",
+        "issuer"
+      ],
+      "properties": {
+        "schema": {
+          "const": "authority-record.v1"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "uid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "approve_plan",
+            "go",
+            "deviation",
+            "final",
+            "r3_action",
+            "escalation",
+            "steering",
+            "stop",
+            "pause",
+            "resume",
+            "revoke"
+          ]
+        },
+        "decision": {
+          "enum": [
+            "approve",
+            "adjust",
+            "reject",
+            "go",
+            "stop",
+            "accept",
+            "rework",
+            "answer",
+            "default",
+            "confirm"
+          ]
+        },
+        "option": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "comment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subject": {
+          "type": "object",
+          "description": "Decisions bind digests and record ids (pins), the rendered check-in digest, the R3 gate, a deviation's exact change row and any waived ledger obligations; controls bind the run and the control they follow.",
+          "properties": {
+            "pins": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "checkin_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "gate": {
+              "enum": [
+                null,
+                "unblind",
+                "spend_above_ceiling"
+              ]
+            },
+            "change": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "required": [
+                "parameter",
+                "from",
+                "to",
+                "why",
+                "touches",
+                "direction"
+              ],
+              "properties": {
+                "parameter": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "from": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "why": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "touches": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "direction": {
+                  "enum": [
+                    "tighten",
+                    "loosen",
+                    "input",
+                    "plan",
+                    "scope"
+                  ]
+                }
+              }
+            },
+            "obligations": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "run_id": {
+              "type": "string"
+            },
+            "previous_control": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "subject_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bounds": {
+          "type": "object"
+        },
+        "source": {
+          "enum": [
+            "controller_terminal",
+            "operator_ledger",
+            "operator_ledger_root",
+            "operator_default",
+            "request_delegation",
+            "operator_cli"
+          ]
+        },
+        "label": {
+          "enum": [
+            "physicist_terminal_response",
+            "operator_configured_machine",
+            "delegated_machine",
+            "operator_command",
+            "terminal_operator_unattested"
+          ]
+        },
+        "evidence": {
+          "type": "object"
+        },
+        "request": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mode_record": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "supersedes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authorizes_effects": {
+          "type": "boolean"
+        },
+        "review_credit": {
+          "const": false
+        },
+        "human_identity_authenticated": {
+          "const": false
+        },
+        "time_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "issuer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "key_id",
+            "mac"
+          ],
+          "properties": {
+            "algorithm": {
+              "const": "hmac-sha256"
+            },
+            "key_id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "mac": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "stop",
+                  "pause",
+                  "resume",
+                  "revoke"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "decision": {
+                "const": "confirm"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "enum": [
+                  "physicist_terminal_response",
+                  "operator_command",
+                  "terminal_operator_unattested"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "final"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "authorizes_effects": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "default"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "label": {
+                "const": "operator_configured_machine"
+              },
+              "option": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "label": {
+                "const": "terminal_operator_unattested"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "authorizes_effects": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

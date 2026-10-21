@@ -17,18 +17,23 @@ arguments, or `deliver` for several templates.
 
 To deliver into the requester's file as well, pass `--deliver-into PATH`. PATH
 must still contain exactly the unfilled template bytes pinned at the start of
-the fill; PATH may be the `--template` file itself. After writing `--out` and
+the fill; PATH can be the `--template` file itself. After writing `--out` and
 its provenance, the command stages the filled bytes beside PATH, checks their
 metadata semantics and rechecks PATH's SHA256 immediately before atomic
 replacement. A changed or already filled file is refused and left untouched.
 The provenance records `delivered_into` with the path and before/after hashes.
 If delivery fails, the filled output and provenance remain available, without
 a successful-delivery record. Metadata meaning, edges, headers and qualifiers
-are preserved; YAML formatting may change.
+are preserved; YAML formatting can change.
 
 For event-yield deliverables, pass `--require-nonnegative`. It refuses a negative
 filled value and names the zero-based bin index and edges. The policy is explicit;
 without the flag, signed general results remain supported.
+
+For a run the controller owns, `ravel fill-template` (and `fill`/`deliver`) refuse before writing anything,
+whether the run, the output or the delivery target lies in it: only the controller's sole sink delivers its
+results. The sink fills a trusted-side results file only for an accepted delivery. On every other run the fill
+works as described here and its receipt carries `NOT GOVERNED`.
 
 ## Accepted results
 
@@ -41,10 +46,18 @@ standing findings, changed review obligations, an action outside the plan, an
 unsafe fan-out, a required decision receipt, and an original requirement that no
 accepted output maps to. A delegated run passes the whole `delivery` decision
 gate, as result packaging does; that gate needs the R3 delivery decision
-receipt, which `fill-template` does not produce, so a delegated run fills a
-template only after that decision is recorded. The command names what refuses.
+receipt. A delegated run fills a template after that decision is recorded. The command names what refuses.
 On an epoch-two run the accepted review itself stands only while the attested
-worker receipts credit its CHECK-IN 2 review points. Two result forms are read:
+worker receipts credit its CHECK-IN 2 review points.
+
+The fill records a fresh delivery label with its plain-language notices. A
+`diagnostic` claim scope delivers with the diagnostic label: the record keeps
+`review_accepted: true` and `accepted: false`, because a diagnostic review never
+carries scientific acceptance. Any other scope needs the accepted label: the
+result bytes must be the exact output of a stage with current supervisor custody
+and a matching approval-bound launch, required roles must be credited and the
+current review must cover those bytes. Otherwise the fill is refused and nothing
+is written. Two result forms are read:
 
 - the `quantities.json` output of a `quantities` study (choose a stream with
   `--weight` when there are several);
@@ -149,7 +162,7 @@ margin it adds a warning and the one action that delivers something valid:
 | `provisional-fill` | The review is still open and a valid stage receipt pins an output |
 | `finish-review` | Neither applies; finish the review (or produce and open one) |
 
-`--provisional` fills from an output that is not yet reviewed. It is refused
+`--provisional` fills from an output awaiting review. It is refused
 unless the contract declares a deadline, the margin has been reached, a valid
 stage receipt pins the exact result bytes, and an open, unresolved review
 (`awaiting_review`) cites the result. A hand-made file, a changed output, an

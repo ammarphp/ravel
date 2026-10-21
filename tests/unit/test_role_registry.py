@@ -217,6 +217,26 @@ def test_all_roles_and_cards_validate():
     assert all(not rr.validate_card(c) for c in cards)
 
 
+CHEAP_OK = ('consult-latex', 'sf-convention-translator', 'sf-id-encoder', 'sf-modifier-namer', 'sf-scan-sanitizer')
+
+
+def test_only_the_mechanical_cards_are_cheap_ok_and_they_validate():
+    rr = registry()
+    cards = {c['id']: c for c in rr.all_cards()}
+    marked = sorted(i for i, c in cards.items() if 'cheap_ok' in c['model'])
+    assert marked == list(CHEAP_OK)
+    for identity in CHEAP_OK:
+        card = cards[identity]
+        assert card['model']['cheap_ok'] is True and card['model']['tier'] != 'cheap'
+        assert rr.validate_card(card) == []
+
+
+def test_cheap_ok_must_be_a_boolean():
+    rr = registry()
+    card = rr.load(CHEAP_OK[0])
+    card['model']['cheap_ok'] = 'yes'
+    assert rr.validate_card(card)
+
 def test_producer_self_checks_are_reviewer_union():
     rr = registry()
     card = rr.load('generator')
@@ -287,7 +307,15 @@ def test_n1_native_binding_or_contract_free_redirect(host):
             assert 'tools' in fields
         binding = rr.native_binding(card, host)
         if binding is None:
-            assert body.strip() == f"Do not perform this role here. Run `ravel work dispatch --role {card['id']}`."
+            import shlex
+            from ravel.workflow.transports.host_subagent import dispatch_parser
+            command = body.split('Run `', 1)[1].split('`', 1)[0]
+            argv = shlex.split(command)
+            assert argv[:3] == ['python', '-m', 'ravel.workflow.transports.host_subagent']
+            parsed = dispatch_parser().parse_args(argv[3:])
+            assert parsed.role == card['id'] and parsed.node == 'NODE'
+            assert str(parsed.rundir) == 'RUN'
+            assert str(parsed.spec) == 'SPEC.json' and str(parsed.subject) == 'SUBJECT.json'
             assert 'Contract:' not in text and '"requires"' not in text
         else:
             assert all(fields[k] == v for k, v in binding.items())

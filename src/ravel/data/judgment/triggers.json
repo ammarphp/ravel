@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "kind": "judgment-protocol-triggers",
+  "evidence_ids": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "method_ladder", "recovery"],
+  "protocol_ids": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"],
+  "triggers": {
+    "render_published_artifact": {
+      "requires": ["P1"],
+      "row": "E28",
+      "must_check": "The published artifact was extracted and looked at, and its grammar was enumerated before the counterpart was built."
+    },
+    "compare": {
+      "requires": ["P2"],
+      "row": "E28",
+      "must_check": "Both sides' conventions are written down, the comparison waited until the two manifests matched, and the identity check is recorded or its absence is explained."
+    },
+    "route_new_pair": {
+      "requires": ["P3"],
+      "row": "E28",
+      "must_check": "Every trap of the trap sweep has a verdict with evidence, and every hit is a numbered flag or an escalation."
+    },
+    "use_produced_number": {
+      "requires": ["P4"],
+      "row": "E28",
+      "must_check": "Each produced number used downstream has an independent anchor and a ratio, and a ratio outside a named regime opened a decomposition."
+    },
+    "discrepancy": {
+      "requires": ["P5"],
+      "row": "E28",
+      "must_check": "Every candidate cause is listed, tests ran in cost order, and the residual is stated with its irreducible remainder."
+    },
+    "resource_unavailable": {
+      "requires": ["P6"],
+      "row": "E03",
+      "must_check": "Rungs 1 to 5 of the source ladder were walked with a definitive answer each; an outage or a skipped rung is not absence."
+    },
+    "adopt_default": {
+      "requires": ["P7"],
+      "row": "C08",
+      "must_check": "The adopted default is reversible, flagged with its expected sign and size, and a physics-critical default cites its justification."
+    },
+    "delivery": {
+      "requires": ["P8"],
+      "row": "JR09",
+      "must_check": "Three written attacks (basis, acceptance, statistics) and the test of each precede the final review."
+    },
+    "method_escalation": {
+      "requires": ["method_ladder"],
+      "row": "C01",
+      "must_check": "Every cheaper method rung is accounted for with a reason and evidence, or the request explicitly demands the selected method and the record quotes it."
+    },
+    "stage_recovery": {
+      "requires": ["recovery"],
+      "row": "E12",
+      "must_check": "The failure has a local diagnosis and an external recipe search record, run as co-primary steps, before any repair closes it."
+    }
+  },
+  "step_kind_triggers": {
+    "compare": ["compare"]
+  },
+  "action_kind_triggers": {
+    "method_escalation": ["method_escalation"],
+    "stage_recovery": ["stage_recovery"],
+    "resource_unavailable": ["resource_unavailable"],
+    "adopt_default_left_to_physicist": ["adopt_default"],
+    "adapter_default_unjustified": ["adopt_default"]
+  }
+}

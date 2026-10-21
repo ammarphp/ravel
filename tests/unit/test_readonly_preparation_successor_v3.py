@@ -14,6 +14,7 @@ from ravel.workflow import science, workflow_state, readonly_preparation as rp
 from ravel.workflow.state_io import atomic_json, read_json
 from ravel.physics.ma5_saf import Capture
 from test_readonly_preparation import tiny_module, prepare
+from bound_review import bound_review
 from correction_lookup_fixture import policy, make_attempt, check_packet, finding
 
 
@@ -43,7 +44,9 @@ def admitted_fixture(tmp_path, monkeypatch, *, downstream=False):
         'sha256': execution.file_hash(packet / 'manifest.json'), 'manifest_sha256': manifest['sha256'],
         'cycle_id': cycle['cycle_id'], 'cycle_sha256': cycle['sha256']}
     supports = [{'path': str(note), 'sha256': execution.file_hash(note)}, typed]
-    review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='send_back',
+    # The send-back is the bound response of a dispatched critic (a decider is dispatched only after both
+    # independent decisions); the decider admits the correction below. The supports ride beside the role's own.
+    bound_review(root, role='physics_critic', verdict='send_back',
         summary='Synthetic engineering source-custody correction', findings=[finding()], supporting_artifacts=supports)
     (root / 'inputs/settings.cfg').write_text('efficiency=0.85\n')
     specs = None

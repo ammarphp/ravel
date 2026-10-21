@@ -416,11 +416,13 @@ def test_store_modes_snapshot_exclusions_and_run_record(tmp_path):
     assert [r['id'] for r in snapshot['lessons']] == ['lesson:pin-the-lookup'] and snapshot['outcomes'] == []
     frozen = ls.load_lessons(tmp_path, mode='frozen', snapshot=snapshot, shipped=shipped)
     assert frozen['lesson_ids'] == ['lesson:pin-the-lookup']
-    assert frozen['snapshot_sha256'] == snapshot['snapshot_sha256']
+    assert frozen['local_snapshot_sha256'] == snapshot['snapshot_sha256']
+    assert frozen['snapshot_sha256'] == ls.digest(ls.encode(frozen['lessons']))
     with pytest.raises(ValueError, match='valid store snapshot'):
         ls.load_lessons(tmp_path, mode='frozen', snapshot=dict(snapshot, lessons=[]), shipped=shipped)
     state = json.loads(ls.record_store_state(tmp_path / 'run', frozen).read_text())
-    assert state['mode'] == 'frozen' and state['snapshot_sha256'] == snapshot['snapshot_sha256']
+    assert state['mode'] == 'frozen' and state['snapshot_sha256'] == frozen['snapshot_sha256']
+    assert state['local_snapshot_sha256'] == snapshot['snapshot_sha256']
     with pytest.raises(ValueError):
         ls.load_lessons(tmp_path, mode='warm')
 
@@ -450,3 +452,64 @@ def _args(row):
             'basis': row['result']['basis'], 'certification_tier': row['result']['certification_tier'],
             'structural_key': row['result']['structural_key'], 'result_pins': row['result']['pins'],
             'discrepancies': row['result']['discrepancies'], 'metrics': row['metrics'], 'receipts': row['receipts']}
+
+
+# Synthetic origin exclusions must survive transformation, lifecycle and serving.
+def test_excluded_lesson_origin_is_refused_at_every_lifecycle_boundary(tmp_path):
+    origins = [{'kind': 'run', 'value': 'run-1'}]
+    row = lesson()
+    with pytest.raises(ValueError, match='excluded'):
+        ls.write_candidate(tmp_path, row, retained_facts=OTHER, do_not_learn=no_rule,
+                           withheld={}, excluded_origins=origins)
+    with pytest.raises(ValueError, match='excluded'):
+        ls.promote(trial_lesson(), impact(), excluded_origins=origins)
+    ls.write_candidate(tmp_path, row, retained_facts=OTHER, do_not_learn=no_rule)
+    with pytest.raises(ValueError, match='excluded'):
+        ls.update_lesson(tmp_path, trial_lesson(), excluded_origins=origins)
+    loaded = ls.load_lessons(tmp_path, shipped=tmp_path / 'empty', excluded_origins=origins)
+    assert loaded['lessons'] == []
+
+
+def test_served_lesson_digest_includes_shipped_bytes_in_frozen_mode(tmp_path):
+    snapshot = ls.export_snapshot(tmp_path)
+    shipped = tmp_path / 'shipped'
+    shipped.mkdir()
+    row = promoted_lesson()
+    path = shipped / 'lesson.json'
+    path.write_text(json.dumps(row))
+    first = ls.load_lessons(tmp_path, mode='frozen', snapshot=snapshot, shipped=shipped)
+    row['body'] += ' Preserve the literal source units.'
+    path.write_text(json.dumps(row))
+    second = ls.load_lessons(tmp_path, mode='frozen', snapshot=snapshot, shipped=shipped)
+    assert first['snapshot_sha256'] != second['snapshot_sha256']
+    assert first['local_snapshot_sha256'] == second['local_snapshot_sha256']
+
+
+def test_lesson_origin_policy_is_loaded_from_trusted_installation(tmp_path, monkeypatch):
+    from ravel.workflow import literature_settings as settings
+    config = tmp_path / 'settings.json'
+    config.write_text(json.dumps({'schema_version': 1, 'kind': settings.SETTINGS_KIND,
+                                  'retrieval': {'provider': 'off', 'excluded_origins': [
+                                      {'kind': 'run', 'value': 'run-1'}]}}))
+    monkeypatch.setenv(settings.SETTINGS_ENV, str(config))
+    assert ls.load_lessons(tmp_path, shipped=tmp_path / 'none')['lessons'] == []
+    with pytest.raises(ValueError, match='excluded'):
+        ls.promote(trial_lesson(), impact())
+    config.write_text('{')
+    with pytest.raises(ValueError):
+        ls.load_lessons(tmp_path, shipped=tmp_path / 'none')
+
+
+def test_shipped_lesson_is_excluded_from_load_and_materialization(tmp_path, monkeypatch):
+    from ravel.workflow import literature_settings as settings
+    row = promoted_lesson()
+    shipped = tmp_path / 'shipped'
+    shipped.mkdir()
+    (shipped / 'lesson.json').write_text(json.dumps(row))
+    config = tmp_path / 'settings.json'
+    config.write_text(json.dumps({'schema_version': 1, 'kind': settings.SETTINGS_KIND,
+                                  'retrieval': {'excluded_origins': [
+                                      {'kind': 'run', 'value': 'run-1'}]}}))
+    monkeypatch.setenv(settings.SETTINGS_ENV, str(config))
+    assert ls.load_lessons(tmp_path, shipped=shipped)['lessons'] == []
+    assert ls.bundle_items([row], card=card(), facts=FIRING)['items'] == []

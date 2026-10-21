@@ -1,0 +1,99 @@
+{
+  "title": "question-frame.v1",
+  "description": "The judgment planner's frame of one request: objective, deliverables with acceptance criteria, constraints, unknowns, numbered assumptions and the boundaries that would hold work.",
+  "type": "object",
+  "required": ["schema_version", "kind", "request_sha256", "objective", "deliverables", "constraints", "unknowns",
+               "assumptions", "boundaries"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "kind": {"type": "string", "const": "question-frame"},
+    "request_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "objective": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "deliverables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "reading_ref", "description", "acceptance", "statistic", "units"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"},
+          "reading_ref": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]},
+          "description": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "acceptance": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "statistic": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]},
+          "units": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]},
+          "claim_kind": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "scope_change": {
+            "type": "object",
+            "required": ["kind", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {"type": "string", "enum": ["added"]},
+              "reason": {"type": "string", "minLength": 1, "pattern": "\\S"}
+            }
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "statement", "reading_ref"],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {"type": "string", "enum": ["source_restriction", "fidelity", "budget", "statistic", "method",
+                                              "blinding", "stage", "tool", "template", "fixed", "other"]},
+          "statement": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "reading_ref": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]},
+          "value": {"type": "string", "minLength": 1, "pattern": "\\S"}
+        }
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "physics_critical", "reading_ref"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^U[0-9]{1,4}$"},
+          "question": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "physics_critical": {"type": "boolean"},
+          "reading_ref": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]}
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["number", "statement", "basis", "physics_critical"],
+        "additionalProperties": false,
+        "properties": {
+          "number": {"type": "integer", "minimum": 1},
+          "statement": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "basis": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "physics_critical": {"type": "boolean"}
+        }
+      }
+    },
+    "boundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "holds", "would_make_possible", "reading_ref"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^B[0-9]{1,4}$"},
+          "statement": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "holds": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+          "would_make_possible": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "reading_ref": {"anyOf": [{"type": "string", "minLength": 1, "pattern": "\\S"}, {"type": "null"}]}
+        }
+      }
+    }
+  }
+}

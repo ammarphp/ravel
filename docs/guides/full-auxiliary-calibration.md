@@ -3,14 +3,9 @@
 `full-auxiliary-calibration` prepares and, after ordinary approval, executes a
 fixed-truth repeated-sampling experiment on a complete supplied regional count
 model. It uses the existing native likelihood transport and the unchanged
-`regional_expected._profile_fit` implementation. It introduces neither a new
-optimizer nor another scheduler.
+`regional_expected._profile_fit` implementation. The ordinary optimizer and scheduler retain their existing contracts.
 
-This is a source-ready optional operation. Its source and recording-facade tests
-do not establish native ROOT behavior, fit quality, global minima or coverage.
-An actual experiment needs its own admitted runtime, study, resource reservation
-and review. The operation does not produce CLs, expected bands or a fitted
-sampling prior.
+Source and recording-facade tests exercise the declared transport and data contracts. Native ROOT behavior, fit quality, global minima and coverage require an admitted repeated-sampling study, resource reservation and review. The delivered quantities are fixed-truth profile-likelihood-ratio inclusion diagnostics and their failure-inclusive intervals.
 
 ## Supported source law
 
@@ -52,8 +47,7 @@ pins, source version proof, environment and transport. This version supports the
 reviewed ROOT `6.22/00` / Combine `9.2.1` regional API only. The source POI must
 float. Its fit method is `MultiDimFit`, `data` is `observed`, `points` and
 `minimizer` are null, and `saved_fit.maximum_edm` is `0.00001`. The saved-fit
-configuration supplies admission metadata; calibration itself uses the existing
-RooMinimizer profile policy and does not launch a separate MultiDimFit CLI fit.
+configuration supplies admission metadata; calibration uses the existing RooMinimizer profile policy.
 
 The additional member has exactly these fields; values below illustrate a
 supplied contract, not a recommended cutoff or an executed experiment:
@@ -83,8 +77,7 @@ every model parameter and every whitened auxiliary coordinate, in the original
 bounds with fixed parameters unchanged. Exact rational strings preserve input
 values. There are at most 32 distinct truths, 1,024 trials per truth and 2,048
 scheduled trials overall. All generating means must be positive and no greater
-than 1,000, the admitted scope of the finite Poisson generator. These finite
-caps do not certify that the proposed ensemble has adequate precision. The
+than 1,000, the admitted scope of the finite Poisson generator. The proposed ensemble requires a separate precision assessment within these finite caps. The
 confidence level must also remain strictly between zero and one in binary64,
 and positive margins must remain positive after conversion. Admission refuses
 underflow or endpoint rounding; it does not clip a supplied setting. The
@@ -94,8 +87,7 @@ The ordinary task is `{"input": "/absolute/path/to/calibration-native-input.json
 Put it in an ordinary science specification with mode
 `full-auxiliary-calibration`, complete prospective review policy and an outer
 ceiling at least as large as the native `max_seconds`. Then use the existing
-`ravel plan --rundir <new-study> --spec <specification>` route. Planning does no
-sampling or fitting. Existing approve/run/status/review steps remain required;
+`ravel plan --rundir <new-study> --spec <specification>` route. Planning emits the bound sampling and fit contract. Existing approve/run/status/review steps remain required;
 there is one original native wall deadline and no automatic retries.
 
 For a source-only Graph context, call
@@ -135,8 +127,8 @@ profile diagnostics and elapsed times are retained.
 The host derives the full seed, generating-mean and physical Gaussian ledgers
 from the immutable request/source and observed globals. It checks full censuses,
 conditional freezes and strictly positive native truth/fitted means before
-numerical agreement bands. A renewed observation hash cannot authorize a
-changed derived field. This does not independently prove the native RNG law.
+numerical agreement bands. A renewed observation hash must not authorize a
+changed derived field. The native RNG law requires its own independent numerical evidence.
 
 Raw RooFitResult files are written before diagnostic checks, and complete
 binary64 coordinates, constants, bounds, covariance, statuses and full means
@@ -154,9 +146,9 @@ complete model/data/globals/errors.
 The native command plan, logs, workspace/source probes, all raw fit files,
 `native-work/ravel_calibration_journal.json` and `native-calibration.json` are
 retained under the ordinary attempt. A failed native/transport/custody boundary
-cannot qualify provisional passes; the adapter retains a conservative full-N
+must not qualify provisional passes; the adapter retains a conservative full-N
 failure audit plus any authenticated raw progress. The report exposes that
-available conservative full-N audit while keeping the original failure status. A killed worker may leave a
+available conservative full-N audit while keeping the original failure status. A killed worker can leave a
 partial journal, which remains failure evidence. The approved source request
 still defines every scheduled slot even if no complete payload returns.
 
@@ -177,7 +169,4 @@ the report retains:
   missing-fit uncertainty, optimizer error or dependence-law failure.
 
 `calibration-summary.json` and `calibration-report.md` expose the complete
-cohorts. A delivered diagnostic can contain unresolved slots. Its delivery
-status does not certify ensemble adequacy, optimizer globality, simultaneous or
-uniform nuisance coverage, CLs calibration, detector modeling or physics
-acceptance. Those remain explicit review and qualification obligations.
+cohorts. A delivered diagnostic can contain unresolved slots. Ensemble adequacy, optimizer globality, simultaneous or uniform nuisance coverage, CLs calibration, detector modeling and physics acceptance each require explicit review and qualification evidence.

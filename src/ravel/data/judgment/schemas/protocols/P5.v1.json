@@ -1,0 +1,47 @@
+{
+  "title": "P5 discrepancy-decomposition table",
+  "type": "object",
+  "required": ["discrepancy", "causes", "residual"],
+  "additionalProperties": false,
+  "properties": {
+    "discrepancy": {
+      "type": "object",
+      "required": ["quantity", "observed", "expected"],
+      "additionalProperties": false,
+      "properties": {
+        "quantity": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "observed": {"type": "number"},
+        "expected": {"type": "number"}
+      }
+    },
+    "causes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "cause", "category", "test", "cost_rank", "status", "contribution"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "cause": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "category": {"type": "string", "enum": ["basis", "normalization", "acceptance", "statistics", "implementation",
+                                                  "reference_decoding", "other"]},
+          "test": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "cost_rank": {"type": "integer", "minimum": 1},
+          "status": {"type": "string", "enum": ["confirmed", "killed", "untested"]},
+          "contribution": {"anyOf": [{"type": "number"}, {"type": "null"}]}
+        }
+      }
+    },
+    "residual": {
+      "type": "object",
+      "required": ["value", "irreducible", "statement"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {"type": "number"},
+        "irreducible": {"type": "boolean"},
+        "statement": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      }
+    }
+  }
+}

@@ -5,7 +5,11 @@ For an epoch-two plan, `ravel.workflow.spawn_rows.derive(facts)` reads the packa
 without launching workers. Smoke/full tool nodes with a producer draft need a
 pre-flight consult, one per registered consult family after tool-alias
 resolution; authored nodes with deterministic evaluators need three
-candidates from at least two model families, or two under an explicit deadline.
+candidates in pairwise-distinct sessions, or two under an explicit deadline.
+Any model family can serve them; family information is a descriptive label.
+`spawn_rows.report(rundir)` retains that label for both filled and pending points;
+`spawn_rows.pending(rundir)` returns only the obligations still unmet. An unknown
+family stays labelled unknown and does not waive any session or custody check.
 Absolute predictions need two blinded re-derivations and a normalization
 recomputation. Panels of multiple attempts need a comparative review for shared
 unjustified premises. Primary stated-input or cited-formula analytic claims need
@@ -17,7 +21,7 @@ field `/review/evaluator`. Node fields `/review/deadline` and `/review/author_ki
 carry the explicit deadline and producer kind. `/review/panels` carries the bound
 attempt population. Calculation/prediction claims are primary by default;
 `/review/primary_claims` can declare the exact primary claim IDs. These metadata
-values use the existing typed node-field schema; they do not add plan keys.
+values use the existing typed node-field schema.
 
 The registered `spawn_rows` decision-gate provider refuses launch or claim
 acceptance until the relevant independent worker receipts are registered and
@@ -26,7 +30,7 @@ its remaining obligations to a controller. The core review-point derivation and
 controller must compose this extension; their existing status view alone does
 not enumerate these records. Candidate selection records, tolerance-bound RCA
 opening and full independent-method enforcement remain controller obligations.
-An A consult finding needs a recorded fix or waiver; opinions alone cannot block.
+An A consult finding needs a recorded fix or waiver; opinions alone must not block.
 
 Use `world_digest.digest(rundir, bound_inputs)` with the complete explicit
 population of run-relative journal, resource state, execution receipt and worker
@@ -45,13 +49,13 @@ and evidence metadata. Every fit/selection provenance record must declare `input
 Intermediate JSON records declare their own `inputs`; opaque leaves terminate
 the graph. Include every tuning and candidate-selection oracle. The computed
 `ravel.validation.input_closure.check(rundir, fit, reference)` traverses and
-validates the pins. A reference whose content entered this closure cannot certify
-the fit, even through a copied file. Stale or unavailable provenance also refuses
+validates the pins. A reference whose content entered this closure must not certify
+the fit, even through a copied file. Stale or missing provenance also refuses
 certification. These checks do not establish that a producer disclosed all inputs;
 provenance completeness still requires the independent verifier.
 
 The input-closure provider runs at claim acceptance and delivery gates. It reads
-the pinned plan, so action-body overrides cannot erase a required check.
+the pinned plan, so action-body overrides must not erase a required check.
 To compare analytic outputs, call `spawn_rows.compare_outputs` with two PINs,
 the contracted JSON pointer (`second_pointer` when the output layouts differ), common unit and declared absolute/relative
 tolerances. It reads existing resonance-width or formula-grid outputs without
@@ -84,5 +88,5 @@ model operations listed in the row. It is gated at `checkin2_accept` for that no
 `{"exploit": n, "explore": m}` with nonnegative integers summing to the budget. The default
 rounds the exploit half down and gives the remainder to exploration. Exploit attempts staff
 `research-evolver` on promoted mechanisms; explore attempts staff `research-explorer` on
-untried seeds or limitations. An inconsistent split refuses derivation, so the gate refuses.
+untried seeds or qualifications. An inconsistent split refuses derivation, so the gate refuses.
 The point's `budget_split` is the record for the round's `resource_ledger` reservation.

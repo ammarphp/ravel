@@ -39,7 +39,7 @@ detached entries).
    the silent failures (wrong card/model interface; width-only DECAY → empty SRs). Never hand-read the
    LHE as the check. Note σ from the banner. The gate always leaves a `<lhe>.lhe_check.json`
    sidecar (verdict earned, never defaulted); shower products without a `verdict=PASS` sidecar
-   hard-FAIL `validate_run_state.py`'s `lhe-check-before-shower` invariant, so the gate cannot
+   hard-FAIL `validate_run_state.py`'s `lhe-check-before-shower` invariant, so the gate must not
    be silently skipped.
 
 ## Shower (env `rivet`)

@@ -61,6 +61,103 @@ def statuses(report):
     return {c["id"]: c["status"] for g in report["groups"] for c in g["checks"]}
 
 
+@pytest.mark.parametrize('transport_id', ['ravel-loop-responses', 'ravel-loop-local'])
+@pytest.mark.parametrize(('damage', 'ready'), [
+    ('none', True), ('dated_model', True), ('missing', False),
+    ('failed_step', False), ('unknown_model', False), ('substituted_model', False),
+    ('stale_identity', False), ('unwired', False),
+])
+def test_governed_doctor_loop_only_inventory_and_qualification(
+        tmp_path, monkeypatch, transport_id, damage, ready):
+    """Fictional host observations; the doctor never contacts either endpoint."""
+    from ravel.controller.step import seats
+    from ravel.workflow import transport_registry as tr
+    monkeypatch.setenv('RAVEL_STATE_DIR', str(tmp_path / 'state'))
+    document = tr.load(transport_id, installed_only=True)
+    identity = tr.loop_identity(document)
+    model = 'gpt-doctor-fictional'
+    evidence = {
+        'schema_version': 1, 'kind': 'transport-qualification', 'transport_id': transport_id,
+        'status': 'live_qualified', 'record_path': '/fictional/qualification.json',
+        'executable_path': identity['executable_path'], 'executable_sha256': identity['executable_sha256'],
+        'declaration_sha256': tr.declaration_sha256(document), 'probe_sha256': tr.digest(identity),
+        'receipt': {'path': '/fictional/receipt.json', 'sha256': 'a' * 64, 'digest': 'b' * 64},
+        'observed': {'requested_model': model, 'model': model, 'session_id': 'fictional-session'},
+        'steps': [{'step': name, 'passed': True} for name in sorted(tr.QUALIFICATION_STEPS)],
+        'rundir': '/fictional/run', 'qualified_utc': '2026-01-01T00:00:00Z',
+    }
+    if damage == 'dated_model':
+        evidence['observed']['model'] += '-20261019'
+    elif damage == 'failed_step':
+        evidence['steps'][0]['passed'] = False
+    elif damage == 'unknown_model':
+        evidence['observed']['model'] = None
+    elif damage == 'substituted_model':
+        evidence['observed']['model'] = 'gpt-other-fictional'
+    elif damage == 'stale_identity':
+        evidence['probe_sha256'] = '0' * 64
+    target = tr.qualification_path(transport_id)
+    target.parent.mkdir(parents=True)
+    if damage != 'missing':
+        target.write_text(json.dumps(evidence))
+    inventory = {'wired': [] if damage == 'unwired' else [transport_id],
+                 'excluded': [{'transport': transport_id, 'reason': 'sandbox:unavailable'}]
+                 if damage == 'unwired' else [], 'kinds': ['ravel-loop']}
+    monkeypatch.setattr(seats, 'wired_transports', lambda: inventory)
+    d = make_doctor(tmp_path)
+    monkeypatch.setattr(d, '_probe', lambda *a, **k: pytest.fail('loop doctor must not launch a CLI'))
+    monkeypatch.setattr('urllib.request.urlopen', lambda *a, **k: pytest.fail('doctor must not contact a provider'))
+    result = d._agent_cli_check({})
+    assert (result['status'] == 'ready') is ready
+    assert result['governed_inventory'] == inventory
+    if ready:
+        assert result['transport'] == transport_id and result['transport_qualified'] is True
+    else:
+        assert 'ravel transports probe' in (result.get('detail', '') + result.get('fix', ''))
+
+
+def test_governed_doctor_recognizes_a_wired_gemini_login_fixture(tmp_path, monkeypatch):
+    """The inventory may include a qualified Gemini login composition; no API guard is changed."""
+    from copy import deepcopy
+    import hashlib
+    from ravel.controller.step import seats
+    from ravel.workflow import transport_registry as tr
+    document = deepcopy(tr.load('gemini-cli-worker', installed_only=True))
+    document['id'] = 'gemini-doctor-login-fixture'
+    document['auth'] = {'kind': 'login', 'env_names': [], 'command': None, 'header_style': None}
+    document['billing'] = 'subscription'
+    executable = tmp_path / 'fictional-gemini'
+    executable.write_text('inert fixture; never executed')
+    probe = {
+        'schema_version': 1, 'kind': 'transport-probe', 'transport_id': document['id'],
+        'declaration_sha256': tr.declaration_sha256(document), 'cli_version': 'fictional',
+        'help_sha256': 'b' * 64, 'flags': {flag: 'confirmed' for flag in tr.template_flags(document)},
+        'capabilities_confirmed': {key: True for key in tr.BOOLEAN_CAPABILITIES}, 'unusable': [],
+        'probed_utc': '2026-01-01T00:00:00Z', 'executable_path': str(executable),
+        'executable_sha256': hashlib.sha256(executable.read_bytes()).hexdigest(), 'exit_status': 0,
+    }
+    evidence = {
+        'schema_version': 1, 'kind': 'transport-qualification', 'transport_id': document['id'],
+        'status': 'live_qualified', 'record_path': '/fictional/qualification.json',
+        'executable_path': str(executable), 'executable_sha256': probe['executable_sha256'],
+        'declaration_sha256': tr.declaration_sha256(document), 'probe_sha256': tr.digest(probe),
+        'receipt': {'path': '/fictional/receipt.json', 'sha256': 'a' * 64, 'digest': 'b' * 64},
+        'observed': {'requested_model': 'gemini-fictional', 'model': 'gemini-fictional',
+                     'session_id': 'fictional-session'},
+        'steps': [{'step': name, 'passed': True} for name in sorted(tr.QUALIFICATION_STEPS)],
+        'rundir': '/fictional/run', 'qualified_utc': '2026-01-01T00:00:00Z',
+    }
+    monkeypatch.setattr(seats, 'wired_transports', lambda: {
+        'wired': [document['id']], 'excluded': [], 'kinds': ['cli-worker']})
+    monkeypatch.setattr(tr, 'load', lambda *a, **k: document)
+    monkeypatch.setattr(tr, 'read_probe', lambda *a: probe)
+    monkeypatch.setattr(tr, 'read_qualification', lambda *a, **k: evidence)
+    d = make_doctor(tmp_path, which=lambda name: str(executable) if name == 'gemini' else None)
+    monkeypatch.setattr(d, '_probe', lambda *a, **k: (0, 'fictional Gemini version'))
+    result = d._agent_cli_check({})
+    assert result['status'] == 'ready' and result['transport'] == document['id']
+
+
 def test_ready_missing_mismatch_manual_remote_and_unconfigured(tmp_path):
     bin_dir = tmp_path / "prefix/bin"
     tool(bin_dir / "engine", "engine 2.9.26")

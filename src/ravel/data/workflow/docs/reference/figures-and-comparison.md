@@ -15,7 +15,7 @@ Every figure passes the house plot lint and every label must be natural language
 
 `ravel figure inventory PAGE.pdf` lists the paths, fills and text on a PDF page, which helps
 pick colours and regions. Inside a run, use the `figure-comparison` scientific study so the
-work is planned, approved and reviewed like any other study (see below).
+work is declared, approved and reviewed like any other study (see below).
 
 Prefer tabulated values. Use HEPData when the figure has a table; digitise only when it
 does not.

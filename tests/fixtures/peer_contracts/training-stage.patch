@@ -1,0 +1,14 @@
+--- a/src/ravel/workflow/graphs/ml_study.py
++++ b/src/ravel/workflow/graphs/ml_study.py
+@@ -391,6 +391,11 @@
+     if blocking:
+         # Validation outcomes are kept for reporting, but may not open confirmation.
+         result['blocking'] = sorted(set(blocking))
++    from .. import review_independence, review_projection_checks
++    store = review_independence.controller_store(Path(ctx.scope_root))
++    if store is not None:
++        result['controller_checks'] = review_projection_checks.record_ml_stage(
++            store, spec=state['spec'], stage=stage, result=result)
+     return result
+ 
+ 

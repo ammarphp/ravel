@@ -22,7 +22,7 @@ from human approval. Existing custody, review, execution and delivery gates appl
    artifacts, comparison, precision and stopping rule before acquiring results.
    `evaluate_experiment` recomputes the diagnostic result from pinned evidence.
    Unresolved evidence, nondiscriminating rivals and a frozen action to revise
-   the hypothesis cannot select a correction.
+   the hypothesis must not select a correction.
 4. Materialize the isolated corrected source separately. `prepare_correction`
    binds its before/after bytes and changed nodes to the measured controlled
    alternative. It still requires review; byte agreement does not prove runtime
@@ -64,12 +64,12 @@ affected-descendants-only rerun, corrected conclusion and untouched control.
 Scores come from interventions and receipts; asserted success earns no credit.
 The complete population and per-class denominators remain in the report.
 Each proposal arm is attempted independently. A refused request is retained in
-`proposal_errors`; it cannot suppress evaluation of the matched arm through call
+`proposal_errors`; it must not suppress evaluation of the matched arm through call
 ordering. Existing evaluation directories refuse reuse, including disjoint fault
-subsets, so a later report cannot replace an earlier population.
+subsets, so a later report must not replace an earlier population.
 These controls establish neither physical accuracy nor statistical coverage.
 
-`--fault ID` restricts the declared population and may be repeated. The command
+`--fault ID` restricts the declared population and can be repeated. The command
 runs the deterministic proposer. `evaluate_case` and `evaluate_suite` accept a
 caller-supplied proposer callable that sees only the synthetic contract and
 artifacts, never the planted label or scoring key; sample and control call order
@@ -89,15 +89,14 @@ combinations are outside this reconstructed-object contract.
 Supplied numbers outside finite binary64 representation receive a domain refusal,
 including integer inputs too large to convert.
 Opt-in `pairwise_edges=True` adds all nine adjacent/equal combinations for each
-distinct pair of supplied scalar threshold or flow targets. It does not combine
-multiplicity or overlap factors, and insufficient bounds refuse the whole
-requested population.
+distinct pair of supplied scalar threshold or flow targets. Sufficient bounds
+are required for the whole requested population.
 
 Supply an `IndependentOracle` reconstructed separately from source rules or an
 expert check. Its callback receives only an event; it must not replay or inspect
 the candidate implementation. The source pin authenticates declared source,
 not authorship or independence. Review those independently. A direct interpreter
-replay refuses; Python introspection cannot exclude a dishonest wrapper.
+replay refuses; inspect wrapper provenance as part of source review.
 
 `routine_candidate.check_counterexamples` reloads the existing contract and
 reruns the **entire original population** before all supplementary cases.

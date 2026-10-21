@@ -1,7 +1,7 @@
 # Synthetic search statistics example
 
 All inputs are invented. The fit uses simulated pseudo-data: background expectations,
-with optional injected scale factors, rather than random experimental observations.
+with optional injected scale factors, rather than random measurement observations.
 Two control regions constrain `scale_alpha` and `scale_beta`. The validation region
 is held out. The single-bin target has role `abcd`, treated as a signal region in
 the search fit. Its alpha background is estimated from independent external B, C,
@@ -46,17 +46,17 @@ CLs, observed CLs when unblinded observed data exist, separately named
 observed-on-pseudo-data CLs, Asimov discovery significance, signal-region yield,
 per-region signal yields and all input pins. CLs and Asimov significance are computed
 for the table even if their individual summaries are disabled. These values do not
-turn pseudo-data into an experimental observation.
+turn pseudo-data into an measurement observation.
 
 Irregular contours are labelled `interpolated`. `triangulation.coordinates`,
 `simplices`, `convex_hull` and `point_ids` record exactly the interpolation vertices
 and triangles. Linear segments stay inside the hull. Fewer than three non-collinear
-vertices, duplicates, unavailable values and plateau triangles give an explicit
+vertices, duplicates, missing values and plateau triangles give an explicit
 `not_interpolable` diagnostic; the point table survives. Complete rectangular grids
 retain their original contour algorithm unless interpolation is requested explicitly.
 
 Declare `contours.interpolation` as `{"method":"delaunay-linear","coordinates":["x","y"]}`.
-An affine coordinate may replace either name, for example
+An affine coordinate can replace either name, for example
 `{"terms":{"x":1,"y":-1},"offset":0}` for a difference. The two coordinates must
 preserve an invertible affine map to the plot axes. Triangulation occurs in that
 coordinate system; recorded contour segments are mapped back to the declared axes.

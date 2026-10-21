@@ -12,7 +12,7 @@ when the supplied partition evidence says so. All original signal terms,
 including signed interference and control-region contamination, remain in every
 candidate. The supplied Gaussian auxiliary block, its lower covariance factor,
 correlations, observed values and bounds also remain identical. A table of
-overlapping regions or weighted observations cannot become this law implicitly.
+overlapping regions or weighted observations must not become this law implicitly.
 
 ## Integrated families
 
@@ -137,7 +137,7 @@ Ordinary `science.task_inputs` binds all population inputs, each native model
 and runtime, the source-defined construction, and this implementation. The
 whole allowance is the sum of per-candidate ceilings plus explicit overhead.
 Native commands are serial. The adapter refuses before another call if the
-remaining full candidate allowances do not fit inside the whole ceiling. The
+remaining full candidate allowances exceed the whole ceiling. The
 existing stage supervisor retains the hard outer deadline and cleanup authority.
 
 The candidate census starts with every row `not_executed`. A raw child return is

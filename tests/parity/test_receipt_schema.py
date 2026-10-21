@@ -151,6 +151,7 @@ def test_every_kind_writes_the_same_receipt_schema(env):
         assert set(receipt) == worker.RECEIPT_FIELDS
         assert COMMON_TRANSPORT <= set(receipt['transport']), kind
         assert receipt['transport']['transport_kind'] == kind
+        assert receipt['isolation']['launch_context'] is None
         shapes[kind], labels[kind] = schema_of(receipt), receipt['attestation']
     reference = shapes['cli-worker']
     assert all(shape == reference for shape in shapes.values()), {k: v for k, v in shapes.items() if v != reference}

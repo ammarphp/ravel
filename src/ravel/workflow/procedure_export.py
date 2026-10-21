@@ -50,7 +50,21 @@ def _source(path):
 DEFAULT_BYTE_CEILING = 1024 * 1024
 
 
-def _byte_ceiling():
+def _byte_ceiling(rundir=None):
+    """The procedure byte ceiling: the operator's for a controller-owned run, never the environment."""
+    from ravel.controller.sink import legacy as sink_legacy
+    if rundir is not None and sink_legacy.owner(rundir) is not None:
+        ceiling = DEFAULT_BYTE_CEILING
+        import importlib
+        try:
+            authority = importlib.import_module('ravel.controller.authority')
+        except ImportError:
+            authority = None
+        if authority is not None and hasattr(authority, 'operator_config'):
+            ceiling = authority.operator_config().get('procedure_byte_ceiling', DEFAULT_BYTE_CEILING)
+        if type(ceiling) is not int or ceiling < 0:
+            raise ValueError('the operator procedure byte ceiling must be a nonnegative integer')
+        return ceiling
     try:
         ceiling = int(os.environ.get('RAVEL_PROCEDURE_BYTE_CEILING', DEFAULT_BYTE_CEILING))
     except ValueError as exc:
@@ -185,7 +199,14 @@ def _campaign_runs(root):
         if state_pin['sha256'] != binding['sha256'] or 'size' in binding and state_pin['size'] != binding['size']:
             raise ValueError('campaign state source changed')
         pins.extend([head_pin, state_pin]); campaign_roots.append(str(head.parent))
-        state = json.loads(path.read_text()); base = Path(state.get('base_dir', str(head.parent)))
+        from . import research_cycle as cycle
+        _, state = cycle._load_history(head.parent)
+        # The state population comes from replay; custody still binds original bytes.
+        pins.extend(_source(_ordinary(head.parent / 'history' / f'{index:04d}.json'))
+                    for index in range(state['revision'] + 1))
+        if _source(head) != head_pin or _source(path) != state_pin:
+            raise ValueError('campaign source changed during history replay')
+        base = Path(state.get('base_dir', str(head.parent)))
         base = base if base.is_absolute() else head.parent / base
         for experiment in state.get('experiments', []):
             if experiment.get('rundir') is None: continue
@@ -201,7 +222,7 @@ def build(rundir, *, status=None, _include_campaign=True):
     from .submission_export import code_version
     root = Path(rundir).absolute()
     if not root.is_dir(): raise ValueError('run directory required')
-    ceiling = _byte_ceiling(); procedure_status = _procedure_status(status)
+    ceiling = _byte_ceiling(root); procedure_status = _procedure_status(status)
     sources = []; nodes = []; ledger = execution.load_execution(root)
     if (root / execution.STATE_NAME).exists(): sources.append(_source(root / execution.STATE_NAME))
     stage_nodes = {}
@@ -377,6 +398,9 @@ def theory_template():
 
 
 def export(rundir, into, *, cores=1, baseline_environment=None, status=None, _document=None):
+    from ravel.controller.sink import legacy as sink_legacy
+    sink_legacy.refuse_controller_owned(rundir, 'procedure export')
+    sink_legacy.refuse_controller_owned(Path(into).absolute().parent, 'procedure export')
     document = _document if _document is not None else build(rundir, status=status)
     out = Path(into).absolute()
     if out.exists(): raise ValueError('fresh procedure export directory required')
@@ -412,6 +436,8 @@ def export(rundir, into, *, cores=1, baseline_environment=None, status=None, _do
 
 def export_for_delivery(rundir, *, status=None):
     """Idempotent evidence export; refresh environment is observational, not identity."""
+    from ravel.controller.sink import legacy as sink_legacy
+    sink_legacy.refuse_controller_owned(rundir, 'procedure export')
     document = build(rundir, status=status)
     identity_keys = ('source_pins', 'record_roster', 'nodes', 'disclosure', 'campaign_disclosures',
                      'runtime_snapshots_by_run', 'procedure_status', 'byte_ceiling')

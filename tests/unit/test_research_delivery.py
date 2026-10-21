@@ -11,6 +11,8 @@ import pytest
 from ravel import cli
 from ravel.workflow import (current_state, physics_review as review, research_admission, research_cycle as c,
                             research_launch as launch, research_protocol as p, science, state_io, workflow_state)
+from bound_review import bound_review
+from inert_dispatch import inert_dispatch  # noqa: F401
 from test_checkin2_gate import CHECKIN1, _write_inputs
 from test_research_launch import approve, approved, prereg
 
@@ -72,19 +74,19 @@ def reviewed(tmp_path, *, reviewers=('physics_critic', 'skeptical_verifier', 'ph
     check_packet(rd, record)
     review.open_cycle(rd, effective_settings=['inputs/settings.cfg'], stage_receipts=[record['attempt_record']],
                       check_results='inputs/checks.json')
-    actors = review._read(review._root(rd))[0]['policy']['actors']
-    # An epoch-two acceptance stands on the attested worker receipts of its CHECK-IN 2 review points.
+    # An epoch-two acceptance stands on the attested worker receipts of its CHECK-IN 2 review points
+    # (the caller requests inert_dispatch) and on bound votes of the dispatched scientific roles.
     from test_review_points import credit_pending
     assert credit_pending(rd)
     for role in reviewers:
-        review.submit_review(rd, role=role, actor_id=actors[role], verdict='accept',
-                             summary='Evidence supports the stated scope', claim_scope='reproduction')
+        bound_review(rd, role=role, verdict='accept', summary='Evidence supports the stated scope',
+                     claim_scope='reproduction')
     return rd
 
 
 # D1 -- an ordinary reproduction that passes the ordinary gates is delivered.
 
-def test_ordinary_reproduction_is_delivered_without_mocks(tmp_path):
+def test_ordinary_reproduction_is_delivered_without_mocks(tmp_path, inert_dispatch):
     rd = reviewed(tmp_path)
     assert review.status(rd)['state'] == 'accepted'
     assert research_admission.admission(rd, 'delivery') == []
@@ -99,7 +101,7 @@ def test_ordinary_reproduction_is_delivered_without_mocks(tmp_path):
     assert {'cycle_id': review.status(rd)['cycle_id'], 'corrections_before_acceptance': 0} in evidence['baseline']['evidence']
 
 
-def test_missing_review_record_blocks_delivery(tmp_path):
+def test_missing_review_record_blocks_delivery(tmp_path, inert_dispatch):
     rd = reviewed(tmp_path, reviewers=('physics_critic', 'skeptical_verifier'))
     errors = research_admission.admission(rd, 'delivery')
     assert any(e.startswith('required research stage incomplete: meta_review') for e in errors)

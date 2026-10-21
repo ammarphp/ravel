@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "required": ["kind"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {"type": "string", "const": "authority_poll"},
+    "note": {"type": "string", "maxLength": 500}
+  }
+}

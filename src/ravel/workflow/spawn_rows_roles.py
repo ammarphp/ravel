@@ -42,7 +42,9 @@ def derive_roles(plan, nodes, bases, rows, points, add, review_metadata):
             add('K7S', claim['id'], claim=claim['id'],
                 forbidden_method_nodes=sorted({v for r in computed for v in r['via']}),
                 comparison_required=True, tolerance_required=True)
-    if plan.get('claims'):
+    # The delivery's assumptions are audited whenever a result is claimed, and whenever the run took a machine
+    # assumption or holds a conditional result (``controller.graph`` assumptions), claims or not.
+    if plan.get('claims') or plan.get('machine_assumptions'):
         row = rows['K8']
         add('K8', 'run', when={'trigger': row['trigger'], 'at': 'delivery:run'},
             severity_floor=row['severity_floor'], severity_max=row['severity_max'],

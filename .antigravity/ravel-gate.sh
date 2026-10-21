@@ -1,3 +1,3 @@
 #!/bin/sh
-# Generated role registry b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67; manual adapter, explicit run/action required.
+# Generated role registry 2889e12595a211cf69a07c491b52f4f523c911f0f19a1b2759ef648c5bde704d; manual adapter, explicit run/action required.
 exec ravel gate "$@"

@@ -11,21 +11,21 @@ Ravel records three separate questions: whether an inference calculation produce
 | `resolved` | A numerical crossing supported by the emitting engine's checks | Eligible as a root; inspect model and certification scope separately |
 | `below_scan` | The crossing lies below the evaluated range | Preserve the upper bound; never draw the endpoint as a measured crossing |
 | `above_scan` | The crossing lies above the evaluated range | Preserve the lower bound; never draw the endpoint as a measured crossing |
-| `missing` | The slot was not calculated or is unavailable | Keep a null slot and retain the case in coverage accounting |
+| `missing` | The slot was not calculated or is missing | Keep a null slot and retain the case in coverage accounting |
 | `unverified` | A new reported value lacks the required numerical evidence | Hold numerical-root claims |
 | `legacy_reported` | A historical scalar has no recorded numerical crossing evidence | Explicit historical comparisons only; no live numerical certification |
 
-For example, an observed upper-limit scan that reaches μ=100 without crossing CLs=0.05 stores `value: 100`, `status: above_scan`, and `bracket: [100, null]`. The bound can establish that the μ=1 hypothesis is not excluded by this upper-limit test. It cannot establish a root at μ=100 or that the model is allowed by all data.
+For example, an observed upper-limit scan that reaches μ=100 without crossing CLs=0.05 stores `value: 100`, `status: above_scan`, and `bracket: [100, null]`. The bound can establish that the μ=1 hypothesis is not excluded by this upper-limit test. A resolved root requires a crossing bracket; model compatibility retains the scope of this single upper-limit test.
 
-Scalar compatibility fields must agree with the typed representation. Known censoring flags cannot be removed by copying a value into a preferred headline field. Rescaling preserves statuses and scales brackets with the values. Censored expected bands are not filled as ordinary uncertainty bands. Missing and failed points remain part of the planned population.
+Scalar compatibility fields must agree with the typed representation. Known censoring flags must not be removed by copying a value into a preferred headline field. Rescaling preserves statuses and scales brackets with the values. Censored expected bands are not filled as ordinary uncertainty bands. Missing and failed points remain part of the declared population.
 
-Expected-only projections expose a missing observed slot. Their Asimov or scaled-data diagnostic is retained separately with its role, so a generic observed-limit consumer cannot turn a projection into an observed exclusion.
+Expected-only projections expose a missing observed slot. Their Asimov or scaled-data diagnostic is retained separately with its role, so a generic observed-limit consumer must not turn a projection into an observed exclusion.
 
 Result packs also carry a `limit_source` identity binding to the exact run-relative primary inference file and its byte hash. Live gates compare all six curves, statuses, brackets and overlapping scientific identity/diagnostics with that source. A coherently rescaled pack still fails if it disagrees with its certified source. An arbitrary stated correction factor is not a verified transform. Post-hoc scan transformations remain separately scoped and do not acquire live certification from a pack identity binding.
 
 Pack validation also recomputes advertised cross-section limits, S95 and driving-region yields from their primary operands. For example, sigma_ref in fb is 1000 × sigma_LO in pb × the declared correction, and sigma_UL is the resolved mu95 × sigma_ref. A declared cross section is still a scientific input requiring its own provenance; arithmetic consistency does not validate its prediction.
 
-Fresh shape fits require successful finite optimizers and a finite crossing bracket for a resolved observed or median root. Expected band slots the engine did not calculate remain missing. The shape output explicitly retains its calibration limitation. The transport layer verifies consistency; it cannot prove that a manually supplied input came from a trustworthy generator.
+Fresh shape fits require successful finite optimizers and a finite crossing bracket for a resolved observed or median root. Expected band slots the engine did not calculate remain missing. The shape output explicitly retains its calibration scope condition. The transport layer verifies consistency. A supplied input also requires its own authenticated generator provenance.
 
 ## Artifact-bound comparisons
 
@@ -34,7 +34,7 @@ Fresh shape fits require successful finite optimizers and a finite crossing brac
 - An approved task contract pins the comparison plan's path and SHA-256. Approval binds the contract, CHECK-IN 1 and budget bytes.
 - The plan names the analysis, quantity, units, process/normalization basis, policy, dependencies and every output it can support.
 - Each predeclared point resolves to a prediction and a pinned reference record with matching identity and parameters. Exact-point policies reject nearest-node and interpolated substitutes.
-- Every planned comparison is evaluated. Missing rows, repeated identities and failed rows cannot disappear from the denominator.
+- Every declared comparison is evaluated. Missing rows, repeated identities and failed rows must not disappear from the denominator.
 - Current reference, dependency, prediction and served-output bytes match the certificate. Changing a tolerance or reference requires updating the plan and recording a new actual approval.
 
 R5 requires at least two distinct declared masses. Acceptance requires the predeclared signal-region/point comparisons relevant to the claim. The mechanism checks the declared plan; selecting a scientifically adequate reference population and dependency set remains a review obligation.
@@ -53,11 +53,11 @@ python scripts/run.py ravel.validation.certificates check \
   --rundir RUN --certificate outputs/r5-certificate.json --kind r5 --live
 ```
 
-The `none` plan supports an approved static comparison. It cannot authorize a smoke run or generation. Use the actual approved execution rung when compute is part of the task. Approval records establish integrity of the recorded instruction, not independent human authentication.
+The `none` plan supports an approved static comparison. It must not authorize a smoke run or generation. Use the actual approved execution rung when compute is part of the task. Approval records establish integrity of the recorded instruction, not independent human authentication.
 
 The complete plan schema and passing/failing fixtures are in `tests/unit/test_certificates.py`. Plans specify `dependencies` as path/hash entries, `subjects` as run-relative output paths, and `comparisons` as identity/parameter records with prediction and reference JSON pointers. Reference entries include a byte hash. Prediction/reference operands carry their own analysis, quantity, units, basis and value. Do not replace a real reference with a fixture.
 
-The shape writer accepts `--validation-context` to attach declared point identity to the value it actually computes. Acceptance producers accept `--certification-context`, mapping reported regions to their declared identities. Existing diagnostic reports remain readable. A bare `PASS`, `in_tolerance: true`, Markdown checkmark or old ladder record cannot authorize fresh serving.
+The shape writer accepts `--validation-context` to attach declared point identity to the value it actually computes. Acceptance producers accept `--certification-context`, mapping reported regions to their declared identities. Existing diagnostic reports remain readable. A bare `PASS`, `in_tolerance: true`, Markdown checkmark or old ladder record must not authorize fresh serving.
 
 ## Comparison policy and remaining scientific work
 
@@ -67,12 +67,12 @@ Original publication truth, detector-model adequacy, nuisance construction, freq
 
 ## Empty retained build markers and administrative proof
 
-Scientific outputs and cited checks must be nonempty. An approved output policy may name an exact empty CMake ExternalProject stamp copied beneath the retained container dependency build tree. The policy binds its canonical singleton source file, empty digest and both approved input snapshots; a producer label alone does not admit it. Detached review verifies these bindings from frozen documents.
+Scientific outputs and cited checks must be nonempty. An approved output policy can name an exact empty CMake ExternalProject stamp copied beneath the retained container dependency build tree. The policy binds its canonical singleton source file, empty digest and both approved input snapshots; a producer label alone does not admit it. Detached review verifies these bindings from frozen documents.
 
-Only the five exact approved administrative proof documents (specification, plan, CHECK-IN 1, approval and successful receipt) may use the larger retention bound of 16 MiB per document and 64 MiB in total. Their digest, source membership and successful execution binding remain mandatory. Generic artifact retention and scientific-hold evidence keep the existing 1 MiB limit.
+Only the five exact approved administrative proof documents (specification, plan, CHECK-IN 1, approval and successful receipt) can use the larger retention bound of 16 MiB per document and 64 MiB in total. Their digest, source membership and successful execution binding remain mandatory. Generic artifact retention and scientific-hold evidence keep the existing 1 MiB limit.
 
 ## Exact delivery of supplied scientific tool values
 
-The `scientific-artifact` Host action constructs a typed JSON artifact from explicitly pinned source text and tool results. Its field contract retains exact rational provenance alongside finite JSON values, preserves literal labels and unresolved interpretation semantics, and requires every nested source/tool input in the graph. Duplicate canonical source basis and ambiguous array pointers are refused. Interpretation text remains caller supplied. Artifact construction does not authenticate the tool results, establish scientific validity or authorize execution; blind reviewer roles cannot use this construction action.
+The `scientific-artifact` Host action constructs a typed JSON artifact from explicitly pinned source text and tool results. Its field contract retains exact rational provenance alongside finite JSON values, preserves literal labels and unresolved interpretation semantics, and requires every nested source/tool input in the graph. Duplicate canonical source basis and ambiguous array pointers are refused. Interpretation text remains caller supplied. Artifact construction does not authenticate the tool results, establish scientific validity or authorize execution; blind reviewer roles must not use this construction action.
 
-Review opening shares byte observations within one locked capture. Semantic, approval, schema and configuration validation still run at each required call. Snapshot copies keep independent destination byte verification and durability; the final source, blob, journal and execution-ledger census must pass before the cycle is appended. The session ends there. Later packets, reviews, approval, workers and completion use fresh boundary verification. Synthetic controls measure fewer payload reads; whole-corpus latency and filesystem races after the final census remain separate limitations.
+Review opening shares byte observations within one locked capture. Semantic, approval, schema and configuration validation still run at each required call. Snapshot copies keep independent destination byte verification and durability; the final source, blob, journal and execution-ledger census must pass before the cycle is appended. The session ends there. Later packets, reviews, approval, workers and completion use fresh boundary verification. Synthetic controls measure fewer payload reads; whole-corpus latency and filesystem races after the final census remain separate scope conditions.

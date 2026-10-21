@@ -107,8 +107,7 @@ configuration and named source data. A designated source workspace must equal
 the workspace used by the background block. Dynamic closures, bound methods,
 mutable function attributes and hidden defaults are refused. Direct function
 identity and file custody still require a reviewed execution environment for
-transitive globals and dependencies. These checks cannot establish detector
-calibration or physical response fidelity.
+transitive globals and dependencies. Detector calibration and physical response fidelity require independent scientific evidence.
 
 The callback returns the complete signal response in MC target-bin order at
 the same source parameter point as the background. The explicit bin map then
@@ -124,8 +123,7 @@ than draws of nuisance truth values.
 `JointProfiler(joint, background, mc, ...)` binds the exact same model blocks.
 Its `mu_domain`, Poisson `rate_caps` and classification of source bounds make
 numerical search limits explicit. Source physical/numerical bound classifications
-must come from source authority. The optimizer cannot infer that authority from
-an endpoint contact.
+must come from source authority. Retain that source authority when interpreting endpoint contacts.
 
 `fit` profiles every admitted unfixed coordinate. `fixed_mu`, `fixed_source`
 and `fixed_latent` define separately labeled conditional subproblems; source
@@ -149,7 +147,7 @@ LP limits need an outer supervisor to interrupt blocking callbacks or native
 solvers. Thread environment requests alone do not prove an observed native
 thread ceiling.
 
-## Evidence and remaining scientific work
+## Model-law controls
 
 Portable tests synthesize complete source workspaces and MC ledgers locally.
 They check exact normalized densities, source constraints counted once, both
@@ -158,79 +156,6 @@ domains, bounded inputs and resource refusals. An independent two-bin proof
 establishes a particular saturated global maximum and exact mu=0 profile.
 Additional Poisson and fixed-N examples demonstrate an unattained likelihood
 supremum despite full local rank.
-
-These mathematical controls do not qualify an arbitrary native generator law,
-source/new-MC independence, marked nuisance migrations or detector response.
-The complete official stau model exceeds the finite-difference branch's
-eight-coordinate limit. The analytic branch below addresses that numerical
-limit. Qualified response/MC inputs and separately admitted repeated-measurement
-calibration remain necessary before interval, CLs or exclusion claims. The
-library APIs provide model construction and bounded numerical diagnostics;
-the `joint-fit` scientific mode dispatches the source-conditioned study below.
-
-## Analytic source graph and full-coordinate profiling
-
-`AnalyticPublishedJoint` in `joint_analytic` compiles the supplied source model
-with the qualified code4 normsys and code4p histosys interpolation conventions.
-It applies additive histogram changes before multiplicative factors and
-retains scalar/vector parameter indexing. Exact product derivatives handle
-zero factors without dividing by them. Changed interpolation implementations
-and enabled expectation clipping are refused.
-
-The signal extension is an explicit new model. In each mapped bin it multiplies
-the finite-MC latent yield by the published non-MC signal response divided by
-the canonical nominal signal yield. The denominator must be positive. This
-construction retains source nuisance correlations across signal and background;
-it does not determine nuisance-dependent event migration or variation-MC
-correlations from nominal yields. A source-pinned marked response model is
-still needed when that diagonal response assumption is insufficient.
-
-```python
-from ravel.physics.joint_analytic import (
-    AnalyticPublishedJoint,
-    AnalyticJointProfiler,
-)
-
-value = analytic_joint.evaluate_with_gradient(source_point, latent, mu=1.0)
-profiler = AnalyticJointProfiler(
-    analytic_joint, background, mc,
-    mu_domain=mu_domain,
-    source_bound_semantics=source_bound_semantics,
-    rate_caps=rate_caps,
-)
-fit = profiler.fit(budget=budget)
-```
-
-The analytic profiler supports up to 256 free coordinates, with up to eight
-target bins and the bounded MC support described above. It charges objective,
-analytic-gradient, physical-constraint and LP work, and preserves distinct
-feasible starts, warnings, artificial-bound contacts and failed attempts.
-It does not condition source nuisance coordinates to satisfy the older
-eight-coordinate limit. Fixed source flags and explicitly requested conditional
-fits continue to have separate meanings.
-
-For the five-region stau construction, all 119 retained source coordinates,
-the signal strength and five independent categorical probabilities produce
-125 free coordinates. The 117 source auxiliary factors appear once. Five
-pooled statistical-error widths are rebuilt from the exact background-only
-source; this changes those auxiliary experiments while preserving their count.
-
-Forty portable synthetic controls exercise the graph, full-coordinate mapping,
-derivatives, sampler, bounded fitting and refusal cases. Official source graph
-compilation has been checked separately. Full official density, all-column
-gradient/mean-Jacobian qualification and fit acceptance remain prospective.
-Local multistart agreement and full rank do not prove a global optimum:
-an independently checked counterexample has positive MC category counts but
-an unattained strength optimum as source signal response tends to zero.
-
-Independent follow-up review also found that the current profiler's approximate
-boundary-activity test can remove a feasible descent direction at a point with
-small positive physical-bound slack. A high-curvature synthetic counterexample
-passes that projected test despite a lower feasible objective. The full-source
-scientific preparation is held pending a separately reviewed repair covering
-coordinate, linear and nonlinear physical constraints. Existing returned
-verification flags describe their original numerical rule; they are not exact
-KKT certificates. Original frozen studies and comparator source remain intact.
 
 ## Source-conditioned study adapter
 

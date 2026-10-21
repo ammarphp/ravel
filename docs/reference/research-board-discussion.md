@@ -31,8 +31,8 @@ original cycle and board. Options are:
   processes, independent reasoning or authenticated identities.
 - `observations`: one `{id, pin, missing_reason}` for **every** charter artifact.
   A present `pin={path,sha256,size}` must authenticate the original full bytes;
-  `missing_reason` is null. Only declared-digest artifacts may have `pin=null`
-  with an explicit missing reason. Frozen evidence cannot be dropped. Complete
+  `missing_reason` is null. Only declared-digest artifacts can have `pin=null`
+  with an explicit missing reason. Frozen evidence must not be dropped. Complete
   bytes are presented as base64 alongside the pin; no semantic summary replaces
   them.
 - `candidates`: zero to eight complete existing research-cycle experiment
@@ -41,7 +41,7 @@ original cycle and board. Options are:
   original goal binding, review policy and acceptance scope remain unchanged.
   An existing `input_exposure` classification preserves every execution pin but
   presents only the source inputs marked `model_context`, plus the full exposure
-  inventory. A withheld input exposed by another candidate or common observation
+  inventory. A protected input exposed by another candidate or common observation
   refuses before dispatch. These are byte/pin presentation checks, not proof that
   a shared context contains no semantic hint. With no supplied executable study, the designer can propose a located
   acquisition or a prospective experiment; the API does not invent its inputs.
@@ -54,7 +54,7 @@ population, per-turn ceilings and prospective study inputs, using independently
 created ordinary cycles/roots when needed. The matched declared reservation is
 `N+1` calls, `(N+1)*tokens`, `(N+1)*wall_seconds`, and zero native attempts.
 Preparation dispatches nothing. The API labels this comparison as **matched
-ceilings**, not measured equal cost, a randomized trial, experimental blinding
+ceilings**, not measured equal cost, a randomized trial, measurement blinding
 or evidence of efficacy. Actual per-turn usage, failures and unused reservations
 are retained for later comparison. Conducting such a study requires separate
 admission and genuine independent evaluation.
@@ -75,7 +75,7 @@ the same original question, premises, common source observations and retained
 prior experiment observations. The final designer sees all initial hypotheses
 and all completed revisions in both arms. This is an API disclosure boundary;
 source artifacts, common context and access outside this API can disclose ideas.
-It provides no OS isolation or proof of experimental blinding. This operation
+It provides no OS isolation or proof of measurement blinding. This operation
 never creates final critic/verifier contexts or submits their votes.
 
 Each returned turn must retain its entire visible hypothesis census. Edges are
@@ -86,7 +86,7 @@ with kind `acquisition` or `experiment`; each expected outcome is
 `{label,prediction:string|null}`. Source basis pins must name the full observations
 actually presented. An edge is an attributed review judgment, not an automated
 proof that either hypothesis is false. Unknown predictions and missing premises
-remain explicit. Only the designer may select an exact supplied candidate ID.
+remain explicit. Only the designer can select an exact supplied candidate ID.
 
 The report retains the original board and every minority explanation, inverse
 mapping, whole task, full prior experiment history, original observations,
@@ -94,9 +94,7 @@ contexts, raw response/Host receipts, checked judgments, actual Graph usage and
 all reservations, including turns never started. A malformed response, failed
 transport or freshness refusal stops the sequence and produces an incomplete
 report; Graph/Host call history and completed raw responses remain on disk.
-If a damaged original cycle cannot itself be read or a process terminates before
-report delivery, those original receipts remain the recovery evidence; the API
-cannot guarantee a final report across arbitrary storage/process failure.
+If reading the original cycle fails or a process terminates before report delivery, retain the original receipts as recovery evidence.
 Artifacts are complete, immutable, at most 2 MiB each; an oversized context/report
 refuses without truncating the population. Existing Host input limits also apply.
 

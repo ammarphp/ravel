@@ -1,18 +1,30 @@
 # Documentation
 
-Follow the physics workflow when you have an analysis question and a configured native
-toolchain. The command-line reference describes each command you can also run on its own.
+Install the toolchain, configure model access, then choose a study route.
+The controller keeps the question, approvals, execution and delivery connected.
 
 ## Getting started
 
 | I want to… | Read |
 |---|---|
 | Install Ravel and check the installation | [Installation](installation.md) |
-| Validate a contract or run a single command | [Command-line reference](cli.md) |
+| Validate a contract or run a single command | [Command guide](cli.md), [parser reference](cli/commands.md) |
 | Reproduce or reinterpret a published analysis | [Start a physics workflow](workflow/start.md) |
 | Analyze supplied events or models | [Scientific studies](workflow/reference/scientific-studies.md), [quantity and measurement contracts](reference/quantities-and-measurements.md), [domain adapters](reference/domain-adapters.md) |
-| Follow an existing run | [Session guide](workflow/session-guide.md) |
-| Understand what is supported | [Capabilities](reference/capabilities.md), [scope](reference/scope.md), and [limitations](reference/limitations.md) |
+| Follow an existing run | [Session guide](workflow/session-guide.md), [resume across upgrades](workflow/run-directory.md#resume-across-upgrades) |
+| Classify inputs and choose network access | [Data and transport policy](workflow/reference/provider-policy.md) |
+| Share or back up a run | [Private runs and sharing](workflow/run-directory.md#private-runs-and-sharing), [export and restore](workflow/run-directory.md#export-and-restore) |
+| Check delivery status | [Outcomes and exit codes](cli.md#work-command-outcomes), [artifact labels](workflow/run-directory.md#labels-on-delivered-artifacts) |
+| Understand what is supported | [Capabilities](reference/capabilities.md) and [scope](reference/scope.md) |
+
+## Study and architecture guides
+
+[Study types](guides/study-types.md) maps each scientific intent to its route and
+contract. The [architecture appendices](architecture/README.md) explain the
+controller, research loop, execution, providers and safety with diagrams and
+legends. [Configuration](reference/configuration.md), [output records](reference/outputs.md)
+and the [source-derived inventory](reference/documentation-inventory.md) provide
+complete interface references.
 
 ## Methodology
 
@@ -28,11 +40,12 @@ defines the fields that make a request executable and reviewable.
 
 [Scientific result contracts](reference/scientific-results.md) explain limits, scan bounds and artifact-bound certificates. [Durable execution](workflow/reference/durable-execution.md) explains stage reuse, interruption recovery and the current-state packet.
 
-## Development
+## Build and contribute
 
-- [Contributing](../CONTRIBUTING.md): set up a development environment and check a change.
-- [Directory index](../DIRECTORY.md): repository layout and where new files belong.
-- [Third-party notices](../THIRD-PARTY-NOTICES.md): upstream code RAVEL redistributes and its licences.
+- [Build, test and release](build-and-release.md): package layout, generators and release gates.
+- [Contributing](../CONTRIBUTING.md): environment setup and change validation.
+- [Directory index](../DIRECTORY.md): repository layout.
+- [Third-party notices](../THIRD-PARTY-NOTICES.md): redistributed code and licences.
 
 ## Analysis expansion
 

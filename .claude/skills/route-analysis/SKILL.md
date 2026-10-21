@@ -6,7 +6,7 @@ allowed-tools: Bash, Read
 ---
 # Skill — resolve the whole question through current capabilities
 
-State the required output and precision in the user's terms. Choose the cheapest method that meets the output, validity domain and precision, record why each cheaper method is insufficient or unavailable with evidence in `inputs/method-decision.json`, and stop when the answer is complete. Validate and render the record with `ravel method-decision --rundir RUN` before CHECK-IN 1 approval; full and scan launches refuse a missing, invalid or unjustified decision.
+State the required output and precision in the user's terms. Choose the cheapest method that meets the output, validity domain and precision, record why each cheaper method is insufficient or missing with evidence in `inputs/method-decision.json`, and stop when the answer is complete. Validate and render the record with `ravel method-decision --rundir RUN` before CHECK-IN 1 approval; full and scan launches refuse a missing, invalid or unjustified decision.
 
 Keep exact original request bytes and every requested experiment, parameter domain, metric
 and output. An accepted component, supplied-event diagnostic or published-figure overlay
@@ -39,7 +39,7 @@ python -m ravel.workflow.routine_fetch --query '<analysis code or literal identi
 Use `resource-sweep` for public likelihoods, response maps, cards, tables, code and citations.
 Inspect hits and existing retained official inputs. An outage is unknown; a missing identifier
 can often be recovered without asking the user. A missing public resource, incompatible
-adapter and genuinely unavailable private data have different recovery paths.
+adapter and genuinely missing private data have different recovery paths.
 
 ## 2. Reuse or adapt the actual compatible operation
 
@@ -63,12 +63,12 @@ adapter and genuinely unavailable private data have different recovery paths.
 - **Quantities and figures:** ratio/covariance/rebin/normalization operations have explicit
   contracts. A published-figure quotation is evidence reuse; a new limit needs model,
   response and statistical validation. An optional plotting failure must not erase valid
-  numeric output; requested unavailable styling/figures remain unmet.
+  numeric output; requested missing styling/figures remain unmet.
 - **Prospective sensitivity:** preserve the requested metric and explicit response/background
   scenarios. A hypothetical tagger does not require an invented ROC or immediate training.
   Same-luminosity parameter/response studies do not need a new target luminosity. Expected
   significance/discovery reach is distinct from CLs exclusion; it needs its own calibrated
-  model/validation route. No unsupported observed discovery claim is admitted.
+  model/validation route. No unverified observed discovery claim is admitted.
 
 ## 3. Qualify the bounded route and continue the original question
 
@@ -81,13 +81,13 @@ compute approval and review. Reuse valid approval only within its recorded scope
 Legacy shape-fit/R5 and detector-fidelity gates still withhold unvalidated limit claims.
 Diagnose failures and prepare a controlled compatible successor. A generator-level or
 sensitivity diagnostic is explicitly partial and never replaces the required fit/limit.
-If indispensable private inputs cannot be obtained, retain the dependent obligation as unmet;
+When indispensable private inputs are missing, retain the dependent obligation as unmet;
 continue independent public work without inventing those inputs. Report a precise barrier and
 constructive next step, not a scientifically meaningless keyword refusal.
 
 ## Stop conditions
 
-- Do not execute an incompatible adapter, unsupported model or unapproved compute.
+- Do not execute an incompatible adapter, a model outside its declared domain or unapproved compute.
 - Do not manufacture efficiencies, covariance, event samples, likelihoods or a discovery claim.
 - A failed parser/routine query, absent plot package, held R5 or off-grid map entry does not
   silently shrink the requested experiment population, scan domain, metric or output.

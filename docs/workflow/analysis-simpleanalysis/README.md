@@ -6,9 +6,9 @@
 > emulation, points run in parallel. Use this container path **only when the chosen analysis has no
 > native routine**.
 
-The SimpleAnalysis branch of step 4. SimpleAnalysis is the SR-yield framework that many ATLAS/CMS
+The SimpleAnalysis branch of step 4. SimpleAnalysis is the SR-yield framework that many experimental
 SUSY analyses publish a routine for; it produces per-SR yields that map directly onto a published
-pyhf likelihood — the route to the strongest limit when one exists. It runs in the ATLAS container
+pyhf likelihood — the route to the strongest limit when one exists. It runs in the pinned analysis container
 (linux/amd64), orchestrated by `mapyde`:
 
 ```

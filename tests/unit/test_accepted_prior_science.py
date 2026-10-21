@@ -13,6 +13,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from bound_review import bound_review
 from ravel.physics import model_provider_bridge as provider, model_tool_bridge as custody
 from ravel.workflow import accepted_prior_science as prior
 from ravel.workflow import execution, launch_authorization, physics_review as review, science
@@ -107,11 +108,12 @@ def closed(tmp_path, monkeypatch, request):
             findings=[] if state=='stopped' else [{'id':'synthetic-defect','summary':'Unresolved synthetic control',
                 'evidence':[{'path':'outputs/attempt-1/result.json','location':'$.value'}],
                 'check_ids':['agreement'],'required_paths':[],'required_stages':['science']}]
-            review.submit_review(rd,role='physics_critic',actor_id='critic',
+            bound_review(rd,role='physics_critic',
                 verdict='stop' if state=='stopped' else 'send_back',summary='Synthetic negative control',findings=findings)
         elif state!='awaiting_review':
-            for role,actor in [('physics_critic','critic'),('skeptical_verifier','skeptic'),('physics_decider','decider')]:
-                review.submit_review(rd,role=role,actor_id=actor,verdict='accept',
+            # Recorded votes are bound responses of dispatched roles; declared names are advice.
+            for role in ('physics_critic','skeptical_verifier','physics_decider'):
+                bound_review(rd,role=role,verdict='accept',
                     summary='Synthetic located custody evidence only',claim_scope='provider_readiness')
             assert review.gate_errors(rd,'reuse')==[]
     return SimpleNamespace(root=rd,package=package,record=record,config=config,provider=fr,metadata=metadata)

@@ -1,0 +1,21 @@
+{
+  "title": "judgment-attacks.v1",
+  "description": "Kill-the-result (P8): a fresh worker, never the planner or a producer, writes three attacks on the drafted result (basis, acceptance, statistics) and how each was tested. They become must_check items of the final review.",
+  "type": "object",
+  "required": ["schema_version", "kind", "subject", "attacks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "kind": {"type": "string", "const": "judgment-attacks"},
+    "subject": {
+      "type": "object",
+      "required": ["plan_sha256", "draft_sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "draft_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "attacks": {"$ref": "protocols/P8.v1.json#attacks"}
+  }
+}

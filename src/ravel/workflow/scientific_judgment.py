@@ -713,6 +713,10 @@ def verify_binding(binding, *, allow_control=False):
                  and receipt["public_value"].get("kind") in {"scientific_context_request", "scientific_evidence_request"})
     if receipt["execution_observation"] not in OBSERVATIONS | ({"control_only"} if allow_control and nonvoting else set()) or not receipt["context_transport_separated"]:
         raise ValueError("fresh observed role transport required; control transport is not scientific review")
+    from . import review_independence
+    independence = review_independence.graph_decision(root, receipt)
+    if not nonvoting:
+        review_independence.require(independence)
     value = receipt["public_value"]
     _keys(value, {"schema_version", "kind", "subject_sha256", "verdict", "summary", "findings", "closes", "claim_scope", "audit", "proposal", "proposal_verdict"} | ({"context_request","citations"} if "context_read" in contract else set()), "scientific role response")
     if type(value["schema_version"]) is not int or value["schema_version"] != (2 if "context_read" in contract else 1) or value["subject_sha256"] != binding["subject_sha256"]:
@@ -802,8 +806,11 @@ def verify_binding(binding, *, allow_control=False):
             raise ValueError("conflicting scientific role support commitments")
         normalized[canonical["path"]] = canonical
     support = review._supporting(root, list(normalized.values()))
+    # The decision travels beside the receipt: the receipt is an exact record that later
+    # preparations embed and replay, so it never carries a current-credit field.
     return {"contract": contract, "receipt": receipt, "value": value, "audit": audit,
-        "proposal": proposal, "supporting_artifacts": support, "execution_authorized": False}
+        "proposal": proposal, "supporting_artifacts": support, "execution_authorized": False,
+        "review_independence": independence}
 
 
 def _proposal(root, reg, view, proposal, packet_binding):
@@ -877,7 +884,7 @@ def consume(root, binding, *, allow_control=False):
     if c["phase"] != "result_review" or value["kind"] in {"scientific_evidence_request", "scientific_context_request"}: return verified  # nonvoting evidence for next role
     if value["claim_scope"] is not None and value["claim_scope"] != c["claim_scope"]: raise ValueError("model changed requested claim scope")
     return review.submit_review(root, role=ROLE[c["role"]], actor_id=c["actor_id"], verdict=value["verdict"], summary=value["summary"],
-        findings=value["findings"], closes=value["closes"], claim_scope=value["claim_scope"], supporting_artifacts=verified["supporting_artifacts"], retained_study="retained_study" in c)
+        findings=value["findings"], closes=value["closes"], claim_scope=value["claim_scope"], supporting_artifacts=verified["supporting_artifacts"], retained_study="retained_study" in c, binding=binding)
 
 
 def apply_proposal(root, binding, *, allow_control=False):

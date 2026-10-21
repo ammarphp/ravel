@@ -40,7 +40,7 @@ ravel model-tool-bridge plan \
 
 UFO Python is executable source. Intake records the complete model and MG5 source
 censuses, the selected Python executable and its finite installed source and
-dependency census, and the exact supplied card. Intake does not import the model.
+dependency census, and the exact supplied card.
 After actual CHECK-IN 1 approval, execution copies model and tool sources to a
 fresh workspace of its own. It disables implicit UFO restrictions and rejects card
 addresses missing from, or ignored by, the full native model. A card named
@@ -69,7 +69,7 @@ finite Python source capsule.
 The current API accepts one to four explicit two-to-two tree processes and two
 to eight unique seeds. It refuses free-form generation commands, multiparticle
 aliases, implicit or `Auto` widths, duplicate card addresses, scale-dependent
-blocks, decay tables, and vacuous zero-amplitude checks. Unsupported or failed
+blocks, decay tables, and vacuous zero-amplitude checks. Unverified or failed
 native attempts retain their outputs for review. Implementation and synthetic
 guard tests are distinct from an executed native acceptance study.
 

@@ -1,0 +1,2 @@
+Write a short internal note from the supplied fictional toy result table, stating each value of the toy
+observable with its uncertainty, and build it as a PDF.

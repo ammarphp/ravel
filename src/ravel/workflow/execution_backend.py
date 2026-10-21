@@ -220,12 +220,14 @@ def validate_spec(spec):
     if not isinstance(argv, list) or not argv or any(not isinstance(a, str) or not a or '\x00' in a for a in argv):
         raise ValueError('argv must be a nonempty list of nonempty strings')
     resources = spec['resources']
-    _keys(resources, ('cpus', 'memory_mib', 'wall_seconds'), ('disk_mib',), 'resources')
+    _keys(resources, ('cpus', 'memory_mib', 'wall_seconds'), ('disk_mib', 'processes'), 'resources')
     _integer(resources['cpus'], 1, 512, 'resources.cpus')
     _integer(resources['memory_mib'], 16, 1 << 22, 'resources.memory_mib')
     _integer(resources['wall_seconds'], 1, 30 * 86400, 'resources.wall_seconds')
     if 'disk_mib' in resources:
         _integer(resources['disk_mib'], 1, 1 << 30, 'resources.disk_mib')
+    if 'processes' in resources:
+        _integer(resources['processes'], 1, 1 << 20, 'resources.processes')
     for field in ('inputs', 'readonly_trees'):
         rows = spec.get(field, [])
         if not isinstance(rows, list):
@@ -563,7 +565,11 @@ def submit(plan, attempt_dir, *, backend=None, plan_bytes=None, authority=None):
     so the custody chain can check them.
     """
     check_plan(plan)
+    if authority is not None:
+        _controller_check(authority[0], 'backend dispatch')
     granted = dispatch_authority(plan, authority, plan_bytes)
+    if granted.get('rundir') is not None:
+        _controller_check(granted['rundir'], 'backend dispatch')
     backend = backend or get(plan['spec']['backend'])
     attempt_dir = Path(attempt_dir).resolve()
     if (attempt_dir / HANDLE_NAME).exists():
@@ -572,7 +578,17 @@ def submit(plan, attempt_dir, *, backend=None, plan_bytes=None, authority=None):
     # submission and held across it, so a pause that commits first stops this job from being
     # written or dispatched and one that commits later finds it running (it drains).
     with _steering_admission(granted):
-        return _submit_admitted(plan, attempt_dir, backend, plan_bytes, granted)
+        if granted.get('rundir') is not None:
+            _controller_check(granted['rundir'], 'backend dispatch before submission')
+        with _flock(attempt_dir.with_name(attempt_dir.name + '.dispatch.lock'), 'backend dispatch already in progress'):
+            if (attempt_dir / HANDLE_NAME).exists():
+                raise ValueError('this attempt already has a backend handle; recover it instead of submitting again')
+            return _submit_admitted(plan, attempt_dir, backend, plan_bytes, granted)
+
+
+def _controller_check(rundir, action):
+    from .stage_supervisor import _controller_check as check
+    return check(rundir, action)
 
 
 @contextmanager
@@ -603,8 +619,12 @@ def _submit_admitted(plan, attempt_dir, backend, plan_bytes, granted):
               'attempt_dir': str(attempt_dir), 'job_dir': str(attempt_dir / 'job'),
               'state': 'dispatching', 'created_utc': utc_now(), 'remote': None,
               'cancel_requested': False, 'resolution': None, 'authority': granted}
+    handle['budget_started_ns'] = time.time_ns()
+    handle['wall_deadline_ns'] = handle['budget_started_ns'] + int(plan['spec']['resources']['wall_seconds'] * 1e9)
     write_handle(handle)
     try:
+        if granted.get('rundir') is not None:
+            _controller_check(granted['rundir'], 'backend effect before submission')
         remote = backend.submit(plan, handle)
     except BaseException as exc:
         handle['state'] = 'dispatch-unknown'
@@ -629,6 +649,13 @@ def _submit_admitted(plan, attempt_dir, backend, plan_bytes, granted):
 
 
 def observe(plan, handle):
+    root = (handle.get('authority') or {}).get('rundir')
+    if root is not None and not handle.get('cancel_requested'):
+        from ravel.controller.authority import AuthorityRefused
+        try:
+            _controller_check(root, 'backend scheduler poll')
+        except AuthorityRefused:
+            return cancel(plan, handle)
     backend = get(handle['backend'])
     if handle['remote'] is None:
         observation = {'state': 'unknown', 'exit_code': None, 'detail': 'no remote identity recorded; run recover'}
@@ -640,7 +667,12 @@ def observe(plan, handle):
     if 'detail' in observation:
         observation['detail'] = redact(str(observation['detail']))
     _journal(handle, {'event': 'observe', **observation})
-    if observation['state'] in TERMINAL and handle.get('resolution') != observation['state']:
+    cleanup_required = bool(observation.get('requires_cancel') or observation.get('requires_recovery'))
+    if cleanup_required:
+        handle['cleanup_required'] = True
+        write_handle(handle)
+    elif observation['state'] in TERMINAL:
+        handle['cleanup_required'] = False
         handle['resolution'] = observation['state']
         write_handle(handle)
     return observation
@@ -674,7 +706,8 @@ def cancel(plan, handle, *, wait_seconds=30.0, poll=0.25):
     deadline = time.monotonic() + wait_seconds
     while True:
         observation = observe(plan, handle)
-        if observation['state'] in TERMINAL or time.monotonic() >= deadline:
+        if (observation['state'] in TERMINAL and not observation.get('requires_cancel')
+                and not observation.get('requires_recovery')) or time.monotonic() >= deadline:
             return observation
         time.sleep(poll)
 
@@ -713,7 +746,9 @@ def recover(plan, handle):
 
 
 def handle_resolved(handle):
-    return handle.get('resolution') is not None or handle.get('state') not in UNRESOLVED_HANDLE_STATES
+    return (handle.get('resolution') == 'operator-cleared' or not handle.get('cleanup_required') and (
+        handle.get('resolution') in (*TERMINAL, 'never-started', 'never-dispatched')
+        or handle.get('state') in (*TERMINAL, 'fetched')))
 
 
 # ---------------------------------------------------------------- outputs
@@ -804,6 +839,12 @@ def _flock(path, message):
         except BlockingIOError as exc:
             raise ValueError(message) from exc
         try:
+            if os.fstat(stream.fileno()).st_size == 0:
+                record = {'schema_version': 1, 'kind': 'backend-coordination-lock',
+                          'path': str(path.resolve()), 'purpose': message, 'locking': 'flock'}
+                stream.write((json.dumps(record, sort_keys=True, allow_nan=False) + '\n').encode())
+                stream.flush()
+                os.fsync(stream.fileno())
             yield
         finally:
             fcntl.flock(stream, fcntl.LOCK_UN)
@@ -820,7 +861,16 @@ def machine_lease(holder, *, wait_seconds=0.0, rundir=None, node_id=None, nested
         yield held
 
 
-def remote_ceiling():
+def remote_ceiling(rundir=None):
+    """Concurrent remote jobs allowed. A controller-owned run takes it from the operator configuration
+    (``remote_job_ceiling``, default 1); the environment variable and the state file never raise it."""
+    if rundir is not None:
+        from ravel.controller.confine import runs
+        if runs.owner_of(Path(rundir).resolve()):
+            value = runs.operator_settings().get('remote_job_ceiling', 1)
+            if type(value) is not int or value < 1:
+                raise ValueError('the operator remote_job_ceiling must be a positive integer')
+            return value
     configured = os.environ.get('RAVEL_REMOTE_JOB_CEILING')
     if configured is None:
         path = state_dir() / 'remote-ceiling.json'
@@ -832,8 +882,8 @@ def remote_ceiling():
 
 
 @contextmanager
-def remote_slot(holder):
-    ceiling = remote_ceiling()
+def remote_slot(holder, *, rundir=None, attempt_dir=None):
+    ceiling = remote_ceiling(rundir)
     leases = state_dir() / 'leases'
     for index in range(ceiling):
         lock = leases / f'remote-slot-{index}.lock'
@@ -843,8 +893,31 @@ def remote_slot(holder):
         except ValueError:
             continue
         try:
-            atomic_json(leases / f'remote-slot-{index}.json', {'holder': holder, 'pid': os.getpid(), 'since_utc': utc_now()})
-            yield index
+            path = leases / f'remote-slot-{index}.json'
+            previous = read_json(path) if path.exists() else {}
+            if previous and previous.get('state') != 'released':
+                # A dead owner's unlocked flock does not resolve a remote job. Only
+                # its retained handle can release the reservation or identify adoption.
+                old_attempt = previous.get('attempt_dir')
+                old_handle = Path(old_attempt) / HANDLE_NAME if old_attempt else None
+                resolved = old_handle is not None and old_handle.is_file() and handle_resolved(read_json(old_handle))
+                same = (attempt_dir is not None and previous.get('holder') == holder
+                        and old_attempt == str(Path(attempt_dir).resolve()))
+                if not resolved and not same:
+                    continue
+            reservation = {'holder': holder, 'pid': os.getpid(), 'since_utc': previous.get('since_utc') or utc_now(),
+                           'state': 'active', 'rundir': str(rundir) if rundir is not None else None,
+                           'attempt_dir': str(Path(attempt_dir).resolve()) if attempt_dir is not None else None}
+            atomic_json(path, reservation)
+            try:
+                yield index
+            finally:
+                reservation['state'] = 'released'
+                if attempt_dir is not None:
+                    handle_path = Path(attempt_dir) / HANDLE_NAME
+                    if handle_path.is_file() and not handle_resolved(read_json(handle_path)):
+                        reservation['state'] = 'held'
+                atomic_json(path, reservation)
         finally:
             manager.__exit__(None, None, None)
         return
@@ -853,7 +926,7 @@ def remote_slot(holder):
 
 
 @contextmanager
-def capacity(plan, holder, *, lease_held=False, rundir=None, node_id=None, nested=False):
+def capacity(plan, holder, *, lease_held=False, rundir=None, node_id=None, nested=False, attempt_dir=None):
     """Machine lease for local backends; a remote slot for remote ones.
 
     ``rundir``/``node_id`` name the job; a worker under a proven holder receives
@@ -866,7 +939,7 @@ def capacity(plan, holder, *, lease_held=False, rundir=None, node_id=None, neste
         with machine_lease(holder, rundir=rundir, node_id=node_id, nested=nested):
             yield
     else:
-        with remote_slot(holder):
+        with remote_slot(holder, rundir=rundir, attempt_dir=attempt_dir):
             yield
 
 
@@ -1052,7 +1125,7 @@ def pinned_plan_bytes(record, plan_path):
 
 def _settle(plan, handle, cancel_wait, stream):
     """Cancel a dispatched job that has not reached an observed terminal state."""
-    if handle is None or handle.get('remote') is None or handle.get('resolution') in TERMINAL:
+    if handle is None or handle.get('remote') is None or handle_resolved(handle):
         return None
     observation = cancel(plan, handle, wait_seconds=cancel_wait)
     if observation['state'] not in TERMINAL:
@@ -1105,7 +1178,7 @@ def worker(rundir, stage, plan_path, *, poll=5.0, register=True, stream=None, ca
     box = {'handle': None}
     try:
         with capacity(plan, f'{rundir}:{stage}:{record["attempt_id"]}', lease_held=lease_held,
-                      rundir=str(rundir), node_id=stage):
+                      rundir=str(rundir), node_id=stage, attempt_dir=attempt):
             # The job is cancelled before the lease scope ends on every exit path.
             try:
                 return _drive(plan, plan_bytes, attempt, rundir, box, poll, cancel_wait, stream)
@@ -1133,17 +1206,37 @@ def worker(rundir, stage, plan_path, *, poll=5.0, register=True, stream=None, ca
 
 
 def _drive(plan, plan_bytes, attempt, rundir, box, poll, cancel_wait, stream):
-    try:
-        box['handle'] = submit(plan, attempt, plan_bytes=plan_bytes, authority=(rundir, plan['spec']['stage']))
-    except BaseException:
-        box['handle'] = read_handle(attempt) if (attempt / HANDLE_NAME).is_file() else None
-        raise
+    _controller_check(rundir, 'backend worker dispatch')
+    if (attempt / HANDLE_NAME).is_file():
+        handle = read_handle(attempt)
+        if (handle.get('plan_sha256') != plan.get('plan_sha256')
+                or handle.get('plan_file_sha256') != file_sha256(attempt / 'plan.json')):
+            raise ValueError('retained backend identity differs from the pinned plan; held')
+        if type(handle.get('wall_deadline_ns')) is not int or type(handle.get('budget_started_ns')) is not int:
+            raise ValueError('retained backend budget identity unavailable; held without resubmission')
+        if handle.get('remote') is None:
+            recovered = recover(plan, handle)
+            if handle.get('remote') is None:
+                raise ValueError('retained dispatch identity unresolved; held without resubmission: ' +
+                                 recovered['observation'].get('detail', 'unknown'))
+        box['handle'] = handle
+    else:
+        try:
+            box['handle'] = submit(plan, attempt, plan_bytes=plan_bytes, authority=(rundir, plan['spec']['stage']))
+        except BaseException:
+            box['handle'] = read_handle(attempt) if (attempt / HANDLE_NAME).is_file() else None
+            raise
     handle = box['handle']
     print(f"backend {handle['backend']} job {handle['tag']} submitted: {json.dumps(handle['remote'])}", file=stream, flush=True)
     offset = 0
-    started = time.monotonic()
-    wall = plan['spec']['resources']['wall_seconds']
+    deadline = handle['wall_deadline_ns']
     while True:
+        from ravel.controller.authority import AuthorityRefused
+        try:
+            _controller_check(rundir, 'backend scheduler poll')
+        except AuthorityRefused:
+            _settle(plan, handle, cancel_wait, stream)
+            return 130
         text, offset = logs(plan, handle, offset)
         if text:
             stream.write(text)
@@ -1155,7 +1248,7 @@ def _drive(plan, plan_bytes, attempt, rundir, box, poll, cancel_wait, stream):
             print(f"backend worker: {observation['detail']}; cancelling", file=stream, flush=True)
             _settle(plan, handle, cancel_wait, stream)
             return 1
-        if time.monotonic() - started > wall:
+        if time.time_ns() >= deadline:
             print('backend worker: wall-clock ceiling reached; cancelling', file=stream, flush=True)
             _settle(plan, handle, cancel_wait, stream)
             return 124

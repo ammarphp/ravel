@@ -1,0 +1,761 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "checklist": {
+      "additionalProperties": false,
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "done",
+              "not_applicable",
+              "blocked"
+            ]
+          },
+          "unit": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          }
+        },
+        "required": [
+          "unit",
+          "status",
+          "evidence",
+          "note"
+        ],
+        "type": "object"
+      },
+      "properties": {
+        "groups": {
+          "items": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "else": {
+                  "properties": {
+                    "note": {
+                      "minLength": 1,
+                      "pattern": "\\S",
+                      "type": "string"
+                    }
+                  }
+                },
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "done"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "evidence": {
+                      "minLength": 1,
+                      "pattern": "\\S",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "evidence": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "indices": {
+                "items": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true
+              },
+              "note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "enum": [
+                  "done",
+                  "not_applicable",
+                  "blocked"
+                ]
+              }
+            },
+            "required": [
+              "indices",
+              "status",
+              "evidence",
+              "note"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "groups"
+      ],
+      "type": [
+        "array",
+        "object"
+      ]
+    },
+    "escalation": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "items": {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "checkin_flag",
+              "stop",
+              "new_experiment_required",
+              "decision_block"
+            ]
+          },
+          "options": {
+            "items": {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "statement": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "statement",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "handoff": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "role": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "role",
+            "reason"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "instruction_ack": {
+      "additionalProperties": false,
+      "properties": {
+        "manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "manifest_sha256"
+      ],
+      "type": "object"
+    },
+    "item_verdicts": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "items": {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "item": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verdict": {
+            "enum": [
+              "pass",
+              "fail",
+              "unresolved"
+            ]
+          }
+        },
+        "required": [
+          "item",
+          "verdict",
+          "evidence",
+          "note"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "items": {
+      "items": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "closes": {
+                "items": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "code": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "evidence": {
+                "items": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "evidence_class": {
+                "enum": [
+                  "new_receipt",
+                  "code_check",
+                  "cited",
+                  "opinion"
+                ]
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "location": {
+                "additionalProperties": false,
+                "properties": {
+                  "line": {
+                    "minimum": 1,
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "path": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "pointer": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "path",
+                  "pointer",
+                  "line"
+                ],
+                "type": "object"
+              },
+              "request": {
+                "additionalProperties": false,
+                "properties": {
+                  "expected": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "inputs": {
+                    "items": {
+                      "minLength": 1,
+                      "pattern": "\\S",
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "operation": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "result": {
+                    "enum": [
+                      "pending",
+                      "pass",
+                      "fail",
+                      "unresolved"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "operation",
+                  "inputs",
+                  "expected",
+                  "result"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "severity": {
+                "enum": [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              },
+              "statement": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "location",
+              "code",
+              "statement",
+              "evidence",
+              "closes",
+              "evidence_class"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "artifact_sha256": {
+                        "pattern": "^[a-f0-9]{64}$",
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "defect"
+                      },
+                      "rework_evidence": {
+                        "minLength": 1,
+                        "pattern": "\\S",
+                        "type": "string"
+                      },
+                      "target": {
+                        "minLength": 1,
+                        "pattern": "\\S",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "artifact_sha256",
+                      "target",
+                      "rework_evidence"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "artifact_sha256": {
+                        "pattern": "^[a-f0-9]{64}$",
+                        "type": "string"
+                      },
+                      "claims": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "bound": {
+                              "minLength": 1,
+                              "pattern": "\\S",
+                              "type": "string"
+                            },
+                            "claim_id": {
+                              "minLength": 1,
+                              "pattern": "\\S",
+                              "type": "string"
+                            },
+                            "effect": {
+                              "enum": [
+                                "bounds",
+                                "invalidates"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "claim_id",
+                            "effect",
+                            "bound"
+                          ],
+                          "type": "object"
+                        },
+                        "minItems": 1,
+                        "type": "array"
+                      },
+                      "kind": {
+                        "const": "limitation"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "artifact_sha256",
+                      "claims"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "closes": {
+                "items": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "code": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "evidence": {
+                "items": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "evidence_class": {
+                "enum": [
+                  "new_receipt",
+                  "code_check",
+                  "cited",
+                  "opinion"
+                ]
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "location": {
+                "additionalProperties": false,
+                "properties": {
+                  "line": {
+                    "minimum": 1,
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "path": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "pointer": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "path",
+                  "pointer",
+                  "line"
+                ],
+                "type": "object"
+              },
+              "reclassifications": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "actor_id": {
+                      "minLength": 1,
+                      "pattern": "\\S",
+                      "type": "string"
+                    },
+                    "classification": {
+                      "oneOf": [
+                        {
+                          "additionalProperties": false,
+                          "properties": {
+                            "artifact_sha256": {
+                              "pattern": "^[a-f0-9]{64}$",
+                              "type": "string"
+                            },
+                            "kind": {
+                              "const": "defect"
+                            },
+                            "rework_evidence": {
+                              "minLength": 1,
+                              "pattern": "\\S",
+                              "type": "string"
+                            },
+                            "target": {
+                              "minLength": 1,
+                              "pattern": "\\S",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "artifact_sha256",
+                            "target",
+                            "rework_evidence"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "additionalProperties": false,
+                          "properties": {
+                            "artifact_sha256": {
+                              "pattern": "^[a-f0-9]{64}$",
+                              "type": "string"
+                            },
+                            "claims": {
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "bound": {
+                                    "minLength": 1,
+                                    "pattern": "\\S",
+                                    "type": "string"
+                                  },
+                                  "claim_id": {
+                                    "minLength": 1,
+                                    "pattern": "\\S",
+                                    "type": "string"
+                                  },
+                                  "effect": {
+                                    "enum": [
+                                      "bounds",
+                                      "invalidates"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "claim_id",
+                                  "effect",
+                                  "bound"
+                                ],
+                                "type": "object"
+                              },
+                              "minItems": 1,
+                              "type": "array"
+                            },
+                            "kind": {
+                              "const": "limitation"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "artifact_sha256",
+                            "claims"
+                          ],
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "reason": {
+                      "minLength": 1,
+                      "pattern": "\\S",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "actor_id",
+                    "reason",
+                    "classification"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "request": {
+                "additionalProperties": false,
+                "properties": {
+                  "expected": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "inputs": {
+                    "items": {
+                      "minLength": 1,
+                      "pattern": "\\S",
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "operation": {
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "result": {
+                    "enum": [
+                      "pending",
+                      "pass",
+                      "fail",
+                      "unresolved"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "operation",
+                  "inputs",
+                  "expected",
+                  "result"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "severity": {
+                "enum": [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              },
+              "statement": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "location",
+              "code",
+              "statement",
+              "evidence",
+              "closes",
+              "evidence_class",
+              "classification"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "kind": {
+      "const": "findings"
+    },
+    "literature_used": {
+      "items": {
+        "minLength": 1,
+        "pattern": "\\S",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": 3
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "items",
+    "handoff",
+    "instruction_ack",
+    "checklist",
+    "escalation",
+    "item_verdicts"
+  ],
+  "type": "object"
+}

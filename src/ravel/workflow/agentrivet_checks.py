@@ -218,14 +218,21 @@ class Session:
                    'routine': self.routine}
         authorization = {'approval': self.approval, 'reservation': self.reservation,
                          'checks_sha256': _digest(self.checks), 'machine_approval_is_not_human_review': True}
+        confined = self._confinement(command, workdir, environment)
         event = launch_authorization._append(self.root, {'event': 'authorized', 'command': command,
                                                          'context': context, 'authorization': authorization})
         started = time.monotonic()
-        process = subprocess.Popen(command, cwd=workdir, env=environment, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE, start_new_session=True)
+        if confined is None:
+            process = subprocess.Popen(command, cwd=workdir, env=environment, stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, start_new_session=True)
+        else:
+            from ravel.controller.confine import start
+            process = start(confined, subprocess.Popen, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            start_new_session=True)
         launched = launch_authorization._append(self.root, {
             'event': 'launched', 'authorization_sequence': event['sequence'],
-            'authorization_sha256': event['sha256'], 'pid': process.pid})
+            'authorization_sha256': event['sha256'], 'pid': process.pid,
+            **({'confinement': confined.record} if confined is not None else {})})
         timed_out = False
         try:
             stdout, stderr = process.communicate(timeout=timeout)
@@ -236,9 +243,35 @@ class Session:
             except ProcessLookupError:
                 pass
             stdout, stderr = process.communicate()
-        return {'returncode': None if timed_out else process.returncode, 'timed_out': timed_out,
-                'stdout': stdout, 'stderr': stderr, 'seconds': round(time.monotonic() - started, 3),
-                'journal': [event['sequence'], launched['sequence']]}
+        result = {'returncode': None if timed_out else process.returncode, 'timed_out': timed_out,
+                  'stdout': stdout, 'stderr': stderr, 'seconds': round(time.monotonic() - started, 3),
+                  'journal': [event['sequence'], launched['sequence']]}
+        if confined is not None:
+            from ravel.controller.confine import finish
+            result['confinement'] = {'launch': confined.record, 'finish': finish(process)}
+        return result
+
+    def _confinement(self, command, workdir, environment):
+        """For a construction directory of a controller-owned run: the confined launch plan, else None.
+
+        The check reads the construction directory, its declared tools and sample, and writes only
+        its own work directory; planning refuses or holds before the journal is written.
+        """
+        from ravel.controller.confine import prepare, runs
+        owner = runs.owner_of(self.root)
+        if owner is None:
+            return None
+        reads = [str(self.root)]
+        for tool in self.checks['runtime'].values():
+            if isinstance(tool, dict) and isinstance(tool.get('path'), str) and os.path.exists(tool['path']):
+                located = Path(tool['path']).resolve()
+                reads.append(str(located))
+        sample = self.checks.get('sample')
+        if sample is not None and os.path.exists(sample['events']['path']):
+            reads.append(str(Path(sample['events']['path']).resolve()))
+        return prepare({'argv': [str(part) for part in command], 'env': dict(environment), 'reads': reads,
+                        'writes': [str(Path(workdir).resolve())], 'cwd': str(Path(workdir).resolve()),
+                        'controller': {'run_id': owner[0]}, 'label': 'agentrivet-construction-check'})
 
     def _environment(self, workdir, extra=None):
         environment = routine_build.isolated_process_environment(workdir / 'home', workdir / 'tmp')

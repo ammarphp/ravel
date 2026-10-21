@@ -545,7 +545,8 @@ def consume(rundir, binding, *, allow_control=False):
     support=verified['supporting_artifacts']+[binding['request'],binding['report'],*report['inputs']]
     return judgment.review.submit_review(rundir,role=judgment.ROLE[contract['role']],actor_id=contract['actor_id'],
         verdict=value['verdict'],summary=value['summary'],findings=value['findings'],closes=value['closes'],claim_scope=value['claim_scope'],
-        supporting_artifacts=list({p['path']:p for p in support}.values()))
+        supporting_artifacts=list({p['path']:p for p in support}.values()),
+        binding=binding['judgment'])
 
 
 def _journal_findings(view, binding, verified):

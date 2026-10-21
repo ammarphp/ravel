@@ -1,0 +1,3840 @@
+{
+  "kind": "route-spec-family",
+  "description": "ML inference through ordinary science-mode operations; dedicated training on supplied data through the staged executor, each stage a governed plan step and a confined launch (R12).",
+  "specs": [
+    {
+      "schema_version": 1,
+      "kind": "route-spec",
+      "id": "ml.inference",
+      "version": 1,
+      "title": "Apply a pinned published or supplied classifier",
+      "description": "A request on supplied events normally takes the study route, which admits the same operations. This spec serves a request whose intake names the published-classifier operation directly; requests naming another inference operation take the study or judgment route, so no plan runs a different operation than the one requested. It never contains training.",
+      "match": {
+        "row": 1,
+        "order": 5,
+        "when": {
+          "field": "operation",
+          "eq": "published-classifier"
+        }
+      },
+      "steps": [
+        {
+          "id": "i01-spec",
+          "kind": "author",
+          "title": "Typed inference specification: classifier, features and population",
+          "role": "analysis-author",
+          "outputs": [
+            {
+              "path": "outputs/inference_spec.json",
+              "kind": "document",
+              "required": true
+            },
+            {
+              "path": "outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 150,
+            "tokens": 300000
+          },
+          "parameters": {
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/inference_spec.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:validation.input_closure.check/fit": "pin",
+                "/validator_inputs/check:validation.input_closure.check/reference": "pin"
+              }
+            }
+          }
+        },
+        {
+          "id": "i02-plan-review",
+          "kind": "review",
+          "title": "Plan critique of the inference specification",
+          "role": "plan-critic",
+          "depends_on": [
+            "i01-spec"
+          ],
+          "inputs": [
+            {
+              "artifact": "i01-spec:outputs/inference_spec.json",
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/spec_review.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "budget": {
+            "wall_seconds": 1200,
+            "broker_calls": 80,
+            "tokens": 200000
+          }
+        },
+        {
+          "id": "i03-apply",
+          "kind": "operate",
+          "title": "Apply the pinned classifier",
+          "operation": "published-classifier",
+          "role": "analysis-author",
+          "depends_on": [
+            "i01-spec",
+            "i02-plan-review"
+          ],
+          "outputs": [
+            {
+              "path": "outputs/performance.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/scores.json",
+              "kind": "binned_values",
+              "required": true
+            }
+          ],
+          "rung": "full",
+          "budget": {
+            "wall_seconds": 3600,
+            "attempts": 2
+          },
+          "review": [
+            "ml-reviewer"
+          ],
+          "obligations": [
+            "MODE-published-classifier"
+          ],
+          "inputs": [
+            {
+              "artifact": "i01-spec:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "parameters": {
+            "check_inputs": {
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "i03-apply",
+                  "path": "outputs/performance.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/performance.json": {
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string",
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string"
+              }
+            }
+          }
+        },
+        {
+          "id": "i04-report",
+          "kind": "synthesize",
+          "title": "Results with the classifier's scope and population fidelity",
+          "role": "analysis-author",
+          "depends_on": [
+            "i03-apply",
+            "i01-spec"
+          ],
+          "inputs": [
+            {
+              "artifact": "i03-apply:outputs/performance.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "i03-apply:outputs/scores.json",
+              "kind": "binned_values"
+            },
+            {
+              "artifact": "i01-spec:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            },
+            {
+              "artifact": "i01-spec:outputs/inference_spec.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/report.md",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 100,
+            "tokens": 300000
+          },
+          "review": [
+            "skeptical-verifier"
+          ],
+          "parameters": {
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                }
+              },
+              "check:validation.input_closure.check": {
+                "fit": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.input_closure.check/fit",
+                  "type": "pin"
+                },
+                "reference": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.input_closure.check/reference",
+                  "type": "pin"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/inference_spec.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "i01-spec",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "checkins": [
+        {
+          "id": "checkin1",
+          "seats": [
+            "plan-critic"
+          ]
+        },
+        {
+          "id": "checkin3",
+          "seats": [
+            "ml-reviewer"
+          ]
+        }
+      ],
+      "obligations": [
+        "R12",
+        "MODE-published-classifier",
+        "MODE-classifier-inputs",
+        "MODE-analysis-response-features"
+      ],
+      "deliverables": [
+        {
+          "match": {
+            "artifact": [
+              "table"
+            ]
+          },
+          "step": "i03-apply",
+          "output": "outputs/performance.json"
+        },
+        {
+          "match": {
+            "artifact": [
+              "binned_values"
+            ]
+          },
+          "step": "i03-apply",
+          "output": "outputs/scores.json"
+        },
+        {
+          "match": {
+            "claim": [
+              "estimate",
+              "prediction",
+              "finding",
+              "method_performance",
+              "document"
+            ]
+          },
+          "step": "i04-report",
+          "output": "outputs/report.md"
+        },
+        {
+          "match": {
+            "artifact": [
+              "document"
+            ]
+          },
+          "step": "i04-report",
+          "output": "outputs/report.md"
+        }
+      ],
+      "instruction_sources": [
+        "docs/workflow/reference/scientific-studies.md"
+      ]
+    },
+    {
+      "schema_version": 1,
+      "kind": "route-spec",
+      "id": "ml.training",
+      "version": 2,
+      "title": "Dedicated ML training on supplied data through the staged executor",
+      "description": "Typed stages, each a governed plan step and a confined launch: dataset admission and split, feature definition and the leakage screen (both before CHECK-IN 1), a training smoke as the waypoint, the full training launch after the CHECK-IN 2 GO (never given the withheld partition), one evaluation read of the withheld partition (an unblinding, with its own R3 authority), the model card and the executable reviewer items. A refused, held or budget-exhausted stage ends the run with a qualified delivery that states it.",
+      "adapter": "ml.staged",
+      "match": {
+        "row": 5,
+        "order": 0,
+        "when": {
+          "field": "operation",
+          "eq": "ml-training"
+        }
+      },
+      "parameters": [
+        {
+          "name": "python",
+          "from": "reading:interpreter",
+          "required": true,
+          "description": "the interpreter of the installed controller (bound by the route adapter)"
+        },
+        {
+          "name": "dataset_path",
+          "from": "supplied:ml-table",
+          "required": true,
+          "description": "the one supplied training table (npz, csv or root), bound by the route adapter"
+        },
+        {
+          "name": "dataset_sha256",
+          "from": "supplied:ml-table",
+          "required": true,
+          "description": "the intake digest of the supplied training table"
+        }
+      ],
+      "steps": [
+        {
+          "id": "t01-spec",
+          "kind": "author",
+          "title": "Staged training specification: dataset columns, features, split, arms, seeds, budget and check thresholds",
+          "role": "ml-planner",
+          "outputs": [
+            {
+              "path": "outputs/ml_study_spec.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "budget": {
+            "wall_seconds": 3600,
+            "broker_calls": 200,
+            "tokens": 400000
+          },
+          "parameters": {
+            "phase": "prepare",
+            "check_inputs": {
+              "check:ml-ablation-arms": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t01-spec",
+                  "path": "outputs/ml_study_spec.json",
+                  "field": "/validator_inputs/check:ml-ablation-arms/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t01-spec",
+                  "path": "outputs/ml_study_spec.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-estimand-declared": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t01-spec",
+                  "path": "outputs/ml_study_spec.json",
+                  "field": "/validator_inputs/check:ml-estimand-declared/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t01-spec",
+                  "path": "outputs/ml_study_spec.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/ml_study_spec.json": {
+                "/validator_inputs/check:ml-ablation-arms/record_id": "string",
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-estimand-declared/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md",
+            "docs/workflow/reference/scientific-studies.md"
+          ],
+          "obligations": [
+            "R12"
+          ]
+        },
+        {
+          "id": "t02-admit",
+          "kind": "operate",
+          "title": "Dataset admission and split with provenance",
+          "operation": "ml-stage-admit",
+          "role": "ml-trainer",
+          "depends_on": [
+            "t01-spec"
+          ],
+          "inputs": [
+            {
+              "artifact": "t01-spec:outputs/ml_study_spec.json",
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/partitions/train.npz",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/partitions/validation.npz",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/partitions/test.npz",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/partitions/identities.npz",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/admission.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/ml/receipt.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "rung": "dry",
+          "budget": {
+            "wall_seconds": 1800,
+            "attempts": 1
+          },
+          "parameters": {
+            "phase": "prepare",
+            "ml_stage": "admit",
+            "launch": {
+              "argv": [
+                "{python}",
+                "-I",
+                "-m",
+                "ravel.workflow.ml_stages",
+                "admit",
+                "--root",
+                "../../../../..",
+                "--input",
+                "spec=steps/t01-spec/outputs/ml_study_spec.json",
+                "--dataset",
+                "{dataset_path}",
+                "--dataset-sha256",
+                "{dataset_sha256}",
+                "--wall-seconds",
+                "1800",
+                "--threads=1"
+              ],
+              "stage": "ml-training",
+              "cpus": 1,
+              "reads": [
+                "{dataset_path}"
+              ]
+            },
+            "check_inputs": {
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-equal-budget": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-equal-budget/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-label-leakage": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-label-leakage/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-test-once": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-test-once/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t02-admit",
+                  "path": "outputs/admission.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/admission.json": {
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-equal-budget/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-label-leakage/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-test-once/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "obligations": [
+            "R12"
+          ]
+        },
+        {
+          "id": "t03-features",
+          "kind": "operate",
+          "title": "Feature definition and the label-leakage screen (training partition only)",
+          "operation": "ml-stage-features",
+          "role": "ml-trainer",
+          "depends_on": [
+            "t01-spec",
+            "t02-admit"
+          ],
+          "inputs": [
+            {
+              "artifact": "t01-spec:outputs/ml_study_spec.json",
+              "kind": "document"
+            },
+            {
+              "artifact": "t02-admit:outputs/admission.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/train.npz",
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/features.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/ml/receipt.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "rung": "dry",
+          "budget": {
+            "wall_seconds": 1800,
+            "attempts": 1
+          },
+          "parameters": {
+            "phase": "prepare",
+            "ml_stage": "features",
+            "launch": {
+              "argv": [
+                "{python}",
+                "-I",
+                "-m",
+                "ravel.workflow.ml_stages",
+                "features",
+                "--root",
+                "../../../../..",
+                "--input",
+                "spec=steps/t01-spec/outputs/ml_study_spec.json",
+                "--input",
+                "admission=steps/t02-admit/outputs/admission.json",
+                "--input",
+                "train=steps/t02-admit/outputs/partitions/train.npz",
+                "--wall-seconds",
+                "1800",
+                "--threads=1"
+              ],
+              "stage": "ml-training",
+              "cpus": 1
+            },
+            "check_inputs": {
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-equal-budget": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-equal-budget/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-label-leakage": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-label-leakage/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-test-once": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-test-once/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t03-features",
+                  "path": "outputs/features.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/features.json": {
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-equal-budget/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-label-leakage/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-test-once/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "obligations": [
+            "R12"
+          ]
+        },
+        {
+          "id": "t04-smoke",
+          "kind": "operate",
+          "title": "Training smoke: one seed, few epochs, bounded rows (the waypoint before full training)",
+          "operation": "ml-stage-train",
+          "role": "ml-trainer",
+          "depends_on": [
+            "t01-spec",
+            "t02-admit",
+            "t03-features"
+          ],
+          "inputs": [
+            {
+              "artifact": "t01-spec:outputs/ml_study_spec.json",
+              "kind": "document"
+            },
+            {
+              "artifact": "t02-admit:outputs/admission.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t03-features:outputs/features.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/train.npz",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/validation.npz",
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/models.npz",
+              "kind": "selection",
+              "required": true
+            },
+            {
+              "path": "outputs/training.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/checkpoint.npz",
+              "kind": "selection",
+              "required": true
+            },
+            {
+              "path": "outputs/checkpoint.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/ml/receipt.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "rung": "smoke",
+          "budget": {
+            "wall_seconds": 1800,
+            "attempts": 1
+          },
+          "parameters": {
+            "ml_stage": "train",
+            "launch": {
+              "argv": [
+                "{python}",
+                "-I",
+                "-m",
+                "ravel.workflow.ml_stages",
+                "train",
+                "--root",
+                "../../../../..",
+                "--input",
+                "spec=steps/t01-spec/outputs/ml_study_spec.json",
+                "--input",
+                "admission=steps/t02-admit/outputs/admission.json",
+                "--input",
+                "features=steps/t03-features/outputs/features.json",
+                "--input",
+                "train=steps/t02-admit/outputs/partitions/train.npz",
+                "--input",
+                "validation=steps/t02-admit/outputs/partitions/validation.npz",
+                "--smoke",
+                "--wall-seconds",
+                "1800",
+                "--threads=1"
+              ],
+              "stage": "ml-training",
+              "cpus": 1
+            },
+            "check_inputs": {
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-equal-budget": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-equal-budget/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-label-leakage": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-label-leakage/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-test-once": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-test-once/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t04-smoke",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/training.json": {
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-equal-budget/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-label-leakage/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-test-once/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "obligations": [
+            "R12"
+          ],
+          "waypoint": true
+        },
+        {
+          "id": "t05-train",
+          "kind": "operate",
+          "title": "Training launch: every arm and seed within the approved budget, without the withheld partition",
+          "operation": "ml-stage-train",
+          "role": "ml-trainer",
+          "depends_on": [
+            "t01-spec",
+            "t02-admit",
+            "t03-features",
+            "t04-smoke"
+          ],
+          "inputs": [
+            {
+              "artifact": "t01-spec:outputs/ml_study_spec.json",
+              "kind": "document"
+            },
+            {
+              "artifact": "t02-admit:outputs/admission.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t03-features:outputs/features.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/train.npz",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/validation.npz",
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/models.npz",
+              "kind": "selection",
+              "required": true
+            },
+            {
+              "path": "outputs/training.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/checkpoint.npz",
+              "kind": "selection",
+              "required": true
+            },
+            {
+              "path": "outputs/checkpoint.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/ml/receipt.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "rung": "full",
+          "budget": {
+            "wall_seconds": 43200,
+            "attempts": 1
+          },
+          "parameters": {
+            "ml_stage": "train",
+            "launch": {
+              "argv": [
+                "{python}",
+                "-I",
+                "-m",
+                "ravel.workflow.ml_stages",
+                "train",
+                "--root",
+                "../../../../..",
+                "--input",
+                "spec=steps/t01-spec/outputs/ml_study_spec.json",
+                "--input",
+                "admission=steps/t02-admit/outputs/admission.json",
+                "--input",
+                "features=steps/t03-features/outputs/features.json",
+                "--input",
+                "train=steps/t02-admit/outputs/partitions/train.npz",
+                "--input",
+                "validation=steps/t02-admit/outputs/partitions/validation.npz",
+                "--wall-seconds",
+                "43200",
+                "--threads=2"
+              ],
+              "stage": "ml-training",
+              "cpus": 2
+            },
+            "check_inputs": {
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-equal-budget": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-equal-budget/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-label-leakage": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-label-leakage/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-test-once": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-test-once/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t05-train",
+                  "path": "outputs/training.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/training.json": {
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-equal-budget/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-label-leakage/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-test-once/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "obligations": [
+            "R12",
+            "MODE-ml-training"
+          ],
+          "consequence_class": "R2"
+        },
+        {
+          "id": "t06-evaluate",
+          "kind": "operate",
+          "title": "Evaluation: the one read of the withheld partition, after the models are frozen",
+          "operation": "ml-stage-evaluate",
+          "role": "ml-trainer",
+          "depends_on": [
+            "t01-spec",
+            "t02-admit",
+            "t03-features",
+            "t05-train"
+          ],
+          "inputs": [
+            {
+              "artifact": "t01-spec:outputs/ml_study_spec.json",
+              "kind": "document"
+            },
+            {
+              "artifact": "t02-admit:outputs/admission.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t03-features:outputs/features.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t05-train:outputs/training.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t05-train:outputs/models.npz",
+              "kind": "selection"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/train.npz",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/validation.npz",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/test.npz",
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/evaluation.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/scores.npz",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/ml/receipt.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "rung": "full",
+          "budget": {
+            "wall_seconds": 7200,
+            "attempts": 1
+          },
+          "parameters": {
+            "ml_stage": "evaluate",
+            "launch": {
+              "argv": [
+                "{python}",
+                "-I",
+                "-m",
+                "ravel.workflow.ml_stages",
+                "evaluate",
+                "--root",
+                "../../../../..",
+                "--input",
+                "spec=steps/t01-spec/outputs/ml_study_spec.json",
+                "--input",
+                "admission=steps/t02-admit/outputs/admission.json",
+                "--input",
+                "features=steps/t03-features/outputs/features.json",
+                "--input",
+                "training=steps/t05-train/outputs/training.json",
+                "--input",
+                "models=steps/t05-train/outputs/models.npz",
+                "--input",
+                "train=steps/t02-admit/outputs/partitions/train.npz",
+                "--input",
+                "validation=steps/t02-admit/outputs/partitions/validation.npz",
+                "--input",
+                "test=steps/t02-admit/outputs/partitions/test.npz",
+                "--wall-seconds",
+                "7200",
+                "--threads=2"
+              ],
+              "stage": "ml-training",
+              "cpus": 2
+            },
+            "check_inputs": {
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-equal-budget": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-equal-budget/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-label-leakage": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-label-leakage/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-test-once": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-test-once/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/evaluation.json": {
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-equal-budget/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-label-leakage/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-test-once/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string",
+                "/validator_inputs/check:ml-ablation-arms/record_id": "string",
+                "/validator_inputs/check:ml-estimand-declared/record_id": "string",
+                "/validator_inputs/check:validation.input_closure.check/fit": "pin",
+                "/validator_inputs/check:validation.input_closure.check/reference": "pin"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "obligations": [
+            "R12"
+          ],
+          "consequence_class": "R3"
+        },
+        {
+          "id": "t07-card",
+          "kind": "operate",
+          "title": "Model card from the stage records",
+          "operation": "ml-stage-card",
+          "role": "ml-trainer",
+          "depends_on": [
+            "t01-spec",
+            "t02-admit",
+            "t03-features",
+            "t05-train",
+            "t06-evaluate"
+          ],
+          "inputs": [
+            {
+              "artifact": "t01-spec:outputs/ml_study_spec.json",
+              "kind": "document"
+            },
+            {
+              "artifact": "t02-admit:outputs/admission.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t03-features:outputs/features.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t05-train:outputs/training.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t06-evaluate:outputs/evaluation.json",
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/model_card.json",
+              "kind": "document",
+              "required": true
+            },
+            {
+              "path": "outputs/model_card.md",
+              "kind": "document",
+              "required": true
+            },
+            {
+              "path": "outputs/ml/receipt.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 600,
+            "attempts": 1
+          },
+          "parameters": {
+            "ml_stage": "card",
+            "launch": {
+              "argv": [
+                "{python}",
+                "-I",
+                "-m",
+                "ravel.workflow.ml_stages",
+                "card",
+                "--root",
+                "../../../../..",
+                "--input",
+                "spec=steps/t01-spec/outputs/ml_study_spec.json",
+                "--input",
+                "admission=steps/t02-admit/outputs/admission.json",
+                "--input",
+                "features=steps/t03-features/outputs/features.json",
+                "--input",
+                "training=steps/t05-train/outputs/training.json",
+                "--input",
+                "evaluation=steps/t06-evaluate/outputs/evaluation.json",
+                "--wall-seconds",
+                "600",
+                "--threads=1"
+              ],
+              "stage": "ml-training",
+              "cpus": 1
+            },
+            "check_inputs": {
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-equal-budget": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-equal-budget/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-label-leakage": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-label-leakage/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-test-once": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-test-once/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t07-card",
+                  "path": "outputs/model_card.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/model_card.json": {
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-equal-budget/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-label-leakage/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-test-once/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "obligations": [
+            "R12"
+          ]
+        },
+        {
+          "id": "t08-review",
+          "kind": "operate",
+          "title": "Executable reviewer items: leakage, split, duplicates, preprocessing scope, overtraining, budget, test custody and metrics",
+          "operation": "ml-stage-review",
+          "role": "ml-trainer",
+          "depends_on": [
+            "t01-spec",
+            "t02-admit",
+            "t03-features",
+            "t05-train",
+            "t06-evaluate"
+          ],
+          "inputs": [
+            {
+              "artifact": "t01-spec:outputs/ml_study_spec.json",
+              "kind": "document"
+            },
+            {
+              "artifact": "t02-admit:outputs/admission.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t03-features:outputs/features.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t05-train:outputs/training.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t05-train:outputs/models.npz",
+              "kind": "selection"
+            },
+            {
+              "artifact": "t06-evaluate:outputs/evaluation.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t06-evaluate:outputs/scores.npz",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/identities.npz",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/train.npz",
+              "kind": "table"
+            },
+            {
+              "artifact": "t02-admit:outputs/partitions/validation.npz",
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/review.json",
+              "kind": "document",
+              "required": true
+            },
+            {
+              "path": "outputs/ml/receipt.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 3600,
+            "attempts": 1
+          },
+          "parameters": {
+            "ml_stage": "review",
+            "launch": {
+              "argv": [
+                "{python}",
+                "-I",
+                "-m",
+                "ravel.workflow.ml_stages",
+                "review",
+                "--root",
+                "../../../../..",
+                "--input",
+                "spec=steps/t01-spec/outputs/ml_study_spec.json",
+                "--input",
+                "admission=steps/t02-admit/outputs/admission.json",
+                "--input",
+                "features=steps/t03-features/outputs/features.json",
+                "--input",
+                "training=steps/t05-train/outputs/training.json",
+                "--input",
+                "models=steps/t05-train/outputs/models.npz",
+                "--input",
+                "evaluation=steps/t06-evaluate/outputs/evaluation.json",
+                "--input",
+                "scores=steps/t06-evaluate/outputs/scores.npz",
+                "--input",
+                "identities=steps/t02-admit/outputs/partitions/identities.npz",
+                "--input",
+                "train=steps/t02-admit/outputs/partitions/train.npz",
+                "--input",
+                "validation=steps/t02-admit/outputs/partitions/validation.npz",
+                "--wall-seconds",
+                "3600",
+                "--threads=1"
+              ],
+              "stage": "ml-training",
+              "cpus": 1
+            },
+            "check_inputs": {
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-claim-scope": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-claim-scope/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-crossfit-audit": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-crossfit-audit/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-equal-budget": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-equal-budget/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-injection-closure": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-injection-closure/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-label-leakage": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-label-leakage/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-null-calibration": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-null-calibration/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-reference-fidelity": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-reference-fidelity/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-selection-flatness": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-selection-flatness/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-spurious-signal": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-spurious-signal/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-test-once": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-test-once/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-trials-accounting": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t08-review",
+                  "path": "outputs/review.json",
+                  "field": "/validator_inputs/check:ml-trials-accounting/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/review.json": {
+                "/validator_inputs/check:ml-benchmark-localization/record_id": "string",
+                "/validator_inputs/check:ml-claim-scope/record_id": "string",
+                "/validator_inputs/check:ml-crossfit-audit/record_id": "string",
+                "/validator_inputs/check:ml-equal-budget/record_id": "string",
+                "/validator_inputs/check:ml-injection-closure/record_id": "string",
+                "/validator_inputs/check:ml-label-leakage/record_id": "string",
+                "/validator_inputs/check:ml-null-calibration/record_id": "string",
+                "/validator_inputs/check:ml-reference-fidelity/record_id": "string",
+                "/validator_inputs/check:ml-selection-flatness/record_id": "string",
+                "/validator_inputs/check:ml-spurious-signal/record_id": "string",
+                "/validator_inputs/check:ml-statistics-sizing/record_id": "string",
+                "/validator_inputs/check:ml-test-once/record_id": "string",
+                "/validator_inputs/check:ml-trials-accounting/record_id": "string"
+              }
+            }
+          },
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "obligations": [
+            "R12"
+          ],
+          "review": [
+            "ml-reviewer"
+          ]
+        },
+        {
+          "id": "t09-report",
+          "kind": "synthesize",
+          "title": "Study report bound to the model card, the evaluation and the review",
+          "role": "ml-planner",
+          "depends_on": [
+            "t06-evaluate",
+            "t07-card",
+            "t08-review"
+          ],
+          "inputs": [
+            {
+              "artifact": "t06-evaluate:outputs/evaluation.json",
+              "kind": "table"
+            },
+            {
+              "artifact": "t07-card:outputs/model_card.md",
+              "kind": "document"
+            },
+            {
+              "artifact": "t08-review:outputs/review.json",
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/report.md",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 100,
+            "tokens": 300000
+          },
+          "review": [
+            "skeptical-verifier"
+          ],
+          "instruction_sources": [
+            "docs/workflow/checklists/ml-training.md"
+          ],
+          "parameters": {
+            "check_inputs": {
+              "check:ml-ablation-arms": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-ablation-arms/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-benchmark-localization": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-benchmark-localization/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-estimand-declared": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-estimand-declared/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:ml-statistics-sizing": {
+                "record_id": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:ml-statistics-sizing/record_id",
+                  "type": "string"
+                },
+                "spec_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "spec_sha256",
+                  "type": "sha256"
+                },
+                "subject_sha256": {
+                  "source": "record",
+                  "kind": "ml-check-observation",
+                  "field": "subject_sha256",
+                  "type": "sha256"
+                }
+              },
+              "check:validation.input_closure.check": {
+                "fit": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:validation.input_closure.check/fit",
+                  "type": "pin"
+                },
+                "reference": {
+                  "source": "output",
+                  "step": "t06-evaluate",
+                  "path": "outputs/evaluation.json",
+                  "field": "/validator_inputs/check:validation.input_closure.check/reference",
+                  "type": "pin"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "checkins": [
+        {
+          "id": "checkin1",
+          "seats": [
+            "ml-reviewer"
+          ]
+        },
+        {
+          "id": "checkin3",
+          "seats": [
+            "ml-reviewer",
+            "skeptical-verifier"
+          ]
+        }
+      ],
+      "obligations": [
+        "R12",
+        "MODE-ml-training"
+      ],
+      "deliverables": [
+        {
+          "match": {
+            "artifact": [
+              "table"
+            ]
+          },
+          "step": "t06-evaluate",
+          "output": "outputs/evaluation.json"
+        },
+        {
+          "match": {
+            "artifact": [
+              "selection"
+            ]
+          },
+          "step": "t05-train",
+          "output": "outputs/models.npz"
+        },
+        {
+          "match": {
+            "claim": [
+              "method_performance",
+              "finding",
+              "estimate",
+              "document"
+            ]
+          },
+          "step": "t09-report",
+          "output": "outputs/report.md"
+        },
+        {
+          "match": {
+            "artifact": [
+              "document"
+            ]
+          },
+          "step": "t09-report",
+          "output": "outputs/report.md"
+        }
+      ],
+      "instruction_sources": [
+        "docs/workflow/checklists/ml-training.md"
+      ]
+    }
+  ]
+}

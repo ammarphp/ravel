@@ -204,6 +204,8 @@ class SiteBackend(eb.Backend):
     local = False
 
     def validate(self, spec):
+        if 'processes' in spec['resources']:
+            raise ValueError('resource_limit_unsupported: this adapter has no qualified aggregate task limit')
         site = spec.get('site')
         if not isinstance(site, dict):
             raise ValueError('site backend needs a site block with the scheduler')
@@ -241,7 +243,11 @@ class SiteBackend(eb.Backend):
         site = spec['site']
         return {'kind': self.kind, 'local': False, 'scheduler': site['scheduler'], 'site_id': site.get('site_id'),
                 'commands': {name: _tool(name) for name in COMMANDS[site['scheduler']]},
-                'limits_enforced': {'cpus': 'scheduler', 'memory_mib': 'scheduler', 'wall_seconds': 'scheduler and worker'}}
+                'limits_enforced': {'cpus': 'scheduler', 'memory_mib': 'scheduler', 'wall_seconds': 'scheduler and worker'},
+                'resource_enforcement': {'status': 'site-policy',
+                    'memory_scope': 'scheduler request; enforcement depends on qualified site policy',
+                    'disk_scope': 'scheduler scratch request; not cumulative retained run storage',
+                    'processes': 'unsupported', 'filesystem_receipt_headroom': 'not reserved'}}
 
     def doctor(self):
         checks = []
@@ -267,6 +273,10 @@ class SiteBackend(eb.Backend):
         return proc
 
     def submit(self, plan, handle):
+        proxy = plan['spec']['site'].get('proxy_path')
+        if proxy is not None:
+            from ravel.controller.routes.study.site import require_credential
+            require_credential(validate_proxy_path(proxy))
         job = Path(handle['job_dir'])
         (job / 'output').mkdir(parents=True)
         (job / 'work').mkdir()

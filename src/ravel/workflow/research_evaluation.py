@@ -266,18 +266,51 @@ def population_identity(pin, base):
             'value_hashes': [_p().ce.digest(value)]}
 
 
-def dispatch(root, state, identity):
+def dispatch_populations(metadata, ordinary_pins, base):
+    """Current canonical population closure, without reserving exposure."""
+    pins = metadata.get('population_pins', [])
+    if not pins:
+        raise ValueError('prospective population pins required for study exposure')
+    populations = [population_identity(pin, base) for pin in pins]
+    for pin in ordinary_pins:
+        path = Path(pin['path'])
+        if path.suffix == '.npz':
+            populations.append(population_identity(pin, base))
+        elif path.suffix == '.json':
+            value = _p()._method_json(pin, base)
+            if isinstance(value, dict) and any(k in value for k in ('ids', 'event_ids')):
+                populations.append(population_identity(pin, base))
+    return list({_p().ce.digest(row): row for row in populations}.values())
+
+
+def dispatch_proposal_document(state, experiment, exposure, *, selection_sha256=None):
+    """Pure original proposal derivation; no dispatch or confirmation-count check."""
+    return {'schema_version': 1, 'kind': 'research-dispatch-proposal',
+        'experiment_id': experiment['id'], 'exposure': deepcopy(exposure),
+        'study': deepcopy(experiment.get('study')), 'plan': deepcopy(experiment.get('plan')),
+        'inputs': deepcopy(experiment.get('input_pins', [])),
+        'evaluation': declaration(state, experiment),
+        'preregistration': deepcopy((state.get('methodology') or {}).get('preregistration')),
+        'intake_contract': deepcopy(state.get('intake_contract')),
+        'selection_sha256': selection_sha256}
+
+
+def _dispatch_action(root, state, identity, *, materialize=False):
     p = _p(); experiment = next(e for e in state['experiments'] if e['id'] == identity)
     enforce_dispatch_stop(state, identity)
     metadata = declaration(state, experiment)
     if metadata is None:
         if state.get('methodology'):
             raise ValueError('prospective evaluation and exposure declaration required')
-        return state
+        return None
     # Older staged contracts without confirmation have no read-once promise.
     bound = p._bound(state)
     if bound and not any(c['exposure'] == 'withheld_confirmation' for c in bound[0]['cells']) and not experiment.get('evaluation'):
-        return state
+        return None
+    for pin in [*([experiment['study']] if experiment.get('study') is not None else []),
+                *experiment.get('input_pins', []),
+                *([experiment['plan']] if experiment.get('plan') is not None else [])]:
+        p._cycle()._check_pin(pin, state['base_dir'])
     action = {k: deepcopy(metadata[k]) for k in ('candidate', 'cells', 'seeds', 'generation')}
     receipt, reads = p._selection_state(state)
     confirming = metadata['purpose'] == 'confirm'
@@ -288,7 +321,6 @@ def dispatch(root, state, identity):
     pins = metadata.get('population_pins', [])
     if not pins:
         raise ValueError('prospective population pins required for study exposure')
-    populations = [population_identity(pin, state['base_dir']) for pin in pins]
     if bound:
         withheld = [c for c in bound[0]['cells'] if c['exposure'] == 'withheld_confirmation']
     else:
@@ -299,15 +331,7 @@ def dispatch(root, state, identity):
     # Check the complete ordinary input closure, including omitted baseline/diagnostic inputs.
     hidden_hashes = {c['population']['sha256'] for c in withheld}
     ordinary_pins = experiment.get('input_pins', [])
-    for pin in ordinary_pins:
-        path = Path(pin['path'])
-        if path.suffix == '.npz':
-            populations.append(population_identity(pin, state['base_dir']))
-        elif path.suffix == '.json':
-            value = p._method_json(pin, state['base_dir'])
-            if isinstance(value, dict) and any(k in value for k in ('ids', 'event_ids')):
-                populations.append(population_identity(pin, state['base_dir']))
-    populations = list({p.ce.digest(row): row for row in populations}.values())
+    populations = dispatch_populations(metadata, ordinary_pins, state['base_dir'])
     exposed_hidden = (set(action['cells']) & {c['id'] for c in withheld}
                       or any(overlaps(a, b) for a in populations for b in hidden)
                       or any(pin['sha256'] in hidden_hashes for pin in ordinary_pins))
@@ -317,12 +341,62 @@ def dispatch(root, state, identity):
         raise ValueError('confirmation must use prospectively withheld populations')
     action['populations'] = populations
     action['purpose'] = metadata['purpose']
-    if state.get('methodology') or confirming:
-        errors = p.decision_errors(root, action)
-        if errors: raise ValueError('; '.join(e.code for e in errors))
     # Each metadata population must also be an ordinary pinned study input.
     if {pin['sha256'] for pin in pins} - {pin['sha256'] for pin in ordinary_pins}:
         raise ValueError('evaluation population missing from ordinary study inputs')
+    if not state.get('methodology') and not confirming:
+        return action, receipt, confirming  # Original unbound library contract.
+    document = dispatch_proposal_document(state, experiment, action,
+        selection_sha256=receipt['sha256'] if confirming else None)
+    digest = p.ce.digest(document)
+    path = p._cycle()._ordinary(Path(root)/'inputs/research-dispatch'/(identity+'-'+digest+'.json'))
+    if materialize and not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open('x') as stream:
+            json.dump(document, stream, sort_keys=True, indent=2, allow_nan=False)
+            stream.write('\n')
+    if not path.is_file() or state_io.read_json(path) != document:
+        raise ValueError('exact prospective dispatch action is missing or changed; prepare it before authorization')
+    pin = p._cycle()._pin(path)
+    action.update(kind='screening_choice', digest=pin['sha256'],
+        pins=[{k: pin[k] for k in ('path', 'sha256')}],
+        summary='Review the exact prospective study exposure: '+identity)
+    return action, receipt, confirming
+
+
+def prepare_dispatch_action(root, identity):
+    """Pin the current prospective exposure, without reserving or approving it."""
+    c = _p()._cycle()
+    with state_io.file_lock(Path(root)/'operation.lock', blocking=False):
+        root, state = c._load(root)
+        experiment = next(e for e in state['experiments'] if e['id'] == identity)
+        for pin in [experiment['study'], *experiment.get('input_pins', []),
+                    *([experiment['plan']] if experiment.get('plan') is not None else [])]:
+            c._check_pin(pin, state['base_dir'])
+        prepared = _dispatch_action(root, state, identity, materialize=True)
+        if prepared is None:
+            raise ValueError('this original study contract requires no exposure dispatch action')
+        if 'digest' not in prepared[0]:
+            raise ValueError('unbound library exposure does not declare research decision authority')
+        return prepared[0]
+
+
+def dispatch(root, state, identity):
+    p = _p()
+    prepared = _dispatch_action(root, state, identity)
+    if prepared is None:
+        return state
+    action, receipt, confirming = prepared
+    if state.get('methodology') or confirming:
+        errors = p.decision_errors(root, action)
+        if errors: raise ValueError('; '.join(e.code for e in errors))
+    existing = [event['read'] for event in state['events']
+                if event['kind'] in {'research_confirm_read', 'research_adaptive_read'}
+                and event['read'].get('experiment_id') == identity]
+    if existing and 'digest' in action:
+        if len(existing) != 1 or any(existing[0].get(key) != value for key, value in action.items()):
+            raise ValueError('study exposure already reserved for a different prospective action')
+        return state
     ledger = reserve_study_exposure(state['contract'].get('context_request', state['contract']), action,
                                    selection_sha256=receipt['sha256'] if confirming else None)
     read = {**action, 'experiment_id': identity, 'ledger': ledger,

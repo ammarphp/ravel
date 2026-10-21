@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "literature-pdf-extraction-result",
+  "source": {
+    "path": "sources/amber.pdf",
+    "sha256": "f742d1a0875961c13291b16630aa17b2b43221805fdf4ee30563edd6bdd3f80a",
+    "size": 32
+  },
+  "page_count": 1,
+  "pages": [
+    {
+      "page_index": 0,
+      "text": "First page.\nAmber rate 8.0 units.",
+      "text_sha256": "f51e5bf62adb1ceccf344f2417a812d7b60b831ec1b3c06834fd4c7f066e95a2",
+      "status": "extracted"
+    }
+  ],
+  "failure": null
+}

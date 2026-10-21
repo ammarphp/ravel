@@ -3,8 +3,7 @@
 `ravel.workflow.sfitter_scan_review` connects the supplied signed-scan extractor
 to the existing `sfitter_review_protocol` and its ordinary judgment roles. It
 recomputes the complete source extraction and checks the actual delivered
-coefficient handoff before constructing any domain evidence. It does not launch
-scans, native fits, models, roles, or a second review journal.
+coefficient handoff before constructing any domain evidence. It prepares source-bound projection and comparison evidence for that existing journal.
 
 The closed request has `schema_version: 1`, `id`, pins named
 `extraction_request`, `extraction_receipt`, and `regime`, plus `criteria`,
@@ -32,7 +31,7 @@ binding = sfitter_review_protocol.prepare_role(
 The existing protocol checks the registered scope and original scientific
 checks. Its `consume` and `rework` operate on the original judgment journal and
 owning phase. A prepared file grants neither a vote nor retry or execution
-authority. A passing coefficient concern cannot replace the other concerns
+authority. A passing coefficient concern must not replace the other concerns
 needed by the full phase continuation.
 
 For each observable, every returned `total` or `sm` point becomes a native
@@ -64,4 +63,4 @@ complete source-defined scan roster. Acceptance definitions are unchanged.
 Known output bytes and complete membership are checked after final callbacks.
 `graph(request, base_dir, request_pin)` exposes the same projection through the
 ordinary `sfitter-scan-review` Host tool, with complete explicit input pins and
-blinded-role refusal. These source controls are not actual scan or fit efficacy.
+blinded-role refusal. Scan and fit efficacy require their own executed scientific evidence.

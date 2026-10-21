@@ -4,7 +4,7 @@ A scientist validates a hypothesis off the figure, so its structure must make th
 (No-routine / sensitivity-only runs: where an item presumes published REF data or a
 routine id, substitute the run's declared reference — a digitized anchor or the paper figure —
 and label expected-only content as such; the structural items still apply unchanged.)
-`overlay_on_data.py` produces this via `mplhep` (the ATLAS/CMS style). Every distribution plot must pass.
+`overlay_on_data.py` produces this via `mplhep` (the selected experiment style). Every distribution plot must pass.
 
 **MACHINE GATE:** the layout-hygiene items below are no longer eyeball-only — every house
 renderer (`scan_contour.py`, `overlay_on_data.py`, `mass_plane_overlay.py`) runs
@@ -18,9 +18,9 @@ For the *construction* choices behind these checks — the LOG-vs-LINEAR axis-sc
 published figure's scale; use log when the quantity spans ≥~1.5 decades), legend placement off the
 data/contour, ticks/labels, and the colour-blind-safe palette — see **`plot-guidelines.md`**.
 
-## Structure (ATLAS/CMS style guide)
-- [ ] **Experiment style applied** — `mplhep.style.ATLAS` / `.CMS`; **Helvetica** (TeX Gyre Heros) for all text.
-- [ ] **Experiment label** — bold-italic "ATLAS"/"CMS" + a "√s = N TeV, L fb⁻¹" sub-label (`hep.<exp>.label`).
+## Structure (selected experiment style)
+- [ ] **Experiment style applied** — the matching `mplhep.style` entry; **Helvetica** (TeX Gyre Heros) for all text.
+- [ ] **Experiment label** — the supplied experiment label in bold italic + a "√s = N TeV, L fb⁻¹" sub-label (`hep.<exp>.label`).
 - [ ] **Ticks inward on all four sides**, with minor ticks (mplhep default).
 - [ ] **Axis labels with units** (e.g. `m_eff (incl.) [GeV]`, `Events / bin`); **axis scale matches the
       published figure** — log where the quantity spans ≥~1.5 decades (see `plot-guidelines.md`).
@@ -30,7 +30,7 @@ data/contour, ticks/labels, and the colour-blind-safe palette — see **`plot-gu
 - [ ] **Data** as black points with Poisson error bars.
 - [ ] **SM background** drawn — the per-process **stack** (W/t̄t/Z/Diboson/…) when the per-process tables
       are available (`hepdata_fetch.py --tables` + `--stack`), else the published **total**.
-- [ ] **SM total-uncertainty band** (hatched) on the background — without it the agreement/excess can't be judged.
+- [ ] **SM total-uncertainty band** (hatched) on the background — without it the agreement/excess must not be judged.
 - [ ] **Signal + background** drawn on top (the new model) so "would it have shown up?" is read directly.
 - [ ] **Ratio panel** (data / background) with the unity line and the signal+background curve overlaid.
 
@@ -45,7 +45,7 @@ data/contour, ticks/labels, and the colour-blind-safe palette — see **`plot-gu
 ## What "good" looks like
 The published data tracks the background within its uncertainty band; the model's signal+background
 rises visibly above the data in the sensitive region (→ excluded) or sits within it (→ insensitive).
-If a reader cannot tell which, the plot fails this checklist regardless of the numbers.
+If the plot leaves that distinction unclear, the plot fails this checklist regardless of the numbers.
 
 
 ## Readable scientific labels and reference comparisons

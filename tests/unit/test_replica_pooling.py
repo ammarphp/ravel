@@ -13,7 +13,8 @@ from ravel.physics import pool_replicas as pooling
 from ravel.physics.native_normalization import fingerprint, reconcile_weights, resolve_normalization
 from ravel.physics.native_pipeline import plan_hash
 from ravel.physics.analysis_packages import load_routine
-from analysis_package_fixtures import selected_manifest, selected_source, manifest_pin
+from analysis_package_fixtures import selected_manifest, selected_source, manifest_pin, native_package
+from ravel.physics.native_capabilities import resolve_capability
 _selection = load_routine(selected_manifest('selection-a'))
 sr_order, cr_order = _selection.sr_order, _selection.cr_order
 from ravel.paths import module_command
@@ -94,18 +95,25 @@ def test_unresolved_seed_and_tcl_include_rejected(tmp_path):
         pooling.detector_physics(detector)
 
 
-@pytest.fixture
-def native_replicas(tmp_path):
+@pytest.fixture(params=["slepton-bino", "gluino-neutralino"])
+def native_replicas(tmp_path, request):
     uproot = pytest.importorskip("uproot")
     ak = pytest.importorskip("awkward")
     converter = tmp_path/"converter.py"; converter.write_text("# synthetic converter identity, never executed\n")
+    model = request.param
+    package = native_package(tmp_path/"package", "FictionalRoutine701", sr_order()+cr_order(), models=[model])
+    capability = resolve_capability("FictionalRoutine701", model, "explicit-cards",
+                                    "simpleanalysis-delphes", "yields", analysis_package=package)
     plans = []
     for index, (n, selected, xs) in enumerate([(2,1,1.), (6,2,2.)]):
         root = tmp_path/f"run{index}"; cards=root/"inputs/cards"; cards.mkdir(parents=True)
         output=root/"output"; output.mkdir(); (root/"logs").mkdir()
         seed = index+10
-        (cards/"process.dat").write_text("import model MSSM_SLHA2\ngenerate p p > el+ el-\n")
-        (cards/"param.dat").write_text("Block MASS\n 1000011 150\n 1000022 140\nDECAY 1000011 1\n 1 2 1000022 11\nDECAY 1000022 0\n")
+        parent = 1000011 if model == "slepton-bino" else 1000021
+        process = "el+ el-" if model == "slepton-bino" else "go go"
+        daughters = "2 1000022 11" if model == "slepton-bino" else "3 1000022 1 -1"
+        (cards/"process.dat").write_text(f"import model MSSM_SLHA2\ngenerate p p > {process}\n")
+        (cards/"param.dat").write_text(f"Block MASS\n {parent} 150\n 1000022 140\nDECAY {parent} 1\n 1 {daughters}\nDECAY 1000022 0\n")
         (cards/"run.dat").write_text(f"{n} = nevents\n{seed} = iseed\n0 = ickkw\nFalse = use_syst\n'cteq6l1' = pdlabel\n6500 = ebeam1\n6500 = ebeam2\n")
         (cards/"shower.cfg").write_text(f"Beams:frameType = 4\nBeams:LHEF = generated.lhe\nRandom:setSeed = on\nRandom:seed = {100+index}\n")
         (cards/"detector.tcl").write_text(f"set RandomSeed {1000+index}\n# synthetic detector\n")
@@ -118,8 +126,11 @@ ecms = 13000
 lumi = 139000
 kfactor = 1.0
 [ravel.native]
-model = "slepton-bino"
-compressed_signal_model = "full"
+model = "{model}"
+preparation = "explicit-cards"
+detector = "simpleanalysis-delphes"
+statistics = "yields"
+analysis_package = "{package}"
 [ravel.native.inputs]
 process_card = "inputs/cards/process.dat"
 ''')
@@ -152,7 +163,7 @@ process_card = "inputs/cards/process.dat"
             path=output/(name+".json");write_json(path,{"synthetic_fixture":True});dummy[name]=path
         stage_outputs={"prepare":[dummy["prepared"]],"madgraph":[compressed],"unpack_lhe":[lhe],"lhe_check":[dummy["lhe_check"]],"pythia":[dummy["shower"]],"normalization":[norm],"delphes":[detector],"analysis":[converted,conversion_path],"simpleanalysis":[analysis]}
         inputs={key:str(cards/name) for key,name in [("process_card","process.dat"),("param_card","param.dat"),("run_card","run.dat"),("shower_card","shower.cfg"),("delphes_card","detector.tcl")]}
-        all_sources=[config,*map(Path,inputs.values()),converter,selected_manifest('selection-a'),selected_source('selection-a')]
+        all_sources=[config,*map(Path,inputs.values()),converter,*(Path(pin["path"]) for pin in capability["source_pins"])]
         planpath=root/"inputs/native_execution_plan.json"
         stages=[];previous=[]
         for name,outputs in stage_outputs.items():
@@ -160,7 +171,7 @@ process_card = "inputs/cards/process.dat"
                 "inputs":[str(p) for p in [*all_sources,planpath,mglog,showerlog]],"outputs":list(map(str,outputs)),"depends_on":previous})
             previous=[name]
         plan={"schema_version":1,"rundir":str(root),"plan_path":str(planpath),"config":str(config),"sources":[fingerprint(p) for p in all_sources],"inputs":inputs,"stages":stages,
-            "capability":{"preparation":"explicit-cards","routine":"FictionalRoutine701", "analysis_package": str(selected_manifest("selection-a")),"model":"slepton-bino"},"compressed_signal_model":"full","nevents":n,"seed":seed,"kfactor":1.,"ecms_gev":13000.,"expected_masses_gev":{"1000011":150.,"1000022":140.}}
+            "capability":copy.deepcopy(capability),"nevents":n,"seed":seed,"kfactor":1.,"ecms_gev":13000.,"expected_masses_gev":{str(parent):150.,"1000022":140.}}
         plan["plan_sha256"]=plan_hash(plan);write_json(planpath,plan)
         records={}
         for stage in stages:
@@ -288,3 +299,118 @@ def test_plan_without_package_binding_never_uses_ambient_selection(native_replic
         pooling.pool(native_replicas,tmp_path/"pool")
     assert caught.value.reason=="missing_analysis_package"
     assert not (tmp_path/"pool").exists()
+
+
+@pytest.mark.parametrize("model", ["slepton-bino", "gluino-neutralino"])
+def test_current_builder_plan_reaches_missing_receipt(tmp_path, model):
+    """Plan construction is inert; compatibility must pass before receipt refusal."""
+    from ravel.physics import native_pipeline as pipeline
+    package = native_package(tmp_path/"package", "FictionalRoutine701", ["selected"], models=[model])
+    cards = tmp_path/"cards"
+    cards.mkdir()
+    parent = 1000011 if model == "slepton-bino" else 1000021
+    process = "el+ el-" if model == "slepton-bino" else "go go"
+    daughters = "2 1000022 11" if model == "slepton-bino" else "3 1000022 1 -1"
+    (cards/"process.dat").write_text(f"import model MSSM_SLHA2\ngenerate p p > {process}\n")
+    (cards/"param.dat").write_text(f"Block MASS\n {parent} 150\n 1000022 140\nDECAY {parent} 1\n 1 {daughters}\nDECAY 1000022 0\n")
+    (cards/"run.dat").write_text("2 = nevents\n3 = iseed\n6500 = ebeam1\n6500 = ebeam2\n0 = ickkw\n'cteq6l1' = pdlabel\nFalse = use_syst\n")
+    (cards/"shower.cfg").write_text("Beams:frameType = 4\nBeams:LHEF = generated.lhe\nRandom:setSeed = on\nRandom:seed = 4\n")
+    (cards/"detector.tcl").write_text("set RandomSeed 5\n")
+    config = tmp_path/"config.toml"
+    config.write_text(f'''[madgraph.run]
+nevents = 2
+seed = 3
+ecms = 13000
+[analysis]
+script = "Delphes2SA.py"
+lumi = 139000
+kfactor = 1.0
+[simpleanalysis]
+name = "FictionalRoutine701"
+[ravel.native]
+model = "{model}"
+preparation = "explicit-cards"
+detector = "simpleanalysis-delphes"
+statistics = "yields"
+analysis_package = "{package}"
+[ravel.native.inputs]
+process_card = "cards/process.dat"
+param_card = "cards/param.dat"
+run_card = "cards/run.dat"
+shower_card = "cards/shower.cfg"
+delphes_card = "cards/detector.tcl"
+''')
+    plan = pipeline.build_execution_plan(tmp_path, config)
+    path = pipeline.write_plan(plan)
+    assert "compressed_signal_model" not in plan
+    with pytest.raises(ValueError, match="missing successful source receipt"):
+        pooling.load_replica({"plan": fingerprint(path)}, tmp_path)
+    assert not (tmp_path/"output").exists()
+
+
+def rewrite_replica_plan(manifest_path, change):
+    manifest = json.loads(manifest_path.read_text())
+    path = Path(manifest["replicas"][0]["plan"]["path"])
+    plan = json.loads(path.read_text())
+    change(plan)
+    plan["plan_sha256"] = plan_hash(plan)
+    write_json(path, plan)
+    manifest["replicas"][0]["plan"] = fingerprint(path)
+    write_json(manifest_path, manifest)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("routine", "foreign-selection"), ("model", "c1n2-wz"),
+    ("preparation", "slepton-bino"), ("detector", "foreign-detector"),
+    ("statistics_adapter", "foreign-statistics"), ("routine_interface", {}),
+])
+def test_incompatible_package_binding_rejected(native_replicas, tmp_path, field, value):
+    from ravel.physics.analysis_packages import PackageInputError
+    rewrite_replica_plan(native_replicas, lambda plan: plan["capability"].update({field: value}))
+    with pytest.raises(PackageInputError):
+        pooling.pool(native_replicas, tmp_path/"pool")
+
+
+def test_missing_package_source_rejected(native_replicas, tmp_path):
+    from ravel.physics.analysis_packages import PackageInputError
+    def remove_source(plan):
+        plan["sources"] = [pin for pin in plan["sources"] if not pin["path"].endswith("selection.py")]
+    rewrite_replica_plan(native_replicas, remove_source)
+    with pytest.raises(PackageInputError) as caught:
+        pooling.pool(native_replicas, tmp_path/"pool")
+    assert caught.value.reason == "missing_package_source_binding"
+
+
+@pytest.mark.parametrize("location", ["plan", "config"])
+def test_obsolete_selection_option_rejected(native_replicas, tmp_path, location):
+    from ravel.physics.analysis_packages import PackageInputError
+    def obsolete(plan):
+        if location == "plan":
+            plan["compressed_signal_model"] = "full"
+        else:
+            path = Path(plan["config"])
+            path.write_text(path.read_text().replace("[ravel.native]", '[ravel.native]\ncompressed_signal_model = "full"'))
+            plan["sources"] = [fingerprint(path) if pin["path"] == str(path) else pin for pin in plan["sources"]]
+    rewrite_replica_plan(native_replicas, obsolete)
+    with pytest.raises(PackageInputError) as caught:
+        pooling.pool(native_replicas, tmp_path/"pool")
+    assert caught.value.reason == "unsupported_native_binding"
+
+
+def test_physics_record_binds_full_selection(native_replicas):
+    from ravel.physics.analysis_packages import load_package
+    manifest = json.loads(native_replicas.read_text())
+    replica = pooling.load_replica(manifest["replicas"][0], native_replicas.parent)
+    plan = json.loads(Path(replica["plan"]["path"]).read_text())
+    package = load_package(plan["capability"]["analysis_package"], require_qualification=True)
+    selection = replica["physics"]["selection"]
+    assert selection["source_pins"] == package["source_pins"]
+    assert selection["routine_interface"] == package["routine"]
+    assert selection["compatibility"] == package["compatibility"]
+    assert selection["model"] == plan["capability"]["model"]
+    other = pooling.load_replica(manifest["replicas"][1], native_replicas.parent)
+    for field in ("source_pins", "routine_interface", "model"):
+        changed = copy.deepcopy(other)
+        changed["physics"]["selection"][field] = "different"
+        with pytest.raises(ValueError, match="different physics"):
+            pooling.combine([replica, changed])

@@ -5,7 +5,7 @@ Goal (step 7): a real 95% CL upper limit on the signal strength µ. pyhf is the 
 ## Which mode
 | You have | Mode | Why |
 |---|---|---|
-| a serialized pyhf likelihood + a signal patch | **likelihood** | the analysis's full model; strongest, ATLAS-preferred |
+| a serialized pyhf likelihood + a signal patch | **likelihood** | the analysis's full model; retains the supplied likelihood structure |
 | only per-SR (observed, background±unc) + signal | **counting** | no likelihood published; one single-bin model per SR |
 
 ```bash

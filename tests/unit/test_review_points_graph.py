@@ -109,7 +109,8 @@ def test_k_of_n_rerun_dispatches_only_missing_roles(root, monkeypatch):
     observation = run_review(root, monkeypatch, workers)
     assert observation['terminal'] is None and not observation['next'], observation
     rounds = workers.rounds()
-    assert set(rounds[0]) == FIRST_PASS and len(rounds[0]) == len(FIRST_PASS)
+    assert rounds[0] == sorted([*FIRST_PASS, 're-deriver', 're-deriver',
+                               'normalization-auditor', 'comparative-reviewer'])
     assert rounds[1] == ['discrepancy-attributor', 'trap-auditor']
     assert rounds[2] == ['skeptical-verifier'] and rounds[3] == ['physics-decider']
     from ravel.workflow import review_points
@@ -190,7 +191,7 @@ def test_checkin2_resume_with_science_approve_passes(root, monkeypatch):
     assert state(root, accepted)['gates']['checkin2_accept']['errors'] == []
 
 
-def test_a_finding_routes_to_rca_seam_listed_as_skipped(tmp_path, monkeypatch):
+def test_a_finding_records_a_concrete_correction_hold(tmp_path, monkeypatch):
     from rdj_fixtures import Run
     r = Run(tmp_path.resolve() / 'run', snapshot=False)
     plan(r.root, delegated=True)
@@ -198,17 +199,20 @@ def test_a_finding_routes_to_rca_seam_listed_as_skipped(tmp_path, monkeypatch):
     finding = {'materiality': 'A', 'evidence_class': 'code_check', 'evidence_locators': [locator]}
     workers = Workers(r.root, findings={'physics-critic': [finding]})
     observation = run_review(r.root, monkeypatch, workers)
-    assert observation['terminal']['reason'] == 'rca_ticket_required', observation
+    assert observation['terminal']['reason'] == 'review_correction_required', observation
     values = state(r.root, observation)
-    rca = [v for k, v in values['results'].items() if k.startswith('rca:')]
-    assert rca and rca[0]['status'] == 'skipped' and rca[0]['reason'] == 'awaits rca.ticket'
-    assert rca[0]['findings'][0]['evidence_locators'] == [locator]
+    assert values['findings']['A'][0]['evidence_locators'] == [locator]
+    assert not any(v.get('status') == 'skipped' for v in values['results'].values())
+    assert 'correction' in observation['terminal']['would_make_possible']
 
 
-@pytest.mark.skip(reason='awaits rca.ticket')
-def test_a_finding_runs_rca_ticket_subgraph():
-    from ravel.workflow import graph_registry
-    assert {'id': 'rca.ticket', 'version': 1} in graph_registry.get('review.points')['subgraphs']
+def test_correction_ending_uses_a_registered_graph_contract(tmp_path):
+    from ravel.workflow import graph_registry, graph_substrate
+    row = graph_registry.get('review.points')
+    compiled = graph_substrate.build('review.points', graph_substrate._context(
+        tmp_path, 'review.points', {'at': 'checkin2', 'attempt': 1}))
+    assert 'correction_required' in compiled.get_graph().nodes
+    assert all(graph_registry.get(child['id']) for child in row['subgraphs'])
 
 
 def test_epoch_one_run_holds_without_dispatch(tmp_path, monkeypatch):
@@ -243,3 +247,16 @@ def test_cli_review_run_routes_to_graph_and_keeps_other_subcommands(root, monkey
     monkeypatch.setattr(review_points, 'main', lambda argv: seen.append(tuple(argv)) or 0)
     assert cli.main(['review', 'pending', '--rundir', str(root)]) == 0
     assert seen[-1] == ('pending', '--rundir', str(root))
+
+
+def test_dispatch_vocabulary_matches_the_staffing_catalogue():
+    """The item graph declares one worker node per dispatchable seat from a finite source vocabulary,
+    so the documentation inventory enumerates every node. The vocabulary equals the core panel plus
+    every specialist seat the conditional staffing catalogue can add; routing admits installed seats."""
+    from ravel.workflow import spawn_rows
+    module = review()
+    conditional = {role['role'] for row in spawn_rows.catalogue()['rows']
+                   if row['mode'] == 'specialist' for role in row['roles']}
+    assert set(module.DISPATCH_ROLES) == set(module.ROLES) | conditional
+    assert module.DISPATCH_ROLES == tuple(sorted(set(module.DISPATCH_ROLES)))
+    assert set(module.dispatch_roles()) <= set(module.DISPATCH_ROLES)

@@ -10,7 +10,7 @@ accept `dict.get` defaults. The native decay-chain property is read with one
 argument. `ProcessDefinition.default_setup` supplies it; missing properties fail
 rather than silently yielding an empty roster. Shared model objects are excluded,
 while process orders, squared/constrained orders, restrictions, polarizations and
-nested decay properties are retained. Ordinary intake's unsupported decay-chain
+nested decay properties are retained. Ordinary intake's decay-chain
 syntax remains refused.
 
 A matched observation establishes only the declared external process-identity

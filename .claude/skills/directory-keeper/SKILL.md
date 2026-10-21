@@ -28,7 +28,7 @@ a repo meant to be distributed to other researchers.
 3. **Reconcile.** For every difference between the tree and `DIRECTORY.md`:
    - **New file/folder not in the map** → add a row to the matching table: `| File | Purpose |`
      for root files and key files, `| Directory | Contents |` for directories, `| Collection |
-     Contents |` for curated evidence. If you cannot confidently place it, list it under
+     Contents |` for curated evidence. If placement is uncertain, list it under
      "⚠ Needs categorization" and tell the user.
    - **Entry in the map but missing on disk** → remove the row.
    - **Moved/renamed** → update the path.
@@ -72,12 +72,12 @@ Maintained by hand with the `directory-keeper` skill when files are added, moved
 ## Red flags (you are rationalizing — stop)
 | Thought | Reality |
 |---|---|
-| "Tiny change — the map can't have drifted" | Doc drift compounds silently (catalogue D2: stale doc lines kept re-installing a dead default); the map stays trustworthy only because EVERY layout change reconciles it. |
+| "The edit is tiny; the map is unchanged" | Doc drift compounds silently (catalogue D2: stale doc lines kept re-installing a dead default); the map stays trustworthy only because EVERY layout change reconciles it. |
 | "That stray dir outside the run tree can wait" | Catalogue D3's recurrence was exactly that — a stray output dir outside the run tree, caught at cleanup. Flag and place it now. |
 | "I'll update the map and skip the change-logs" | Step 4 is half the job: an environment/card change missing from the changes logs is drift with a delay fuse. |
 
 ## Stop conditions
-- A new path you cannot confidently categorize → list it under "⚠ Needs categorization" and
+- A new path whose category is uncertain → list it under "⚠ Needs categorization" and
   tell the user; never guess a placement silently.
 - A pristine original (the provided cards) mutated in place → stop and flag it immediately;
   do not paper over it in the map (hard rule, CLAUDE.md).

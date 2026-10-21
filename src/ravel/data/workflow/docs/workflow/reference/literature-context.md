@@ -13,8 +13,8 @@ edges, and ordered acquisition_tasks. Each task retains obligation_id,
 query, source_scope, claim_ids, and failure_or_missing. Documents retain
 their exact pin, citation, version, license or explicitly unknown license,
 access record, media type, parents, task IDs and actual acquisition/extraction
-bindings. Failed, missing, unsupported and unlinked tasks remain in the result.
-An initial story can use this incomplete context; it cannot manufacture a
+bindings. The result retains all tasks and their `failed`, `missing`, `unsupported` or unlinked status.
+An initial story can use this incomplete context; it must not manufacture a
 complete bibliography from it.
 
 Use research_tools.prepare_literature_context(root, request_pin, output_dir,
@@ -45,7 +45,7 @@ PDF is a first-class next action. research_tools.extract_literature_pdf(root,
 request_pin, output_dir, host, max_wall_seconds=...) runs a single ordinary
 executor tool using the existing required PDFium 5.14.0 renderer/runtime
 census. Its request declares the original pin, maximum pages, complete text
-byte budget and wall allowance. The original may use the existing 64MiB
+byte budget and wall allowance. The original can use the existing 64MiB
 artifact policy through this registered operational-data custody path.
 Model/request/helper text limits remain unchanged. Checks authenticate the
 original at entry and ending; extraction budgets do not imply hard
@@ -63,7 +63,7 @@ seen by a model.
 
 HTML, TeX, Markdown and UTF-8 text produce a structural forest of exact source
 intervals, including sections, paragraphs, table/figure/caption/equation
-containers and otherwise unsupported fragments. This is lexical structure,
+containers and fragments outside the declared grammar. This is lexical structure,
 not semantic equation or layout validation. Unclosed or unmatched structure
 is retained as unresolved. Every supported character survives; original
 assertions have located excerpt hashes and derivation parents. Tags,
@@ -94,4 +94,90 @@ completion remain the existing consumers.
 
 The bounded ending check rereads every remembered input/output/runtime leaf of all participating readers, then performs one closing canonical-path and identity sweep across the whole remembered population and finally rechecks the exact flat output membership. Earlier files or late extra outputs changed during the last reread refuse. This is a sequential observation, not an atomic filesystem snapshot or a lock against changes after return. Complete sources, original assignment and ordinary receipt checks remain separate and unchanged.
 
-The selected GET now retains Transfer-Encoding alongside Content-Length. A supplied ASCII decimal Content-Length must equal the complete captured HTTP entity byte count, and the ordinary acquisition consumer independently enforces the same check. A short 200 response remains failed with captured bytes and full original tasks; it cannot become a supplied source merely because an optional prior SHA was absent. Ambiguous Transfer-Encoding plus Content-Length and unsupported transfer coding refuse. The existing HTTPResponse chunk parser must reach its terminal chunk successfully; a connection-close response without either header establishes only observed EOF and captured bytes, not verified remote entity/version completeness. No optional version hash is universally required, and source bytes are never rewritten, decompressed or promoted into reading/physics credit.
+The selected GET now retains Transfer-Encoding alongside Content-Length. A supplied ASCII decimal Content-Length must equal the complete captured HTTP entity byte count, and the ordinary acquisition consumer independently enforces the same check. A short 200 response remains failed with captured bytes and full original tasks; it must not become a supplied source merely because an optional prior SHA was absent. Ambiguous Transfer-Encoding plus Content-Length and transfer coding other than `chunked` refuse. The existing HTTPResponse chunk parser must reach its terminal chunk successfully; a connection-close response without either header establishes only observed EOF and captured bytes, not verified remote entity/version completeness. No optional version hash is universally required, and source bytes are never rewritten, decompressed or promoted into reading/physics credit.
+
+## Deterministic metadata navigation
+
+`literature_relations.build_graph` projects admitted `SourceDocument` snapshots
+into a separate disposable index. `GraphQuery` offers only implementations,
+published_artifacts, related_papers, models and coverage. Exact identifiers,
+versions and source JSON pointers remain attached to each path. Code and
+statistical workspaces are retrievable items; descriptions alone never classify
+attachments. Conflicting identifiers remain quarantined instead of being merged.
+
+`literature_coverage.coverage_report` applies exact signature, production, energy
+and backend filters to explicitly supplied dated populations. Missing mappings,
+unknown rows, conflicts and upstream qualification labels remain separate. A list
+entry is not proof of physics applicability or a complete literature census.
+
+The broker supplies current denied source IDs and canonical identifiers before
+traversal. Alias, content-copy and complete derivative lineage remain filtered.
+Pin the graph generation in the retrieval manifest; recheck original source
+custody when serving exact excerpts. Graph nodes and paths locate candidates;
+they provide neither reading credit, physics verification nor execution authority.
+Keep the global literature rescue path when graph metadata is incomplete.
+
+## Structured TeX evidence and discovery sources
+
+New located products record `literature-forest-law/3`. TeX tables retain exact
+`table-row` and `table-cell` intervals with zero-based row/column, column span,
+explicit header and verbatim unit tokens. Figure children retain caption text,
+file references and source-written axis labels. These are lexical source slices;
+macros outside the declared grammar, ragged rows, nested tables and population overflows remain
+unresolved. Retrieval returns this structure in `location.located_unit` while
+preserving original excerpt hashes. Rebuild older TeX products from their
+original requests; their derivation pins are never edited. Non-TeX law-2 products
+and legacy law-1 verification retain their original rules.
+
+`literature_discovery_sources.DiscoverySource` supplies query and citation URLs,
+page parsing and identifier projection. Trusted registration selects the source;
+a scope must not select a provider or grant network access. Sources use the same
+charged acquisition and replay custody. The installed source retains its current
+query semantics. Re-ranking remains enabled.
+
+## Excluding transformed source material
+
+Trusted retrieval settings accept `excluded_origins` as a list of `{kind, value}`
+entries or an absolute path to a `literature-excluded-origins` document with
+`schema_version: 1` and `origins`. Kinds are `document`, `pin`, `run` and `path`;
+pin values are SHA256 digests and paths are canonical corpus-relative paths.
+Supply identities only, without copying blinded questions, answers or documents.
+
+The corpus driver and benchmark runner pass this policy to index construction.
+A matching original or lineage descriptor refuses the complete build before
+splitting, embedding or publishing. Derived records without source ancestry also
+refuse when exclusions are configured. The manifest binds the normalized policy
+digest; a settings/index mismatch requires a fresh build. Serving excludes these
+origins before ranking and checks every returned row. Existing indexes are not
+made clean by filtering their outputs: rebuild under the current exclusion set.
+
+Lesson writes, promotion, updates, loading and materialization apply the trusted
+installation origin policy. Writes additionally require the supplied blinded
+screen when origin exclusions are configured. Frozen local snapshots retain their
+own digest as `local_snapshot_sha256`; `snapshot_sha256` identifies all loaded
+lesson bytes, including shipped lessons. An uninspected provenance chain must not
+establish absence of blinded material.
+
+The generality and restricted-source scanners inspect archive contents in memory
+under cumulative expansion, member and nesting bounds. Every member outside the declared scan contract,
+malformed, encrypted, special, truncated or over-budget container/member produces
+an `unscanned-*` finding. A scan with such a finding must not be reported clean.
+Use synthetic fixtures for these controls; blinded material stays outside all
+indexes and model contexts.
+
+## Development embedding comparison
+
+`ravel literature benchmark --corpus CORPUS --base-dir ORIGINALS --questions
+DEVELOPMENT_QUESTIONS --out FRESH_OUTPUT --model CURRENT --model CANDIDATE`
+builds distinct pinned indexes and performs governed hybrid retrieval with the
+same enabled reranker. Explicit `--excluded-root` values supplement installation
+origin exclusions. Inspect and qualify models offline; fetching requires the
+separate explicit model-prefetch action. The manifest records models, corpus,
+questions, code, build costs and cold/warm latency; scoring is external.
+
+Use only an approved development split and a decision margin and latency budget
+registered before running. Record missing models or inputs as missing evidence.
+A synthetic adapter test establishes software behavior only. Preserve the current
+default until the registered comparison supplies sufficient measured evidence.
+Held-out questions and blind-audit material never enter this workflow or a model
+context.

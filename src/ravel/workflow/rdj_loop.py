@@ -34,6 +34,11 @@ receipt's own claim. A ``code_check`` verifies only on a registered failed check
 failed validation stage. A withdrawn test, a reopened action and a human approval each need a
 user decision recorded in custody; steering text that mentions an action decides nothing.
 Callers of the gate read the authorizing receipt through ``authorizing_receipt``.
+
+A controller run's plan approval (``approve_plan``, R2) is justified only by its independent review
+evidence, mapped by ``rdj_approval``: the credited CHECK-IN 1 review of the exact plan and an RDJ case
+on every R2/R3 decide or effectful step. No receipt is accepted for it; ``gate_evidence`` names what
+discharged it for the ledger. An approval raised above R2 also needs an RDJ case on its exact action.
 """
 from __future__ import annotations
 
@@ -47,6 +52,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from . import research_controller
 
 from . import decision_case as dc
 from . import evidence_queue
@@ -866,7 +872,31 @@ def _exploration_contract(rundir, case, state=None):
 
 
 def _human(rundir, case):
-    return bool(custody.approvals(rundir, case["case_id"], case["decision_point"]["action"]["digest"]))
+    """Credit only controller evidence of a human approval of this exact case and action.
+
+    A row counts when its controller capture verifies against the capture ledger for this
+    run, case, action and approving text, or when its controller authority-service record
+    (an operator command, or the physicist's answer to a controller-issued challenge) still
+    verifies through the run's controller store. Caller text, an automated terminal without
+    a capture and historical ``approve`` rows without either stay readable as NOT GOVERNED
+    (``approval_authority.case_approval``) and earn no human credit.
+    """
+    from . import approval_capture
+    digest = case["decision_point"]["action"]["digest"]
+    for row in custody.approvals(rundir, case["case_id"], digest):
+        if row.get("attestation") is not None and approval_capture.human(
+                row["attestation"], purpose="case_approval",
+                binding=approval_capture.case_binding(rundir, case["case_id"], digest, row["sha256"])):
+            return True
+        reference = row.get("authority")
+        if type(reference) is dict and row.get("attestation") is None:
+            try:
+                current = custody.case_authority(rundir, case["case_id"], digest, reference.get("record_id"))
+            except (ImportError, OSError, ValueError, KeyError, TypeError):
+                continue
+            if current == reference:
+                return True
+    return False
 
 
 def _unknown_request(unknown):
@@ -1687,39 +1717,61 @@ def answer(rundir, case_id, answers, *, expected_case_sha256=None):
 
 # ---------------------------------------------------------------- role dispatch
 
+def _role_object(properties):
+    return {"type": "object", "properties": properties, "required": list(properties),
+            "additionalProperties": False}
+
+
+def _role_enum(values):
+    return {"type": "string", "enum": list(values)}
+
+
+def _role_requests():
+    # Optional fields use finite closed alternatives. Nullable fixed objects are
+    # supported by the strict provider dialect; a nullable object union is not.
+    properties = {"kind": _role_enum(dc.REQUEST_KINDS),
+                  "description": {"type": "string", "maxLength": dc.MAX_DESCRIPTION}}
+    return [{**_role_object(fields), "type": ["object", "null"]} for fields in (
+        properties, {**properties, "max_broker_calls": {
+            "type": "integer", "minimum": 0, "maximum": dc.MAX_BROKER_CALLS}})]
+
+
+def _edge_output_schema():
+    properties = {"edge_id": {"type": "string"}, "entailment": _role_enum(dc.ENTAILMENT),
+                  "relevance": _role_enum(dc.RELEVANCE), "grounding": _role_enum(dc.GROUNDING),
+                  "code": _role_enum(dc.CRITIQUE_CODES),
+                  "reason": {"type": "string", "maxLength": dc.MAX_REASON}}
+    rows = [_role_object({**properties, "request": request}) for request in _role_requests()]
+    return _role_object({"reviews": {"type": "array", "items": {"type": "object", "anyOf": rows}}})
+
+
+def _critic_output_schema():
+    properties = {"id": {"type": "string"},
+                  "targets": {"type": "array", "items": {"type": "string"}},
+                  "materiality": _role_enum(dc.MATERIALITY),
+                  "evidence_class": _role_enum(dc.EVIDENCE_CLASSES),
+                  "evidence_locators": {"type": "array", "items": {"type": "string"}}}
+    rows = []
+    for request in _role_requests():
+        rows.append(_role_object({**properties, "request": request, "code": _role_enum(
+            code for code in dc.CRITIQUE_CODES if code != "alternative_not_considered")}))
+        rows.append(_role_object({**properties, "request": request,
+            "code": _role_enum(["alternative_not_considered"]),
+            "alternative": {"type": "string", "maxLength": dc.MAX_DESCRIPTION}}))
+    findings = {"type": "array", "items": {"type": "object", "anyOf": rows}}
+    return {"type": "object", "anyOf": [
+        _role_object({"findings": findings}),
+        _role_object({"findings": findings,
+                      "withdrawn": {"type": "array", "items": {"type": "string"}}})]}
+
+
 OUTPUT_SCHEMAS = {
-    "edge_reviewer": {"type": "object", "additionalProperties": False, "required": ["reviews"], "properties": {
-        "reviews": {"type": "array", "items": {"type": "object", "additionalProperties": False,
-            "required": ["edge_id", "entailment", "relevance", "grounding", "code", "reason", "request"],
-            "properties": {"edge_id": {"type": "string"}, "entailment": {"enum": list(dc.ENTAILMENT)},
-                           "relevance": {"enum": list(dc.RELEVANCE)}, "grounding": {"enum": list(dc.GROUNDING)},
-                           "code": {"enum": list(dc.CRITIQUE_CODES)}, "reason": {"type": "string", "maxLength": dc.MAX_REASON},
-                           "request": {"anyOf": [{"type": "null"}, {"type": "object", "additionalProperties": False,
-                                       "required": ["kind", "description"],
-                                       "properties": {"kind": {"enum": list(dc.REQUEST_KINDS)},
-                                                      "description": {"type": "string",
-                                                                      "maxLength": dc.MAX_DESCRIPTION}}}]}}}}}},
-    "critic": {"type": "object", "additionalProperties": False, "required": ["findings"], "properties": {
-        "findings": {"type": "array", "items": {"type": "object", "required": sorted(dc.FINDING_KEYS),
-            "properties": {"id": {"type": "string"}, "code": {"enum": list(dc.CRITIQUE_CODES)},
-                           "targets": {"type": "array", "items": {"type": "string"}},
-                           "materiality": {"enum": list(dc.MATERIALITY)},
-                           "evidence_class": {"enum": list(dc.EVIDENCE_CLASSES)},
-                           "evidence_locators": {"type": "array", "items": {"type": "string"}},
-                           "request": {"anyOf": [{"type": "null"}, {"type": "object", "additionalProperties": False,
-                                       "required": ["kind", "description"],
-                                       "properties": {"kind": {"enum": list(dc.REQUEST_KINDS)},
-                                                      "description": {"type": "string",
-                                                                      "maxLength": dc.MAX_DESCRIPTION},
-                                                      "max_broker_calls": {"type": "integer", "minimum": 0}}}]},
-                           "alternative": {"type": "string", "maxLength": dc.MAX_DESCRIPTION}}}},
-        "withdrawn": {"type": "array", "items": {"type": "string"}}}},
-    "verifier": {"type": "object", "additionalProperties": False, "required": ["per_finding", "outcome"], "properties": {
-        "per_finding": {"type": "array", "items": {"type": "object", "additionalProperties": False,
-            "required": ["finding_id", "resolved", "reason"],
-            "properties": {"finding_id": {"type": "string"}, "resolved": {"enum": list(dc.RESOLVED)},
-                           "reason": {"type": "string", "maxLength": dc.MAX_REASON}}}},
-        "outcome": {"enum": list(dc.OUTCOMES)}}},
+    "edge_reviewer": _edge_output_schema(),
+    "critic": _critic_output_schema(),
+    "verifier": _role_object({"per_finding": {"type": "array", "items": _role_object({
+        "finding_id": {"type": "string"}, "resolved": _role_enum(dc.RESOLVED),
+        "reason": {"type": "string", "maxLength": dc.MAX_REASON}})},
+        "outcome": _role_enum(dc.OUTCOMES)}),
 }
 
 
@@ -1780,10 +1832,10 @@ class AgentHostDispatcher:
                 "nodes": [{"id": "rdj", "kind": "model", "role": agent_role, "depends_on": [], "inputs": inputs,
                            "packet": packet, "action": "model", "parameters": parameters, "max_attempts": 1}]}
         agent_graph.create(root, spec)
-        state = agent_graph.execute(root, self.host)
+        state = agent_graph.execute(root, research_controller.governed_host(self.host))
         if state["nodes"]["rdj"]["status"] != "completed":
             raise ValueError(f"{request['role']} call did not complete: {state['nodes']['rdj']['error']}")
-        model = agent_graph.role_receipt(root, "rdj", expected_subject_sha256=request["payload_sha256"],
+        model = research_controller.role_receipt(root, "rdj", expected_subject_sha256=request["payload_sha256"],
                                          require_exact_subject=True, allowed_roles={agent_role})
         custody.register_graph_receipt(rundir, request["graph_root"], model["receipt_sha256"], model["host_sha256"])
         return {"kind": "agent_graph", "root": request["graph_root"], "node_id": "rdj"}
@@ -1796,6 +1848,7 @@ def _resolve(rundir, request, ref):
         raise ValueError("a role call returns a receipt reference (worker_receipt or agent_graph), never a session "
                          "the model states")
     if ref["kind"] == "worker_receipt":
+        from . import role_registry
         path, rel = anchor_check.inside(rundir, ref.get("path"))
         sha = anchor_check.sha256_file(path)
         registration = custody.worker_row(rundir, rel, sha)
@@ -1803,7 +1856,8 @@ def _resolve(rundir, request, ref):
             raise ValueError("the worker receipt is not registered by the worker dispatcher")
         receipt = read_json(path)
         if receipt.get("schema_version") not in (1, 2, 3) or receipt.get("kind") != "agent-worker-receipt" \
-                or receipt.get("status") != "ok" or (receipt.get("role") or {}).get("id") != agent_role:
+                or receipt.get("status") != "ok" or not role_registry.same_card((receipt.get("role") or {}).get("id"),
+                                                                                agent_role):
             raise ValueError("the worker receipt is not a successful receipt for this role")
         if receipt.get("rdj") != {"case_id": request["case_id"], "slot": request["slot"],
                                   "payload_sha256": request["payload_sha256"]}:
@@ -1840,7 +1894,7 @@ def _resolve(rundir, request, ref):
         from . import agent_graph
         if ref.get("root") != request["graph_root"]:
             raise ValueError("the model receipt is not at the reserved graph root")
-        model = agent_graph.role_receipt(Path(rundir) / ref["root"], ref.get("node_id"),
+        model = research_controller.role_receipt(Path(rundir) / ref["root"], ref.get("node_id"),
                                          expected_subject_sha256=request["payload_sha256"],
                                          require_exact_subject=True, allowed_roles={agent_role})
         if not custody.graph_receipt_registered(rundir, ref["root"], model["receipt_sha256"], model["host_sha256"]):
@@ -1851,14 +1905,35 @@ def _resolve(rundir, request, ref):
         # an unregistered or in-process host is self-attested whatever its result says.
         separated = isolation.get("fresh_request") is True and isolation.get("parent_transcript_supplied") is False
         attested = dc.label_for(model["execution_observation"], model.get("attestation")) \
-            if custody.host_registered(rundir, model["host_sha256"]) and separated else "self_attested"
+            if (custody.host_registered(rundir, model["host_sha256"]) or
+                (model.get('controller_credit') or {}).get('independent',
+                    (model.get('controller_credit') or {}).get('credited')) is True) and separated else "self_attested"
         # The identity is built from what the dispatcher owns: the adapter, the requested model,
         # the request it issued and the graph node. An actor a host response states is never read.
         session = {"actor_id": custody.actor_id(str(transport.get("adapter") or "host"),
                                                 str(transport.get("requested_model") or "unspecified"),
                                                 str(transport["request_id"]), f"{ref['root']}#{ref.get('node_id')}"),
                    "session_receipt": f"{ref['root']}#{model['receipt_sha256']}", "attestation": attested}
-        family = transport.get("family")  # an adapter name is not a model family
+        if (model.get('controller_credit') or {}).get('independent',
+                (model.get('controller_credit') or {}).get('credited')) is True:
+            # These identities came from the protected dispatcher observation,
+            # verified by role_receipt and the shared independence decision.
+            session['actor_id'] = transport['actor_id']
+            session['session_receipt'] = 'controller:' + transport['controller_run_id'] + ':' + transport['invocation_id']
+        # The Host records the model returned by the provider, not a `family`
+        # field. Never substitute the requested model or a response's own label
+        # for that observation; an unrecognized identity stays unknown at R3.
+        from .transport_registry import model_family
+        observed_family = model_family(transport.get("observed_model"))
+        family = None if observed_family == 'unknown' else observed_family
+    from . import review_independence
+    query = (review_independence.worker_query(rundir, receipt, sha,
+                 subject_sha256=request['payload_sha256']) if ref['kind'] == 'worker_receipt'
+             else review_independence.graph_query(rundir, model))
+    # Human authorization and low-risk self checks retain their own policies;
+    # neither upgrades missing context evidence into independent attestation.
+    if not review_independence.decide(query)['independent']:
+        session['attestation'] = 'self_attested'
     return output, dc.actor(session, role + " session"), family
 
 
@@ -2044,23 +2119,22 @@ def _record_critique(rundir, case, state, output, session):
 def _record_verification(rundir, case, state, output, session, family, families):
     if type(output) is not dict or set(output) != {"per_finding", "outcome"}:
         raise ValueError("verifier output is exactly {per_finding, outcome}")
-    cls = case["risk"]["class"]
     _refuse_if_same(session, state["authors"] + state["reviewer_sessions"],
                     "the verifier must be a different session and actor from every author and edge reviewer")
-    if any(_same(session, critic) for critic in state["critic_sessions"]):
-        if cls == "R3":
-            raise IndependenceError("refused: the critic and the verifier must be distinct sessions at R3")
-        if not _human(rundir, case):
-            raise IndependenceError("refused: a verifier in the critic's session is self_attested, "
-                                    "which this class accepts only with a recorded human approval")
-        session = {**session, "attestation": "self_attested"}
-        state["self_attested_verifier"] = True
-    if cls == "R3" and anchor_check.policy()["r3_distinct_family"]:
-        critic_families = {families.get(c["session_receipt"]) for c in state["critic_sessions"]}
-        if family is None or None in critic_families or family in critic_families:
-            raise IndependenceError("refused: at R3 the verifier must come from a different model family than the critic")
+    _refuse_if_same(session, state["critic_sessions"],
+                    "refused: the critic and the verifier must be different sessions and actors at every class")
     revised = {f for r in case["revisions"] for f in r["addresses"]}
     case["verification"] = dc.verification({"reviewer": session, **output}, list(_findings(case).values()), revised)
+    # Family observations describe common-mode exposure; they do not establish or veto independence.
+    relationships = []
+    for critic in state["critic_sessions"]:
+        critic_family = families.get(critic["session_receipt"])
+        relation = ("unknown" if family in (None, "unknown") or critic_family in (None, "unknown")
+                    else "same" if family == critic_family else "different")
+        relationships.append({"critic": deepcopy(critic), "critic_family": critic_family,
+                              "verifier_family": family, "relationship": relation,
+                              "label": f"separate session, {relation} model family"})
+    state["verifier_family_relationships"] = relationships
     state["verified_digest"] = _verify_digest(case, state)
     findings = _findings(case)
     state["reopened"] = [row["finding_id"] for row in output["per_finding"]
@@ -2118,17 +2192,64 @@ def run_roles(rundir, case_id, dispatcher, *, max_steps=32):
 
 # ---------------------------------------------------------------- authorization
 
+def _lineage_calls(rundir, state, depth=0):
+    """The role calls a review bundle rests on: its own, then those of the bundle it reused."""
+    calls = list(state.get('calls', []))
+    lineage = state.get('review_reuse')
+    if lineage and depth < 8:
+        try:
+            record = _receipt_record(rundir, lineage['source_receipt']['receipt_id'])
+            _, source_state, _ = _current_receipt(rundir, record)
+        except (OSError, ValueError, KeyError, TypeError):
+            return calls
+        calls += _lineage_calls(rundir, source_state, depth + 1)
+    return calls
+
+
+def _current_review_attestation(rundir, state, actor):
+    """Re-resolve authority at use time, including saved pre-hardening sessions.
+
+    A reused review bundle carries its source case's reviewers; their calls are re-read there.
+    """
+    if actor is None:
+        return None
+    for call in _lineage_calls(rundir, state):
+        original = call.get('session')
+        if call.get('status') != 'completed' or not original or not _same(original, actor):
+            continue
+        request = call['request']
+        refs = [{'kind': 'agent_graph', 'root': request['graph_root'], 'node_id': 'rdj'}]
+        refs += [{'kind': 'worker_receipt', 'path': row['record']['path']}
+                 for row in custody.rows(rundir, 'workers')]
+        for ref in refs:
+            try:
+                output, current, _ = _resolve(rundir, request, ref)
+                if _same(current, actor) and dc.jdigest(output) == call['output_sha256']:
+                    # A historical human waiver remains a self check.
+                    return min((actor['attestation'], current['attestation']), key=dc.ATTESTATION_RANK.__getitem__)
+            except (OSError, ValueError, KeyError, TypeError):
+                continue
+    return 'self_attested'
+
+
 def _attestation_summary(rundir, case, state):
-    reviewers = sorted({e["review"]["reviewer"]["attestation"] for e in case["edges"] if e["review"]})
-    critic = case["critique"]["reviewer"] if case["critique"] else None
-    verifier = case["verification"]["reviewer"] if case["verification"] else None
-    actors = [a for a in (state["proposer"], critic, verifier) if a is not None]
-    sessions = [a["session_receipt"] for a in actors if a["session_receipt"] is not None]
-    return {"edge_reviewers": reviewers, "critic": critic["attestation"] if critic else None,
-            "verifier": verifier["attestation"] if verifier else None,
-            "distinct_sessions": len(sessions) == len(set(sessions)),
-            "distinct_actors": len({a["actor_id"] for a in actors}) == len(actors),
-            "human_approver": _human(rundir, case)}
+    reviewers = sorted({_current_review_attestation(rundir, state, e['review']['reviewer'])
+                        for e in case['edges'] if e['review']})
+    critic = case['critique']['reviewer'] if case['critique'] else None
+    verifier = case['verification']['reviewer'] if case['verification'] else None
+    actors = [a for a in (state['proposer'], critic, verifier) if a is not None]
+    sessions = [a['session_receipt'] for a in actors if a['session_receipt'] is not None]
+    critic_label = _current_review_attestation(rundir, state, critic)
+    verifier_label = _current_review_attestation(rundir, state, verifier)
+    used = reviewers + [a for a in (critic_label, verifier_label) if a]
+    return {'edge_reviewers': reviewers, 'critic': critic_label, 'verifier': verifier_label,
+            'independent': bool(used) and all(a == 'transport_attested' for a in used),
+            'advisory': None if used and all(a == 'transport_attested' for a in used) else 'independent_review_unestablished',
+            'distinct_sessions': len(sessions) == len(set(sessions)),
+            'distinct_actors': len({a['actor_id'] for a in actors}) == len(actors),
+            'human_approver': _human(rundir, case),
+            **({'verifier_family_relationships': deepcopy(state['verifier_family_relationships'])}
+               if 'verifier_family_relationships' in state else {})}
 
 
 def _independence_basis(cls, summary):
@@ -2546,7 +2667,8 @@ def _reuse_review(rundir, case_id, receipt_id):
 def _gate_decision(rundir, gate, action):
     """``(errors, accepted)`` for one gate check; ``accepted`` is the one authorize receipt that
     passed every rule (with its case), or None. ``gate_errors`` and ``authorizing_receipt`` both
-    decide through this single path."""
+    decide through this single path. A controller run's plan approval at R2 is decided by the
+    ``rdj_approval`` mapping and accepts no receipt."""
     rundir = Path(rundir)
     fix = ("ravel rdj case --rundir <run> --open ...; answer with ravel rdj next/answer; run the roles with "
            "ravel rdj run-roles; then ravel rdj authorize")
@@ -2563,6 +2685,65 @@ def _gate_decision(rundir, gate, action):
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         return [GateError("rdj_unreadable", canonical, PROVIDER, f"decision-justification records unreadable: {exc}",
                           fix)], None
+    if canonical == "launch":
+        from ravel.controller.step import launch_gate, native_authority
+        try:
+            if launch_gate.selected(rundir, action):
+                launch_gate.load(rundir, action)
+                if RANK[required] <= RANK["R2"] or native_authority.active(rundir, action):
+                    missing, _ = launch_gate.approval(rundir, action)
+                    return [GateError("rdj_native_invalid", canonical, PROVIDER, item,
+                                      "reconcile the native action with its protected approval and review")
+                            for item in missing], None
+        except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+            return [GateError("rdj_native_invalid", canonical, PROVIDER, str(exc),
+                              "reconcile the native action with its protected step and preflight")], None
+    if canonical == "checkin2_accept":
+        from . import rdj_approval
+        if rdj_approval.applies(rundir):
+            missing, _ = custody.controller_approval(rundir, action, required, required_factors, canonical)
+            return [GateError("rdj_receipt_missing", canonical, PROVIDER,
+                              f"no observed checkpoint justification for exact action {str(digest)[:12]}: {item}",
+                              "Review the current waypoint round and dispatch the exact checkpoint action to an "
+                              "observed RDJ critic; R3 also requires exact current GO operator authority.")
+                    for item in missing], None
+    if canonical == "deviation":
+        from . import rdj_approval
+        if rdj_approval.applies(rundir):
+            # A controller run's deviation (a replan, a recovery) is justified by an observed RDJ critic case on the
+            # exact deviation action, which the controller dispatches before asking its authority.
+            missing, _ = custody.controller_approval(rundir, action, required, required_factors, canonical)
+            return [GateError("rdj_receipt_missing", canonical, PROVIDER,
+                              f"no observed deviation justification for exact action {str(digest)[:12]}: {item}",
+                              "Dispatch the exact deviation action to an observed RDJ critic; R3 also requires "
+                              "exact current deviation operator authority.") for item in missing], None
+    if canonical == "approve_plan":
+        from . import rdj_approval
+        if rdj_approval.applies(rundir):
+            # A controller run's plan approval is justified only by its independent review evidence (the
+            # CHECK-IN 1 review and the RDJ cases of its R2/R3 steps), mapped by ``rdj_approval``; nothing
+            # else counts, and no receipt is accepted for it.
+            missing, _ = rdj_approval.evaluate(rundir, action)
+            if missing:
+                return [GateError("rdj_receipt_missing", canonical, PROVIDER,
+                                  f"no decision justification at {canonical} for this exact action (digest "
+                                  f"{str(digest)[:12]}): {item}", rdj_approval.FIX) for item in missing], None
+            if RANK[required] <= RANK["R2"]:
+                return [], None
+            # Above R2 the controller dispatches a separate observed critic seat on the exact action.
+            # Neither a plan review nor an unattested custody role call supplies this case or authority.
+            missing, _ = custody.controller_approval(rundir, action, required, required_factors)
+            return [GateError("rdj_receipt_missing", canonical, PROVIDER,
+                              f"no decision-justification receipt at {canonical} for this exact action "
+                              f"(digest {str(digest)[:12]}): {item}", rdj_approval.FIX) for item in missing], None
+    if canonical in ("final_task", "delivery", "report_integrity"):
+        from . import rdj_approval
+        if rdj_approval.applies(rundir):
+            missing, _ = custody.controller_approval(rundir, action, required, required_factors, canonical)
+            return [GateError("rdj_receipt_missing", canonical, PROVIDER,
+                              f"no observed final-task justification for exact action {str(digest)[:12]}: {item}",
+                              "Dispatch the exact final-task action to an observed RDJ critic seat; R3 also needs "
+                              "renewed attested operator authority.") for item in missing], None
     if not rows:
         return [GateError("rdj_receipt_missing", canonical, PROVIDER,
                           f"no decision-justification receipt at {canonical} for this exact action "
@@ -2609,8 +2790,13 @@ def _gate_decision(rundir, gate, action):
             continue
         items = authorization_errors(rundir, case, state)
         if not items:
+            # Keep immutable historical bytes distinct from today's credit. A
+            # human waiver can authorize an action without independent review.
+            summary = _attestation_summary(rundir, case, state)
             return [], {"receipt": receipt, "receipt_sha256": record["sha256"], "case": case,
-                        "case_sha256": receipt["case_sha256"]}
+                        "case_sha256": receipt["case_sha256"],
+                        "review_independence": {key: summary[key] for key in
+                            ('independent', 'advisory', 'human_approver')}}
         errors += [GateError("rdj_" + item["code"], canonical, PROVIDER, item["message"], fix, pins) for item in items]
     return errors, None
 
@@ -2627,10 +2813,45 @@ def gate_errors(rundir, gate, action):
     return _gate_decision(rundir, gate, action)[0]
 
 
+def gate_evidence(rundir, gate, action):
+    """What discharged this provider's requirement of a passed decision, for the ledger's decision record: the
+    mapped review evidence of controller approval or final-task actions, None otherwise."""
+    canonical = canonical_gate(gate)
+    if canonical == "launch":
+        from ravel.controller.step import launch_gate, native_authority
+        try:
+            if launch_gate.selected(rundir, action):
+                launch_gate.load(rundir, action)
+                required, _ = compute_class(rundir, gate, action, action.get("facts"))
+                if RANK[required] <= RANK["R2"] or native_authority.active(rundir, action):
+                    missing, evidence = launch_gate.approval(rundir, action)
+                    return None if missing else evidence
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            return None
+    if canonical not in ("approve_plan", "checkin2_accept", "deviation", "final_task", "delivery", "report_integrity"):
+        return None
+    from . import rdj_approval
+    if not rdj_approval.applies(rundir):
+        return None
+    if canonical in ("checkin2_accept", "deviation", "final_task", "delivery", "report_integrity"):
+        required, factors = compute_class(rundir, gate, action, action.get("facts"))
+        missing, case = custody.controller_approval(rundir, action, required, factors, canonical)
+        return None if missing else {"schema_version": 1, "mechanism": f"rdj_{canonical}.mapping",
+                                     "action_digest": action.get("digest"), "action_case": case}
+    missing, evidence = rdj_approval.evaluate(Path(rundir), action)
+    if missing:
+        return None
+    required, factors = compute_class(rundir, gate, action, action.get("facts"))
+    if RANK[required] > RANK["R2"]:
+        missing, case = custody.controller_approval(rundir, action, required, factors)
+        return None if missing else {**evidence, "action_case": case}
+    return evidence
+
+
 def authorizing_receipt(rundir, gate, action):
     """The receipt that authorizes ``action`` at ``gate``: exactly the one ``gate_errors`` accepted.
 
-    Returns ``{"receipt", "receipt_sha256", "case", "case_sha256"}`` (the RDJ receipt, its
+    Returns ``{"receipt", "receipt_sha256", "case", "case_sha256", "review_independence"}`` (the RDJ receipt, its
     custody-recorded digest, the replayed current case and its digest), or None when
     ``gate_errors`` is not empty. Consumers read tuning class and human approval from this case,
     never by rescanning custody."""

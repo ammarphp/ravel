@@ -1,0 +1,2 @@
+Run an anomaly search over the supplied table of fictional toy measurements and produce a short report of
+any departure from the expected dependence of the toy observable on the coupling g.

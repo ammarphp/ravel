@@ -165,8 +165,9 @@ def test_checkin_registry_displays_method_and_ceiling(tmp_path):
 @pytest.mark.parametrize('kwargs, expected', [
     ({'scripted': True, 'quote': 'yes'}, 'scripted_experiment'),
     ({'delegated': True, 'scripted': True}, 'delegated_machine'),
-    ({'agent_session': True, 'quote': 'Approve this exact plan.'}, 'human_relayed'),
-    ({'agent_session': False, 'interactive': True}, 'human_operator'),
+    # Text relayed from an agent session is typed caller text, never a relayed human approval.
+    ({'agent_session': True, 'quote': 'Approve this exact plan.'}, 'caller_text_unattested'),
+    ({'agent_session': False, 'interactive': True}, 'terminal_operator_unattested'),
     ({'agent_session': True, 'interactive': True}, 'unknown'),
     ({}, 'unknown')])
 def test_authority_from_evidence(kwargs, expected):

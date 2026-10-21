@@ -91,7 +91,9 @@ def test_current_request_only_and_original_allowance(cycle,tmp_path,monkeypatch,
     b,camp,h=requested(cycle,tmp_path,monkeypatch,reworks=0 if defect=='allowance' else 1)
     out=tmp_path/'followup'
     if defect=='head':
-        review.submit_review(cycle,role='skeptical_verifier',actor_id='skeptic',verdict='accept',summary='Supplied different judgment',claim_scope='reproduction')
+        # A recorded vote moves the journal head; a declared name would only be retained advice.
+        from bound_review import bound_review
+        bound_review(cycle,role='skeptical_verifier',verdict='accept',summary='Supplied different judgment',claim_scope='reproduction')
     with pytest.raises(ValueError):j.continue_role(b,out,allow_control=True,**({'selections':select(b,'index')} if defect=='selection' else {}))
     assert not out.exists()
 

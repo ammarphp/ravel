@@ -1,7 +1,7 @@
 # Finite-integral compiler compatibility
 
 The default finite-integral build has no extra compiler flags. A configuration
-may explicitly request one prospective compatibility mode for the pySecDec
+can explicitly request one prospective compatibility mode for the pySecDec
 1.6.6 `Series` template syntax diagnosed by Clang:
 
 ```json
@@ -30,6 +30,6 @@ driver binding and ending input/output checks are unchanged.
 
 A prospective declaration is not compiler compatibility evidence. It requires
 a fresh admitted source epoch, root-owned ordinary plan/approval/execution and
-retained compiler output. The build or integral may still fail. The runtime
+retained compiler output. The build or integral can still fail. The runtime
 compiler pin is an input supplied by each study; no machine-specific compiler
 path or digest is embedded in the product implementation.

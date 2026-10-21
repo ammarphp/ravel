@@ -867,7 +867,8 @@ def _coverage(reading, b, obligations, view):
     spanned = [(c, c['evidence']) for c in view.constraints] + [(f, f['evidence']) for f in reading['facts']]
     for obligation in obligations:
         oid = obligation['id']
-        if oid == 'original-request':
+        if oid == 'original-request' or 'output_contract' in obligation.get('criteria', {}):
+            # A declared output path constrains how the whole result is delivered.
             by[oid] = [c['id'] for c in b.claims] + [n['id'] for n in b.nodes] + [
                 x['id'] for x in reading['boundaries'] if x['class'] in rp.WHOLE_REQUEST_BOUNDARIES]
             continue
@@ -896,7 +897,26 @@ def _served_by(item, b):
     return ids or [c['id'] for c in b.claims]
 
 
+def _validation_inputs(builder, registry):
+    """Retain required validation evidence as awaited owner actions in every drafted chain."""
+    for node in builder.nodes:
+        signature = registry.get(node.get('operation'))
+        if not signature or node['status'] != 'available':
+            continue
+        for port in signature['consumes']:
+            if (port.get('optional') or not port['kind'].startswith('validation:')
+                    or any(edge['to'] == {'ref': node['id'], 'slot': port['slot']} for edge in builder.edges)):
+                continue
+            require = deepcopy(port.get('require', {}))
+            refs = builder._bound({'provides': {'kind': port['kind'], 'require': require},
+                                   'source': 'owner_action', 'status': 'awaited',
+                                   'locator': f'{node["operation"]} {port["slot"]} validation evidence'}, {})
+            for ref in refs:
+                builder._edge(ref, 'provided', node['id'], port['slot'], port['kind'], require)
+
+
 def _assemble(reading, b, reg, obligations, view, catalogue):
+    _validation_inputs(b, reg)
     by = _coverage(reading, b, obligations, view)
     if any(not ids for ids in by.values()):
         envelope = next((n for n in b.nodes if n['kind'] == 'envelope'), None)

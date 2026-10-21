@@ -8,6 +8,8 @@ transport error bodies are never retained. No transport retries are automatic.
 """
 from __future__ import annotations
 
+import base64
+from contextvars import ContextVar
 import hashlib
 import http.client
 import ipaddress
@@ -57,6 +59,19 @@ class HostFailure(RuntimeError):
         self.ambiguous = ambiguous
 
 
+def dispatch_role(rundir, spec, *, node_id, role, subject, adapter=None,
+                  mode='required', parent_session_id=None, **worker_options):
+    """One role dispatch interface for governed CLI workers and host delegates.
+
+    Host bridges carry at most host assertions. Required roles retain their card
+    requirements; an advisory dispatch never creates an acceptance receipt.
+    """
+    from .transports.host_subagent import dispatch_role as dispatch
+    return dispatch(rundir, spec, node_id=node_id, role=role, subject=subject,
+                    adapter=adapter, mode=mode, parent_session_id=parent_session_id,
+                    **worker_options)
+
+
 def _keys(value, required, label):
     if type(value) is not dict or set(value) != set(required):
         raise HostFailure(f"invalid {label} fields")
@@ -78,6 +93,103 @@ def _positive(value, label):
     if type(value) not in (int, float) or not math.isfinite(value) or not 0 < value <= 3600:
         raise HostFailure(f"invalid {label}")
     return float(value)
+
+
+# The request byte bound a host accepts by default, and the share of it a role packet's inline text may use:
+# artifacts beyond that share remain indexed and readable on demand. Initial inline presentation and
+# complete governed page reads are recorded separately; an index or a partial read earns no content credit.
+DEFAULT_MAX_REQUEST_BYTES = 2_000_000
+INLINE_TEXT_BUDGET = DEFAULT_MAX_REQUEST_BYTES // 4
+
+
+_ROLE_READS = ContextVar("agent_host_role_reads", default=None)
+
+
+def _role_read_scope(method):
+    """Give each model-node invocation its own record of governed page reads (never another invocation's)."""
+    import functools
+
+    @functools.wraps(method)
+    def scoped(self, node, request, control):
+        if type(node) is not dict or node.get("kind") != "model":
+            return method(self, node, request, control)
+        token = _ROLE_READS.set(None)
+        try:
+            return method(self, node, request, control)
+        finally:
+            _ROLE_READS.reset(token)
+    return scoped
+
+
+class _DeferredReads:
+    """Bytes returned by governed reads during exactly one role invocation."""
+
+    def __init__(self, pin, context):
+        self.pin, self.context_sha256 = dict(pin), digest(context)
+        index = review_context._PacketIndex(pin["path"], pin["manifest_sha256"])
+        inline = {entry["id"] for entry in context["review_packet"]["artifacts"]}
+        self.entries = {key: {"id": key, "sha256": entry["sha256"],
+                              "bytes": index.paths[key].stat().st_size}
+                        for key, entry in index.entries.items() if key not in inline}
+        index.finish()
+        self.spans, self.invalid = {}, set()
+
+    def observe(self, pin, parameters, page):
+        # A read of even an identical copy in another packet is not this seat's delivery.
+        identity = parameters["artifact_id"]
+        if pin != self.pin or identity not in self.entries or identity in self.invalid:
+            return
+        entry = self.entries[identity]
+        try:
+            if page["content_encoding"] == "utf-8":
+                raw = page["content"].encode("utf-8")
+            elif page["content_encoding"] == "base64":
+                raw = base64.b64decode(page["content"], validate=True)
+            else:
+                raise ValueError("unknown page encoding")
+            start = parameters.get("offset", 0)
+            stop = start + len(raw)
+            if (type(page["offset"]) is not int or page["offset"] != start
+                    or type(page["bytes"]) is not int or page["bytes"] != len(raw)
+                    or type(page["total_bytes"]) is not int or page["total_bytes"] != entry["bytes"]
+                    or type(page["next_offset"]) is not int or page["next_offset"] != stop
+                    or page["artifact_id"] != identity or page["artifact_sha256"] != entry["sha256"]
+                    or not 0 <= start <= stop <= entry["bytes"]
+                    or len(raw) != min(parameters.get("max_bytes", 65536), entry["bytes"] - start)
+                    or hashlib.sha256(raw).hexdigest() != page["page_sha256"]):
+                raise ValueError("page differs from requested indexed bytes")
+            # Merge adjacent/overlapping pages without retaining repeated bytes. Gaps stay gaps.
+            merged = []
+            for offset, chunk in sorted([*self.spans.get(identity, []), (start, raw)]):
+                if not merged or offset > merged[-1][0] + len(merged[-1][1]):
+                    merged.append((offset, chunk))
+                    continue
+                old_offset, old = merged[-1]
+                overlap = min(len(chunk), old_offset + len(old) - offset)
+                if old[offset - old_offset:offset - old_offset + overlap] != chunk[:overlap]:
+                    raise ValueError("overlapping page bytes differ")
+                merged[-1] = (old_offset, old + chunk[overlap:])
+            self.spans[identity] = merged
+        except (ValueError, KeyError, TypeError, AttributeError, UnicodeError):
+            self.invalid.add(identity)
+            self.spans.pop(identity, None)
+
+    def record(self, context):
+        if digest(context) != self.context_sha256:
+            return False
+        complete = []
+        for identity, spans in sorted(self.spans.items()):
+            entry = self.entries[identity]
+            if (len(spans) == 1 and spans[0][0] == 0 and len(spans[0][1]) == entry["bytes"]
+                    and hashlib.sha256(spans[0][1]).hexdigest() == entry["sha256"]):
+                complete.append(dict(entry))
+        # Preserve the existing boolean meaning: false means no completely delivered deferred artifact.
+        return {"manifest_sha256": self.pin["manifest_sha256"], "artifacts": complete} if complete else False
+
+
+def inline_cost(identity, text):
+    """Bytes one inline artifact costs in a presented context: its JSON row of id and content."""
+    return len(_json_bytes({"id": identity, "content": text}))
 
 
 def _json_bytes(value):
@@ -415,7 +527,7 @@ class AgentHost:
     """One configured transport plus an allowlist of deterministic Ravel tools."""
 
     def __init__(self, *, adapter="responses", endpoint=DEFAULT_ENDPOINT, api_key=None, command=None,
-                 timeout_seconds=60, max_request_bytes=2_000_000, max_response_bytes=2_000_000,
+                 timeout_seconds=60, max_request_bytes=DEFAULT_MAX_REQUEST_BYTES, max_response_bytes=2_000_000,
                  environment=None, bound_roots=None, cosmology_runtime_binding=None,
                  privacy="configured", local_models=None, capabilities=None, vision=None, literature_origins=None,
                  transport=None, pass_env=None, auth=None):
@@ -944,7 +1056,7 @@ class AgentHost:
                         "offset":0,"bytes":min(32,len(content)),"hex":content[:32].hex(),
                         "whole_content_presented":False}})
                 continue
-            cost = len(_json_bytes({"id":entry["id"],"content":text}))
+            cost = inline_cost(entry["id"], text)
             if presentation == "on_demand": bounded = True
             elif total + cost <= text_budget:
                 inline[entry["id"]] = {"id":entry["id"],"source_sha256":entry.get("source_sha256"),
@@ -1054,6 +1166,7 @@ class AgentHost:
         for index in observations: index.finish()
         return prepared
 
+    @_role_read_scope
     def execute(self, node, request, control):
         self._cancel(control)
         _keys(node, {"id", "kind", "role", "depends_on", "inputs", "packet", "action", "parameters", "max_attempts",
@@ -1081,6 +1194,8 @@ class AgentHost:
         maximum = parameters["max_output_tokens"]
         schema = parameters["output_schema"]
         context = prepared["context"]
+        if context.get("review_packet", {}).get("presentation", {}).get("kind") == "bounded_indexed_role_evidence":
+            _ROLE_READS.set(_DeferredReads(node["packet"], context))
         if self.privacy == "local_only" and parameters["model"] not in self.local_models:
             raise HostFailure("requested model is outside the exact local-only model allowlist")
         try:
@@ -1181,6 +1296,7 @@ class AgentHost:
     def _presented_result(result, context):
         packet = context.get("review_packet")
         if packet is not None:
+            reads = _ROLE_READS.get()
             result = dict(result)
             result["isolation"] = dict(result["isolation"])
             result["isolation"]["evidence_presentation"] = {
@@ -1193,7 +1309,8 @@ class AgentHost:
                     "artifact_count":len(packet["artifacts"]),
                     "inline_ids":[e["id"] for e in packet["artifacts"]],
                     "deferred_count":0,"all_content_presented":True,
-                    "all_content_read_by_model":False}),"deferred_content_read":False}
+                    "all_content_read_by_model":False}),
+                "deferred_content_read":reads.record(context) if reads is not None else False}
         return result
 
     def _result(self, value, parameters, request, *, observed_model=None, response_id=None, usage=None, provider_usage=None):
@@ -2882,7 +2999,11 @@ class AgentHost:
             self._cancel(control)
             return {"kind": "ravel_tool_result", "action": action, "value": value,
                     "execution_authorized": False, "physics_validated": False}
-        return control.call(action, "tool", public_request, execute)
+        result = control.call(action, "tool", public_request, execute)
+        reads = _ROLE_READS.get()
+        if action == "review-read" and reads is not None:
+            reads.observe(node["packet"], parameters, result["value"])
+        return result
 
     def _witness_process(self, bound, parameters, control):
         """Run only the source-bound standard-library checker in a fresh process."""

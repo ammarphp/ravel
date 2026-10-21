@@ -7,7 +7,10 @@ the tool's consult; a trial lesson appears only inside the "with" side of a pair
 three promoted lessons are served per node; reviewers never receive lessons.
 
 Every lesson carries ``evidence.origin`` (request digest and run id). A benchmark arm loads the
-local store ``frozen`` from a snapshot or ``disabled``, and the run records the mode and digest.
+local store ``frozen`` from a snapshot or ``disabled``, and the run records the mode and the digest
+of every lesson it serves, shipped lessons included. When an evaluator-supplied excluded-origin set
+is configured, the withheld screen is mandatory: a lesson from an excluded run or request, or one
+quoting an excluded document, pin or path, is refused at write and withheld at load.
 The store is empty until real runs produce tickets.
 """
 from __future__ import annotations
@@ -86,7 +89,39 @@ def withheld_errors(lesson, withheld) -> list[str]:
     return errors
 
 
-def gate_errors(lesson, *, retained_facts, withheld=None, check_ids=None, do_not_learn=None) -> list[str]:
+def _origins(excluded_origins):
+    from .literature_index import normalize_excluded_origins
+    if excluded_origins is None:
+        from .literature_settings import configured_excluded_origins
+        return configured_excluded_origins()
+    return normalize_excluded_origins(excluded_origins)
+
+
+def origin_match_errors(lesson, excluded_origins) -> list[str]:
+    """A lesson descending from or quoting an excluded origin (its run, request, document, pin or path)."""
+    origins = _origins(excluded_origins)
+    if not origins or not isinstance(lesson, dict):
+        return []
+    evidence = lesson.get('evidence') if isinstance(lesson.get('evidence'), dict) else {}
+    origin = evidence.get('origin') if isinstance(evidence.get('origin'), dict) else {}
+    receipts = [r for r in evidence.get('receipts', ()) if isinstance(r, dict)] \
+        if isinstance(evidence.get('receipts'), list) else []
+    folded = json.dumps(lesson, sort_keys=True, default=str).casefold()
+    for kind, value in origins:
+        if kind == 'run' and value in (origin.get('run_id'), origin.get('request_digest')):
+            return ['descends from an excluded run']
+        if kind == 'pin' and any(r.get('sha256') == value for r in receipts):
+            return ['rests on an excluded pin']
+        if kind == 'path' and any(str(r.get('path', '')) == value or str(r.get('path', '')).startswith(value + '/')
+                                  for r in receipts):
+            return ['rests on an excluded path']
+        if value.casefold() in folded:
+            return ['quotes an excluded origin']
+    return []
+
+
+def gate_errors(lesson, *, retained_facts, withheld=None, check_ids=None, do_not_learn=None,
+                excluded_origins=None) -> list[str]:
     """Reasons the writer refuses a lesson (KM section 2.5 do-not-learn gate); empty means accepted.
 
     ``retained_facts`` are the run facts of retained runs; a trigger firing on more than 30% of
@@ -105,7 +140,10 @@ def gate_errors(lesson, *, retained_facts, withheld=None, check_ids=None, do_not
         own.append('every receipt needs a kind in ' + '|'.join(RECEIPT_KINDS))
     elif kinds and set(kinds) <= OPINION_KINDS:
         own.append('rests on a reviewer verdict or model prose alone')
+    if _origins(excluded_origins) and not isinstance(withheld, dict):
+        own.append('the withheld screen is required while an excluded-origin set is configured')
     own += withheld_errors(lesson, withheld)
+    own += origin_match_errors(lesson, excluded_origins)
     if not isinstance(retained_facts, (list, tuple)):
         own.append('retained run facts are required to measure trigger generality')
     elif retained_facts:
@@ -141,7 +179,8 @@ def _write(path, value):
     return path
 
 
-def write_candidate(root, lesson, *, retained_facts, withheld=None, check_ids=None, do_not_learn=None) -> Path:
+def write_candidate(root, lesson, *, retained_facts, withheld=None, check_ids=None, do_not_learn=None,
+                    excluded_origins=None) -> Path:
     """Record a candidate lesson in the project's local store after the do-not-learn gate.
 
     The writer records candidates only; promotion goes through ``to_trial`` and ``promote``. A
@@ -151,7 +190,7 @@ def write_candidate(root, lesson, *, retained_facts, withheld=None, check_ids=No
             or lesson.get('lifecycle'):
         raise ValueError('the writer records new candidates only')
     errors = gate_errors(lesson, retained_facts=retained_facts, withheld=withheld, check_ids=check_ids,
-                         do_not_learn=do_not_learn)
+                         do_not_learn=do_not_learn, excluded_origins=excluded_origins)
     if errors:
         raise ValueError('lesson refused: ' + '; '.join(errors))
     path = Path(root) / LOCAL / _file(lesson['id'])
@@ -160,8 +199,10 @@ def write_candidate(root, lesson, *, retained_facts, withheld=None, check_ids=No
     return _write(path, lesson)
 
 
-def update_lesson(root, lesson) -> Path:
+def update_lesson(root, lesson, *, excluded_origins=None) -> Path:
     """Replace a stored local lesson with its next lifecycle state (from ``to_trial``/``promote``/...)."""
+    if origin_match_errors(lesson, excluded_origins):
+        raise ValueError('lesson update refused: excluded origin')
     path = Path(root) / LOCAL / _file(lesson['id'])
     if not path.is_file():
         raise ValueError('no stored lesson with id ' + str(lesson['id']))
@@ -185,12 +226,16 @@ def _read_dir(directory):
     return rows
 
 
-def load_lessons(root, *, mode='live', snapshot=None, shipped=None) -> dict:
+def load_lessons(root, *, mode='live', snapshot=None, shipped=None, excluded_origins=None) -> dict:
     """Shipped lessons plus the local store in the declared mode, with the digest a run records.
 
     ``frozen`` reads the local lessons of a snapshot from ``export_snapshot`` (checked against its
     digest), ``disabled`` reads none; shipped, developer-reviewed lessons are read in every mode.
+    ``snapshot_sha256`` hashes every served lesson, shipped ones included, in every mode; a frozen
+    load also reports the snapshot's own digest as ``local_snapshot_sha256``. With an
+    excluded-origin set, lessons that descend from or quote one, or carry no origin, are withheld.
     """
+    excluded_origins = _origins(excluded_origins)
     if mode not in MODES:
         raise ValueError('mode must be one of ' + '|'.join(MODES))
     lessons = _read_dir(SHIPPED if shipped is None else shipped)
@@ -203,8 +248,19 @@ def load_lessons(root, *, mode='live', snapshot=None, shipped=None) -> dict:
     else:
         local = []
     lessons = lessons + local
-    return {'mode': mode, 'lessons': lessons, 'lesson_ids': sorted(str(r.get('id')) for r in lessons),
-            'snapshot_sha256': snapshot['snapshot_sha256'] if mode == 'frozen' else digest(encode(lessons))}
+    withheld = []
+    if _origins(excluded_origins):
+        withheld = sorted(str(r.get('id')) for r in lessons
+                          if origin_match_errors(r, excluded_origins)
+                          or origin_errors(((r.get('evidence') or {}) if isinstance(r, dict) else {}).get('origin')))
+        lessons = [r for r in lessons if str(r.get('id')) not in withheld]
+    loaded = {'mode': mode, 'lessons': lessons, 'lesson_ids': sorted(str(r.get('id')) for r in lessons),
+              'snapshot_sha256': digest(encode(lessons))}
+    if mode == 'frozen':
+        loaded['local_snapshot_sha256'] = snapshot['snapshot_sha256']
+    if withheld:
+        loaded['withheld_lesson_ids'] = withheld
+    return loaded
 
 
 def _excluded(row, tokens):
@@ -241,9 +297,11 @@ def snapshot_errors(snapshot) -> list[str]:
 
 def record_store_state(rundir, loaded) -> Path:
     """Write the store mode and snapshot digest a run used to ``<rundir>/knowledge/lesson_store.json``."""
-    return _write(Path(rundir) / 'knowledge/lesson_store.json',
-                  {'schema_version': 1, 'kind': 'lesson-store-state', 'mode': loaded['mode'],
-                   'snapshot_sha256': loaded['snapshot_sha256'], 'lesson_ids': loaded['lesson_ids']})
+    state = {'schema_version': 1, 'kind': 'lesson-store-state', 'mode': loaded['mode'],
+             'snapshot_sha256': loaded['snapshot_sha256'], 'lesson_ids': loaded['lesson_ids']}
+    if 'local_snapshot_sha256' in loaded:
+        state['local_snapshot_sha256'] = loaded['local_snapshot_sha256']
+    return _write(Path(rundir) / 'knowledge/lesson_store.json', state)
 
 
 # ----------------------------------------------------------------------------- lifecycle
@@ -355,8 +413,10 @@ def promotion_errors(lesson) -> list[str]:
     return [name + e for e in errors]
 
 
-def promote(lesson, impact) -> dict:
+def promote(lesson, impact, *, excluded_origins=None) -> dict:
     """``trial -> promoted`` on a held-out paired gain with no harm; harm revokes instead."""
+    if origin_match_errors(lesson, excluded_origins):
+        raise ValueError('lesson promotion refused: excluded origin')
     if lesson.get('status') != 'trial':
         raise ValueError('only a trial lesson can be promoted')
     errors = impact_errors(impact, trial_runs=_trial_runs(lesson))
@@ -423,6 +483,8 @@ def served_lessons(lessons, *, card, facts, arm=None, versions=None) -> dict:
     """
     reader = reader_class(card)
     paired = isinstance(arm, dict) and arm.get('side') == 'with' and bool(arm.get('paired_with'))
+    origins = _origins(None)
+    lessons = [r for r in lessons if not origin_match_errors(r, origins)]
     served, promoted, omitted = [], [], []
     for lesson in sorted(lessons, key=lambda r: str(r.get('id'))):
         if not isinstance(lesson, dict) or lesson_errors(lesson) or promotion_errors(lesson):

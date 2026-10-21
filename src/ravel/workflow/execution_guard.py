@@ -28,6 +28,12 @@ JSON object per line:
 
 The command text is not logged, only its hash. ``read_log`` and ``summary`` are the readers.
 
+Inside a run the controller owns, the guard is always strict, reads its rules only from the
+installed package (never a project's committed or working policy) and refuses every git
+subcommand that writes (``add``, ``commit``): a committed relaxation cannot loosen it. Each of
+its decisions is also appended to that run's controller store, so an edited local log no
+longer stands for what was decided.
+
 What this enforces: the shell tool of an agent session that loads the project's
 ``.claude/settings.json``. What it cannot: a person at a terminal, a session started without the
 project settings, an agent host whose shell tool is not routed through this hook, or the file-write
@@ -56,6 +62,8 @@ ROUTE = ("Code in this project runs only through the workflow manager: add the a
 _PUNCT = set(';&|<>()')
 _SEPARATORS = {';', '&&', '||', '|'}
 _GIT_TIMEOUT = 20
+GIT_WRITE_SUBCOMMANDS = frozenset({'add', 'commit'})
+_EXPANSION = re.compile(r'\$[A-Za-z0-9_@*#?$!-]')
 
 
 def data():
@@ -176,11 +184,13 @@ def statements(command):
                     out.append(current)
                     current = []
                 continue
-            if '$(' in token or '`' in token or '${' in token:
+            if '$(' in token or '`' in token or '${' in token or _EXPANSION.search(token):
                 raise Unparsable('command substitution or parameter expansion')
             if '<' in token or '>' in token:
                 raise Unparsable('redirection')
             current.append(token)
+    except Unparsable:
+        raise
     except ValueError as exc:
         raise Unparsable(f'unbalanced quoting ({exc})') from None
     if current:
@@ -408,10 +418,22 @@ def _statement(argv, project, cwd, rules):
     return _allowed(f'inspect-{base}')
 
 
+def controller_run(project, cwd=None):
+    """``(run id, run directory)`` of the controller-owned run the command works in, else None."""
+    from ravel.controller.confine import runs
+    for place in (cwd, project):
+        if place:
+            found = runs.owner_of(place)
+            if found:
+                return found
+    return None
+
+
 def decide(command, project, cwd=None):
     """The guard's decision for one shell command: ``{mode, allowed, rule, why, segments}``."""
     project = Path(project)
-    current = mode(project)
+    controlled = controller_run(project, cwd)
+    current = 'strict' if controlled else mode(project)
     result = {'mode': current, 'segments': 0}
     if current != 'strict':
         refusal = discipline_refusal(command, project) if current == 'discipline' else None
@@ -428,6 +450,11 @@ def decide(command, project, cwd=None):
         return {**result, **_refused('empty', 'an empty command')}
     matched = []
     for argv in parts:
+        if controlled and argv and Path(argv[0]).name == 'git':
+            sub = next((token for token in argv[1:] if not token.startswith('-')), '')
+            if sub in GIT_WRITE_SUBCOMMANDS:
+                return {**result, 'segments': len(parts),
+                        **_refused('git-write', f'`git {sub}` writes the repository of a controller-owned run')}
         outcome = _statement(argv, project, cwd, rules)
         if not outcome['allowed']:
             return {**result, 'segments': len(parts), **outcome}
@@ -441,12 +468,17 @@ def log_path(project):
     return Path(project) / data()['log']
 
 
-def record(project, command, result, session_id=''):
+def record(project, command, result, session_id='', cwd=None):
     row = {'schema_version': 1, 'kind': 'execution-guard-decision',
            'utc': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'mode': result['mode'],
            'decision': 'allowed' if result['allowed'] else 'refused', 'rule': result['rule'],
            'segments': result['segments'], 'command_sha256': hashlib.sha256(command.encode()).hexdigest(),
            'session_id': session_id or ''}
+    controlled = controller_run(project, cwd)
+    if controlled:
+        # The store's copy is the record; the local log below is a convenience.
+        from ravel.controller.confine import runs
+        runs.store(controlled[0]).append('execution-guard-decision', row)
     path = log_path(project)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('a', encoding='utf-8') as stream:
@@ -488,7 +520,7 @@ def hook(raw, project):
         return True, ''
     command = ((event.get('tool_input') or {}).get('command') or '')
     result = decide(command, project, event.get('cwd') or None)
-    record(project, command, result, event.get('session_id') or '')
+    record(project, command, result, event.get('session_id') or '', event.get('cwd') or None)
     if result['allowed']:
         return True, ''
     return False, f'BLOCKED (strict execution guard, rule {result["rule"]}): {result["why"]}'

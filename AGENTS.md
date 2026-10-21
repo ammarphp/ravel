@@ -1,13 +1,9 @@
-<!-- Generated from the RAVEL role registry b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67. Do not hand edit. -->
+<!-- Generated from the RAVEL role registry 2889e12595a211cf69a07c491b52f4f523c911f0f19a1b2759ef648c5bde704d. Do not hand edit. -->
 # Ravel — agent instructions
 
-Ravel's immediate development objective is the strongest practical recasting platform across
-LHC analysis families. Scientific-tool integrations, custom routines and fits, physics judgment
-and effective autonomy belong to this phase. Source-backed method development through bounded
-research experiments belongs to this phase. Dedicated new ML-training expansion remains later
-work with its own prerequisites.
-Implemented operations and validation remain limited to their source contracts and executed
-evidence; a proposal establishes neither implementation nor physics validity.
+Ravel orchestrates source-backed physics planning, typed scientific operations,
+review and recorded delivery. Source contracts, recorded assumptions and executed
+evidence define each operation and result.
 
 Research should generate and test ambitious hypotheses. Missing prior evidence
 does not by itself justify rejecting a direction. During ideation, critique should

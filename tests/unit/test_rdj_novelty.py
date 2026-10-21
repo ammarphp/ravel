@@ -7,6 +7,7 @@ import pytest
 from ravel.workflow import broker, rdj_anchor, rdj_custody
 from ravel.workflow import rdj_loop as rdj
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import PROPOSER, Roles, Run, add, node, sha
 
 
@@ -65,7 +66,7 @@ def acquired(tmp_path, *, source_class="standard_reference", descriptor=True, re
     return run, {"kind": "retrieved_document", "binding": binding}, executor
 
 
-def test_unfamiliar_route_elevates_and_requires_practice_even_with_external_evidence(tmp_path):
+def test_unfamiliar_route_elevates_and_requires_practice_even_with_external_evidence(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run", extra_inputs=[("inputs/reference.json", {"value": 2})])
     roles = Roles()
     anchor = {"kind": "external_fact", "binding": {
@@ -82,7 +83,7 @@ def test_unfamiliar_route_elevates_and_requires_practice_even_with_external_evid
 
 
 @pytest.mark.parametrize("source_class", rdj_anchor.policy()["practice_source_classes"])
-def test_verified_reference_category_closes_practice_gap_without_changing_class_or_role_calls(tmp_path, source_class):
+def test_verified_reference_category_closes_practice_gap_without_changing_class_or_role_calls(tmp_path, source_class, inert_dispatch):
     run, spec, executor = acquired(tmp_path, source_class=source_class)
     anchor = row(spec)
     assert rdj_anchor.verify_full(anchor, run.root, context=context(run)) == (
@@ -97,7 +98,7 @@ def test_verified_reference_category_closes_practice_gap_without_changing_class_
     assert len(executor.verify_ledger()) == 1
 
 
-def test_acquired_document_without_independent_classification_stays_exploratory(tmp_path):
+def test_acquired_document_without_independent_classification_stays_exploratory(tmp_path, inert_dispatch):
     run, spec, _ = acquired(tmp_path, descriptor=False)
     anchor = row(spec)
     assert rdj_anchor.verify(anchor, run.root, context=context(run)) == "external"
@@ -176,7 +177,7 @@ def test_generated_reference_descriptor_and_opinion_output_never_grant_authority
     assert rdj_anchor.verify(row(spec), run.root, context=context(run)) == "generated"
 
 
-def test_reference_descriptor_mutation_reopens_practice_gap(tmp_path):
+def test_reference_descriptor_mutation_reopens_practice_gap(tmp_path, inert_dispatch):
     run, spec, _ = acquired(tmp_path)
     case_id = choice_case(run, Roles(), [spec])
     assert rdj.authorize(run.root, case_id)["outcome"] == "authorize"

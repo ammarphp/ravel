@@ -26,7 +26,7 @@ Y * integral_l^h exp(c*x) dx / integral_a^b exp(c*x) dx.
 `Y` is the expected full-domain component count. It is not a density height or
 a second normalization multiplying free mixture fractions. At `c=0`, the
 fraction is `(h-l)/(b-a)`. Missing windows contribute zero and never cause
-renormalization over surviving bins. Multiple regions may have the same window
+renormalization over surviving bins. Multiple regions can have the same window
 only with their own supplied disjoint-selection and transfer justification.
 The domain/window coordinates must use the same declared physical units; slope
 parameter meanings and assumptions must state their inverse units. No unit
@@ -46,9 +46,9 @@ The family object is closed:
 corresponding slope coefficients (`role: coefficient`), in that exact order.
 Each parameter has the existing explicit initial value, bounds, fixed flag,
 meaning and source. One through eight components are supported. Each yield is
-nonnegative; slopes may have either sign. The supplied correction counts every
+nonnegative; slopes can have either sign. The supplied correction counts every
 floating candidate parameter, including slopes, and excludes fixed parameters.
-Mixture components with equal/overlapping slopes may be poorly identified;
+Mixture components with equal/overlapping slopes can be poorly identified;
 neither the census nor successful source construction proves identifiability.
 
 For the original source Gaussian auxiliary law `theta=z+L*eta`, the physical
@@ -58,7 +58,7 @@ SR/CR and yield responses; no additional slope constraint is invented. The
 entire parameter/auxiliary box must satisfy `abs(c_effective*(b-a)) <= 50`.
 This is a declared numerical admission envelope, not a physics range or prior.
 Binary64-distinct endpoints and normalization widths are required. A conservative
-full-box lower probability bound must remain representable; a positive bin may
+full-box lower probability bound must remain representable; a positive bin can
 not silently become absent through underflow.
 
 The native bridge creates a `RooExponential` on `t=(x-a)/(b-a)` with coefficient
@@ -109,11 +109,10 @@ its rate, with no signal contamination, log response or second mean term. All
 original main-bin coefficients, Gaussian auxiliaries and source assumptions
 are retained; zeros are appended for absent auxiliary contributions. The same
 ordinary native counting product includes these observations and saves their
-full means. An unconstructed external card cannot gain this extra region role.
+full means. This extra region role requires the constructed full-mean source contract.
 
 This composition requires an explicitly justified independent MC experiment.
-It cannot establish independence from bytes or labels, detect undisclosed
-duplicate samples, or replace review of those assumptions. Reattaching an MC
+Review independence and duplicate-sample provenance against the declared source population and sampling law. Reattaching an MC
 law, repeating an observation/rate, inconsistent exposure or a contaminated
 auxiliary mean refuses. Zero observed counts are allowed, while the existing
 strict-positive total-mean native domain remains unchanged; zero-mean boundary

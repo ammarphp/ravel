@@ -1,0 +1,1271 @@
+[
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "figure-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "physics-decider"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "synthesize"
+      }
+    ],
+    "id": "analysis.scan",
+    "route": {
+      "id": "analysis.scan"
+    },
+    "steps": [
+      {
+        "id": "env",
+        "kind": "derive",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.census",
+        "kind": "acquire",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.route",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.traps",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [
+          "trap-auditor"
+        ],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.figures",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [
+          "figure-critic"
+        ],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.cost",
+        "kind": "derive",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "recast.smoke",
+        "kind": "operate",
+        "review": [
+          "object-selection-mapper"
+        ],
+        "role": "analysis-author",
+        "rung": "smoke",
+        "waypoint": false
+      },
+      {
+        "id": "visualize.waypoint",
+        "kind": "operate",
+        "review": [
+          "figure-critic"
+        ],
+        "role": "analysis-author",
+        "rung": "smoke",
+        "waypoint": true
+      },
+      {
+        "id": "acquire.data",
+        "kind": "acquire",
+        "review": [],
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "scan.point",
+        "kind": "operate",
+        "review": [],
+        "role": "analysis-author",
+        "rung": "scan",
+        "waypoint": false
+      },
+      {
+        "id": "scan.assemble",
+        "kind": "operate",
+        "review": [],
+        "role": "inference",
+        "rung": "scan",
+        "waypoint": false
+      },
+      {
+        "id": "visualize.final",
+        "kind": "operate",
+        "review": [
+          "figure-critic"
+        ],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "compare.reference",
+        "kind": "compare",
+        "review": [],
+        "role": "discrepancy-attributor",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "verify.mechanical",
+        "kind": "review",
+        "review": [],
+        "role": "integrity-auditor",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "verify.adversary",
+        "kind": "review",
+        "review": [],
+        "role": "physics-critic",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "synthesize",
+        "kind": "synthesize",
+        "review": [],
+        "role": "coordinator",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "figure-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "physics-decider"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "synthesize"
+      }
+    ],
+    "id": "analysis",
+    "route": {
+      "id": "analysis"
+    },
+    "steps": [
+      {
+        "id": "env",
+        "kind": "derive",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.census",
+        "kind": "acquire",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.route",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.traps",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [
+          "trap-auditor"
+        ],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.figures",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [
+          "figure-critic"
+        ],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "inputs.cost",
+        "kind": "derive",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "coordinator",
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "recast.smoke",
+        "kind": "operate",
+        "review": [
+          "object-selection-mapper"
+        ],
+        "role": "analysis-author",
+        "rung": "smoke",
+        "waypoint": false
+      },
+      {
+        "id": "visualize.waypoint",
+        "kind": "operate",
+        "review": [
+          "figure-critic"
+        ],
+        "role": "analysis-author",
+        "rung": "smoke",
+        "waypoint": true
+      },
+      {
+        "id": "acquire.data",
+        "kind": "acquire",
+        "review": [],
+        "rung": "none",
+        "waypoint": false
+      },
+      {
+        "id": "run.full",
+        "kind": "operate",
+        "review": [],
+        "role": "analysis-author",
+        "rung": "full",
+        "waypoint": false
+      },
+      {
+        "id": "visualize.final",
+        "kind": "operate",
+        "review": [
+          "figure-critic"
+        ],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "compare.reference",
+        "kind": "compare",
+        "review": [],
+        "role": "discrepancy-attributor",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "verify.mechanical",
+        "kind": "review",
+        "review": [],
+        "role": "integrity-auditor",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "verify.adversary",
+        "kind": "review",
+        "review": [],
+        "role": "physics-critic",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "synthesize",
+        "kind": "synthesize",
+        "review": [],
+        "role": "coordinator",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "physics-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "synthesizer"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "synthesize"
+      }
+    ],
+    "id": "calculation",
+    "route": {
+      "id": "calculation"
+    },
+    "steps": [
+      {
+        "id": "inspect",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "design",
+        "kind": "subgraph",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "specify",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "prepare-child",
+        "kind": "operate",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "operate",
+        "kind": "operate",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "operation-review",
+        "kind": "subgraph",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [],
+        "rung": null,
+        "waypoint": true
+      },
+      {
+        "id": "synthesize",
+        "kind": "synthesize",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "coordinator",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "physics-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "synthesizer"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "synthesize"
+      }
+    ],
+    "id": "chain",
+    "route": {
+      "id": "chain"
+    },
+    "steps": [
+      {
+        "id": "inspect",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "specify",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "prepare-child",
+        "kind": "operate",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "operate",
+        "kind": "operate",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "operation-review",
+        "kind": "subgraph",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [],
+        "rung": null,
+        "waypoint": true
+      },
+      {
+        "id": "synthesize",
+        "kind": "synthesize",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "coordinator",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "physics-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "synthesizer"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "synthesize"
+      }
+    ],
+    "id": "scoped",
+    "route": {
+      "id": "scoped"
+    },
+    "steps": [
+      {
+        "id": "inspect",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "specify",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "prepare-child",
+        "kind": "operate",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "operate",
+        "kind": "operate",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "operation-review",
+        "kind": "subgraph",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [],
+        "rung": null,
+        "waypoint": true
+      },
+      {
+        "id": "synthesize",
+        "kind": "synthesize",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "coordinator",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "physics-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "synthesizer"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "synthesize"
+      }
+    ],
+    "id": "study",
+    "route": {
+      "id": "study"
+    },
+    "steps": [
+      {
+        "id": "inspect",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "specify",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "prepare-child",
+        "kind": "operate",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "operate",
+        "kind": "operate",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "operation-review",
+        "kind": "subgraph",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [],
+        "rung": null,
+        "waypoint": true
+      },
+      {
+        "id": "synthesize",
+        "kind": "synthesize",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "coordinator",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "physics-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "synthesizer"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "synthesize"
+      }
+    ],
+    "id": "study.site",
+    "route": {
+      "id": "study.site"
+    },
+    "steps": [
+      {
+        "id": "inspect",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "specify",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "prepare-child",
+        "kind": "operate",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "operate",
+        "kind": "operate",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "reconcile",
+        "kind": "author",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [],
+        "role": "analysis-author",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "operation-review",
+        "kind": "subgraph",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [],
+        "rung": null,
+        "waypoint": true
+      },
+      {
+        "id": "synthesize",
+        "kind": "synthesize",
+        "parameters": {
+          "phase": "execute"
+        },
+        "review": [
+          "physics-critic"
+        ],
+        "role": "coordinator",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin2",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "physics-decider"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "physics-critic",
+          "skeptical-verifier",
+          "physics-decider"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "parent-completion"
+      }
+    ],
+    "id": "research",
+    "route": {
+      "id": "research"
+    },
+    "steps": [
+      {
+        "id": "prepare",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "review": [
+          "plan-critic"
+        ],
+        "role": "research-explorer",
+        "rung": "dry",
+        "waypoint": false
+      },
+      {
+        "id": "campaign",
+        "kind": "subgraph",
+        "review": [],
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "children",
+        "kind": "route",
+        "review": [],
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "meta-review",
+        "kind": "review",
+        "review": [],
+        "role": "research-meta-reviewer",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "integrity",
+        "kind": "review",
+        "review": [],
+        "role": "integrity-auditor",
+        "rung": null,
+        "waypoint": false
+      },
+      {
+        "id": "parent-completion",
+        "kind": "synthesize",
+        "review": [],
+        "role": "research-explorer",
+        "rung": null,
+        "waypoint": false
+      }
+    ]
+  },
+  {
+    "checkins": [],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "n01-answer"
+      }
+    ],
+    "id": "inspect",
+    "route": {
+      "id": "inspect"
+    },
+    "steps": [
+      {
+        "id": "n01-answer",
+        "kind": "synthesize",
+        "role": "investigation-worker",
+        "rung": "none"
+      }
+    ]
+  },
+  {
+    "checkins": [],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "l01-inspect"
+      }
+    ],
+    "id": "legacy",
+    "route": {
+      "id": "legacy"
+    },
+    "steps": [
+      {
+        "id": "l01-inspect",
+        "kind": "synthesize",
+        "role": "investigation-worker",
+        "rung": "none"
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "integrity-auditor",
+          "research-meta-reviewer"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "m04-review"
+      }
+    ],
+    "id": "manuscript",
+    "route": {
+      "id": "manuscript"
+    },
+    "steps": [
+      {
+        "id": "m01-author",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "role": "manuscript-writer"
+      },
+      {
+        "id": "m02-sources",
+        "kind": "operate",
+        "review": [
+          "integrity-auditor"
+        ],
+        "role": "analysis-author",
+        "rung": "full"
+      },
+      {
+        "id": "m02-build",
+        "kind": "subgraph",
+        "review": [
+          "integrity-auditor"
+        ],
+        "role": "manuscript-writer"
+      },
+      {
+        "id": "m03-pdf",
+        "kind": "operate",
+        "review": [
+          "integrity-auditor"
+        ],
+        "role": "analysis-author",
+        "rung": "full"
+      },
+      {
+        "id": "m04-review",
+        "kind": "review",
+        "role": "research-meta-reviewer"
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "plan-critic"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "ml-reviewer"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "i04-report"
+      }
+    ],
+    "id": "ml.inference",
+    "route": {
+      "id": "ml.inference"
+    },
+    "steps": [
+      {
+        "id": "i01-spec",
+        "kind": "author",
+        "role": "analysis-author"
+      },
+      {
+        "id": "i02-plan-review",
+        "kind": "review",
+        "role": "plan-critic"
+      },
+      {
+        "id": "i03-apply",
+        "kind": "operate",
+        "review": [
+          "ml-reviewer"
+        ],
+        "role": "analysis-author",
+        "rung": "full"
+      },
+      {
+        "id": "i04-report",
+        "kind": "synthesize",
+        "review": [
+          "skeptical-verifier"
+        ],
+        "role": "analysis-author"
+      }
+    ]
+  },
+  {
+    "checkins": [
+      {
+        "id": "checkin1",
+        "seats": [
+          "ml-reviewer"
+        ]
+      },
+      {
+        "id": "checkin3",
+        "seats": [
+          "ml-reviewer",
+          "skeptical-verifier"
+        ]
+      }
+    ],
+    "deliverables": [
+      {
+        "id": "claim-1",
+        "step": "t09-report"
+      }
+    ],
+    "id": "ml.training",
+    "route": {
+      "id": "ml.training"
+    },
+    "steps": [
+      {
+        "id": "t01-spec",
+        "kind": "author",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "role": "ml-planner"
+      },
+      {
+        "id": "t02-admit",
+        "kind": "operate",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "role": "ml-trainer",
+        "rung": "dry"
+      },
+      {
+        "id": "t03-features",
+        "kind": "operate",
+        "parameters": {
+          "phase": "prepare"
+        },
+        "role": "ml-trainer",
+        "rung": "dry"
+      },
+      {
+        "id": "t04-smoke",
+        "kind": "operate",
+        "role": "ml-trainer",
+        "rung": "smoke",
+        "waypoint": true
+      },
+      {
+        "id": "t05-train",
+        "kind": "operate",
+        "role": "ml-trainer",
+        "rung": "full"
+      },
+      {
+        "id": "t06-evaluate",
+        "kind": "operate",
+        "role": "ml-trainer",
+        "rung": "full"
+      },
+      {
+        "id": "t07-card",
+        "kind": "operate",
+        "role": "ml-trainer",
+        "rung": "none"
+      },
+      {
+        "id": "t08-review",
+        "kind": "operate",
+        "review": [
+          "ml-reviewer"
+        ],
+        "role": "ml-trainer",
+        "rung": "none"
+      },
+      {
+        "id": "t09-report",
+        "kind": "synthesize",
+        "review": [
+          "skeptical-verifier"
+        ],
+        "role": "ml-planner"
+      }
+    ]
+  }
+]

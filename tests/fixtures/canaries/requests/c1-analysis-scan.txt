@@ -1,0 +1,4 @@
+Scan the toy observable N(g) of the fictional toy model over the coupling g from 0.5 to 1.0 in steps of 0.5
+with the supplied analysis script inputs/toy_observable.py. Run a one-point smoke at g = 0.5 first and
+compare it with the expected value N = 25 within its uncertainty. After that check, scan both points
+and deliver a table of N with its uncertainty at both points.

@@ -241,3 +241,20 @@ def test_invalid_timing_census_keeps_ordinary_collection_complete(synthetic_tier
     selected, _, _ = _collection_config(markexpr='slow')
     with pytest.raises(pytest.UsageError, match='timing census'):
         plugin.pytest_configure(selected)
+
+
+def test_timing_pruning_preserves_declared_measurements_and_original_provenance(tmp_path):
+    folder = tmp_path / 'tests'
+    folder.mkdir()
+    for name in ('test_kept.py', 'test_private.py'):
+        (folder / name).write_text('')
+    (tmp_path / 'distribution.json').write_text(json.dumps({'schema_version': 2, 'distribution': {
+        'files': [], 'extra_files': [], 'trees': ['tests'], 'exclude': [],
+        'internal': ['tests/test_private.py']}}))
+    path = folder / 'file_timings.json'
+    record = {'schema_version': 1, 'provenance': {'source_sha256': 'original-source'},
+              'seconds': {'tests/test_kept.py': 17.0, 'tests/test_private.py': 20.0, 'tests/test_removed.py': 30.0}}
+    path.write_text(json.dumps(record))
+    assert runner.prune_timings(tmp_path) == {'retained': 1, 'removed': 2}
+    assert json.loads(path.read_text()) == {**record, 'seconds': {'tests/test_kept.py': 17.0}}
+    assert runner.prune_timings(tmp_path) == {'retained': 1, 'removed': 0}

@@ -155,7 +155,10 @@ def test_actual_campaign_admission_failures_do_not_create_partition_claim(tmp_pa
         if change=='held_lock':
             with state_io.file_lock(owner/'operation.lock',blocking=False):
                 with pytest.raises(ValueError,match='another process owns'):cycle.run_experiment(owner,'branch')
-        elif change=='direct_worker':assert science.run(rd)!=0
+        elif change=='direct_worker':
+            with pytest.raises(ValueError, match='reserve exposure'):
+                science.run(rd)
+            assert not (rd/'execution_attempt.json').exists()
         else:
             with pytest.raises((ValueError,OSError,KeyError,cycle.OperationalBoundaryError)):cycle.run_experiment(owner,'branch')
         assert not (rd/'outputs/attempt-1/root-stream/native/native-result.json').exists()

@@ -447,8 +447,8 @@ def verdict(rundir, action, command=None, *, session_id=None, cwd=None, project=
         try:
             errors += [host_governance._as_dict(e) for e in external.check(rd, gate, action_record)]
         except Exception as exc:
-            errors.append(_error("decision_gate_failed", gate, "decision_gate", str(exc),
-                                 "repair the decision-gate records named in the message"))
+            # A decision that raised is a refusal; a validator missing from the install is named as one.
+            errors.append(_decision_failure(gate, exc))
     errors += _builtin_errors(rd, gate, command, session_id, cwd, project, providers)
     result["providers"] = providers
     result["errors"] = errors
@@ -494,6 +494,8 @@ def main(argv=None):
         project = args.project or host_governance.project_root()
         print(hook_bash(sys.stdin.read(), project))
         return 0
+    # Every explicit gate call notices switched-off or redirected hooks (detection, never a block).
+    host_governance.observe_host(args.project, source="gate", rundir=args.rundir)
     if args.action not in ACTIONS + WRITE_ACTIONS:
         ap.print_usage(sys.stderr)
         print(f"ravel gate: --action must be one of {', '.join(ACTIONS + WRITE_ACTIONS)}", file=sys.stderr)
@@ -528,6 +530,17 @@ def main(argv=None):
         for error in result["errors"]:
             print(f"  - [{error['provider']}] {error['message']}\n    fix: {error['fix']}")
     return exit_code(result)
+
+
+def _decision_failure(gate, exc):
+    """The typed refusal for a decision gate that raised: a validator absent from the install, else the failure."""
+    missing = exc.name if isinstance(exc, ModuleNotFoundError) else None
+    if isinstance(missing, str) and missing.startswith("ravel.validation."):
+        return _error("validator_unavailable", gate, "decision_gate",
+                      f"{missing.rsplit('.', 1)[-1]} validator is unavailable: {exc}",
+                      "restore the installed RAVEL validation package from your own terminal")
+    return _error("decision_gate_failed", gate, "decision_gate", str(exc),
+                  "repair the decision-gate records named in the message")
 
 
 if __name__ == "__main__":

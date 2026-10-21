@@ -7,6 +7,7 @@ from ravel.workflow import science,execution,physics_review as review,launch_aut
 from ravel.workflow.state_io import atomic_json,read_json
 from test_science_output_policy import planned,token
 from test_science_review_envelope import checks
+from bound_review import bound_review
 
 
 @pytest.fixture
@@ -38,8 +39,9 @@ def test_complete_open_read_roles_bound_paths_snapshot_and_reuse(completed,tmp_p
     # Detached classification can validate exactly the same frozen proofs.
     snap={'schema_version':1,'registration':reg,'events':events,'checkpoint':read_json(rd/review.HEAD),'action':'history','stage':None}
     assert review.validate_snapshot(snap,require_admission=False)==[]
-    for role,actor in [('physics_critic','critic'),('skeptical_verifier','skeptic'),('physics_decider','physicist')]:
-        review.submit_review(rd,role=role,actor_id=actor,verdict='accept',summary='Synthetic source custody test; no scientific review',claim_scope='reproduction')
+    # Recorded votes are bound responses of dispatched roles; a declared reviewer name is advice only.
+    for role in ['physics_critic','skeptical_verifier','physics_decider']:
+        bound_review(rd,role=role,verdict='accept',summary='Synthetic source custody test; no scientific review',claim_scope='reproduction')
     assert review.status(rd)['state']=='accepted'
     assert review.gate_errors(rd,'reuse')==[]
     assert science.packet(rd)['lifecycle_verdict']=='PASS'
@@ -62,7 +64,7 @@ def test_incidental_zero_cannot_be_scientific_evidence(completed,location):
     else:
         open_cycle(completed)
         with pytest.raises(ValueError,match='missing or empty'):
-            review.submit_review(rd,role='physics_critic',actor_id='critic',verdict='send_back',summary='Synthetic refusal',findings=[{'id':'F1','summary':'Cited empty log','evidence':[{'path':str(logger),'location':'whole'}],'check_ids':['integrity'],'required_paths':[],'required_stages':['science']}])
+            bound_review(rd,role='physics_critic',verdict='send_back',summary='Synthetic refusal',findings=[{'id':'F1','summary':'Cited empty log','evidence':[{'path':str(logger),'location':'whole'}],'check_ids':['integrity'],'required_paths':[],'required_stages':['science']}])
 
 
 @pytest.mark.parametrize('change',['removed','text_changed','symlink'])

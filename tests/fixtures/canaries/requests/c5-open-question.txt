@@ -1,0 +1,4 @@
+For the fictional toy model, is the dependence of the toy observable on the coupling g quadratic or
+quartic? Use the supplied table of fictional toy measurements, derive the expectation of each
+hypothesis from the toy model, compare them with the table, and state which dependence the table
+supports, with a stated uncertainty and the assumptions it rests on.

@@ -8,7 +8,7 @@ ravel deliver-workspace --rundir RUN --layout LAYOUT.json --into WORKSPACE
 ravel deliver-workspace verify --into WORKSPACE
 ```
 
-The layout is a JSON object. Every key is independent and may be omitted.
+The layout is a JSON object. Every key is independent and can be omitted.
 No requester directory layout ships with the command.
 
 | Key | Meaning |
@@ -23,7 +23,7 @@ No requester directory layout ships with the command.
 Unknown keys, absolute paths, parent traversal, symlinks, destination collisions
 and existing delivery files are refused. Template patterns must match. The
 command writes no replacement of existing delivered files. A workspace with an
-existing delivery index must use a new destination. A report may exist already.
+existing delivery index must use a new destination. A report can exist already.
 
 Ordinary category files come only from the current review's captured artifacts;
 file suffixes identify eligible types, and the recorded recipe kind identifies
@@ -59,5 +59,16 @@ all artifacts and their recorded hashes.
 `literal_scan(paths, table_lengths=...)` reports numeric Python list/tuple literals
 and C/C++ brace initializers matching a delivered table's bin count. Signed values
 are included; computed comprehensions are excluded. Findings include file, line
-and length. This heuristic can flag legitimate constants and cannot prove that
-values are a fallback. It neither executes nor edits authored code.
+and length. Review each flagged literal against its source and intended use, including legitimate constants. It neither executes nor edits authored code.
+
+The delivery label follows the current review scope. A diagnostic scope delivers with the
+`diagnostic` label, and filled-template result bytes are listed as `diagnostic_result`. Any
+other scope requests the `accepted` label: every delivered result and selected-event file must
+be the exact output of a stage with current supervisor custody and a matching approval-bound
+launch, required roles must be credited and the current review must cover those bytes;
+otherwise nothing is written. A delivery with no result or selected-event file must not carry
+the accepted label. The index and report carry the architecture receipt and its plain-language
+notices. `verify` rechecks the receipt's integrity, refuses a diagnostic index listing an
+accepted result and recomputes a non-diagnostic label against the source run's live custody,
+so verifying an accepted delivery needs the source run. An index without an architecture
+receipt, including one written before this change, is refused.

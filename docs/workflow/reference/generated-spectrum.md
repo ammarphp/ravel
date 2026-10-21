@@ -26,7 +26,7 @@ SHA256. Source capsules use the complete regular ZIP_STORED representation descr
 by model-sources, including per-member hashes and modes. The source prefix is
 cmssm/. Header capsules use baseline_kind=supplied-build-headers and preserve the
 complete supplied header distribution plus metadata. Boost/Eigen version tokens
-and core/unsupported roles are checked in the actual archive. Source/runtime trust,
+and the Eigen core and `unsupported` source roles are checked in the actual archive. Source/runtime trust,
 provenance and selected-input coverage must be reviewed; a name is not qualification.
 
 The operation preserves executable source modes and empty files in its private
@@ -57,4 +57,4 @@ model is not a compatible MSSM substitute. Optional FeynRules/SARAH symbolic wor
 requires its own declared provider/runtime/license and scoped qualification.
 
 
-Original declared package/source/tool/runtime inputs and restored source/header bytes/modes are rechecked before and after every native phase. Configure and compile may add derived source-tree files; header membership remains closed. The original LesHouches source input stays immutable. The exact fresh compiled executable is retained within ordinary scientific output, bound before solver and rechecked after it; a changed original or retained target refuses transport completion.
+Original declared package/source/tool/runtime inputs and restored source/header bytes/modes are rechecked before and after every native phase. Configure and compile can add derived source-tree files; header membership remains closed. The original LesHouches source input stays immutable. The exact fresh compiled executable is retained within ordinary scientific output, bound before solver and rechecked after it; a changed original or retained target refuses transport completion.

@@ -8,14 +8,19 @@ correlation model and its provenance:
 
 Kinds:
 
-- ``normsys``: a normalisation factor, from ``relative`` (symmetric) or ``up``/``down``;
+- ``normsys``: a normalisation factor, from ``relative`` (symmetric), ``up``/``down``, or
+  ``relative_by_region`` (one symmetric magnitude per listed region under the source's
+  correlation model, for a published per-region uncertainty breakdown);
 - ``histosys``: a shape variation built from an alternative sample's yields per
   region. ``one-sided-symmetrised`` mirrors the alternative about the nominal;
   ``one-sided`` keeps the nominal as the other side; ``two-sided`` takes explicit
   ``alternative_up`` and ``alternative_down`` yields.
 
 Correlation models: ``correlated`` (one parameter everywhere), ``per-region``,
-``per-sample`` and ``per-sample-and-region`` (separate parameters). The registry
+``per-sample`` and ``per-sample-and-region`` (separate parameters), or ``unknown`` when the source
+does not say how the component is correlated across regions. An unknown correlation is never
+resolved silently: no model is built from it directly; the constructed-likelihood rung brackets it
+(``constructed.bracket_correlations``) between the fully correlated and the per-region extremes. The registry
 must list components that are known to be missing in ``absent`` (possibly an
 empty list). A mirrored variation that goes negative is refused, never clipped.
 """
@@ -29,7 +34,7 @@ import numpy as np
 from .formula import NAME
 
 KINDS = ('normsys', 'histosys')
-CORRELATIONS = ('correlated', 'per-region', 'per-sample', 'per-sample-and-region')
+CORRELATIONS = ('correlated', 'per-region', 'per-sample', 'per-sample-and-region', 'unknown')
 CONSTRUCTIONS = ('one-sided-symmetrised', 'one-sided', 'two-sided')
 
 
@@ -99,7 +104,7 @@ class Registry:
         if kind not in KINDS:
             raise ValueError(f'{name}: kind must be normsys or histosys')
         common = {'name', 'kind', 'applies_to', 'correlation', 'origin', 'citation', 'statement', 'description'}
-        specific = ({'relative', 'up', 'down'} if kind == 'normsys'
+        specific = ({'relative', 'up', 'down', 'relative_by_region'} if kind == 'normsys'
                     else {'construction', 'alternative', 'alternative_up', 'alternative_down', 'sample_metadata', 'alternative_kind'})
         if set(raw) - common - specific:
             raise ValueError(f'{name}: unsupported fields ' + ', '.join(sorted(set(raw) - common - specific)))
@@ -120,7 +125,22 @@ class Registry:
                   'samples': _selection(applies['samples'], f'{name}: samples'),
                   'regions': _selection(applies['regions'], f'{name}: regions')}
         if kind == 'normsys':
-            if 'relative' in raw:
+            if 'relative_by_region' in raw:
+                if 'relative' in raw or 'up' in raw or 'down' in raw:
+                    raise ValueError(f'{name}: give relative_by_region alone, not with relative or up/down')
+                table = raw['relative_by_region']
+                if type(table) is not dict or not table:
+                    raise ValueError(f'{name}: relative_by_region must map regions to relative uncertainties')
+                if source['regions'] == 'all' or set(source['regions']) != set(table):
+                    raise ValueError(f'{name}: applies_to.regions must list exactly the regions of relative_by_region')
+                by_region = {}
+                for region, value in table.items():
+                    r = _positive(value, f'{name}: relative_by_region[{region}]')
+                    if r >= 1:
+                        raise ValueError(f'{name}: a relative uncertainty of 100% or more in {region} needs explicit up/down factors')
+                    by_region[region] = (1 + r, 1 - r)
+                source['by_region'] = by_region
+            elif 'relative' in raw:
                 if 'up' in raw or 'down' in raw:
                     raise ValueError(f'{name}: give relative or up/down, not both')
                 r = _positive(raw['relative'], f'{name}: relative')
@@ -171,6 +191,9 @@ class Registry:
     @staticmethod
     def parameter(source, sample, region):
         c = source['correlation']
+        if c == 'unknown':
+            raise ValueError(f"{source['name']}: its correlation across regions is unknown; bracket it "
+                             "(constructed.bracket_correlations) or declare it")
         return (source['name'] if c == 'correlated' else f'{source["name"]}_{region}' if c == 'per-region'
                 else f'{source["name"]}_{sample}' if c == 'per-sample' else f'{source["name"]}_{sample}_{region}')
 
@@ -200,10 +223,20 @@ class Registry:
                 continue
             key = self.parameter(source, sample, region)
             if source['kind'] == 'normsys':
-                out[key] = (nominal * source['up'], nominal * source['down'])
+                up, down = self.factors(source, region)
+                out[key] = (nominal * up, nominal * down)
             else:
                 out[key] = self._histo(source, region, nominal)
         return out
+
+    @staticmethod
+    def factors(source, region):
+        """The (up, down) normalisation factors of a normsys source in one region."""
+        if source['kind'] != 'normsys':
+            raise ValueError(f'{source["name"]}: normalisation factors exist for normsys sources only')
+        if 'by_region' in source:
+            return source['by_region'][region]
+        return source['up'], source['down']
 
     def modifiers(self, sample, region, nominal):
         nominal = np.asarray(nominal, float)
@@ -213,7 +246,8 @@ class Registry:
                 continue
             key = self.parameter(source, sample, region)
             if source['kind'] == 'normsys':
-                mods.append({'name': key, 'type': 'normsys', 'data': {'hi': source['up'], 'lo': source['down']}})
+                up, down = self.factors(source, region)
+                mods.append({'name': key, 'type': 'normsys', 'data': {'hi': up, 'lo': down}})
             else:
                 up, down = self._histo(source, region, nominal)
                 mods.append({'name': key, 'type': 'histosys',
@@ -238,11 +272,16 @@ class Registry:
             out[source['name']] = rows
         return out
 
+    def unknown_correlations(self):
+        """Names of the sources whose correlation across regions is unknown."""
+        return [s['name'] for s in self.sources if s['correlation'] == 'unknown']
+
     def summary(self):
         return {'sources': [{'name': s['name'], 'kind': s['kind'], 'correlation': s['correlation'],
                              'origin': s['origin'], 'provenance': s['provenance'],
                              'samples': s['samples'], 'regions': s['regions'],
-                             **({'up': s['up'], 'down': s['down']} if s['kind'] == 'normsys'
+                             **(({'by_region': {r: list(v) for r, v in s['by_region'].items()}} if 'by_region' in s
+                                 else {'up': s['up'], 'down': s['down']}) if s['kind'] == 'normsys'
                                 else {'construction': s['construction'], 'alternative_kind': s['alternative_kind'],
                                       'comparability': 'verified-declarations' if 'sample_metadata' in s else 'not-declared',
                                       'sample_metadata': s.get('sample_metadata')})} for s in self.sources],

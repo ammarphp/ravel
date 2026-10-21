@@ -30,7 +30,7 @@ the request asked for. On a driver-written plan the rungs are ordered as follows
 | `full` | One point at full statistics, after the CHECK-IN 2 GO |
 | `scan` | Every point of the declared grid, after the CHECK-IN 2 GO |
 
-The meaning depends on the route. A scoped calculation planned from a specification (`ravel plan`) is approved
+The meaning depends on the route. A scoped calculation declared from a specification (`ravel plan`) is approved
 at `full`, which there means the complete calculation in one attempt, with no detector simulation or scan and no
 CHECK-IN 2. A science-mode plan's approval binds that exact plan rather than a rung. A review's acceptance also names a claim scope: the uses its evidence supports. See
 [check-ins](../workflow/checklists/check-ins.md) and the
@@ -48,10 +48,10 @@ claim stays exploratory and the decision case is not authorized. See
 The three points where a study stops for a decision. CHECK-IN 1 approves the plan, its numbered assumptions and
 its budget before any event generation. CHECK-IN 2 is the early verification: reviewers judge the first evidence
 and the answer is GO or ADJUST. CHECK-IN 3 presents the final results and the whole task, reviewed by a fresh
-panel, before delivery. A plan built from a specification has no CHECK-IN 2: its approval covers the run, and
-its result review offers GO or ADJUST for the next proposal. You decide each check-in, or delegate three
-actions to an agent within declared limits: plan approval, the CHECK-IN 2 GO and acceptance of a
-recommendation. See [check-ins](../workflow/checklists/check-ins.md).
+panel, before delivery. A standalone specification plan uses its own approval and result review.
+A controller-owned child also follows the outer controller's applicable waypoints.
+The operator's authenticated policy names delegated actions and their limits; each action
+requires its current authority. See [check-ins](../workflow/checklists/check-ins.md).
 
 ## Custody
 
@@ -86,7 +86,7 @@ requests evidence or an experiment. See [Recursive Decision Justification](../me
 ## Fidelity
 
 How completely a research-loop cell reproduces the final evaluation. A screening cell runs on a declared subset
-and cannot claim full fidelity; full-fidelity cells are the ones selection and the stop rule count. See
+and must not claim full fidelity; full-fidelity cells are the ones selection and the stop rule count. See
 [the research loop](../methodology/research-loop.md).
 
 ## Generic controls
@@ -128,8 +128,9 @@ the toolchain groups it needs; `ravel doctor` checks those groups. See [scientif
 
 ## Model family
 
-The vendor family of a model, read from the model identifier a route reports. A role card can require a model
-family different from another role's; the ML reviewer differs from the ML trainer. See
+The vendor family of a model, read from the model identifier a route reports. RAVEL records it and never
+requires a reviewer from another family: independent review rests on separate observed sessions with
+artifact-only packets, so one family can serve an author and its reviewers. See
 [agent architecture](../methodology/agent-architecture.md).
 
 ## Model tier
@@ -143,6 +144,12 @@ lists that tier. See [agent architecture](../methodology/agent-architecture.md).
 A typed unit of scientific work with declared inputs, outputs, tools, effects, cost and review checks. A plan is
 a sequence of operations. The README's [family table](../../README.md#what-ravel-covers) counts the operations of
 this release.
+
+## Protected confirmation
+
+The confirmation stage of the research loop. Its data are disjoint from every input used for selection, and are
+read after the selection is committed as a hashed record. Each protected population is consumed once in a ledger
+shared across the study. See [the research loop](../methodology/research-loop.md).
 
 ## Qualification
 
@@ -165,17 +172,18 @@ check-ins.
 
 ## Recursive Decision Justification (RDJ)
 
-RAVEL's gate for consequential steps such as plan approval, launch, CHECK-IN 2 acceptance, delivery and export.
-The proposing agent commits the action; code asks why it should be taken and why each answer should be believed,
-recursively, until every branch ends in an anchor. An edge reviewer, a critic and a verifier review the tree;
-code then authorizes the step, requests evidence or escalates to you, and writes a receipt. Risk classes R0 to
-R3 set the depth, revision rounds and independence. See
+The recursive case engine records a proposed action, supporting claims and the anchors
+that end each evidence branch. Edge review, criticism and verification determine the
+case outcome. Current controller decisions bind consequential actions to exact-subject
+RDJ critic-seat credit and applicable operator authority. That receipt records the
+review actually performed; the recursive engine has its own phase and evidence records.
+Risk classes R0 to R3 determine consequence, review and authority requirements. See
 [Recursive Decision Justification](../methodology/decision-justification.md).
 
 ## Research loop
 
-The staged protocol for open-ended questions and method studies: a limitation census, two independent idea
-streams, then experiments as baseline, screen, full run, withheld confirmation, and ablations and objection
+The staged protocol for open-ended questions and method studies: a reference-method census, two independent idea
+streams, then experiments as baseline, screen, full run, protected confirmation, and ablations and objection
 tests. Each comparison is decided as better, equivalent, worse or unknown by a rule fixed in advance. Critique,
 acceptance, meta-review and an integrity audit complete it. A plain reproduction or reinterpretation skips the
 candidate-search and confirmation stages. See [the research loop](../methodology/research-loop.md).
@@ -219,11 +227,6 @@ sub-agent of the host, or a relay. Reviewer independence is a property of the tr
 receipt for each call; a host's own sub-agent is host-attested at most and serves no voting or blind role. See
 [transports](transports.md).
 
-## Withheld confirmation
-
-The confirmation stage of the research loop. Its data are disjoint from every input used for selection, and are
-read after the selection is committed as a hashed record. Each withheld population is consumed once in a ledger
-shared across the study. See [the research loop](../methodology/research-loop.md).
 
 ## Worker
 

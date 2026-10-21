@@ -10,6 +10,14 @@ computations, asimov_source, cls_level, mc_adequacy, contours) plus
 - ``{"origin": "prescribed", "verbatim": "...", "primary": "discovery"}``: the
   requested significance is primary and CLs is alongside.
 
+``statistic.claim`` is ``local`` by default; ``global`` requests a scan-level
+look-elsewhere diagnostic. The upcrossing trials factor applies to a scan over
+one coordinate, ordered along it; ``independent_tests`` declares the premise
+needed for a Sidak correction. ``statistics_choices`` maps detected situations
+to ``{method, justification}``; each point receives only its detected choices.
+Auditable statistics diagnostics and their qualification/hold labels accompany
+the inference record; each CLs limit carries an uncertainty statement.
+
 Region yields are ``{"values": [...], "sumw2": [...]}`` (lists or file
 references) or a ``binned-values`` file reference that carries both. The
 systematics registry can be inline or ``{"path": ...}``. ``contours`` takes
@@ -27,7 +35,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from . import common, record, search
+from . import common, record, search, situations
 
 MODE = 'search-statistics'
 
@@ -71,6 +79,12 @@ def load(task, base):
     statistic = doc.get('statistic')
     if type(statistic) is not dict or statistic.get('origin') not in ('default', 'prescribed'):
         raise ValueError('statistic origin must be default or prescribed')
+    if set(statistic) - {'origin', 'verbatim', 'primary', 'claim', 'independent_tests'}:
+        raise ValueError('unsupported search statistic fields')
+    if statistic.get('claim', 'local') not in ('local', 'global'):
+        raise ValueError('statistic claim must be local or global')
+    if type(statistic.get('independent_tests', False)) is not bool:
+        raise ValueError('statistic independent_tests must be a boolean')
     if statistic['origin'] == 'prescribed':
         if type(statistic.get('verbatim')) is not str or not statistic['verbatim'].strip():
             raise ValueError('a prescribed statistic must be recorded verbatim')
@@ -89,6 +103,14 @@ def load(task, base):
             for key in ('x_pass', 'y_pass'):
                 closure[key] = ctx.vector(closure[key], 'abcd simulated closure ' + key).tolist()
     body['systematics'] = _systematics(ctx, body.get('systematics'))
+    if 'background_covariance' in body:
+        if statistic.get('primary') == 'discovery':
+            raise ValueError('discovery is not supported with a background covariance')
+        spec = body.get('contours') or {}
+        if 'expected_discovery_significance' in (spec.get('levels') or {}):
+            raise ValueError('discovery contours are not supported with a background covariance')
+        if ctx.goodness_of_fit is not None:
+            raise ValueError('goodness_of_fit is not supported with a background covariance')
     if body.get('reference_contour') is not None:
         ref = body['reference_contour']
         if type(ref) is not dict or set(ref) != {'path', 'sha256'}:
@@ -134,7 +156,37 @@ def load(task, base):
             raise ValueError('a declared contour coordinate is missing') from exc
         if not np.all(np.isfinite(xy)) or not np.all(np.isfinite(axes)):
             raise ValueError('contour coordinates must be finite')
-    search.SearchModel(body)  # full validation before approval
+    model = search.SearchModel(body)  # full validation before approval
+    choices = body.get('statistics_choices', {})
+    if type(choices) is not dict:
+        raise ValueError('statistics_choices must be an object keyed by situation')
+    if any(type(row) is not dict for row in choices.values()):
+        raise ValueError('statistics_choices entries need a method and nonblank justification')
+    if choices:
+        detected = set()
+        # The unconditional points table also computes discovery for pyhf models.
+        model.document['computations']['discovery'] = 'background_covariance' not in body
+        for point in model.points:
+            if model.background_covariance is not None:
+                facts = model.simplified_statistics_facts(point)
+            else:
+                pyhf, engine = search._pyhf()
+                spec = model.workspace(point)
+                likelihood = pyhf.Model(spec, poi_name=search.POI, modifier_settings=engine.MODIFIER_SETTINGS)
+                pars = np.asarray(likelihood.config.suggested_init(), float)
+                pars[likelihood.config.poi_index] = 0.0
+                facts = model.statistics_facts(likelihood, model._data_for(likelihood, pars))
+            assessment = situations.assess(facts)
+            present = {r['situation'] for r in assessment['situations']}
+            detected |= present
+            situations.decide(assessment, {k: v for k, v in choices.items() if k in present})
+        if model.document['computations'].get('discovery') and len(model.points) >= 2:
+            assessment = situations.assess(_scan_facts(statistic, model.points))
+            detected.add('look-elsewhere')
+            situations.decide(assessment, {k: v for k, v in choices.items() if k == 'look-elsewhere'})
+        unknown = set(choices) - detected
+        if unknown:
+            raise ValueError('statistics_choices name situations not detected: ' + ', '.join(sorted(unknown)))
     return ctx, statistic, body
 
 
@@ -205,14 +257,53 @@ def _contours(body, points):
     return out
 
 
+def _coordinates(points):
+    return sorted({k for p in points for k in (p.get('coordinates') or {})})
+
+
+def _scan_facts(statistic, points):
+    scan = {'hypotheses': len(points), 'claim': statistic.get('claim', 'local'),
+            'independent_tests': statistic.get('independent_tests', False)}
+    if _coordinates(points):
+        scan['dimensions'] = len(_coordinates(points))
+    return situations.make_facts(deliverables=['discovery'], scan=scan)
+
+
+def _scan_statistics(statistic, points, choices):
+    from . import lee
+    from scipy.stats import norm
+    names = _coordinates(points)
+    if len(names) == 1:
+        # Upcrossings are counted along the scanned coordinate, not in document order.
+        points = sorted(points, key=lambda p: p['coordinates'][names[0]])
+    values = [p['discovery'].get('observed_q0', p['discovery']['expected_q0']) for p in points]
+
+    def run(situation, method, evidence):
+        if method == 'trials-factor':
+            return {'look_elsewhere': lee.global_significance(values, reference_level=0.5)}
+        if method == 'sidak-correction':
+            return {'look_elsewhere': lee.sidak(min(float(norm.sf(np.sqrt(max(q, 0.0)))) for q in values), len(values))}
+        return {}
+
+    return situations.drive(_scan_facts(statistic, points), run,
+                            choices={k: v for k, v in choices.items() if k == 'look-elsewhere'})
+
+
+def _statistics_result(block, hypothesis):
+    return record.result('statistics', 'diagnostic', hypothesis=hypothesis,
+                         outcome=block['validity']['outcome'], labels=situations.labels(block), record=block)
+
+
 def run(task, base, output):
     ctx, statistic, body = load(task, base)
     execution = deepcopy(body)
     # The table is an unconditional deliverable, independent of which scalar
     # summaries were requested. Limit scans remain opt-in.
-    execution['computations'].update(discovery=True, cls_at_nominal=True)
-    raw = search.run(execution, goodness_of_fit=ctx.goodness_of_fit)
+    covariance = 'background_covariance' in body
+    execution['computations'].update(discovery=not covariance, cls_at_nominal=True)
     Path(output).mkdir(parents=True, exist_ok=True)
+    raw = search.run(execution, goodness_of_fit=ctx.goodness_of_fit,
+                     construction_folder=Path(output) / 'model_construction')
     statement = ('The fit uses simulated pseudo-data.' if raw['data_mode'] == 'mc-pseudo-data'
                  else 'The fit uses supplied observed data; blinded regions report expected quantities only.')
     table = {'schema_version': 1, 'kind': 'search-statistics-points', 'data_mode': raw['data_mode'],
@@ -249,8 +340,9 @@ def run(task, base, output):
                                                  + (f', observed {c["observed"]:.3g}' if c['observed'] is not None else '')))
         if 'cls_limits' in p:
             c = p['cls_limits']
+            calculator = 'toy-based CLs' if (c.get('calculator') or {}).get('applied') == 'toybased' else 'asymptotic CLs'
             text = (f'{1 - c["level"]:.0%} CL CLs upper limit on the signal strength{tag}: '
-                    f'expected median {c["expected"]["values"][2]:.3g}')
+                    f'expected median {c["expected"]["values"][2]:.3g} ({calculator})')
             if c['observed'] is not None:
                 text += f', observed {c["observed"]["value"]:.3g}'
             results.append(record.result('cls-limit', 'companion' if discovery_primary else 'primary',
@@ -273,6 +365,12 @@ def run(task, base, output):
         results.append(record.result('applicability', 'diagnostic', method='ABCD external estimate',
                                      estimates=raw['abcd'],
                                      status='flagged' if any(a['closure']['status'] == 'flagged' for a in raw['abcd']) else 'passed'))
+    if 'model_construction' in raw:
+        construction = raw['model_construction']
+        statuses = sorted({r['status'] for r in construction['records']})
+        results.append(record.result('model-construction', 'diagnostic', builder=construction['builder'],
+                                     parity_statuses=statuses, records=construction['records'],
+                                     summary=f'model built with {construction["builder"]}; builder parity: ' + ', '.join(statuses)))
     if raw['systematics'] is not None:
         results.append(record.result('systematics', 'diagnostic', registry=raw['systematics'],
                                      alternative_sample_comparison=raw.get('alternative_sample_comparison', {}),
@@ -280,15 +378,35 @@ def run(task, base, output):
                                      selfcheck_document='systematics_selfcheck.json'))
         Path(output).mkdir(parents=True, exist_ok=True)
         record.write(Path(output) / 'systematics_selfcheck.json', raw['systematics_selfcheck'])
+    results += [_statistics_result(p['statistics'], p['id']) for p in raw['points'] if 'statistics' in p]
+    discovery_points = [p for p in raw['points'] if 'discovery' in p]
+    if len(discovery_points) >= 2:
+        results.append(_statistics_result(_scan_statistics(
+            statistic, discovery_points, body.get('statistics_choices', {})), None))
+    scan_definition = {k: statistic[k] for k in ('claim', 'independent_tests') if k in statistic}
     if statistic['origin'] == 'prescribed':
         st = record.statistic('prescribed', verbatim=statistic['verbatim'],
-                              definition={'primary': statistic['primary'], 'cls_level': body['cls_level']})
+                              definition={'primary': statistic['primary'], 'cls_level': body['cls_level'],
+                                          **scan_definition})
     else:
         st = record.statistic('default', definition={'primary': 'CLs', 'test_statistic': 'qtilde',
-                                                     'cls_level': body['cls_level']})
+                                                     'cls_level': body['cls_level'], **scan_definition})
     coordinates = sorted({k for p in raw['points'] for k in p['coordinates']})
     limitations = ['CLs and Asimov significances use asymptotic formulae; requested discovery toys are conditional null ensembles.',
                    'Yields, MC moments and systematic sources are as supplied.']
+    if covariance:
+        limitations.append('Background uncertainties enter through the supplied covariance only; signal MC statistics and control regions are not represented.')
+    calibrated = [p['cls_limits']['calculator']['toys'] for p in raw['points']
+                  if p.get('cls_limits', {}).get('calculator', {}).get('applied') == 'toybased']
+    if calibrated:
+        options = sorted({(t['ntoys'], t['seed']) for t in calibrated})
+        configuration = '; '.join(f'{n} toys, seed {seed}' for n, seed in options)
+        limitations[0] = (f'CLs limits use toy-based calibration ({configuration}) at the recorded points; '
+                          'finite-toy crossing MC intervals are recorded; coverage is not validated. '
+                          'CLs values at nominal signal and Asimov significances use asymptotic formulae; '
+                          'requested discovery toys are conditional null ensembles.')
+        if len(calibrated) < sum('cls_limits' in p for p in raw['points']):
+            limitations[0] += ' Other CLs limits use the recorded asymptotic calculator.'
     if raw['abcd']:
         limitations.append('ABCD uses independent supplied sideband estimates with a delta-method lognormal constraint; '
                            'this is not a simultaneous sideband Poisson fit or a coverage validation.')
@@ -299,8 +417,21 @@ def run(task, base, output):
                            + ') use the background prediction; only expected quantities are reported there.')
     if raw['mc_adequacy_flags']:
         limitations.append(f'{len(raw["mc_adequacy_flags"])} MC-statistics adequacy flag(s) are listed in the record.')
+    engine = 'spey-simplified-likelihood' if covariance else 'pyhf-search'
+    if 'model_construction' in raw:
+        from .model_construction import CABINETRY_VERSION
+        engine = 'pyhf-search/' + raw['model_construction']['builder']
+        limitations.append(f'The HistFactory model was built by the {raw["model_construction"]["builder"]} builder '
+                           f'(cabinetry {CABINETRY_VERSION} and the native builder both ran); the parity record states '
+                           'where the two representations agree exactly and where they agree only at the one-sigma '
+                           'template points.')
+    for row in results:
+        if row['quantity'] == 'statistics':
+            for label in row['labels']:
+                if label not in limitations:
+                    limitations.append(label)
     inference = record.build(
-        mode=MODE, engine='pyhf-search', statistic=st,
+        mode=MODE, engine=engine, statistic=st,
         parameters=[{'name': 'mu', 'unit': '', 'label': 'Signal strength'}]
                    + [{'name': c, 'unit': '', 'label': c.replace('_', ' ')} for c in coordinates],
         results=results, inputs=ctx.inputs(), status=status,
@@ -310,6 +441,8 @@ def run(task, base, output):
                      'points': table['points'], 'abcd': raw['abcd'],
                      'asimov_source': body['asimov_source'], 'mc_statistics': body['mc_statistics']},
         limitations=limitations)
-    delivered = common.deliver(output, inference, review=ctx.review, scope='SR/CR/VR search statistics on supplied yields with pyhf')
+    delivered = common.deliver(output, inference, review=ctx.review,
+                              scope=('SR search statistics on supplied yields with a background covariance' if covariance
+                                     else 'SR/CR/VR search statistics on supplied yields with pyhf'))
     delivered.update(points='points.json', points_sha256=table_pin['sha256'], data_statement=statement)
     return delivered

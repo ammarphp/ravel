@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "graph-registration",
+  "graphs": [
+    {
+      "id": "controller.run",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.controller.graph",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": [
+        "run_id"
+      ],
+      "roles": [
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "skeptical-verifier"
+      ],
+      "gates": {
+        "approve_plan": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings"
+          ]
+        },
+        "checkin2_accept": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "spawn_rows",
+            "input_closure"
+          ]
+        },
+        "deviation": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        },
+        "escalation": {
+          "required_providers": []
+        },
+        "final_task": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "raw_launch",
+            "input_closure"
+          ]
+        }
+      },
+      "subgraphs": [
+        {
+          "id": "controller.step",
+          "version": 2
+        },
+        {
+          "id": "judgment.plan",
+          "version": 1
+        }
+      ],
+      "interrupts": [
+        "controller_authority",
+        "reconcile_evidence"
+      ],
+      "structure_sha256": "385426d6024c68505d04174c40b654fd4fcca7a5c0c2b041216b9949d13ce1f6",
+      "owner": "controller"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "contract": {
+    "type": "object",
+    "properties": {
+      "schema_version": {
+        "const": 1
+      },
+      "kind": {
+        "const": "role-dispatch-adapter"
+      },
+      "host": {
+        "enum": [
+          "claude",
+          "codex",
+          "gemini",
+          "opencode",
+          "antigravity"
+        ]
+      },
+      "fresh_context": {
+        "const": true
+      },
+      "attestation": {
+        "const": "host_attested"
+      },
+      "isolation": {
+        "const": "cli-policy"
+      },
+      "blind_capable": {
+        "const": false
+      }
+    },
+    "required": [
+      "schema_version",
+      "kind",
+      "host",
+      "fresh_context",
+      "attestation",
+      "isolation",
+      "blind_capable"
+    ],
+    "additionalProperties": false
+  },
+  "input": {
+    "type": "object",
+    "properties": {
+      "request": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "kind": {
+            "const": "role-dispatch-request"
+          },
+          "rundir": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000000
+          },
+          "node_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000000
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000000
+          },
+          "subject": {
+            "type": "object",
+            "properties": {
+              "scope": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000000
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "scope",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "brief": {
+            "type": "object"
+          },
+          "role_card": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "schema_version",
+          "kind",
+          "rundir",
+          "node_id",
+          "attempt",
+          "role",
+          "subject",
+          "spec_sha256",
+          "brief",
+          "role_card"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "request"
+    ],
+    "additionalProperties": false
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "session_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000000
+      },
+      "request_sha256": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "final": {
+        "type": "object"
+      },
+      "instructions_sha256": {
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "required": [
+      "session_id",
+      "request_sha256",
+      "final",
+      "instructions_sha256"
+    ],
+    "additionalProperties": false
+  }
+}

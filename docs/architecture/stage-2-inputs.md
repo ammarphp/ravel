@@ -34,7 +34,7 @@ Step 2 finds what has been published for the analysis, decides how to run it and
 
 ## Checks
 
-- Every resource the census finds is looked at before anything is declared unavailable.
+- Inspect every resource returned by the census and record the acquisition result.
 - The trap sweep is recorded with the run.
 
 ## Your decision
@@ -43,5 +43,5 @@ CHECK-IN 1: you see the plan, the budget, numbered assumptions and the published
 
 ## When something goes wrong
 
-- An input that seems missing often exists in a HEPData resource, a later paper or public code. RAVEL runs the census before saying something is unavailable.
+- The census searches HEPData resources, later papers and public code for requested inputs.
 - When no analysis routine exists, the route says so and labels the result as sensitivity only.

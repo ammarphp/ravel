@@ -198,6 +198,12 @@ def test_old_mcfm_names_are_gone():
     assert offenders == []
 
 
+def displayed(title):
+    """A census title as the tool-status table shows it: without the organisation word before
+    SimpleAnalysis, Combine or GitLab (the renderer's display rule)."""
+    return re.sub(r'\b[A-Z]+ (?=(?:SimpleAnalysis|Combine|GitLab)\b)', '', title)
+
+
 def test_released_tools_stay_listed_when_their_notes_mention_a_withheld_tool(tmp_path):
     """A tool is withheld by its own name or bindings, never by its notes. Each surface lists exactly the
     tools the tree releases: the source withholds its display-term tools (MadLoop among them), and a
@@ -213,10 +219,12 @@ def test_released_tools_stay_listed_when_their_notes_mention_a_withheld_tool(tmp
     assert kept <= released
     if 'unreleased' in manifest:
         assert 'census-madloop-with-cuttools-ninja-collier-inside-mg5' not in released
-    titles = {row['id']: row['title'] for row in census['tools']}
+    # The table lists every released tool that has an execution route; an excluded tool has none.
+    shown = {row['id'] for row in census['tools'] if row['id'] in released and row['status'] != 'excluded'}
+    titles = {row['id']: displayed(row['title']) for row in census['tools']}
     table = tool_census.render_status(census, manifest)
     listed = {i for i, title in titles.items() if '| ' + tool_census._cell(title) + ' |' in table}
-    assert listed == released
+    assert listed == shown
     d = doctor.Doctor(ROOT, tmp_path / 'prefix', 'macos-arm64', manifest, catalog,
                       environ={}, which=lambda _: None, glob_paths=lambda _: [],
                       run_probe=lambda *a, **k: (127, 'synthetic missing tool'))
@@ -277,16 +285,16 @@ def test_census_report_and_table_work_on_a_tree_that_declares_only_released_grou
     for row in report.values():
         assert row['checks'] and not [c for c in row['checks'] if c['binding'].get('group') in held], row['id']
     table = tool_census.render_status(census, public)
-    titles = {row['id']: row['title'] for row in census['tools']}
+    titles = {row['id']: tool_census._cell(displayed(row['title'])) for row in census['tools']}
+    excluded = {row['id'] for row in census['tools'] if row['status'] == 'excluded'}
     assert not any('| ' + titles[i] + ' |' in table for i in only_held)
-    assert all('| ' + titles[i] + ' |' in table for i in mixed)
+    assert all('| ' + titles[i] + ' |' in table for i in mixed - excluded) and mixed - excluded
     assert not any(re.search(r'(?<![\w-])' + re.escape(gid) + r'/', table) for gid in held)
-    # The coverage table does not list an analysis engine whose tool is withheld.
-    coverage = table.split('## Analysis coverage', 1)[1]
+    # The table carries tool checks only; no analysis engine, and so no engine whose tool is withheld, is named.
     engines = {row['id']: row['tool_id'] for row in census['backends']}
     assert {e for e, tool in engines.items() if tool in only_held}
-    for engine, tool in engines.items():
-        assert (('| ' + engine + ' |') in coverage) == (tool not in only_held), engine
+    assert '## Analysis coverage' not in table
+    assert not any('| ' + engine + ' |' in table for engine in engines)
 
 
 @pytest.mark.parametrize('platform_key', mf.PLATFORMS)

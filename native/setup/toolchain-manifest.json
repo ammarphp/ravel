@@ -60,15 +60,16 @@
  "pdf_sets": "native/setup/pdf-sets.json",
  "profiles": {
   "site": {
-   "description": "Linux analysis facility: Python host, isolated workflow manager, facility access and PDF/graph tools; pyhf statistics.",
-   "disk_gb": 10,
+   "description": "Linux analysis facility: Python host, isolated workflow manager, facility access, PDF/graph tools and machine-learning libraries; pyhf statistics.",
+   "disk_gb": 12,
    "groups": [
     "python-host",
     "research-host",
     "site-root-wms",
     "site-access",
     "container-runtime",
-    "publication"
+    "publication",
+    "ml"
    ]
   }
  },

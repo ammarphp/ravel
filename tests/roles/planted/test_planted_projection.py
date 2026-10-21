@@ -61,7 +61,12 @@ def test_spec_denied_plan_critic_sees_plan_and_contract_only_without_reasoning(r
     rp = projection()
     manifest, contents = rp.load(rp.project(run, 'plan-critic', key='k-plan'))
     assert manifest['profile'] == 'spec-denied'
-    assert _sources(manifest) == {'inputs/request_plan.json', 'inputs/task_contract.json'}
+    from ravel.workflow.capability_catalogue import for_seat, shards, assemble
+    context = for_seat('plan-critic')
+    capability_sources = {f"ravel:capability-catalogue/{context['catalogue_sha256']}/{part['part']}"
+                          for part in shards(context)}
+    assert _sources(manifest) == {'inputs/request_plan.json', 'inputs/task_contract.json'} | capability_sources
+    assert assemble([json.loads(contents[name]) for name in sorted(capability_sources)]) == context
     assert 'rationale' not in json.loads(contents['inputs/request_plan.json'])
 
 

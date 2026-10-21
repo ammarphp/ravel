@@ -1,0 +1,4 @@
+Run the fictional toy study over the supplied point list as an unattended batch study: compute the
+toy observable N(g) for each of the four supplied points with batch jobs, have the result
+independently reviewed, check the table against the supplied conformance rules, and deliver the
+table with its uncertainties.

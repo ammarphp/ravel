@@ -10,6 +10,24 @@ headers, short numbered lists, nothing important buried mid-paragraph.
 Four standardized check-ins plus one immediate class. The physicist session entrypoint
 (`docs/workflow/start.md`, at the workflow root) promises exactly this sequence.
 
+Before approving unattended execution, name the required aggregate memory,
+process-count, retained-storage and receipt-headroom guarantees and the adapter
+that enforces each one. Generic local launches carry `RESOURCE PROTECTION
+INCOMPLETE`: confinement, CPU affinity, cooperative thread settings and per-process
+address-space bounds leave those guarantees unmet. A requested limit that the selected
+adapter leaves unenforced holds before execution; omitting a limit preserves this visible partial-protection
+label. A finite operator `--budget retained_disk_bytes=N` also refuses generic
+local launches. Choose an adapter qualified for the required scope; a container's
+memory/task boundary or a scheduler scratch request is not a run-storage quota.
+
+Source acquisition transfers a bounded member index and unchanged digest-bound
+files through ordinary adoption, without embedding payload bytes in JSON. Its
+storage admission counts existing attempts, acquisition, adoption and input copies,
+plus a receipt margin and the configured free-space floor. This is conservative
+admission accounting; it reserves no filesystem space. Later copies check their
+own space before writing. Do not report a byte ceiling as a hard quota or reserved
+receipt headroom.
+
 When sealed work orders exist, run `ravel work pin-obligations --rundir RUN`
 before CHECK-IN 1 approval. Review the derived card self-checks and review points
 in `inputs/work-obligations.json`; its SHA-256 is pinned in the check-in and its
@@ -35,6 +53,56 @@ narrated as **question → options considered → choice → reason**, in physic
 term names never appear bare — each gets a one-clause gloss on first use ("Pythia8, the parton-shower
 simulator"; "pyhf, the statistical-fit tool"). If a sentence only makes sense to someone who has
 read this repository, rewrite it.
+
+## On the controller: typed check-ins
+
+When RAVEL's controller runs the request, no worker writes a check-in. The controller renders each one from run
+state as a typed artifact (`checkin.v1`), checks it, and only then asks for authority: the physicist's answer at the
+controller's own terminal, or the operator's configured machine authority in autonomous mode, labelled as such and
+never as human. The analysis route supplies its sections from the evidence its governed steps adopted; the templates
+live in `src/ravel/data/checkin/analysis.json`.
+
+| Check-in | Route sections | Rendered from | Pins |
+|---|---|---|---|
+| CHECK-IN 1 (`approve_plan`) | preamble (i); resource census (i-b); published-figure gallery (ii) and figure target with the waypoint (iii), or source-independent `withheld_waypoints` when the reference is blinded; method and cost (iv); the scan grid for a scan | the prepare-phase outputs: environment, resource census, route analysis, trap sweep, figure target, gallery, waypoint and cost | the plan digest, each evidence digest and the grid digest |
+| CHECK-IN 2 (`go`) | preamble, waypoint, expectation, evidence manifest | the executed waypoint step's adopted evidence | the CHECK-IN 1 record and each waypoint digest |
+| FINAL CHECK-IN (`final`) | preamble, results, verification, recipe ledger, qualifications; the scan population for a scan | the accepted result, verification and results-deck artifacts | the CHECK-IN 1 record and each result digest |
+
+Each plan line names the step, its operation and rung, and the exact native command when the route analysis bound
+one before CHECK-IN 1, so an approval never covers a command the approver was not shown.
+
+The engagement section compares central sessions, calls and cost with full, including
+the saving or a typed missing projection; see [engagement](../../reference/engagement.md).
+
+The authority service adds the plan, the numbered flags (v) and the response footer (vi). The flags come from the
+evidence: each result-sensitive assumption of the route analysis with its reason and alternatives, each trap
+hit, each open ambiguity of the request and an uncertified detector route.
+
+Before a check-in is shown, the controller checks it with the rules of this checklist and the CHECK-IN validator:
+every core and variant section present with content, never a placeholder; the variant the pinned request
+selects, `reference_withheld` exactly when the comparison reference is restricted; flags numbered
+`F<n>`; the waypoint proposed in (iii); every result-sensitive assumption flagged; and at the final check-in
+the current recipe ledger with every unknown row unchanged. A check-in that fails is never shown: the run
+holds and ends with a qualified delivery that states why. The plan critic reviews the plan and its evidence before
+the authority question, and its review credit is part of the evidence.
+The plan critic receives all six route must-check items from the typed template. Each needs an explicit
+passing `item_verdicts` row with evidence; review credit requires a passing outcome for every item.
+
+Approval binds the exact plan digest. Approved deviations must name the preceding
+plan and the CHECK-IN 1 they amend; a later refusal or a decision authorizing no effect keeps the edge shut.
+The authority service rechecks exact effect pins, revocation and bounds at launch.
+
+When a controller approval's computed risk rises above R2, CHECK-IN 1 also needs a separate governed RDJ critic
+review of the approval's exact action digest. Credit comes only from its observed fresh blind seat session and an
+accepting verdict. The plan review and the cases of its consequential steps remain required. R3 also waits for
+current authenticated operator authority on the same view pins; neither machine approval nor review credit
+supplies it. Polling reuses the bounded action case. A changed action needs its own case. A class rise renews
+authority even if the view pins stay the same; the request and sealed authority evidence bind the computed class.
+An irreversible action retains its additional recorded human approval requirement.
+
+Deviations and escalations are rendered the same way: what changed and what it touches, or the decision asked for
+with its options. `ravel approve`, `ravel go`, `ravel respond` and `ravel steer` remain the commands of runs the
+controller does not own; their records read NOT GOVERNED.
 
 ## CHECK-IN 1 — "PLAN"  (after step 2 · before ANY heavy compute)
 
@@ -100,7 +168,7 @@ field of `inputs/checkin1.json`.
 | variant | task_mode | added sections (keys in `sections`) |
 |---|---|---|
 | `reproduction` | reproduce, reinterpret, projection, scan, no_routine | (i-b) resource census, (ii) published-figure gallery, (iii) figure target and waypoint |
-| `reference_withheld` | every task admitting reproduction, including research and unsupported | (i-b) allowed resource census, `withheld_waypoints`; replaces (ii) and (iii) |
+| `reference_withheld` | every task admitting reproduction, including `research` and `unsupported` | (i-b) allowed resource census, `withheld_waypoints`; replaces (ii) and (iii) |
 | `calculation` | calculation, likelihood | `formula`, `conventions`, `inputs`, `precision`, `check_value` |
 | `method_study` | method-study intake | `dataset`, `splits`, `baselines`, `calibration` |
 | `survey` | survey, summary_plot | `census_table` (one row per source, naming it), `coverage_gaps` (a list; `[]` when none) |
@@ -108,7 +176,7 @@ field of `inputs/checkin1.json`.
 | `generate` | generate | `recipe`, `observable` |
 | `new_search` | anomaly_search, no_routine | `blinding`, `regions`, `validation` |
 
-Research tasks may use any variant. Each required section carries real content; empty
+Choose the variant matching the research task. Each required section carries real content; empty
 values and stand-ins such as `N/A` or `TBD` count as missing.
 Write the core sections as described below and add the variant's sections in the same
 plain style: what was chosen, why, and what the physicist should check.
@@ -136,7 +204,7 @@ signal, control and validation regions, and `validation` says how the background
 checked before unblinding.
 
 **Held CHECK-IN 1.** When a scientific study's supplied file or native prerequisite is
-not yet available, `ravel plan` writes a held CHECK-IN 1 in the run directory:
+pending, `ravel plan` writes a held CHECK-IN 1 in the run directory:
 `<run>/CHECKIN1.md` and `inputs/science-held.json` list each unmet item as a numbered flag,
 marked `input` (a file not found at its path) or `prerequisite` (an engine, package or
 runtime to provision). Show it to the physicist. Once the items are available, run the
@@ -153,7 +221,7 @@ child runs whose basis needs an acceptance certificate, R5 closure or a publishe
 plain-language account for the reviewer of what is not certified and why, `certifiable_route`, the
 route that would certify it, and a numbered flag naming the claim and its fidelity.
 
-**Delegated approval.** Under a delegation declaration, a machine may approve a pinned plan only
+**Delegated approval.** Under a delegation declaration, a machine approves a pinned plan only
 when no physics-critical ambiguity row waits for user text, no physics-critical fact is inferred,
 every claim keeps a prescribed statistic, every boundary or alternative claim was chosen in user
 text, and no waypoint is `none`. A physics-critical adapter default is adopted only with an entry in
@@ -164,6 +232,10 @@ refuses any changed path outside the delegation's `bounds.allowed_changed_paths`
 allowed changes in `input_changes` and `DEVIATIONS.md`, as the human command does. Every
 delegated approval appends to `logs/delegated-approvals.jsonl`. When that log or the run
 state records an earlier approval and the approval file is missing, delegated approval is refused.
+
+Read `inputs/operating-mode.json` when intake froze a configured mode; an absent file is acceptable only when custody records an implicit physicist-in-the-loop default or the run predates this feature; an interrupted transaction must resume and a deleted recorded file refuses. An autonomous operating mode or explicit request delegation is bound to the existing CHECK-IN 1 through an immutable authority sidecar; do not edit the original task contract to add authority. Request-plan-only runs need no invented native execution plan. Every approval receipt retains the selected operating mode and source. Relative and absolute spellings of the same run resolve to the same approval scope. Existing human approvals remain available when authority has not been delegated.
+
+Default autonomous bounds are the enumerated compute plans and stages in `operating_mode.DEFAULT_BOUNDS`, 3600 reserved wall seconds, 100000 reserved events and zero redos. `--bounds` / `RAVEL_AUTONOMY_BOUNDS` supplies an exact object with `compute_plans`, `allowed_stages`, `max_seconds`, `max_events`, `max_redos`. These are ceilings, not requested compute. The actual approved plan must remain within them. Every supervised authorization consumes its reserved resources, including a failed start. Re-approval does not reset the journal. Corrective edits require their separately approved intervention policy; mode selection supplies no mutable-input permission.
 
 The reproduction variant uses the sections below in this order, each under its own header:
 
@@ -197,7 +269,7 @@ not from HEPData table names.
   one, so we both know the pipeline is not catastrophically wrong before the expensive part." There
   is no formula for the choice — it is judged by what is (a) reachable early and (b) diagnostic.
 
-### Reference-withheld predictions
+### Reference-blinded predictions
 
 Declare `variant: "reference_withheld"` when a `blinded`, `blinded-data` or
 `no-value-extraction` rule matches the comparison target. The validator applies
@@ -223,7 +295,7 @@ published comparison value, not physics certification:
 | `mc-precision` | Non-empty finite nonnegative `relative_errors`, one per bin, and positive `target`; each relative statistical error is at most the declared target. |
 | `invisible-census` | Distinct integer `detector_particles` and `spectrum_particles` lists; the two sets must agree. |
 
-Any waypoint that declares a `source` is checked the same way. A withheld record
+Any waypoint that declares a `source` is checked the same way. A blinded record
 refuses a published-figure gallery, figure target or comparison with published
 values, including nested fields. A `gallery` that lists only run-relative files
 under `outputs/` and a `comparison` between the run's own numbers that names no
@@ -244,13 +316,13 @@ Its `figure_manifest.json` says `usage: "qualitative"`, lists page figures and
 pins the source document. A `no-value-extraction` rule permits this qualitative
 view and document text; `digitize` follows the gallery provenance and refuses
 numeric extraction from its pages. A `forbidden-source` rule naming the document
-refuses even qualitative inspection. Do not include this gallery in a withheld
+refuses even qualitative inspection. Do not include this gallery in a blinded
 CHECK-IN record.
 
 ### (iv) PLAN
 The concrete plan, skimmable: samples to generate (process, parameters, event counts), observables /
 signal regions, the intended statistical treatment (published likelihood vs counting), and the
-compute budget — what runs, roughly how long, and what is deferred until after CHECK-IN 2;
+compute budget — what runs, roughly how long, and what requires CHECK-IN 2 approval;
 the numbers come from `src/ravel/workflow/cost_preflight.py`, never from prose recall.
 Keep wall hours, CPU hours, peak RAM, disk footprint, events, model calls, model
 tokens and queue hours in separate dimensions. A null value is displayed as
@@ -261,7 +333,7 @@ Cost records carry the selected method rung as `cost_class`, `status`
 (`calibrated`, `historical`, `uncalibrated` or `unknown`), `resource_vector`, the
 process/configuration/machine `profile` and `uncertainty`. Pilot intervals are
 conservative scaling bounds with an explicit margin, not confidence intervals.
-Historical references stay historical and cannot calibrate a new profile.
+Calibrate each new profile with its own measurements; retain historical references as dated evidence.
 
 Use `cost_preflight.forecast_for(method_decision, study)` to obtain the selected
 rung's record and cheaper alternatives with supplied data. The study supplies
@@ -290,7 +362,7 @@ usage remain unknown.
 ### (v) NUMBERED FLAGGED ASSUMPTIONS + DECISIONS
 Every assumption and judgment call, numbered `F1, F2, …`, each with WHY it was made and the
 alternatives considered (one line each). Nothing buried: if it could change the result and the
-physicist might disagree, it is a numbered flag, not a footnote.
+physicist can reasonably dispute, record it as a numbered flag.
 
 ### (vi) "HOW TO RESPOND" footer
 Name the THREE response modes as equals — never present flag-answering as the only channel:
@@ -298,6 +370,12 @@ Name the THREE response modes as equals — never present flag-answering as the 
 2. **Ask clarifying questions** — anything unclear is a defect of this check-in, not of the reader;
 3. **Propose alterations beyond the flags** — a different figure, model point, or scope; the plan is
    a proposal, not a fait accompli.
+
+In a controller run a reply is not authority by itself. An approval typed at the controller's terminal
+is recorded as unattested (`terminal_operator_unattested`) and the check-in stays pending until the
+operator answers its request: `ravel operator answer --run <run-id> --request <id> --code <code>
+--decision <decision>`, with the code printed alongside the request. Say so in the footer and name
+the request. No check-in records a physicist's or a human's identity from terminal input.
 
 ## CHECK-IN 2 — "EARLY VERIFICATION"  (at the waypoint · before the bulk of compute)
 
@@ -325,9 +403,8 @@ Then `workflow_state.py go --rundir <rd> --quote '<the physicist reply>'` writes
 `inputs/checkin2_go.json`. It binds the check-in, current first approval, manifest, both artifacts,
 comparison, inputs, and the complete accepted scientific review. Changing any of them invalidates GO.
 Before CHECK-IN 1, declare the review policy and correction budget. At CHECK-IN 2, complete the
-[scientific review cycle](../reference/physics-review.md). A failed scientific comparison may
-support diagnostic delivery when that scope was declared; it cannot authorize bulk reproduction.
-ADJUST is never GO. Old GO versions remain historical evidence and cannot authorize new compute.
+[scientific review cycle](../reference/physics-review.md). A failed scientific comparison supports diagnostic delivery when that scope was declared. Bulk reproduction requires its own successful waypoint and approval.
+ADJUST is never GO. New compute requires the GO for its current version; retain older versions as historical evidence.
 
 | Execution path | Before launch | Retrospective evidence |
 |---|---|---|
@@ -340,13 +417,13 @@ ADJUST is never GO. Old GO versions remain historical evidence and cannot author
 
 The lifecycle validator requires both a current evidence-bound GO and matching launch-time
 receipts for recorded native full/scan generation. Scan aggregates check every reported point's
-manifested run directory and generation receipts. A later GO cannot authorize an earlier launch.
+manifested run directory and generation receipts. Each launch requires its preceding GO.
 Operational approvals carry real UTC timestamps; tests can inject `WORKFLOW_STATE_UTC`. Launch
 events under `logs/authorization/` use exclusive creation, consecutive sequence numbers and a
 hash chain. These local records establish ordering for the checked interface; they do not
 authenticate the respondent or provide an external tamper-proof audit. Runs predating 2026-10-07
 with neither a version-2 GO nor launch records remain explicitly `waived-legacy`, never historically
-verified. Adding a version-2 GO cannot waive missing launch history, even under an older run name.
+verified. Retain complete launch history when adding a version-2 GO, including under an older run name.
 
 CHECK-IN 1 binds the saved executable plan and the files its operations declare
 as inputs, including native TOML, generator cards, detector Tcl dependencies,
@@ -357,7 +434,7 @@ operation reads rather than file extensions. A read beneath a stage output is a
 produced intermediate only when its producer runs first: a declared (transitive)
 dependency of the reading stage, or an earlier stage when the plan declares no
 dependencies. Otherwise the read is bound like any other input. Produced event
-files and stage logs are checked through execution receipts. Preparation may materialize the exact
+files and stage logs are checked through execution receipts. Preparation can materialize the exact
 approved rendered bytes; an edit to those bytes requires a new approval.
 
 Approval stores per-path byte commitments. A later changed, added or removed
@@ -370,11 +447,11 @@ The approval command retains the changed paths and amendment quote. Re-approval
 also invalidates the previous CHECK-IN 2 GO. Old plan approvals without these
 operation byte commitments must be re-recorded before new execution.
 
-After an amendment changes the planned rendering, the old materialized card may
+After an amendment changes the declared rendering, the old materialized card can
 remain until preparation reruns only when a successful execution receipt binds
 those bytes to the prior approval. Re-approval retains that approval's digest in
 the change history. The current producing stage's receipt controls this allowance;
-history alone does not authorize old bytes. Preparation may archive its card
+history alone does not authorize old bytes. Preparation can archive its card
 before writing the new rendering while its running receipt binds the new approval.
 After preparation, a hand edit, deletion or revert to earlier card bytes refuses
 launch and requires amendment re-approval.
@@ -404,7 +481,7 @@ them needs a `DEVIATIONS.md` row that NAMES the changed file. `validate_run_stat
 to one of those files, a `DEVIATIONS.md` that does not name it is a FAIL (D15/G17).
 A `PostToolUse` hook (`.claude/hooks/deviations-guard.sh`) enforces the SAME rule at the moment of the
 edit — it BLOCKS the turn (exit 2) when you edit a baselined `inputs/` file whose `DEVIATIONS.md` does
-not name it, so you cannot silently continue. If a turn is blocked, add the `DEVIATIONS.md` row first,
+not name it, so record the change before continuing. If a turn is blocked, add the `DEVIATIONS.md` row first,
 then re-do the edit. To check by hand: after editing any baselined input, run
 `python3 scripts/run.py ravel.validation.validate_run_state --edit-guard <path>` — a nonzero exit means
 add the `DEVIATIONS.md` row naming that file before proceeding.
@@ -421,7 +498,7 @@ not here. Sections in order:
    `result.json` / `scan.json` / `exclusion.json` field it comes from), per the number-integrity
    rule (`docs/workflow/checklists/verification-panel.md`).
 4. **Validation verdict** — the certification/anchor outcome: one line + a pointer.
-5. **Limitations** — the honest bounds, from `limitations[]`, in plain language.
+5. **Qualifications** — the honest bounds, from `limitations[]`, in plain language.
 6. **Deviations summary** — count + one line each, pointing at `DEVIATIONS.md`.
 7. **Verification-panel verdict** — appended VERBATIM (verdict + itemized findings with dispositions
    + the `verify_pack.py` report), per `docs/workflow/steps/09-verify.md`. Never silently fixed.
@@ -439,7 +516,7 @@ per entry of `inputs/delegated_defaults.json` with its `id`, `node`, `pointer` a
   check-ins are immediate notices (the run continues); the results deck is blocked only by a FAIL
   panel verdict (`docs/workflow/steps/09-verify.md`).
 - Step-boundary self-check (the fallback gate): each check-in sits at a step boundary. When the
-  PostToolUse hook that normally enforces a precondition is unavailable, the agent may self-verify
+  PostToolUse hook that normally enforces a precondition is missing, the agent must self-verify
   one before composing the check-in with `src/ravel/workflow/workflow_state.py require
   --rundir <dir> --kind skill --what <skill>` (also `--kind stage --what <stage>`, `--kind artifact
   --what <relpath>`, `--kind command --what <cmd>`) — exit 0 iff satisfied, exit 1 iff not. This is
@@ -447,7 +524,7 @@ per entry of `inputs/delegated_defaults.json` with its `id`, `node`, `pointer` a
   never a substitute for the hook.
 - Observer fallback (the L1 twin): `run_state.json` is normally kept current by the PostToolUse
   observer (`.claude/hooks/posttooluse-observer.sh`), which records every `Skill` / `Edit|Write|
-  MultiEdit|NotebookEdit` / `Agent|Task` call. When that hook is unavailable, run the SAME command
+  MultiEdit|NotebookEdit` / `Agent|Task` call. When that hook is missing, run the SAME command
   the observer would have — after invoking a skill, spawning a subagent, or editing a baselined
   input, run `python3 scripts/run.py ravel.workflow.workflow_state record --rundir <rundir> --kind
   skill|subagent|edit --payload '<json>'` (e.g. `--kind skill --payload '{"skill":
@@ -464,7 +541,7 @@ per entry of `inputs/delegated_defaults.json` with its `id`, `node`, `pointer` a
   `F<n>`-numbered flags in (v) and the three response modes in (vi); CHECK-IN 2's GO/ADJUST ask; the deck's eight sections including the
   verbatim step-9 verification-panel verdict — and **a missing required section is a FAIL, not a
   warning**. Same public `validate(obj) -> list[str]` contract as `validate_task_contract.py`; run it
-  by hand at each check-in when the emitting composer is unavailable.
+  by hand at each check-in when the emitting composer is missing.
 
 Registered CHECK-IN 1 sections are declared in `src/ravel/data/checkin/sections.json`.
 Each trusted package row has `id`, integer `order`, and either JSON `content` or
@@ -509,7 +586,7 @@ even when two runs share one contract file. A source path inside a run does not
 by itself discover that run: with the current directory and output outside the
 run and no explicit run directory, nothing binds. An unreadable or invalid
 contract is a refusal. No environment setting or tool flag lifts it. Numeric
-retrieval from an opaque cached source whose identity cannot be established under
+retrieval from an opaque cached source whose identity lacks verification under
 an identity restriction is refused before reading source bytes. A record's own
 identities are kept alongside any identity the caller supplies. Identity matching
 treats an arXiv version suffix and a zero-padded record number as the same
@@ -525,7 +602,7 @@ classes and its record identity into the cached files it reads.
 `source_policy.require_read` refuses prohibited sources with a receipt naming each
 rule. Direct refusals retain write-new numbered JSON receipts under
 `logs/source-receipts/` and name their paths in the exception. Brokers retain
-receipts in their existing call ledger, and `inventory` excludes withheld
+receipts in their existing call ledger, and `inventory` excludes blinded
 descriptors while retaining receipts. A CHECK-IN `sources` census uses
 the same refusal. Resolve filesystem aliases against input roots before matching.
 Quantity scopes permit definitions outside the banned quantities, while a matching
@@ -540,7 +617,7 @@ products ("full-simulation efficiencies from the supplied table", "efficiencies 
 simulation"), or when its clause gives the reference as the simulating agent ("which was obtained
 with full simulation", "the collaboration used full simulation"). Preserve its reason and requested fidelity; an explicitly revised request
 is required before using a different response. A held whole-request input has rung
-`none`, and its task contract cannot authorize compute.
+`none`, and compute requires an approved execution plan.
 
 `source_policy.accepted(rundir, declared_outputs=[...], claim_scope=...)` consumes
 current accepted review custody and returns only the exact declared output files.
@@ -601,7 +678,7 @@ How it decomposes:
 Thresholds sit at the approved false-alarm rate (Šidák per node, median standard error per scope).
 Records go under `claims/residual/<claim>/`. `check:attribution_above_noise`
 (`attribution_check.json`) refuses an attribution claim on a term below its threshold, on a term
-without a noise budget, or on an unsupported fingerprint correlation.
+without a noise budget, or on a fingerprint correlation lacking its required evidence.
 
 When the residual exceeds the target tolerance beyond noise, one trigger goes to the RCA ticket
 and board-epoch producers. While those modules are absent it is queued in `rca_triggers.json`.
@@ -614,21 +691,20 @@ to explain, not a cause.
 **Acceptance certification tolerances.** Before composing a CHECK-IN 1 for
 `ravel.validation.certify_acceptance`, write `inputs/certification_tolerances.json`.
 An empty object proposes the existing defaults; override only the named controls.
-A planned run (pinned request plan) whose statistics mode ships a certified limit shows
+A declared run (pinned request plan) whose statistics mode ships a certified limit shows
 the defaults in this section even without a proposal file:
 `driving_tol: 0.15`, `contributing_tol: 0.25`, `mu95_bound: 0.10`,
 `tail_events: 5`, `driving_factor: 1.5`, `interp_max_span: 200.0` GeV.
 Compose with `validate_checkin.checkin_bytes(document, rundir)`; the registered
 provider fills all six values in `sections.certification_tolerances`, and validation
-refuses omitted, changed or invalid content. A composer may instead pass the proposal
+refuses omitted, changed or invalid content. A composer can instead pass the proposal
 as `context={"certification_tolerances": {...}}`. Show these actual bytes before
 recording approval. Retain the proposed file with the run inputs.
 
 Invoke `certify_acceptance --rundir <run>` for governed certification. The producer
 also discovers governance beside its acceptance input and output; explicit and
 discovered run directories must agree. Omitted flags use the approved section,
-including approved overrides. The live approval verifier must pass. An old approval
-without this section cannot authorize a new governed certificate: compose the
+including approved overrides. The live approval verifier must pass. A new governed certificate requires approval of this section: compose the
 section and record the renewed approval first. Legacy CHECK-IN documents keep their prior bytes.
 
 A looser control than approved (a larger tolerance, bound, tail threshold or
@@ -721,7 +797,7 @@ An unchanged receipt leaves the hold in force. Machine reapproval requires
 `bounded_delegated` autonomy and no affected node, descendant, operation or rung
 in `signoff_steps`, under both the current policy and the policy recorded with
 the event. After a plan approval, the recorded policy is the one in force before
-the event, so a policy change cannot authorize its own machine reapproval.
+the event, so machine reapproval requires the preceding policy authority.
 Reapprove with `ravel approve --rundir <run> --quote <text>`. For a scientific
 study this keeps the replaced receipt under `inputs/science-approvals/` and
 makes the new one current; it is refused when no steering hold needs it.
@@ -748,7 +824,7 @@ planning route; acknowledgement does not install a plan or approve a scope
 increase. Include `--expected-epoch <integer>` when answering a saved view; stale
 answers fail. Acknowledging an event after a later instruction was recorded
 requires `--expected-epoch`, so an answer written before that instruction
-cannot pass unnoticed; the newest event needs none. Every launch calls `dispatch_permitted` and retains ordinary
+is recorded; the newest event needs none. Every launch calls `dispatch_permitted` and retains ordinary
 approval and budget checks. Unbound launch identities hold conservatively when
 affected work is blocked. Board posts remain advisory.
 A supervised stage is admitted or refused by the plan node that owns it: the node with
@@ -777,8 +853,8 @@ Dispatch needs a steering journal that custody initialized for the run location.
 `ravel initiate`, `ravel plan`, a research study, a scan plan and a graph scope
 record it when they create their directory; a child run is bound to its parent
 and carries `inputs/steering/parent-binding.json` as a readable mirror. A
-directory without that record is refused, so a renamed or copied run (or child)
-does not launch outside its veto, hold or pause. For a run directory prepared by
+directory requires that record before launch. Veto, hold and pause remain bound
+to each original run identity, including renamed or copied directories. For a run directory prepared by
 hand the operator records it once with `ravel gate-wiring steer init --rundir
 <run>`; agent sessions are denied that command. Steering recorded before the
 run directory holds any run content starts the journal itself.
@@ -798,3 +874,22 @@ accept|reject|rework --rundir <run> --text <exact response>
 scientific-review acceptance and does not authorize a new run. The top-level
 `ravel steer` and `ravel respond` aliases use these same subcommands when the
 alias package is installed.
+
+### Controller final-task justification and standing rows
+
+Before asking for the final disposition, the controller dispatches the exact final-task action
+(the canonical digest of the retained final view pins) through the governed RDJ critic seat.
+Only its observed blind approving session counts. The current consequence classification is
+unchanged; R3 requires a renewed authenticated operator answer on that final action. Renewed authenticated operator authority on this exact final action is required alongside the passing independent review.
+The sink repeats the decision with that same retained action identity.
+
+At delivery, a conditional standing row is recorded as typed `not_applicable` only when
+the controller's entire authenticated journal verifies from genesis through intake and the
+delivery decision, a controller-issued composition record proves that the matching event
+recorder was registered before intake for the whole run, and that history contains zero events
+of that kind. Its evidence names the composition record, journal head digest, verified range,
+delivery-decision record and event kind. A missing or late recorder, changed recorder definition,
+chain gap, tampering or any matching event leaves the row pending. Executed duties retain their
+own evidence; original deliverables require covering steps or authorized boundaries. Events
+without a whole-run recorder retain pending obligations. No missing telemetry becomes an
+absence proof.

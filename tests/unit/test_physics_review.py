@@ -8,6 +8,7 @@ import pytest
 
 from ravel.workflow import execution, physics_review as review, waypoint_evidence as waypoint, workflow_state
 from ravel.workflow.state_io import atomic_json, read_json
+from bound_review import bound_review
 
 
 def policy():
@@ -70,9 +71,9 @@ def opened(run, **kwargs):
 
 
 def accept(root, *, scope="reproduction", closes=()):
-    for role, actor in (("physics_critic", "critic"), ("skeptical_verifier", "skeptic"), ("physics_decider", "physicist")):
-        review.submit_review(root, role=role, actor_id=actor, verdict="accept", summary="Evidence supports the stated scope",
-            claim_scope=scope, closes=list(closes))
+    """Critic, skeptic and decider accept through bound responses; declared names are advice."""
+    from bound_review import bound_accept
+    return bound_accept(root, scope=scope, closes=list(closes))
 
 
 def finding(name="F1", paths=None):
@@ -83,7 +84,9 @@ def finding(name="F1", paths=None):
 
 
 def reject(root, name="F1", paths=None):
-    return review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="send_back",
+    """A bound critic send-back with one located finding; the cycle then awaits a decider correction."""
+    from bound_review import bound_review
+    return bound_review(root, role="physics_critic", verdict="send_back",
         summary="Send back for a controlled correction", findings=[finding(name, paths)])
 
 
@@ -97,14 +100,18 @@ def test_acceptance_requires_both_distinct_reviewers_and_traceable_checks(run):
     root, _ = run
     opened(run)
     assert review.gate_errors(root, "bulk")
-    review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="accept",
+    # A declared reviewer name is retained advice; recorded votes are bound responses of dispatched roles.
+    advice = review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="accept",
         summary="Supported", claim_scope="reproduction")
+    assert advice["kind"] == "review_advice" and advice["independent"] is False
     assert review.gate_errors(root, "bulk")
-    review.submit_review(root, role="skeptical_verifier", actor_id="skeptic", verdict="accept",
+    bound_review(root, role="physics_critic", verdict="accept",
+        summary="Critical examination complete", claim_scope="reproduction")
+    assert review.gate_errors(root, "bulk")
+    bound_review(root, role="skeptical_verifier", verdict="accept",
         summary="Independently checked", claim_scope="reproduction")
     assert review.gate_errors(root, "bulk")
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="accept",
-        summary="Critical examination complete", claim_scope="reproduction")
+    bound_review(root, role="physics_decider", verdict="accept", summary="Supported", claim_scope="reproduction")
     assert review.gate_errors(root, "bulk") == []
     assert review.gate_errors(root, "delivery") == []
     assert review.status(root)["claim_scope"] == "reproduction"
@@ -236,7 +243,7 @@ def test_diagnostic_failure_is_valid_evidence_but_not_reproduction(run):
     check_packet(root, record, agreement="fail")
     opened(run)
     with pytest.raises(ValueError, match="required checks"):
-        review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="accept",
+        bound_review(root, role="physics_critic", verdict="accept",
             summary="Cannot certify reproduction", claim_scope="reproduction")
     accept(root, scope="diagnostic")
     assert review.gate_errors(root, "delivery") == []
@@ -260,10 +267,10 @@ def test_self_review_wrong_actor_and_same_cycle_overwrite_are_refused(run):
             summary="Self approval", claim_scope="reproduction")
     reject(root)
     with pytest.raises(ValueError, match="overwrite"):
-        review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="accept",
+        review.submit_review(root, role="physics_critic", actor_id="critic", verdict="accept",
             summary="Change my mind without a correction", claim_scope="reproduction")
     with pytest.raises(ValueError, match="rejected cycle"):
-        review.submit_review(root, role="skeptical_verifier", actor_id="skeptic", verdict="accept",
+        bound_review(root, role="skeptical_verifier", verdict="accept",
             summary="Override rejection", claim_scope="reproduction")
     assert review.gate_errors(root, "reuse", "detector")
     with pytest.raises(ValueError, match="successor"):
@@ -404,9 +411,8 @@ def test_stop_is_terminal_and_findings_cannot_point_outside_evidence(run):
     atomic_json(root / "inputs/unreviewed.json", {"value": 1})
     bad["evidence"][0]["path"] = "inputs/unreviewed.json"
     with pytest.raises(ValueError, match="not bound"):
-        review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="send_back",
-            summary="Unbound evidence", findings=[bad])
-    review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="stop",
+        bound_review(root, role="physics_critic", verdict="send_back", summary="Unbound evidence", findings=[bad])
+    bound_review(root, role="physics_critic", verdict="stop",
         summary="Missing external reference prevents the requested claim")
     assert review.status(root)["state"] == "stopped"
     with pytest.raises(ValueError): correct(root)
@@ -416,11 +422,9 @@ def test_stop_is_terminal_and_findings_cannot_point_outside_evidence(run):
 def test_review_scopes_must_agree(run):
     root, _ = run
     opened(run)
-    review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="accept",
-        summary="Diagnostic only", claim_scope="diagnostic")
+    bound_review(root, role="physics_critic", verdict="accept", summary="Diagnostic only", claim_scope="diagnostic")
     with pytest.raises(ValueError, match="same claim"):
-        review.submit_review(root, role="skeptical_verifier", actor_id="skeptic", verdict="accept",
-            summary="Overreach", claim_scope="reproduction")
+        bound_review(root, role="skeptical_verifier", verdict="accept", summary="Overreach", claim_scope="reproduction")
 
 
 def test_check_result_cannot_omit_check_or_cite_unbound_attempt(run):
@@ -526,12 +530,17 @@ def test_missing_registration_or_checkpoint_never_becomes_inactive(run):
 def test_critic_rejection_is_sticky_and_cannot_be_voted_away(run):
     root, _ = run
     opened(run)
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="send_back",
+    bound_review(root, role="physics_critic", verdict="send_back",
         summary="A blocking scientific problem", findings=[finding()])
-    for role, actor in (("skeptical_verifier", "skeptic"), ("physics_decider", "physicist")):
-        with pytest.raises(ValueError, match="rejected cycle"):
-            review.submit_review(root, role=role, actor_id=actor, verdict="accept", summary="Vote to overrule",
-                claim_scope="reproduction")
+    with pytest.raises(ValueError, match="rejected cycle"):
+        bound_review(root, role="skeptical_verifier", verdict="accept", summary="Vote to overrule",
+            claim_scope="reproduction")
+    # The decider is dispatched only after both independent decisions; it cannot overrule them either.
+    bound_review(root, role="skeptical_verifier", verdict="send_back", summary="The problem stands",
+        findings=[finding("F2")])
+    with pytest.raises(ValueError, match="rejected cycle"):
+        bound_review(root, role="physics_decider", verdict="accept", summary="Vote to overrule",
+            claim_scope="reproduction")
 
 
 def test_invalid_first_cycle_does_not_consume_registration_or_block_smoke(run):
@@ -588,7 +597,7 @@ def test_multistage_correction_regenerates_only_declared_predecessor_inputs(run,
         stage_receipts=[first["attempt_record"], second["attempt_record"]], check_results="inputs/checks.json")
     f = finding()
     f["required_stages"].append("statistics")
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="send_back", summary="Both stages require redo", findings=[f])
+    bound_review(root, role="physics_critic", verdict="send_back", summary="Both stages require redo", findings=[f])
     (root / "inputs/settings.cfg").write_text("efficiency=0.85\n")
     correction = review.authorize_correction(root, actor_id="physicist", changed_paths=["inputs/settings.cfg"],
         stages=["detector", "statistics"], recheck_checks=["agreement"])
@@ -632,8 +641,7 @@ def test_operational_clock_cannot_move_backwards_live_or_in_detached_history(run
     opened(run)
     monkeypatch.setenv("WORKFLOW_STATE_UTC", "2000-01-01T00:00:00Z")
     with pytest.raises(ValueError, match="clock moved backwards"):
-        review.submit_review(root, role="physics_critic", actor_id="critic", verdict="accept",
-            summary="Invalid time", claim_scope="reproduction")
+        bound_review(root, role="physics_critic", verdict="accept", summary="Invalid time", claim_scope="reproduction")
     monkeypatch.delenv("WORKFLOW_STATE_UTC")
     accept(root)
     saved = review.snapshot(root)
@@ -666,7 +674,7 @@ def test_inherited_fixed_path_can_stay_exact_while_new_finding_requires_other_mu
         check_results="inputs/checks.json", correction_id=first_correction["correction_id"])
     # F1's exact fix now has fresh evidence, but a distinct F2 still blocks acceptance.
     f2 = finding("F2", ["inputs/held-fixed.txt"])
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="send_back",
+    bound_review(root, role="physics_critic", verdict="send_back",
         summary="F1's setting is fixed; investigate the separately declared F2", findings=[f2])
     with pytest.raises(ValueError, match="mandatory finding obligation"):
         review.authorize_correction(root, actor_id="physicist", changed_paths=[],

@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "kind": "controller-command-policy",
+  "description": "Commands checked before dispatch (cli._ordinary_main) when an argument, an option value or the working directory lies in a controller-owned run or its store. Controller entries pass; refused rows are refused; read-only rows pass; every other command is refused by default. Module entry points use the pseudo-commands workflow_state, gate_wiring, active_run, graph_substrate and lifecycle.",
+  "controller_entries": [
+    {
+      "command": "ask",
+      "reason": "the controller's own entry"
+    },
+    {
+      "command": "operator",
+      "reason": "the operator's channel, outside any worker"
+    },
+    {
+      "command": "drive",
+      "flags": [
+        "--request-file",
+        "--resume"
+      ],
+      "reason": "the controller's own entry"
+    },
+    {
+      "command": "status",
+      "flags": [
+        "--run"
+      ],
+      "reason": "read-only status from the store"
+    }
+  ],
+  "refused": [
+    {
+      "command": "approve",
+      "switch": "SW01",
+      "reason": "approval of a controller-owned run comes only from the authority service (the physicist's controller terminal or the operator's configuration)"
+    },
+    {
+      "command": "go",
+      "switch": "SW01",
+      "reason": "the CHECK-IN 2 GO of a controller-owned run is an authority-service record"
+    },
+    {
+      "command": "advance",
+      "switch": "SW01",
+      "reason": "a controller-owned run advances only through its graph"
+    },
+    {
+      "command": "workflow_state",
+      "subcommands": [
+        "approve",
+        "go",
+        "advance",
+        "delegated-approve",
+        "delegated-go",
+        "record-delegation"
+      ],
+      "switch": "SW01",
+      "reason": "approval and lifecycle records of a controller-owned run are written by the controller only"
+    },
+    {
+      "command": "respond",
+      "switch": "SW02",
+      "reason": "responses to a controller-owned run's check-ins come only through the authority service"
+    },
+    {
+      "command": "gate-wiring",
+      "switch": "SW02",
+      "reason": "CHECK-IN responses and steering of a controller-owned run are authority-service records"
+    },
+    {
+      "command": "gate_wiring",
+      "switch": "SW02",
+      "reason": "CHECK-IN responses and steering of a controller-owned run are authority-service records"
+    },
+    {
+      "command": "steer",
+      "switch": "SW03",
+      "reason": "steering of a controller-owned run comes only from the authority service"
+    },
+    {
+      "command": "drive",
+      "subcommands": [
+        "respond"
+      ],
+      "switch": "SW04",
+      "reason": "a controller-owned run's check-in is answered at the controller's own prompt or by the operator"
+    },
+    {
+      "command": "drive",
+      "flags": [
+        "--rundir",
+        "--respond",
+        "--attempt",
+        "--transport"
+      ],
+      "switch": "SW04",
+      "reason": "a controller-owned run is continued with `ravel drive --resume <run id>`, never through the legacy lifecycle"
+    },
+    {
+      "flag": "--clear-stop",
+      "switch": "SW05",
+      "reason": "a controller-owned run's stop is released by the operator (`ravel operator resume`) or the physicist at the controller's terminal"
+    },
+    {
+      "command": "active_run",
+      "subcommands": [
+        "release",
+        "register"
+      ],
+      "switch": "SW11",
+      "reason": "a controller-owned run does not use the host session registry; releasing or rebinding it changes nothing the controller reads"
+    },
+    {
+      "command": "agent-surface",
+      "subcommands": [
+        "install"
+      ],
+      "switch": "SW10",
+      "reason": "the skills, hooks and execution guard around a controller-owned run are not reinstalled from outside the controller; an install there (with or without the guard) would change what governs the run"
+    },
+    {
+      "command": "graph",
+      "subcommands": [
+        "run",
+        "respond",
+        "stop",
+        "serve",
+        "release-stop"
+      ],
+      "switch": "SW13",
+      "reason": "a controller-owned run's graphs are run, answered and drained by the controller and the operator"
+    },
+    {
+      "command": "graph_substrate",
+      "subcommands": [
+        "run",
+        "respond",
+        "stop",
+        "serve",
+        "release-stop"
+      ],
+      "switch": "SW13",
+      "reason": "a controller-owned run's graphs are run, answered and drained by the controller and the operator"
+    },
+    {
+      "command": "lifecycle",
+      "subcommands": [
+        "respond"
+      ],
+      "switch": "SW04",
+      "reason": "a controller-owned run's check-in is answered at the controller's own prompt or by the operator"
+    },
+    {
+      "command": "work",
+      "switch": "SW13",
+      "reason": "work orders, dispatch and adoption of a controller-owned run belong to its step graph"
+    },
+    {
+      "command": "review",
+      "switch": "SW13",
+      "reason": "review seats of a controller-owned run are dispatched and credited by the controller"
+    },
+    {
+      "command": "transport",
+      "subcommands": [
+        "qualify"
+      ],
+      "switch": "SW13",
+      "reason": "transport qualification for controller runs is an operator-run record in the store"
+    },
+    {
+      "command": "initiate",
+      "switch": "SW13",
+      "reason": "a controller-owned run's intake is pinned in its store; it is never re-initialized or resolved in place"
+    },
+    {
+      "command": "plan",
+      "switch": "SW13",
+      "reason": "a controller-owned run's plan is compiled and approved by the controller"
+    },
+    {
+      "command": "run",
+      "switch": "SW13",
+      "reason": "a controller-owned run executes only through its step graph"
+    },
+    {
+      "command": "science-correct",
+      "switch": "SW13",
+      "reason": "corrections of a controller-owned run are steps of its plan"
+    },
+    {
+      "command": "research-orchestrate",
+      "switch": "SW13",
+      "reason": "the research loop of a controller-owned run is a step of its plan"
+    },
+    {
+      "command": "stage",
+      "switch": "SW13",
+      "reason": "stages of a controller-owned run run through the confined launcher of its step graph"
+    },
+    {
+      "command": "task-completion",
+      "switch": "SW13",
+      "reason": "completion of a controller-owned run is recorded by its sink"
+    },
+    {
+      "command": "export-submission",
+      "switch": "SW13",
+      "reason": "deliverables of a controller-owned run are written by its sink"
+    },
+    {
+      "command": "deliver-workspace",
+      "switch": "SW13",
+      "reason": "deliverables of a controller-owned run are written by its sink"
+    },
+    {
+      "command": "result-pack",
+      "switch": "SW13",
+      "reason": "deliverables of a controller-owned run are written by its sink"
+    },
+    {
+      "command": "fill-template",
+      "switch": "SW13",
+      "reason": "deliverables of a controller-owned run are written by its sink"
+    }
+  ],
+  "read_only": [
+    {
+      "command": "status",
+      "unless_flags": [
+        "--write",
+        "--notification-command"
+      ]
+    },
+    {
+      "command": "doctor"
+    },
+    {
+      "command": "knowledge"
+    },
+    {
+      "command": "modes"
+    },
+    {
+      "command": "validate"
+    },
+    {
+      "command": "analyses",
+      "subcommands": [
+        "list",
+        "show",
+        "summary"
+      ]
+    },
+    {
+      "command": "graph",
+      "subcommands": [
+        "status",
+        "events",
+        "list"
+      ]
+    },
+    {
+      "command": "graph_substrate",
+      "subcommands": [
+        "status",
+        "events",
+        "list"
+      ]
+    },
+    {
+      "command": "lifecycle",
+      "subcommands": [
+        "check"
+      ]
+    },
+    {
+      "command": "checkin",
+      "subcommands": [
+        "validate"
+      ]
+    },
+    {
+      "command": "transport",
+      "subcommands": [
+        "list",
+        "show"
+      ]
+    },
+    {
+      "command": "active_run",
+      "subcommands": [
+        "resolve"
+      ]
+    },
+    {
+      "command": "mode",
+      "subcommands": [
+        "show"
+      ]
+    }
+  ],
+  "default": {
+    "switch": "SW13",
+    "reason": "only read-only commands reach a controller-owned run from outside the controller; this command is not on the read-only list"
+  }
+}

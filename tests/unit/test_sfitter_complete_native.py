@@ -1,6 +1,7 @@
 """Proposed software controls: no native fitter, model, training or physics job."""
 
 from method_decision_fixture import admit_method
+from bound_review import bound_review
 import copy
 import hashlib
 import json
@@ -283,8 +284,9 @@ def test_actual_ordinary_quantity_producer_to_fit_bundle_and_stale_receipt_refus
         {'id':name,'status':'pass','evidence':[{'path':str(produced),'location':'$.quantities.values.nominal'}],
          'attempt_ids':[record['attempt_id']]} for name in ('integrity','agreement')]})
     physics_review.open_cycle(rd,effective_settings=['inputs/science.json'],stage_receipts=[record['attempt_record']],check_results='inputs/software-checks.json')
-    for role,actor in [('physics_critic','critic'),('skeptical_verifier','skeptic'),('physics_decider','physicist')]:
-        physics_review.submit_review(rd,role=role,actor_id=actor,verdict='accept',summary='Synthetic exact arithmetic/custody only; no physical theory qualification',claim_scope='reproduction')
+    # Recorded votes are bound responses of dispatched roles; a declared reviewer name is advice only.
+    for role in ['physics_critic','skeptical_verifier','physics_decider']:
+        bound_review(rd,role=role,verdict='accept',summary='Synthetic exact arithmetic/custody only; no physical theory qualification',claim_scope='reproduction')
     assert physics_review.gate_errors(rd,'reuse')==[]
     bundle_source=tmp_path/'bundle-source';bundle_source.mkdir();request,config=workflow_request(bundle_source,root,'top')
     evidence=pin(produced);request['sources']=[evidence]

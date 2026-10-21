@@ -47,6 +47,8 @@ def derive(facts):
     for node in nodes:
         node.setdefault('kind', 'operation'); node.setdefault('fields', [])
     bases = computed_bases(plan, signatures())
+    # Run facts the request plan cannot state (the controller's machine assumptions) reach the K8 row only.
+    plan['machine_assumptions'] = facts.get('machine_assumptions', 0)
     rows = {r['row']: r for r in catalogue()['rows']}
     from .role_registry import registry_document
     registry = registry_document()
@@ -125,8 +127,8 @@ def derive(facts):
     return sorted(points, key=lambda p: (p['row'], p['id']))
 
 
-def pending(rundir):
-    """Consume registered, byte-bound worker receipts; loose verdicts never count."""
+def report(rundir, *, gate=None, action=None):
+    """Staffing observations, including family labels on filled points; loose verdicts never count."""
     from . import rdj_custody
     root = Path(rundir)
     facts = reviews._facts(root)
@@ -154,32 +156,73 @@ def pending(rundir):
         if hashlib.sha256(target.read_bytes()).hexdigest() != final.get('sha256'):
             continue
         rec['_label'] = reviews.worker_label(rec, registration.get('verified_label'))
+        from . import review_independence
+        rec['_independence'] = review_independence.decide(
+            review_independence.worker_query(root, rec, sha,
+                subject_sha256=reviews.review_subject(facts, point)['sha256']))
         rec['findings'] = json.loads(target.read_bytes()).get('findings', [])
         receipts.append(rec)
     missing = reviews._missing(points, receipts,
                                reviews.producer_sessions(every, [*reviews.derive(facts), *points], facts))
+    from . import rdj_approval
+    if rdj_approval.applies(root):
+        conditional = [p for p in points if missing[p['id']] and p['row'] != 'K8'
+                       and p['mode'] in reviews.CONTROLLER_SEAT_MODES
+                       and p['gate'] in ('approve_plan', 'checkin2_accept', 'delivery', 'final_task')
+                       and (gate is None or reviews._weighs(p, gate, action or {}))]
+        controlled, _ = reviews._controller_missing(root, conditional, gate=gate, action=action)
+        missing.update(controlled)
     result = []
     for point in points:
         findings = [f for rec in receipts if rec.get('review_point_id') == point['id'] for f in rec['findings']
                     if reviews.blocking_finding(root, f)]
-        families = {r.get('model', {}).get('family') for r in receipts
+        families = {r['_actor'].get('family') for r in receipts
                     if r.get('review_point_id') == point['id'] and r.get('status') == 'ok'
                     and r.get('run_tree', {}).get('modified') is False
                     and r.get('final_record', {}).get('valid') is True
                     and r.get('session_id') and r.get('_actor')
-                    and reviews.independent(r['_label'])}
-        family_pending = len(families - {None, ''}) < point.get('min_model_families', 0)
-        if missing[point['id']] or findings or family_pending:
-            result.append({**point, 'roles': missing[point['id']], 'blocking_findings': findings,
-                           'family_diversity_pending': family_pending})
+                    and reviews.independent(r['_label'])
+                    and (point['mode'] not in reviews.REVIEWER_MODES
+                         or r.get('_independence', {}).get('independent', False))}
+        # Family is descriptive, including when unknown. Candidate counts, distinct sessions,
+        # custody and blocking findings remain admission requirements.
+        row = {**point, 'roles': missing[point['id']], 'blocking_findings': findings,
+               'pending': bool(missing[point['id']] or findings), 'family_diversity_pending': False}
+        if 'min_model_families' in point:
+            row['family_label'] = family_label(families)
+        from . import rdj_approval
+        if point['row'] == 'K8' and rdj_approval.applies(root):
+            from ravel.controller.graph import delivery_assumption_evidence
+            observed = delivery_assumption_evidence(root)
+            row.update(observed, pending=observed['status'] != 'satisfied' or bool(findings))
+            if not row['pending']:
+                row['roles'] = []
+        result.append(row)
     return result
+
+
+def pending(rundir, *, gate=None, action=None):
+    """The unfilled rows of report(), preserving the legacy pending-row shape."""
+    return [{k: v for k, v in row.items() if k != 'pending'}
+            for row in report(rundir, gate=gate, action=action) if row['pending']]
+
+
+def family_label(families):
+    """The candidate-family label of an evaluated-author point (K4): a statement, never a hold."""
+    if not families or None in families or '' in families or 'unknown' in families:
+        return 'model family unknown'
+    return 'single model family' if len(families) == 1 else 'several model families'
 
 
 def gate_errors(rundir, gate, action):
     from .decision_gate import GateError
+    from . import rdj_approval
+    controlled = rdj_approval.applies(rundir)
     return [GateError('spawn_review_pending', gate, 'spawn_rows', 'Required staffing pending: ' + p['id'],
                       'Dispatch the derived roles and register their independent receipts.', (p['id'],))
-            for p in pending(rundir) if p['gate'] == gate and p['blocking']
+            for p in pending(rundir, gate=gate, action=action)
+            if (reviews._weighs(p, gate, action) if controlled and p['row'] != 'K8' else p['gate'] == gate)
+            and p['blocking']
             and (not action.get('node_id') or action['node_id'] == p.get('node_id'))
             and (not action.get('claim_id') or action['claim_id'] == p.get('claim_id'))]
 

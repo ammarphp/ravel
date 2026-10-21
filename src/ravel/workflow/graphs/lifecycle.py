@@ -20,6 +20,11 @@ scan nodes, then CHECK-IN 3 (the ``checkin3`` triad and its response). A resume 
 is data: each human gate requires the run's own approval record, named by path and
 sha256 in the response and re-verified here. The coordinator worker's output is
 advisory; routing is code.
+
+This graph is the 1.1.0 lifecycle for runs the controller does not own. A controller-owned run
+is driven by its controller (``ravel drive --resume <run id>``): every entry here refuses it
+through the controller's command policy, and every result this graph reports carries the
+``NOT GOVERNED`` label.
 """
 from __future__ import annotations
 
@@ -36,6 +41,7 @@ from ..agent_graph import GraphError
 from ..state_io import read_json
 
 GRAPH_ID = 'lifecycle.drive'
+NOT_GOVERNED = 'NOT GOVERNED'
 MAX_PASSES = 64
 CHECKIN1_RECORD = 'inputs/checkin1_approval.json'
 CHECKIN2_RECORD = 'inputs/checkin2_go.json'
@@ -50,6 +56,17 @@ class State(nodes.BaseState, total=False):
     reviewed: dict
     produced: dict
     why: str
+
+
+def refuse_controller_owned(rundir, action):
+    """Refuse a controller-owned run (command policy, SW04/SW13); without the controller no run is owned."""
+    try:
+        from ravel.controller import command_policy
+    except ImportError:
+        return
+    reason = command_policy.check(['lifecycle', action, '--rundir', str(Path(rundir).expanduser().resolve())])
+    if reason:
+        raise PermissionError(reason)
 
 
 # ---- records the human gates require (monkeypatched only in synthetic tests) -----------------
@@ -312,6 +329,7 @@ def build(ctx):
 
     def done(state):
         return {'results': {'lifecycle': {'complete': True, 'scientific_acceptance': False,
+                                          'governance': NOT_GOVERNED,
                                           'host_authored_nodes': executor.host_authored_nodes(_root(state))}}}
     add('done', nodes.Node('effect', done))
     builder.add_edge('done', END)
@@ -331,6 +349,7 @@ def instance(attempt=1):
 def run(rundir, *, attempt=1, transport=None, responses=None, gate_check=None, gate_providers=None,
         clear_stop=False, max_steps=None):
     """Start or continue the lifecycle; ``transport`` is the workers' transport preference (e.g. ravel-loop)."""
+    refuse_controller_owned(rundir, 'respond' if responses else 'run')
     key = instance(attempt)
     if responses:
         return graph_substrate.respond(rundir, GRAPH_ID, key, responses, gate_check=gate_check,
@@ -342,6 +361,7 @@ def run(rundir, *, attempt=1, transport=None, responses=None, gate_check=None, g
 
 def respond(rundir, *, decision, record=None, attempt=1, note=None, gate_check=None, gate_providers=None):
     """Answer the single pending CHECK-IN interrupt (``ravel drive respond``)."""
+    refuse_controller_owned(rundir, 'respond')
     from ..graph_substrate import _pending
     _, _, snapshot = _pending(rundir, GRAPH_ID, instance(attempt))
     pending = [p for p in snapshot.interrupts if isinstance(p.value, dict)
@@ -383,8 +403,12 @@ def main(argv=None):
             responses = read_json(args.respond) if args.respond else None
             value = run(args.rundir, attempt=args.attempt, transport=args.transport, responses=responses,
                         clear_stop=args.clear_stop)
-        print(json.dumps(value, indent=2, sort_keys=True, default=str))
+        labelled = {**value, 'governance': NOT_GOVERNED} if isinstance(value, dict) else value
+        print(json.dumps(labelled, indent=2, sort_keys=True, default=str))
         return 0
+    except PermissionError as exc:
+        print('drive: ' + str(exc), file=sys.stderr)
+        return 2
     except (ValueError, OSError, KeyError, TypeError, GraphError) as exc:
         print('drive: ' + str(exc), file=sys.stderr)
         return 1

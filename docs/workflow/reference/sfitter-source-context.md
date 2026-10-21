@@ -22,9 +22,7 @@ Graph and Host again; no call is dispatched by packet preparation or revision.
 Select all necessary pages again in the final stateless call.
 
 A draft handoff that references a whole source requires complete byte coverage
-in the actual final Host presentation receipt. Partial pages, deferred copies,
-catalogue hashes and prior responses do not provide whole-source content
-credit. A production request can select catalogue IDs as future consuming-study
+in the actual final Host presentation receipt. Whole-source credit requires complete source bytes in that receipt. A production request can select catalogue IDs as future consuming-study
 inputs, but the application binding records that the selection itself does not
 establish whole-content presentation or scientific approval. The ordinary
 scientific plan, approval, execution and independent review still apply.
@@ -102,7 +100,7 @@ A physical profile selects `source_review: {path, sha256}` in its supplied run
 card. The matching defect registry binds evaluator sources, input coverage,
 assumptions and any retained unused nuisance placements. An active defect can be
 resolved only by a matching reviewed resolution with byte-bound evidence. Row
-identity spelling and numeric-equivalent JSON spelling cannot clear a hold.
+identity spelling and numeric-equivalent JSON spelling must not clear a hold.
 The result and saved capsule preserve `native_law_assumptions`,
 `scientific_input_support` and `scientific_input_holds`. Old capsules without
 these records require source requalification. Review records establish input
@@ -149,7 +147,7 @@ A physical profile selects `source_review: {path, sha256}` in its supplied run
 card. The matching defect registry binds evaluator sources, input coverage,
 assumptions and any retained unused nuisance placements. An active defect can be
 resolved only by a matching reviewed resolution with byte-bound evidence. Row
-identity spelling and numeric-equivalent JSON spelling cannot clear a hold.
+identity spelling and numeric-equivalent JSON spelling must not clear a hold.
 The result and saved capsule preserve `native_law_assumptions`,
 `scientific_input_support` and `scientific_input_holds`. Old capsules without
 these records require source requalification. Review records establish input

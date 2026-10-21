@@ -6,11 +6,9 @@ and evaluates scalar one-loop triangles and boxes with the separately installed
 the generated `pylink` make target and `IntegralLibrary.use_Qmc`/`__call__`.
 RAVEL supplies a closed physical request and retains the returned evidence;
 pySecDec supplies the Feynman parameterization, sector decomposition and QMC.
-No package installation happens in planning or execution.
+Supply the installed runtime before planning.
 
-The adapter has source and mocked-API tests. Those tests do not qualify an actual
-compiler, FORM, QMC runtime or numerical answer. A concrete installed runtime and
-ordinary check-in/approval are required before any production call.
+Source and mocked-API tests exercise the request and transport contracts. A production call requires a qualified installed compiler, FORM and QMC runtime, numerical reference evidence and ordinary check-in approval.
 
 ## Physics contract
 
@@ -38,10 +36,7 @@ Two domains establish nonzero F before requesting an integration:
   no width or finite i0 regulator is invented.
 
 This finite restriction excludes UV/IR poles, zero-width timelike thresholds,
-massless propagators, tensor numerators and higher loops. It does not certify
-that arbitrary supplied invariants arise from a physical scattering event, or
-that supplied pole masses are a consistent gauge/model scheme. No automatic
-amplitude, Wilson-coefficient, EFT-matching or cross-section interpretation occurs.
+massless propagators, tensor numerators and higher loops. The supplied invariants require a physical kinematic basis, and pole masses require a consistent gauge/model scheme. Amplitude, Wilson-coefficient, EFT-matching and cross-section interpretations require their own source-grounded calculation contracts.
 
 `scale_squared_gev2 = Q^2 > 0` rescales all invariants and mass squares before the
 binary64 call. The result and errors are multiplied by `(Q^2)^(2-N)` afterward.
@@ -79,8 +74,7 @@ templates/data must match the shipped API manifest. Generated version metadata,
 NumPy/SymPy and other installed dependencies, FORM/contrib executables, libraries,
 and compiler runtime bytes need their own complete admission census. Actual
 observed optional Python imports must be bound. Newly loaded platform standard
-library paths are identified separately; there is no claim of a complete OS
-loader audit. `pySecDecContrib.dirname` must equal the admitted contrib root.
+library paths are identified separately with their observed loader-census scope. `pySecDecContrib.dirname` must equal the admitted contrib root.
 
 Runtime paths passed through generated Make syntax must be literal absolute
 shell-safe paths. The worker clears inherited Make/CUDA/compiler override flags,
@@ -93,8 +87,7 @@ events and `solver_evaluations` equal to the point count.
 
 The ordinary schema2 study must have one attempt, zero redos and the single
 `finite_scalar_integral_delivery` scope with the `delivery` action. Use the
-existing `ravel science plan/approve/run` workflow; no alternate dispatcher or
-approval is introduced. `finite-integrals-context` is a deterministic Host
+existing `ravel plan`, `ravel approve` and `ravel run` workflow. `finite-integrals-context` is a deterministic Host
 context action with `request_input`: the task, config, API manifest and every
 convention-evidence file must be explicit Graph inputs. The ordinary adapter is
 also discoverable through the current generic science/context connector.
@@ -129,7 +122,7 @@ reference enclosures plus fixed engineering bands. Native statistical errors
 remain separate metadata and never become reference/candidate enclosure radii.
 `qualified_enclosure`, `physics_validated`, oracle independence and withholding
 claims remain false. The returned comparison semantics names this distinction.
-A training/held-out label alone does not establish chronological withholding.
+Chronological withholding requires a retained source and acquisition history.
 
 ## First independent native qualification
 
@@ -146,11 +139,11 @@ real-mass Euclidean control tests I_3=-1/(2m^2), I_4=1/(6m^4). Follow with
 nonzero kinematic points and independently obtained reference evidence before
 claiming general accuracy. Four ordinary cases and 16 total calls are proposed
 in the owner's qualification design, all unapproved and unexecuted. Measured
-runtime/build/storage requirements and source review determine future budgets.
+runtime/build/storage requirements and source review determine subsequent budgets.
 
 Primary sources: [released source](https://github.com/secdec-research/secdec/tree/39ce21f9b36f74bcadfd927749daa79d601e8542),
 [documentation](https://secdec.readthedocs.io/en/stable/gettingstarted.html),
 [pySecDec paper](https://arxiv.org/abs/1703.09692).
 The separately installed backend is GPL-3.0; no upstream implementation is
 bundled into the RAVEL patch. Optional runtime distribution obligations remain
-with that runtime's licenses. This adapter does not port LoopTools or Blade.
+with that runtime's licenses.

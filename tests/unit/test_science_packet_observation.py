@@ -1,6 +1,7 @@
 """Synthetic accepted receipt, not native/scientific acceptance. No worker."""
 
 from method_decision_fixture import admit_method
+from bound_review import bound_review
 from pathlib import Path
 from types import SimpleNamespace
 import json,os
@@ -43,8 +44,9 @@ def accepted(tmp_path,monkeypatch):
         {'id':name,'status':'pass','attempt_ids':[record['attempt_id']],
          'evidence':[{'path':str(out/'result.json'),'location':'$.value'}]} for name in ('integrity','agreement')]})
     review.open_cycle(rd,effective_settings=[science.EXECUTION_TASK],stage_receipts=[record['attempt_record']],check_results='inputs/checks.json')
-    for role,actor in [('physics_critic','critic'),('skeptical_verifier','skeptic'),('physics_decider','physicist')]:
-        review.submit_review(rd,role=role,actor_id=actor,verdict='accept',summary='Synthetic observational control only',claim_scope='reproduction')
+    # Recorded votes are bound responses of dispatched roles; a declared reviewer name is advice only.
+    for role in ['physics_critic','skeptical_verifier','physics_decider']:
+        bound_review(rd,role=role,verdict='accept',summary='Synthetic observational control only',claim_scope='reproduction')
     return rd,payload,record
 
 def independent_accepted_packet_reference(rd):

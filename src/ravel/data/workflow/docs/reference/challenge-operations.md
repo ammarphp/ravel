@@ -49,13 +49,17 @@ ravel agent-surface check --project ../my-analysis
 
 The installer adds RAVEL's workflow skills to `.claude/skills/` and `.agents/skills/`, its rules as
 `.claude/rules/ravel-*.md`, software skills for the tools installed on this machine (with their
-versions), and the prompt-logging hooks in `.claude/settings.json`. It adds a marked section to
-`CLAUDE.md` and `AGENTS.md`. `CLAUDE.md` imports `@AGENTS.md` first, so the project's own rules load
-first and stay in force.
+versions), and the prompt-logging hooks in `.claude/settings.json`. It leaves `CLAUDE.md` and
+`AGENTS.md` byte-identical: it records their digests, and `ravel agent-surface check` reports a later
+change. Its own guidance is `.ravel/agent-guidance.md`. A project whose sessions should read it
+imports it from `CLAUDE.md` after `@AGENTS.md` (`@AGENTS.md`, then `@.ravel/agent-guidance.md`), so
+the project's own rules load first and stay in force.
 
 Existing files are never overwritten. A file the installer wrote earlier is replaced only when it
-is unchanged since. Running the installer again updates its own sections and leaves the project's
+is unchanged since. Running the installer again updates its own files and leaves the project's
 text alone. `ravel agent-surface skills --out DIR` writes only the software skills.
+`ravel agent-surface render` regenerates RAVEL's own instruction files and rewrites `AGENTS.md` and
+`CLAUDE.md`; run it only in a RAVEL checkout, never in a project whose instructions it does not own.
 
 ### Software skills
 
@@ -65,7 +69,7 @@ it exposes, the commands the workflow reaches it through, its licence and its up
 link. A field the distribution metadata does not carry says so. `software-ravel/dependencies.md`
 lists RAVEL's required-dependency closure with version, licence and documentation link. The text
 has no paths or times, so regenerating it in an unchanged environment is byte-identical and a
-version change shows as exactly that line. A tool that is not installed has no skill. A project can
+version change shows as exactly that line. Installed tools contribute their source-bound skills. A project can
 add tools through the `software` key of `workflow/policy.json`
 (`{"software": {"python_packages": [...], "executables": [...]}}`).
 
@@ -77,7 +81,7 @@ ravel agent-surface install --project ../my-analysis --wms-guard
 
 adds one `PreToolUse` hook for the Bash tool. It does nothing until the project's
 `workflow/policy.json` selects it with `"execution_guard": "strict"`. The effective mode is the
-stricter of the working-tree policy and the committed one, so an uncommitted edit cannot relax it.
+stricter of the working-tree policy and the committed one, so an uncommitted edit must not relax it.
 In strict mode a command runs only if every statement of it is
 
 - `snakemake` with listed options on a Snakefile (and its `include:` files and `rules/*.smk`) that is
@@ -94,10 +98,9 @@ wrappers (`bash -c`, `env`, `xargs`) are refused. Every decision is appended to
 `.ravel/agent-audit/execution-guard.jsonl` (command hash, allowed or refused, rule matched, mode);
 `python -m ravel.workflow.execution_guard summary --project .` summarises it for the conformance check.
 
-What this enforces: the shell tool of an agent session that loads the project's
-`.claude/settings.json`. What it cannot: a person at a terminal, a session started without the
-project settings, an agent host that does not route its shell tool through this hook, or file
-writes. An allowed program still runs its own configured helpers (git hooks, a configured external
+The enforcement scope is the shell tool of an agent session that loads the project's
+`.claude/settings.json` and routes shell calls through this hook. Terminal sessions,
+other host configurations and file writes retain their separate authorization boundaries. An allowed program still runs its own configured helpers (git hooks, a configured external
 diff). It is discipline with a record, not a security boundary. Under the same declaration a RAVEL
 worker's toolbelt offers no general shell (read, write, knowledge, check and workflow-manager
 actions only) and a launch that would give one is refused.
@@ -152,11 +155,11 @@ launcher's session receipt. `answer-graph` answers and delivers every external n
 that is waiting for a response.
 
 Claude runs with `--setting-sources project --safe-mode --strict-mcp-config` and no tools, and Codex
-runs with a fresh `CODEX_HOME` holding a copy of your login. Both record
+runs with a private `CODEX_HOME` and owner-provided login files. Both record
 `user_configuration_loaded: false`. Codex keeps a shell that can read files, and Antigravity and
 Gemini CLI keep read tools and have no flag that excludes your own settings and instructions, so a
 critic or verifier is refused on them before any process starts. Every relay delivery is `self_attested`, including schema 3 with a matching declaration digest.
-Its transport evidence is retained, but its authorship is not authenticated and it cannot count as
+Its transport evidence is retained, but its authorship is not authenticated and it must not count as
 an independent critic, verifier or synthesizer vote. Use the verified host path below for voting roles.
 
 To use the CLI as an agent graph's host, give the host configuration
@@ -212,7 +215,7 @@ ravel note-profile check --rule-pack pack.json
 ravel note-profile contract --rule-pack pack.json --out formatting.json --source-basis rules-source.json
 ```
 
-The formatting contract may tighten the pack's limits but never loosen them. The manuscript writer
+The formatting contract can tighten the pack's limits but never loosen them. The manuscript writer
 must map every required section, keeps main-text sections out of the appendix, and the compiled
 build refuses a page count above the pack's ceiling. A pack whose origin is a publisher or a
 challenge needs `--source-basis`, the located text of the rules. RAVEL ships no rule pack: the
@@ -254,7 +257,7 @@ default, holds:
 | `inputs.json` | inputs by reference with sha256; local inputs are hashed, remote inputs carry the checksum you supply |
 | `environment/` | `lock.json` and `requirements.txt` for the Python environment, plus any environment files you name |
 | `run/` | the run's plan, approvals, execution records and review journal |
-| `workflow/dag.json` | the workflow graph: planned and executed stages, partitioned stages and a site workflow export |
+| `workflow/dag.json` | the workflow graph: declared and executed stages, partitioned stages and a site workflow export |
 | `partitions/` | merge receipts and merged outputs of completed partitioned stages |
 | `audit/` | the agent audit log and the raw hook log |
 | `REPRODUCE.md`, `Snakefile` | how to check, rebuild the environment, fetch inputs and rerun |

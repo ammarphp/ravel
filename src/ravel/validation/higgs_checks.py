@@ -3,6 +3,7 @@
 These checks inspect supplied declarations. They neither qualify predictions nor
 infer missing uncertainties. Operation owners provide their full checks through
 explicit module/function interfaces; unavailable implementations are inconclusive.
+Two items have no implementation anywhere: they are reviewer items, always inconclusive.
 """
 from __future__ import annotations
 
@@ -18,12 +19,12 @@ CHECKS = ('higgs.framework_declared', 'higgs.measurement_bundle',
           'higgs.trap_TH5', 'higgs.trap_TH6', 'higgs.trap_TH7', 'higgs.trap_TH8',
           'higgs.trap_TH9', 'higgs.trap_TH10', 'higgs.trap_TH11', 'higgs.trap_TH12')
 DELEGATES = {
-    'check:higgs.measurement_bundle': ('ravel.physics.higgs_measurements', 'check_measurement_bundle'),
+    'check:higgs.measurement_bundle': ('ravel.validation.higgs_checks', 'check_measurement_bundle'),
     'check:higgs.parameterization_closure': ('ravel.physics.higgs_parameterization', 'check_parameterization_closure'),
-    'check:higgs.scalar_basis': ('ravel.physics.extended_scalar', 'check_scalar_basis'),
-    'check:higgs.theory_constraints': ('ravel.physics.extended_scalar', 'check_theory_constraints'),
     'check:higgs.cross_engine': ('ravel.physics.higgs_likelihood', 'check_cross_engine'),
 }
+# No implementation exists for these must_check items: a reviewer's verdict with evidence decides each one.
+REVIEWER_ITEMS = ('check:higgs.scalar_basis', 'check:higgs.theory_constraints')
 
 
 def _number(value):
@@ -230,6 +231,40 @@ def check_trap(trap_id, doc, *, check_id=None):
                    'Supplied declaration conflicts with ' + trap_id if conflict else 'Supplied declaration passes ' + trap_id, trap_id)
 
 
+def check_measurement_bundle(doc):
+    """Owner interface of ``check:higgs.measurement_bundle``: the typed status record of the named refusal checks.
+
+    ``higgs_bundle_checks.check_measurement_bundle`` refuses by raising. A bundle that does not meet the measurement
+    schema, or whose correlation is still a file reference, is evidence this check cannot read (inconclusive); the
+    refusal of a schema-valid bundle (row identities, one mass, quantity against unit, the correlation matrix) is
+    a material finding."""
+    from ravel.physics.higgs_parameterization import _schema
+    from ravel.validation import higgs_bundle_checks
+    try:
+        _schema(doc, 'measurement-bundle.json')
+    except ValueError as exc:
+        return {'status': 'inconclusive', 'findings': [], 'outcome': 'inputs_invalid', 'detail': str(exc)}
+    if type(doc['correlation']) is not list:
+        return {'status': 'inconclusive', 'findings': [], 'outcome': 'inputs_missing',
+                'detail': 'the correlation is a file reference; resolve it before the check'}
+    try:
+        record = higgs_bundle_checks.check_measurement_bundle(doc)
+    except ValueError as exc:
+        return {'status': 'failed', 'outcome': 'flagged_conflict',
+                'findings': [{'id': 'check:higgs.measurement_bundle:bundle', 'code': 'bundle', 'materiality': 'A',
+                              'summary': str(exc)}]}
+    except (KeyError, TypeError) as exc:
+        return {'status': 'inconclusive', 'findings': [], 'outcome': 'inputs_invalid',
+                'detail': f'{type(exc).__name__}: {exc}'}
+    return {'status': 'passed', 'findings': [], 'outcome': 'passed', **record}
+
+
+def _reviewer_item(identity):
+    from ravel.workflow.review_projection_checks import result
+    return result(identity, [], status='inconclusive', outcome='reviewer_item', diagnostics={
+        'reason': 'no implementation exists for this item; a reviewer verdict with evidence decides it'})
+
+
 def _delegate(identity, doc):
     module, function = DELEGATES[identity]
     try:
@@ -263,6 +298,8 @@ def run_check(doc, *, check_id):
         except (KeyError, TypeError, ValueError) as exc:
             return _report(identity, 'inconclusive', str(exc))
         return _report(identity, 'passed', 'Framework and applicability declarations supplied; no physics qualification implied.')
+    if identity in REVIEWER_ITEMS:
+        return _reviewer_item(identity)
     return _delegate(identity, doc)
 
 

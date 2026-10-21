@@ -4,7 +4,7 @@ The optional `parameter_observation` field in a model-events configuration admit
 prospective, source-bound MG5 2.9.27 card-update law through the existing ordinary
 science plan, approval, worker and review route. Old configurations retain their
 strict complete-value equality gate. Adding this field changes the configuration
-hash and requires a fresh ordinary plan/approval; it cannot repair or accept an old
+hash and requires a fresh ordinary plan/approval; it must not repair or accept an old
 failed attempt.
 
 ```json
@@ -40,7 +40,7 @@ Function arguments have local precedence, while Function bodies use the pinned
 ModelReader module globals (including `ZERO=0`) rather than capturing model
 parameters or other declared Functions. Unresolved body globals, parameter/Function
 name collisions whose evaluation order is unproved, and declarations shadowing
-`locals` or `__builtins__` refuse explicitly. Unsupported dynamic declarations,
+`locals` or `__builtins__` refuse explicitly. Dynamic declarations outside the accepted source grammar,
 cyclic references, nonreal physical masses,
 automatic widths and complex-mass transforms refuse. Ghosts and Goldstones are
 excluded as in the released updater. Model free inputs never acquire zero from an
@@ -51,8 +51,7 @@ The supported namespace resolves a binding before interpreting it as a scalar,
 module or callable: Function argument → declared parameter/Function in outer
 `all_params` → pinned module globals → supported builtins. A declared Function
 is never treated as a scalar, even if its name shadows the global `ZERO` constant;
-it remains callable at that name. A bare module or builtin function likewise cannot
-be converted to a physical mass. Function bodies omit the outer `all_params` step,
+it remains callable at that name. A physical mass requires a resolved scalar value; bare modules and builtin functions retain their native types. Function bodies omit the outer `all_params` step,
 so an outer Function named `ZERO` does not replace their module-global `ZERO=0`.
 This is the finite admitted expression scope, not a claim to implement arbitrary
 Python or every ModelReader global.
@@ -67,8 +66,7 @@ multiplicity is retained. Ambiguous duplicate channels refuse rather than disapp
 No arbitrary close value, partial mixture of original and written rows, changed
 branching fraction, new free row or removed row is accepted. A fully unchanged card
 is admissible only when its complete dependent population already agrees exactly at
-binary64; a skipped stale or missing dependent update refuses. Generated restriction
-rules remain unsupported and block the opt-in route.
+binary64; a skipped stale or missing dependent update refuses. The opt-in route requires the original supplied restriction rules.
 
 The released `ParamCard.read` lowercases text before `Parameter.load_str` tries
 Python `float` on a scalar token. A finite Decimal D/d-exponent token that is not
@@ -79,8 +77,7 @@ or substituting a numerically equal float, refuses; converting an original nativ
 float to a D string also refuses. Unknown D strings can retain magnitudes beyond the
 binary64 domain within the existing bounded Decimal domain because no numerical
 conversion is claimed. D strings at actual free UFO addresses or updated physical
-mass/width addresses refuse prospectively: the released model reader/updater cannot
-consume them as numerical inputs. Scales and branching rows have a direct `float`
+mass/width addresses refuse prospectively: the released model reader/updater requires numerical tokens for those addresses. Scales and branching rows have a direct `float`
 parser without a string fallback and refuse such tokens. This is a type/serialization
 contract, not a blanket rejection of valid supplied D-exponent unknown entries.
 
@@ -98,8 +95,8 @@ The native worker preserves raw returned cards and the generated artifact census
 before semantic comparison. It then writes `parameter-card-observation.json`, including
 original and consumed observed-card digests, the whole row census, model/released-source
 pins, source-derived versus free-row provenance and exact differences. Mismatches
-cannot produce the native-success receipt. The final parameter file is checked again
-before success. A malformed card may refuse before this comparison report is built;
+must retain a failed native receipt. The final parameter file is checked again
+before success. A malformed card can refuse before this comparison report is built;
 its raw returned text remains in `observed-settings.json`.
 
 This establishes literal source consistency and admitted representation, not physics

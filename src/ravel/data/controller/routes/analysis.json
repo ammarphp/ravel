@@ -1,0 +1,3831 @@
+{
+  "schema_version": 1,
+  "kind": "route-spec-family",
+  "family": "analysis",
+  "description": "Analysis-intake routes (start.md row 6): reproduce, reinterpret and scan. Variants without a spec here (projection, survey, summary_plot, no_routine) are planned by the judgment graph with the same documents delivered.",
+  "specs": [
+    {
+      "schema_version": 1,
+      "kind": "route-spec",
+      "id": "analysis.scan",
+      "version": 1,
+      "adapter": "analysis",
+      "title": "Analysis intake: a parameter scan over an approved grid",
+      "match": {
+        "row": 6,
+        "order": 0,
+        "when": {
+          "field": "task_mode",
+          "eq": "scan"
+        }
+      },
+      "admits_scientific_deliverables": true,
+      "parameters": [
+        {
+          "name": "detector_mode",
+          "from": "contract:detector_mode",
+          "description": "the contract's detector mode; route analysis binds it before CHECK-IN 1"
+        },
+        {
+          "name": "stat_mode",
+          "from": "contract:stat_mode",
+          "description": "the contract's statistics mode; route analysis binds it before CHECK-IN 1"
+        },
+        {
+          "name": "task_mode",
+          "from": "contract:task_mode"
+        },
+        {
+          "name": "prescribed_statistic",
+          "from": "constraint:prescribed_statistic",
+          "description": "a statistic the request prescribes is the primary result"
+        }
+      ],
+      "steps": [
+        {
+          "id": "env",
+          "kind": "derive",
+          "title": "01 Environment: the tools and toolchain every planned operation needs",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/environment.json",
+              "kind": "environment-record",
+              "required": true
+            }
+          ],
+          "depends_on": [],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 900,
+            "broker_calls": 60
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/01-environment.md",
+            "docs/reference/environment.md"
+          ],
+          "obligations": [
+            "STEP-01-environment"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "environment",
+            "workflow_step": "01-environment",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes {tools: [{name, status: available|missing|unknown, required, required_by}], operations: [every planned operation id]} from the controller's inventory probe."
+        },
+        {
+          "id": "inputs.census",
+          "kind": "acquire",
+          "role": "coordinator",
+          "title": "02 Resource sweep (P6 source ladder)",
+          "operation": "acquire-published",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/inputs/resource_census.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "events": 0
+          },
+          "protocols": [
+            "P6"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/02-inputs.md",
+            ".claude/skills/resource-sweep/SKILL.md",
+            "docs/workflow/checklists/judgment-protocols.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.census",
+            "workflow_step": "02-inputs",
+            "task": {
+              "max_bytes": 268435456
+            },
+            "effects": [
+              "acquires_published"
+            ],
+            "launch": {
+              "argv": [
+                "python",
+                "-m",
+                "ravel.workflow.resource_census",
+                "--reading",
+                "@input:inputs/reading.json",
+                "--controller-output",
+                "inputs/resource_census.json"
+              ],
+              "reads": [],
+              "stage": "resource-sweep"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.validate_run_state.check_resource_census": {
+                "census": {
+                  "source": "output",
+                  "step": "inputs.census",
+                  "path": "outputs/inputs/resource_census.json",
+                  "type": "path"
+                }
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Runs the resource census over the analyses and topic the pinned reading names; every rung keeps its status, and an unreachable source is never read as absent."
+        },
+        {
+          "id": "inputs.route",
+          "kind": "author",
+          "title": "02 Route analysis: routine, model, final state, detector and statistic",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.census:outputs/inputs/resource_census.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/route_analysis.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.census"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P6"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/02-inputs.md",
+            "docs/workflow/checklists/choosing-routine.md",
+            "docs/workflow/checklists/option-c-judgment.md",
+            "docs/workflow/checklists/detector-fidelity.md",
+            ".claude/skills/route-analysis/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.route",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes {summary, routine, model, final_state, energy, detector_mode, stat_mode, method, hepdata_record, assumptions: [{id, statement, reason, alternatives, result_sensitive}], decisions, approximations: [{id, reason, bound}], mismatches: [{approximation}], escalate, scan_grid?}."
+        },
+        {
+          "id": "inputs.traps",
+          "kind": "author",
+          "title": "02 Physics trap sweep (P3)",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.route"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P3"
+          ],
+          "review": [
+            "trap-auditor"
+          ],
+          "instruction_sources": [
+            "docs/workflow/checklists/physics-traps.md",
+            "docs/workflow/steps/02-inputs.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.traps",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes the trap sweep record (trap_sweep.build shape): a verdict for T1..T12; every hit with its consequence and a flag number or an escalation."
+        },
+        {
+          "id": "inputs.figures",
+          "kind": "author",
+          "title": "02 Figure target and early-verification waypoint (P1)",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.census:outputs/inputs/resource_census.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/figure_target.json",
+              "kind": "document",
+              "required": true
+            },
+            {
+              "path": "outputs/gallery.json",
+              "kind": "figure-gallery",
+              "required": false
+            },
+            {
+              "path": "outputs/waypoint.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.census",
+            "inputs.route"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P1"
+          ],
+          "review": [
+            "figure-critic"
+          ],
+          "instruction_sources": [
+            "docs/workflow/checklists/figure-contract.md",
+            "docs/workflow/steps/02-inputs.md",
+            "docs/workflow/steps/05-visualize.md",
+            ".claude/skills/figure-contract/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.figures",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.plot_lint": {
+                "document": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.verify_pack.check_figures": {
+                "figures": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "field": "/validator_inputs/check:validation.verify_pack.check_figures/figures",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_figure_contract": {
+                "target": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/figure_target.json": {
+                "/validator_inputs/check:validation.verify_pack.check_figures/figures": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes the figure contract (targets with published axis scales and source), the gallery of published candidates, and the waypoint {element, expectation, why_cheap} or, when the reference is withheld, {withheld_waypoints}."
+        },
+        {
+          "id": "inputs.cost",
+          "kind": "derive",
+          "title": "02 Cost record for the plan's highest rung",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/cost_preflight.json",
+              "kind": "cost-record",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.route"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 900,
+            "broker_calls": 60
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/02-inputs.md",
+            ".claude/skills/cost-preflight/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.cost",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes the cost_preflight record (mode, points, status, basis); unknown cost stays unknown."
+        },
+        {
+          "id": "recast.smoke",
+          "kind": "operate",
+          "title": "03-04 Smoke rung: generation through the preserved routine",
+          "role": "analysis-author",
+          "operation": "lifecycle-routine-recast",
+          "inputs": [
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/smoke/recast.json",
+              "kind": "cutflow",
+              "required": true
+            },
+            {
+              "path": "outputs/smoke/histograms.json",
+              "kind": "binned_values",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "env",
+            "inputs.census",
+            "inputs.route",
+            "inputs.traps",
+            "inputs.figures",
+            "inputs.cost"
+          ],
+          "waypoint": false,
+          "rung": "smoke",
+          "budget": {
+            "wall_seconds": 7200,
+            "events": 2000
+          },
+          "protocols": [],
+          "review": [
+            "object-selection-mapper"
+          ],
+          "instruction_sources": [
+            "docs/workflow/steps/03-generate.md",
+            "docs/workflow/steps/04-analyze.md",
+            ".claude/skills/run-stage/SKILL.md",
+            "docs/workflow/checklists/generation-settings.md",
+            "docs/workflow/checklists/choosing-routine.md"
+          ],
+          "obligations": [
+            "STEP-03-generate",
+            "STEP-04-analyze"
+          ],
+          "parameters": {
+            "adapter": "recast",
+            "workflow_step": "03-generate",
+            "task": {
+              "max_seconds": 7200,
+              "analysis": "{routine}",
+              "detector_mode": "{detector_mode}"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/smoke/recast.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string",
+                "/validator_inputs/check:validation.certify_acceptance/document": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {samples, events, lhe_check, cutflow, qualification: {routine, status}, detector_mode} at smoke statistics."
+        },
+        {
+          "id": "visualize.waypoint",
+          "kind": "operate",
+          "title": "05 Early-verification waypoint (CHECK-IN 2 evidence)",
+          "role": "analysis-author",
+          "operation": "figure-comparison",
+          "inputs": [
+            {
+              "artifact": "recast.smoke:outputs/smoke/recast.json",
+              "sha256": null,
+              "required": true,
+              "kind": "cutflow"
+            },
+            {
+              "artifact": "inputs.figures:outputs/waypoint.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            },
+            {
+              "artifact": "inputs.figures:outputs/figure_target.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/waypoint.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/waypoint.pdf",
+              "kind": "figure",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "recast.smoke",
+            "inputs.figures",
+            "inputs.traps"
+          ],
+          "waypoint": true,
+          "rung": "smoke",
+          "budget": {
+            "wall_seconds": 1800,
+            "events": 0
+          },
+          "protocols": [],
+          "review": [
+            "figure-critic"
+          ],
+          "instruction_sources": [
+            "docs/workflow/steps/05-visualize.md",
+            "docs/workflow/checklists/check-ins.md",
+            "docs/workflow/checklists/plot-criteria.md"
+          ],
+          "obligations": [
+            "STEP-05-visualize",
+            "C10"
+          ],
+          "parameters": {
+            "adapter": "waypoint",
+            "workflow_step": "05-visualize",
+            "task": {},
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.plot_lint": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.plot_lint/document",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.verify_pack.check_figures": {
+                "figures": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.verify_pack.check_figures/figures",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_figure_contract": {
+                "target": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/waypoint.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.plot_lint/document": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:validation.verify_pack.check_figures/figures": "path",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string",
+                "/validator_inputs/check:validation.certify_acceptance/document": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {summary, element, expectation, evidence, figures} for CHECK-IN 2."
+        },
+        {
+          "id": "acquire.data",
+          "kind": "acquire",
+          "role": "coordinator",
+          "title": "06 Published data and likelihood",
+          "operation": "acquire-published",
+          "inputs": [
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.census:outputs/inputs/resource_census.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/hepdata/hepdata_manifest.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.route",
+            "inputs.census"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "events": 0
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/06-acquire-data.md",
+            "docs/workflow/checklists/data-acquisition.md"
+          ],
+          "obligations": [
+            "STEP-06-acquire-data"
+          ],
+          "parameters": {
+            "adapter": "acquire",
+            "workflow_step": "06-acquire-data",
+            "task": {
+              "max_bytes": 1073741824
+            },
+            "effects": [
+              "acquires_published"
+            ],
+            "launch": {
+              "argv": [
+                "python",
+                "-m",
+                "ravel.workflow.resource_census",
+                "--fetch-published-data",
+                "--record-source",
+                "@input:inputs.route:outputs/route_analysis.json",
+                "--out",
+                "hepdata",
+                "--download-likelihood",
+                "--tables"
+              ],
+              "reads": [],
+              "stage": "acquire-data"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.validate_run_state.check_resource_census": {
+                "census": {
+                  "source": "output",
+                  "step": "inputs.census",
+                  "path": "outputs/inputs/resource_census.json",
+                  "type": "path"
+                }
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Fetches the record the route analysis names (hepdata_record): tables and, when published, the likelihood."
+        },
+        {
+          "id": "scan.point",
+          "kind": "operate",
+          "title": "08 One approved grid point through the full analysis lifecycle",
+          "role": "analysis-author",
+          "operation": "analysis-lifecycle",
+          "inputs": [
+            {
+              "artifact": "visualize.waypoint:outputs/waypoint.json",
+              "sha256": null,
+              "required": true,
+              "kind": "table"
+            },
+            {
+              "artifact": "acquire.data:outputs/hepdata/hepdata_manifest.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/point_result.json",
+              "kind": "inference",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "visualize.waypoint",
+            "acquire.data",
+            "inputs.traps"
+          ],
+          "waypoint": false,
+          "rung": "scan",
+          "budget": {
+            "wall_seconds": 21600,
+            "events": 50000
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/08-scan.md",
+            "docs/workflow/steps/03-generate.md",
+            "docs/workflow/steps/07-exclude.md",
+            "docs/workflow/checklists/scan-and-contour.md",
+            ".claude/skills/run-scan/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-08-scan"
+          ],
+          "parameters": {
+            "adapter": "scan.point",
+            "workflow_step": "08-scan",
+            "point_id": "{item}",
+            "grid_sha256": "{grid_sha256}",
+            "task": {
+              "max_seconds": 21600,
+              "analysis": "{routine}",
+              "detector_mode": "{detector_mode}",
+              "stat_mode": "{stat_mode}"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "scan.point",
+                  "path": "outputs/point_result.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/point_result.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "One point of the approved grid (parameters.item carries its tag and coordinates); writes {tag, parameters, statistic, limits, detector_mode, statistics (the limit-setting engine's statistics record: situations, chosen methods, validity checks, outcome), uncertainty (its uncertainty statement), limitations (every qualification label)}; the statistics-situation catalogue is a pinned input.",
+          "foreach": "grid_points",
+          "points": [
+            "{item}"
+          ]
+        },
+        {
+          "id": "scan.assemble",
+          "kind": "operate",
+          "title": "08 Scan assembly with population equality against the approved grid",
+          "role": "inference",
+          "operation": "lifecycle-scan-aggregation",
+          "inputs": [
+            {
+              "artifact": "scan.point:outputs/point_result.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/scan.json",
+              "kind": "inference",
+              "required": true
+            },
+            {
+              "path": "outputs/scan.pdf",
+              "kind": "figure",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "scan.point"
+          ],
+          "waypoint": false,
+          "rung": "scan",
+          "budget": {
+            "wall_seconds": 3600,
+            "events": 0
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/08-scan.md",
+            "docs/workflow/checklists/scan-and-contour.md",
+            ".claude/skills/run-scan/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-08-scan"
+          ],
+          "parameters": {
+            "adapter": "scan.assemble",
+            "workflow_step": "08-scan",
+            "grid_sha256": "{grid_sha256}",
+            "task": {},
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "scan.assemble",
+                  "path": "outputs/scan.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "scan.assemble",
+                  "path": "outputs/scan.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/scan.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes the assembled scan (scan_orchestrator assemble shape): point_population with every approved point and its status, points (completed results), n_planned, n_done, n_missing, missing_tags, statistic, detector_mode."
+        },
+        {
+          "id": "visualize.final",
+          "kind": "operate",
+          "title": "05 Final figures over the published data",
+          "role": "analysis-author",
+          "operation": "figure-comparison",
+          "inputs": [
+            {
+              "artifact": "scan.assemble:outputs/scan.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "inputs.figures:outputs/figure_target.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/figures.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/figure.pdf",
+              "kind": "figure",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "scan.assemble",
+            "inputs.figures",
+            "inputs.traps"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 3600,
+            "events": 0
+          },
+          "protocols": [],
+          "review": [
+            "figure-critic"
+          ],
+          "instruction_sources": [
+            "docs/workflow/steps/05-visualize.md",
+            "docs/workflow/checklists/plot-criteria.md",
+            "docs/workflow/checklists/figure-contract.md",
+            "docs/workflow/checklists/scan-and-contour.md"
+          ],
+          "obligations": [
+            "STEP-05-visualize"
+          ],
+          "parameters": {
+            "adapter": "visualize",
+            "workflow_step": "05-visualize",
+            "task": {},
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.plot_lint": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.verify_pack.check_figures": {
+                "figures": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_figure_contract": {
+                "target": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/figures.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string",
+                "/validator_inputs/check:validation.certify_acceptance/document": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {figures: [{id, path, lint}]} for every declared target."
+        },
+        {
+          "id": "compare.reference",
+          "kind": "compare",
+          "title": "Reference comparison with one pinned comparator (P2, P5)",
+          "role": "discrepancy-attributor",
+          "inputs": [
+            {
+              "artifact": "scan.assemble:outputs/scan.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "visualize.final:outputs/figures.json",
+              "sha256": null,
+              "required": true,
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/comparison.json",
+              "kind": "comparison",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "scan.assemble",
+            "visualize.final"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 3600,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P2",
+            "P5"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/05-visualize.md",
+            "docs/workflow/checklists/reproduction-closure.md",
+            "docs/workflow/checklists/judgment-protocols.md"
+          ],
+          "obligations": [],
+          "parameters": {
+            "adapter": "compare",
+            "workflow_step": "05-visualize",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/comparison.json": {
+                "/validator_inputs/check:validation.certify_acceptance/document": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {comparator, quantity, basis_manifests: [requested, delivered], unit, lattice, tolerance, residuals, attributions: [{cause, noise_model, above_noise, replicas}]}; when the reference is withheld, {deferred_until_sealed: true} and no published material."
+        },
+        {
+          "id": "verify.mechanical",
+          "kind": "review",
+          "title": "09 Tier A: every number traced to an accepted artifact",
+          "role": "integrity-auditor",
+          "inputs": [
+            {
+              "artifact": "scan.assemble:outputs/scan.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "visualize.final:outputs/figures.json",
+              "sha256": null,
+              "required": true,
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/tier_a.json",
+              "kind": "findings",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "scan.assemble",
+            "visualize.final",
+            "compare.reference"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/09-verify.md",
+            "docs/workflow/checklists/verification-panel.md",
+            ".claude/skills/verification-panel/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-09-verify"
+          ],
+          "parameters": {
+            "adapter": "verify.mechanical",
+            "workflow_step": "09-verify",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.certificates.validate_certificate": {
+                "path": {
+                  "source": "output",
+                  "step": "verify.mechanical",
+                  "path": "outputs/tier_a.json",
+                  "field": "/validator_inputs/check:validation.certificates.validate_certificate/path",
+                  "type": "path"
+                },
+                "kind": {
+                  "source": "output",
+                  "step": "verify.mechanical",
+                  "path": "outputs/tier_a.json",
+                  "field": "/validator_inputs/check:validation.certificates.validate_certificate/kind",
+                  "type": "string"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/tier_a.json": {
+                "/validator_inputs/check:validation.certificates.validate_certificate/path": "path",
+                "/validator_inputs/check:validation.certificates.validate_certificate/kind": "string"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {verdict: PASS|FAIL, numbers: [{value, artifact}], findings}."
+        },
+        {
+          "id": "verify.adversary",
+          "kind": "review",
+          "title": "09 Tier B and P8: three written attacks on the result",
+          "role": "physics-critic",
+          "inputs": [
+            {
+              "artifact": "scan.assemble:outputs/scan.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "verify.mechanical:outputs/tier_a.json",
+              "sha256": null,
+              "required": true,
+              "kind": "findings"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/tier_b.json",
+              "kind": "findings",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "scan.assemble",
+            "verify.mechanical"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 3600,
+            "broker_calls": 300
+          },
+          "protocols": [
+            "P8"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/09-verify.md",
+            "docs/workflow/checklists/verification-panel.md",
+            "docs/workflow/checklists/judgment-protocols.md"
+          ],
+          "obligations": [
+            "STEP-09-verify"
+          ],
+          "parameters": {
+            "adapter": "verify.adversary",
+            "workflow_step": "09-verify",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "verify.adversary",
+                  "path": "outputs/tier_b.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "verify.adversary",
+                  "path": "outputs/tier_b.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/tier_b.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {attacks: [{kind: basis|acceptance|statistics, attack, tested_by, outcome}], findings}."
+        },
+        {
+          "id": "synthesize",
+          "kind": "synthesize",
+          "title": "Results deck: claims, numbers and the recipe ledger",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "scan.assemble:outputs/scan.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "verify.adversary:outputs/tier_b.json",
+              "sha256": null,
+              "required": true,
+              "kind": "findings"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/results.json",
+              "kind": "results-deck",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "scan.assemble",
+            "verify.adversary"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/09-verify.md",
+            "docs/workflow/checklists/check-ins.md"
+          ],
+          "obligations": [
+            "STEP-09-verify"
+          ],
+          "parameters": {
+            "adapter": "synthesize",
+            "workflow_step": "09-verify",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes {headline, numbers: [{value, artifact}], claims, recipe_ledger, limitations}."
+        }
+      ],
+      "checkins": [
+        {
+          "id": "checkin1",
+          "sections": [
+            "preamble",
+            "resource_census",
+            "gallery",
+            "figure_target",
+            "method",
+            "scan_grid"
+          ],
+          "seats": [
+            "plan-critic"
+          ]
+        },
+        {
+          "id": "checkin2",
+          "sections": [
+            "preamble",
+            "waypoint",
+            "expectation",
+            "evidence_manifest"
+          ],
+          "seats": [
+            "figure-critic"
+          ]
+        },
+        {
+          "id": "checkin3",
+          "sections": [
+            "preamble",
+            "results",
+            "verification",
+            "recipe_ledger",
+            "limitations",
+            "scan_population"
+          ],
+          "seats": [
+            "physics-critic",
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        }
+      ],
+      "obligations": [
+        "R07",
+        "C26",
+        "E04",
+        "E05",
+        "C10"
+      ],
+      "deliverables": [
+        {
+          "match": {
+            "artifact": [
+              "figure"
+            ]
+          },
+          "step": "visualize.final",
+          "output": "outputs/figures.json"
+        },
+        {
+          "match": {
+            "artifact": [
+              "inference"
+            ]
+          },
+          "step": "scan.assemble",
+          "output": "outputs/scan.json"
+        },
+        {
+          "match": {
+            "artifact": [
+              "document"
+            ]
+          },
+          "step": "synthesize",
+          "output": "outputs/results.json"
+        },
+        {
+          "match": {
+            "claim": [
+              "exclusion"
+            ]
+          },
+          "step": "scan.assemble",
+          "output": "outputs/scan.json"
+        },
+        {
+          "match": {
+            "claim": [
+              "agreement"
+            ]
+          },
+          "step": "synthesize",
+          "output": "outputs/results.json"
+        }
+      ],
+      "instruction_sources": [
+        "docs/workflow/steps/01-environment.md",
+        "docs/workflow/steps/02-inputs.md",
+        "docs/workflow/steps/03-generate.md",
+        "docs/workflow/steps/04-analyze.md",
+        "docs/workflow/steps/05-visualize.md",
+        "docs/workflow/steps/06-acquire-data.md",
+        "docs/workflow/steps/07-exclude.md",
+        "docs/workflow/steps/08-scan.md",
+        "docs/workflow/steps/09-verify.md",
+        "docs/workflow/checklists/check-ins.md",
+        "docs/workflow/checklists/physics-traps.md",
+        "docs/workflow/checklists/scan-and-contour.md"
+      ],
+      "description": "The analysis route over an approved grid: one governed step per grid point (its own authority check, receipts and failure status), then an assembly whose population equals the approved grid, with every hole explicit. The grid comes from the request or the route analysis and is fixed before CHECK-IN 1. The route adapter is ravel.controller.routes.analysis."
+    },
+    {
+      "schema_version": 1,
+      "kind": "route-spec",
+      "id": "analysis",
+      "version": 1,
+      "adapter": "analysis",
+      "title": "Analysis intake: reproduce or reinterpret one published analysis",
+      "match": {
+        "row": 6,
+        "order": 1,
+        "when": {
+          "field": "task_mode",
+          "in": [
+            "reproduce",
+            "reinterpret"
+          ]
+        }
+      },
+      "admits_scientific_deliverables": true,
+      "parameters": [
+        {
+          "name": "detector_mode",
+          "from": "contract:detector_mode",
+          "description": "the contract's detector mode; route analysis binds it before CHECK-IN 1"
+        },
+        {
+          "name": "stat_mode",
+          "from": "contract:stat_mode",
+          "description": "the contract's statistics mode; route analysis binds it before CHECK-IN 1"
+        },
+        {
+          "name": "task_mode",
+          "from": "contract:task_mode"
+        },
+        {
+          "name": "prescribed_statistic",
+          "from": "constraint:prescribed_statistic",
+          "description": "a statistic the request prescribes is the primary result"
+        }
+      ],
+      "steps": [
+        {
+          "id": "env",
+          "kind": "derive",
+          "title": "01 Environment: the tools and toolchain every planned operation needs",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/environment.json",
+              "kind": "environment-record",
+              "required": true
+            }
+          ],
+          "depends_on": [],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 900,
+            "broker_calls": 60
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/01-environment.md",
+            "docs/reference/environment.md"
+          ],
+          "obligations": [
+            "STEP-01-environment"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "environment",
+            "workflow_step": "01-environment",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes {tools: [{name, status: available|missing|unknown, required, required_by}], operations: [every planned operation id]} from the controller's inventory probe."
+        },
+        {
+          "id": "inputs.census",
+          "kind": "acquire",
+          "role": "coordinator",
+          "title": "02 Resource sweep (P6 source ladder)",
+          "operation": "acquire-published",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/inputs/resource_census.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "events": 0
+          },
+          "protocols": [
+            "P6"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/02-inputs.md",
+            ".claude/skills/resource-sweep/SKILL.md",
+            "docs/workflow/checklists/judgment-protocols.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.census",
+            "workflow_step": "02-inputs",
+            "task": {
+              "max_bytes": 268435456
+            },
+            "effects": [
+              "acquires_published"
+            ],
+            "launch": {
+              "argv": [
+                "python",
+                "-m",
+                "ravel.workflow.resource_census",
+                "--reading",
+                "@input:inputs/reading.json",
+                "--controller-output",
+                "inputs/resource_census.json"
+              ],
+              "reads": [],
+              "stage": "resource-sweep"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.validate_run_state.check_resource_census": {
+                "census": {
+                  "source": "output",
+                  "step": "inputs.census",
+                  "path": "outputs/inputs/resource_census.json",
+                  "type": "path"
+                }
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Runs the resource census over the analyses and topic the pinned reading names; every rung keeps its status, and an unreachable source is never read as absent."
+        },
+        {
+          "id": "inputs.route",
+          "kind": "author",
+          "title": "02 Route analysis: routine, model, final state, detector and statistic",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.census:outputs/inputs/resource_census.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/route_analysis.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.census"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P6"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/02-inputs.md",
+            "docs/workflow/checklists/choosing-routine.md",
+            "docs/workflow/checklists/option-c-judgment.md",
+            "docs/workflow/checklists/detector-fidelity.md",
+            ".claude/skills/route-analysis/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.route",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes {summary, routine, model, final_state, energy, detector_mode, stat_mode, method, hepdata_record, assumptions: [{id, statement, reason, alternatives, result_sensitive}], decisions, approximations: [{id, reason, bound}], mismatches: [{approximation}], escalate, scan_grid?}."
+        },
+        {
+          "id": "inputs.traps",
+          "kind": "author",
+          "title": "02 Physics trap sweep (P3)",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.route"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P3"
+          ],
+          "review": [
+            "trap-auditor"
+          ],
+          "instruction_sources": [
+            "docs/workflow/checklists/physics-traps.md",
+            "docs/workflow/steps/02-inputs.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.traps",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes the trap sweep record (trap_sweep.build shape): a verdict for T1..T12; every hit with its consequence and a flag number or an escalation."
+        },
+        {
+          "id": "inputs.figures",
+          "kind": "author",
+          "title": "02 Figure target and early-verification waypoint (P1)",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/reading.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.census:outputs/inputs/resource_census.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/figure_target.json",
+              "kind": "document",
+              "required": true
+            },
+            {
+              "path": "outputs/gallery.json",
+              "kind": "figure-gallery",
+              "required": false
+            },
+            {
+              "path": "outputs/waypoint.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.census",
+            "inputs.route"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P1"
+          ],
+          "review": [
+            "figure-critic"
+          ],
+          "instruction_sources": [
+            "docs/workflow/checklists/figure-contract.md",
+            "docs/workflow/steps/02-inputs.md",
+            "docs/workflow/steps/05-visualize.md",
+            ".claude/skills/figure-contract/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.figures",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.plot_lint": {
+                "document": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.verify_pack.check_figures": {
+                "figures": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "field": "/validator_inputs/check:validation.verify_pack.check_figures/figures",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_figure_contract": {
+                "target": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/figure_target.json": {
+                "/validator_inputs/check:validation.verify_pack.check_figures/figures": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes the figure contract (targets with published axis scales and source), the gallery of published candidates, and the waypoint {element, expectation, why_cheap} or, when the reference is withheld, {withheld_waypoints}."
+        },
+        {
+          "id": "inputs.cost",
+          "kind": "derive",
+          "title": "02 Cost record for the plan's highest rung",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "inputs/task_contract.json",
+              "sha256": null,
+              "kind": "document",
+              "required": true
+            },
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/cost_preflight.json",
+              "kind": "cost-record",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.route"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 900,
+            "broker_calls": 60
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/02-inputs.md",
+            ".claude/skills/cost-preflight/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-02-inputs"
+          ],
+          "parameters": {
+            "phase": "prepare",
+            "adapter": "inputs.cost",
+            "workflow_step": "02-inputs",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes the cost_preflight record (mode, points, status, basis); unknown cost stays unknown."
+        },
+        {
+          "id": "recast.smoke",
+          "kind": "operate",
+          "title": "03-04 Smoke rung: generation through the preserved routine",
+          "role": "analysis-author",
+          "operation": "lifecycle-routine-recast",
+          "inputs": [
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/smoke/recast.json",
+              "kind": "cutflow",
+              "required": true
+            },
+            {
+              "path": "outputs/smoke/histograms.json",
+              "kind": "binned_values",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "env",
+            "inputs.census",
+            "inputs.route",
+            "inputs.traps",
+            "inputs.figures",
+            "inputs.cost"
+          ],
+          "waypoint": false,
+          "rung": "smoke",
+          "budget": {
+            "wall_seconds": 7200,
+            "events": 2000
+          },
+          "protocols": [],
+          "review": [
+            "object-selection-mapper"
+          ],
+          "instruction_sources": [
+            "docs/workflow/steps/03-generate.md",
+            "docs/workflow/steps/04-analyze.md",
+            ".claude/skills/run-stage/SKILL.md",
+            "docs/workflow/checklists/generation-settings.md",
+            "docs/workflow/checklists/choosing-routine.md"
+          ],
+          "obligations": [
+            "STEP-03-generate",
+            "STEP-04-analyze"
+          ],
+          "parameters": {
+            "adapter": "recast",
+            "workflow_step": "03-generate",
+            "task": {
+              "max_seconds": 7200,
+              "analysis": "{routine}",
+              "detector_mode": "{detector_mode}"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "recast.smoke",
+                  "path": "outputs/smoke/recast.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/smoke/recast.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string",
+                "/validator_inputs/check:validation.certify_acceptance/document": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {samples, events, lhe_check, cutflow, qualification: {routine, status}, detector_mode} at smoke statistics."
+        },
+        {
+          "id": "visualize.waypoint",
+          "kind": "operate",
+          "title": "05 Early-verification waypoint (CHECK-IN 2 evidence)",
+          "role": "analysis-author",
+          "operation": "figure-comparison",
+          "inputs": [
+            {
+              "artifact": "recast.smoke:outputs/smoke/recast.json",
+              "sha256": null,
+              "required": true,
+              "kind": "cutflow"
+            },
+            {
+              "artifact": "inputs.figures:outputs/waypoint.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            },
+            {
+              "artifact": "inputs.figures:outputs/figure_target.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/waypoint.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/waypoint.pdf",
+              "kind": "figure",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "recast.smoke",
+            "inputs.figures",
+            "inputs.traps"
+          ],
+          "waypoint": true,
+          "rung": "smoke",
+          "budget": {
+            "wall_seconds": 1800,
+            "events": 0
+          },
+          "protocols": [],
+          "review": [
+            "figure-critic"
+          ],
+          "instruction_sources": [
+            "docs/workflow/steps/05-visualize.md",
+            "docs/workflow/checklists/check-ins.md",
+            "docs/workflow/checklists/plot-criteria.md"
+          ],
+          "obligations": [
+            "STEP-05-visualize",
+            "C10"
+          ],
+          "parameters": {
+            "adapter": "waypoint",
+            "workflow_step": "05-visualize",
+            "task": {},
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.plot_lint": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.plot_lint/document",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.verify_pack.check_figures": {
+                "figures": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.verify_pack.check_figures/figures",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_figure_contract": {
+                "target": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.waypoint",
+                  "path": "outputs/waypoint.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/waypoint.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.plot_lint/document": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:validation.verify_pack.check_figures/figures": "path",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string",
+                "/validator_inputs/check:validation.certify_acceptance/document": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {summary, element, expectation, evidence, figures} for CHECK-IN 2."
+        },
+        {
+          "id": "acquire.data",
+          "kind": "acquire",
+          "role": "coordinator",
+          "title": "06 Published data and likelihood",
+          "operation": "acquire-published",
+          "inputs": [
+            {
+              "artifact": "inputs.route:outputs/route_analysis.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.census:outputs/inputs/resource_census.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/hepdata/hepdata_manifest.json",
+              "kind": "document",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "inputs.route",
+            "inputs.census"
+          ],
+          "waypoint": false,
+          "rung": "none",
+          "budget": {
+            "wall_seconds": 1800,
+            "events": 0
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/06-acquire-data.md",
+            "docs/workflow/checklists/data-acquisition.md"
+          ],
+          "obligations": [
+            "STEP-06-acquire-data"
+          ],
+          "parameters": {
+            "adapter": "acquire",
+            "workflow_step": "06-acquire-data",
+            "task": {
+              "max_bytes": 1073741824
+            },
+            "effects": [
+              "acquires_published"
+            ],
+            "launch": {
+              "argv": [
+                "python",
+                "-m",
+                "ravel.workflow.resource_census",
+                "--fetch-published-data",
+                "--record-source",
+                "@input:inputs.route:outputs/route_analysis.json",
+                "--out",
+                "hepdata",
+                "--download-likelihood",
+                "--tables"
+              ],
+              "reads": [],
+              "stage": "acquire-data"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.validate_run_state.check_resource_census": {
+                "census": {
+                  "source": "output",
+                  "step": "inputs.census",
+                  "path": "outputs/inputs/resource_census.json",
+                  "type": "path"
+                }
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Fetches the record the route analysis names (hepdata_record): tables and, when published, the likelihood."
+        },
+        {
+          "id": "run.full",
+          "kind": "operate",
+          "title": "03-07 Full rung: generation, detector, routine and the requested statistic",
+          "role": "analysis-author",
+          "operation": "analysis-lifecycle",
+          "inputs": [
+            {
+              "artifact": "visualize.waypoint:outputs/waypoint.json",
+              "sha256": null,
+              "required": true,
+              "kind": "table"
+            },
+            {
+              "artifact": "acquire.data:outputs/hepdata/hepdata_manifest.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/limits.json",
+              "kind": "inference",
+              "required": true
+            },
+            {
+              "path": "outputs/histograms.json",
+              "kind": "binned_values",
+              "required": true
+            },
+            {
+              "path": "outputs/cutflow.json",
+              "kind": "cutflow",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "visualize.waypoint",
+            "acquire.data",
+            "inputs.traps"
+          ],
+          "waypoint": false,
+          "rung": "full",
+          "budget": {
+            "wall_seconds": 43200,
+            "events": 100000
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/03-generate.md",
+            "docs/workflow/steps/07-exclude.md",
+            "docs/workflow/checklists/exclusion-model.md",
+            ".claude/skills/run-stage/SKILL.md",
+            ".claude/skills/certify/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-03-generate",
+            "STEP-07-exclude"
+          ],
+          "parameters": {
+            "adapter": "exclude",
+            "workflow_step": "07-exclude",
+            "task": {
+              "max_seconds": 43200,
+              "analysis": "{routine}",
+              "detector_mode": "{detector_mode}",
+              "stat_mode": "{stat_mode}"
+            },
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "run.full",
+                  "path": "outputs/limits.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/limits.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes the result pack limits {statistic, limits (typed numerical status), detector_mode, headline, statistics (the limit-setting engine's statistics record: situations, chosen methods, validity checks, outcome), uncertainty (its uncertainty statement), limitations (every qualification label)} and the histograms; the statistics-situation catalogue is a pinned input."
+        },
+        {
+          "id": "visualize.final",
+          "kind": "operate",
+          "title": "05 Final figures over the published data",
+          "role": "analysis-author",
+          "operation": "figure-comparison",
+          "inputs": [
+            {
+              "artifact": "run.full:outputs/limits.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "inputs.figures:outputs/figure_target.json",
+              "sha256": null,
+              "required": true,
+              "kind": "document"
+            },
+            {
+              "artifact": "inputs.traps:outputs/trap_sweep.json",
+              "kind": "validation:trap-sweep",
+              "required": true
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/figures.json",
+              "kind": "table",
+              "required": true
+            },
+            {
+              "path": "outputs/figure.pdf",
+              "kind": "figure",
+              "required": false
+            }
+          ],
+          "depends_on": [
+            "run.full",
+            "inputs.figures",
+            "inputs.traps"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 3600,
+            "events": 0
+          },
+          "protocols": [],
+          "review": [
+            "figure-critic"
+          ],
+          "instruction_sources": [
+            "docs/workflow/steps/05-visualize.md",
+            "docs/workflow/checklists/plot-criteria.md",
+            "docs/workflow/checklists/figure-contract.md"
+          ],
+          "obligations": [
+            "STEP-05-visualize"
+          ],
+          "parameters": {
+            "adapter": "visualize",
+            "workflow_step": "05-visualize",
+            "task": {},
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              },
+              "check:validation.plot_lint": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              },
+              "check:validation.verify_pack.check_figures": {
+                "figures": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_trap_sweep": {
+                "sweep": {
+                  "source": "output",
+                  "step": "inputs.traps",
+                  "path": "outputs/trap_sweep.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_run_state.check_figure_contract": {
+                "target": {
+                  "source": "output",
+                  "step": "inputs.figures",
+                  "path": "outputs/figure_target.json",
+                  "type": "path"
+                }
+              },
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "visualize.final",
+                  "path": "outputs/figures.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/figures.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string",
+                "/validator_inputs/check:validation.certify_acceptance/document": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {figures: [{id, path, lint}]} for every declared target."
+        },
+        {
+          "id": "compare.reference",
+          "kind": "compare",
+          "title": "Reference comparison with one pinned comparator (P2, P5)",
+          "role": "discrepancy-attributor",
+          "inputs": [
+            {
+              "artifact": "run.full:outputs/limits.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "visualize.final:outputs/figures.json",
+              "sha256": null,
+              "required": true,
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/comparison.json",
+              "kind": "comparison",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "run.full",
+            "visualize.final"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 3600,
+            "broker_calls": 200
+          },
+          "protocols": [
+            "P2",
+            "P5"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/05-visualize.md",
+            "docs/workflow/checklists/reproduction-closure.md",
+            "docs/workflow/checklists/judgment-protocols.md"
+          ],
+          "obligations": [],
+          "parameters": {
+            "adapter": "compare",
+            "workflow_step": "05-visualize",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.certify_acceptance": {
+                "document": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.certify_acceptance/document",
+                  "type": "path"
+                }
+              },
+              "check:validation.validate_cutflow": {
+                "signal": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/signal",
+                  "type": "path"
+                },
+                "routine": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/routine",
+                  "type": "string"
+                },
+                "sigma_pb": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/sigma_pb",
+                  "type": "number"
+                },
+                "lumi_fb": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/lumi_fb",
+                  "type": "number"
+                },
+                "tables_dir": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/tables_dir",
+                  "type": "path"
+                },
+                "grid": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/grid",
+                  "type": "string"
+                },
+                "m_parent": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_parent",
+                  "type": "number"
+                },
+                "m_lsp": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/m_lsp",
+                  "type": "number"
+                },
+                "srs": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/srs",
+                  "type": "string"
+                },
+                "driving_sr_override": {
+                  "source": "output",
+                  "step": "compare.reference",
+                  "path": "outputs/comparison.json",
+                  "field": "/validator_inputs/check:validation.validate_cutflow/driving_sr_override",
+                  "type": "string"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/comparison.json": {
+                "/validator_inputs/check:validation.certify_acceptance/document": "path",
+                "/validator_inputs/check:validation.validate_cutflow/signal": "path",
+                "/validator_inputs/check:validation.validate_cutflow/routine": "string",
+                "/validator_inputs/check:validation.validate_cutflow/sigma_pb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/lumi_fb": "number",
+                "/validator_inputs/check:validation.validate_cutflow/tables_dir": "path",
+                "/validator_inputs/check:validation.validate_cutflow/grid": "string",
+                "/validator_inputs/check:validation.validate_cutflow/m_parent": "number",
+                "/validator_inputs/check:validation.validate_cutflow/m_lsp": "number",
+                "/validator_inputs/check:validation.validate_cutflow/srs": "string",
+                "/validator_inputs/check:validation.validate_cutflow/driving_sr_override": "string"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {comparator, quantity, basis_manifests: [requested, delivered], unit, lattice, tolerance, residuals, attributions: [{cause, noise_model, above_noise, replicas}]}; when the reference is withheld, {deferred_until_sealed: true} and no published material."
+        },
+        {
+          "id": "verify.mechanical",
+          "kind": "review",
+          "title": "09 Tier A: every number traced to an accepted artifact",
+          "role": "integrity-auditor",
+          "inputs": [
+            {
+              "artifact": "run.full:outputs/limits.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "visualize.final:outputs/figures.json",
+              "sha256": null,
+              "required": true,
+              "kind": "table"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/tier_a.json",
+              "kind": "findings",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "run.full",
+            "visualize.final",
+            "compare.reference"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/09-verify.md",
+            "docs/workflow/checklists/verification-panel.md",
+            ".claude/skills/verification-panel/SKILL.md"
+          ],
+          "obligations": [
+            "STEP-09-verify"
+          ],
+          "parameters": {
+            "adapter": "verify.mechanical",
+            "workflow_step": "09-verify",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:validation.certificates.validate_certificate": {
+                "path": {
+                  "source": "output",
+                  "step": "verify.mechanical",
+                  "path": "outputs/tier_a.json",
+                  "field": "/validator_inputs/check:validation.certificates.validate_certificate/path",
+                  "type": "path"
+                },
+                "kind": {
+                  "source": "output",
+                  "step": "verify.mechanical",
+                  "path": "outputs/tier_a.json",
+                  "field": "/validator_inputs/check:validation.certificates.validate_certificate/kind",
+                  "type": "string"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/tier_a.json": {
+                "/validator_inputs/check:validation.certificates.validate_certificate/path": "path",
+                "/validator_inputs/check:validation.certificates.validate_certificate/kind": "string"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {verdict: PASS|FAIL, numbers: [{value, artifact}], findings}."
+        },
+        {
+          "id": "verify.adversary",
+          "kind": "review",
+          "title": "09 Tier B and P8: three written attacks on the result",
+          "role": "physics-critic",
+          "inputs": [
+            {
+              "artifact": "run.full:outputs/limits.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "verify.mechanical:outputs/tier_a.json",
+              "sha256": null,
+              "required": true,
+              "kind": "findings"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/tier_b.json",
+              "kind": "findings",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "run.full",
+            "verify.mechanical"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 3600,
+            "broker_calls": 300
+          },
+          "protocols": [
+            "P8"
+          ],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/09-verify.md",
+            "docs/workflow/checklists/verification-panel.md",
+            "docs/workflow/checklists/judgment-protocols.md"
+          ],
+          "obligations": [
+            "STEP-09-verify"
+          ],
+          "parameters": {
+            "adapter": "verify.adversary",
+            "workflow_step": "09-verify",
+            "route_adapter": "analysis",
+            "check_inputs": {
+              "check:physics.normalization_ledger.check": {
+                "ledger": {
+                  "source": "output",
+                  "step": "verify.adversary",
+                  "path": "outputs/tier_b.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/ledger",
+                  "type": "path"
+                },
+                "delivered": {
+                  "source": "output",
+                  "step": "verify.adversary",
+                  "path": "outputs/tier_b.json",
+                  "field": "/validator_inputs/check:physics.normalization_ledger.check/delivered",
+                  "type": "path"
+                }
+              }
+            },
+            "validator_exports": {
+              "outputs/tier_b.json": {
+                "/validator_inputs/check:physics.normalization_ledger.check/ledger": "path",
+                "/validator_inputs/check:physics.normalization_ledger.check/delivered": "path"
+              }
+            }
+          },
+          "attempt_limit": 2,
+          "description": "Writes {attacks: [{kind: basis|acceptance|statistics, attack, tested_by, outcome}], findings}."
+        },
+        {
+          "id": "synthesize",
+          "kind": "synthesize",
+          "title": "Results deck: claims, numbers and the recipe ledger",
+          "role": "coordinator",
+          "inputs": [
+            {
+              "artifact": "run.full:outputs/limits.json",
+              "sha256": null,
+              "required": true,
+              "kind": "inference"
+            },
+            {
+              "artifact": "verify.adversary:outputs/tier_b.json",
+              "sha256": null,
+              "required": true,
+              "kind": "findings"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "outputs/results.json",
+              "kind": "results-deck",
+              "required": true
+            }
+          ],
+          "depends_on": [
+            "run.full",
+            "verify.adversary"
+          ],
+          "waypoint": false,
+          "rung": null,
+          "budget": {
+            "wall_seconds": 1800,
+            "broker_calls": 200
+          },
+          "protocols": [],
+          "review": [],
+          "instruction_sources": [
+            "docs/workflow/steps/09-verify.md",
+            "docs/workflow/checklists/check-ins.md"
+          ],
+          "obligations": [
+            "STEP-09-verify"
+          ],
+          "parameters": {
+            "adapter": "synthesize",
+            "workflow_step": "09-verify",
+            "route_adapter": "analysis"
+          },
+          "attempt_limit": 2,
+          "description": "Writes {headline, numbers: [{value, artifact}], claims, recipe_ledger, limitations}."
+        }
+      ],
+      "checkins": [
+        {
+          "id": "checkin1",
+          "sections": [
+            "preamble",
+            "resource_census",
+            "gallery",
+            "figure_target",
+            "method"
+          ],
+          "seats": [
+            "plan-critic"
+          ]
+        },
+        {
+          "id": "checkin2",
+          "sections": [
+            "preamble",
+            "waypoint",
+            "expectation",
+            "evidence_manifest"
+          ],
+          "seats": [
+            "figure-critic"
+          ]
+        },
+        {
+          "id": "checkin3",
+          "sections": [
+            "preamble",
+            "results",
+            "verification",
+            "recipe_ledger",
+            "limitations"
+          ],
+          "seats": [
+            "physics-critic",
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        }
+      ],
+      "obligations": [
+        "R07",
+        "C26",
+        "E04",
+        "E05",
+        "C10"
+      ],
+      "deliverables": [
+        {
+          "match": {
+            "artifact": [
+              "figure"
+            ]
+          },
+          "step": "visualize.final",
+          "output": "outputs/figures.json"
+        },
+        {
+          "match": {
+            "artifact": [
+              "inference"
+            ]
+          },
+          "step": "run.full",
+          "output": "outputs/limits.json"
+        },
+        {
+          "match": {
+            "artifact": [
+              "binned_values",
+              "cutflow"
+            ]
+          },
+          "step": "run.full",
+          "output": "outputs/histograms.json"
+        },
+        {
+          "match": {
+            "artifact": [
+              "document"
+            ]
+          },
+          "step": "synthesize",
+          "output": "outputs/results.json"
+        },
+        {
+          "match": {
+            "claim": [
+              "exclusion"
+            ]
+          },
+          "step": "run.full",
+          "output": "outputs/limits.json"
+        },
+        {
+          "match": {
+            "claim": [
+              "prediction"
+            ]
+          },
+          "step": "run.full",
+          "output": "outputs/histograms.json"
+        },
+        {
+          "match": {
+            "claim": [
+              "agreement"
+            ]
+          },
+          "step": "synthesize",
+          "output": "outputs/results.json"
+        }
+      ],
+      "instruction_sources": [
+        "docs/workflow/steps/01-environment.md",
+        "docs/workflow/steps/02-inputs.md",
+        "docs/workflow/steps/03-generate.md",
+        "docs/workflow/steps/04-analyze.md",
+        "docs/workflow/steps/05-visualize.md",
+        "docs/workflow/steps/06-acquire-data.md",
+        "docs/workflow/steps/07-exclude.md",
+        "docs/workflow/steps/09-verify.md",
+        "docs/workflow/checklists/check-ins.md",
+        "docs/workflow/checklists/physics-traps.md"
+      ],
+      "description": "Steps 01-09 of the analysis route. The prepare phase (01 environment, 02 inputs) runs before CHECK-IN 1 and supplies its evidence; the smoke rung ends at the waypoint and CHECK-IN 2; the full rung, data acquisition, statistics, figures, verification and the results deck follow; the final review, CHECK-IN 3 and the sink end the run. The route adapter is ravel.controller.routes.analysis."
+    }
+  ]
+}

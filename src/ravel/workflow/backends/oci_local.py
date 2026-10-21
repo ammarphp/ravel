@@ -108,6 +108,9 @@ class OciLocalBackend(eb.Backend):
     local = True
 
     def validate(self, spec):
+        if 'disk_mib' in spec['resources']:
+            raise ValueError('resource_limit_unsupported: oci-local cannot enforce cumulative retained disk '
+                             'or reserve receipt headroom; select a qualified storage adapter')
         if 'image' not in spec:
             raise ValueError('oci-local needs an image pinned by digest')
         image = spec['image']
@@ -128,8 +131,13 @@ class OciLocalBackend(eb.Backend):
         return {'kind': self.kind, 'local': True, 'client': resolve_client(site.get('client')),
                 'connection': site.get('connection', 'ravel'), 'host_platform': host_platform(),
                 'container_home': str(container_home()),
-                'limits_enforced': {'cpus': True, 'memory_mib': True, 'pids': PIDS_LIMIT, 'network': 'none',
-                                    'wall_seconds': 'worker'}}
+                'limits_enforced': {'cpus': True, 'memory_mib': True,
+                                    'pids': spec['resources'].get('processes', PIDS_LIMIT), 'network': 'none',
+                                    'wall_seconds': 'worker'},
+                'resource_enforcement': {'status': 'partial', 'label': 'RESOURCE PROTECTION INCOMPLETE',
+                    'memory_scope': 'aggregate container memory; kernel limit checked on container inspection',
+                    'process_scope': 'aggregate container tasks; kernel limit checked on container inspection',
+                    'disk_mib': 'unsupported', 'filesystem_receipt_headroom': 'not reserved'}}
 
     def doctor(self):
         checks = []
@@ -158,17 +166,32 @@ class OciLocalBackend(eb.Backend):
         spec = plan['spec']
         image = spec['image']
         job = Path(handle['job_dir'])
+        from ravel.controller.confine import runs
+        from ravel.controller.confine.environment import forbidden
+        controlled = runs.owner_of(job) is not None
         arguments = ['create', '--name', handle['tag'],
                      '--label', 'org.ravel.plan=' + plan['plan_sha256'], '--label', 'org.ravel.tag=' + handle['tag'],
                      '--platform', image['platform'], '--pull', 'never', '--network', 'none',
                      '--cpus', str(spec['resources']['cpus']), '--memory', f"{spec['resources']['memory_mib']}m",
-                     '--pids-limit', str(PIDS_LIMIT), '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges']
+                     '--pids-limit', str(spec['resources'].get('processes', PIDS_LIMIT)),
+                     '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges']
         for fact in [*plan['inputs'], *plan['readonly_trees']]:
             arguments += ['-v', f"{fact['path']}:{fact['mount']}:ro"]
             if 'env' in fact:
-                arguments += ['-e', f"{fact['env']}={fact['mount']}"]
+                if not controlled or not forbidden(fact['env']):
+                    arguments += ['-e', f"{fact['env']}={fact['mount']}"]
         arguments += ['-v', f"{job / 'output'}:{GUEST_OUTPUT}:rw", '-v', f"{job / 'work'}:{GUEST_WORK}:rw"]
-        for name, value in sorted(spec.get('env', {}).items()):
+        from ravel.controller.confine import runs
+        if runs.owner_of(job) is not None:
+            # A controller run's container: read-only image filesystem (private tmpfs for /tmp, /run,
+            # /var/tmp), running as the invoking user so its outputs stay that user's files.
+            arguments += ['--read-only', '--read-only-tmpfs=true', '--userns', 'keep-id',
+                          '--user', f'{os.getuid()}:{os.getgid()}']
+        capsule = spec.get('env', {})
+        if runs.owner_of(job) is not None:
+            from ravel.controller.confine.environment import scrub
+            capsule, _ = scrub(capsule)
+        for name, value in sorted(capsule.items()):
             arguments += ['-e', f'{name}={value}']
         threads = str(spec['resources']['cpus'])
         arguments += ['-e', f'RAVEL_OUTPUT_DIR={GUEST_OUTPUT}', '-e', f'OMP_NUM_THREADS={threads}']
@@ -212,7 +235,7 @@ class OciLocalBackend(eb.Backend):
         host = observation.get('HostConfig') or {}
         resources = plan['spec']['resources']
         if host.get('NanoCpus') != resources['cpus'] * 10 ** 9 or host.get('Memory') != resources['memory_mib'] * 1024 ** 2 \
-                or host.get('PidsLimit') != PIDS_LIMIT:
+                or host.get('PidsLimit') != resources.get('processes', PIDS_LIMIT):
             raise ValueError('container resource limits differ from the plan')
         return observation
 

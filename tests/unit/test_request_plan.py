@@ -573,3 +573,22 @@ def test_the_default_catalogue_lookup_resolves_preserved_routines(tmp_path, monk
     assert vp.preserved_routine(entry['id']) is True
     assert vp.preserved_routine('no routine has this name') is False
     vp._catalog.cache_clear()
+
+
+def test_required_validation_ports_remain_awaited_owner_evidence(monkeypatch):
+    case, original = drafted('written-note')
+    operation = next(n['operation'] for n in original['nodes'] if n.get('operation'))
+    registry = deepcopy(vp.registry())
+    registry[operation]['consumes'].append({
+        'slot': 'independent_check', 'kind': 'validation:independent-check', 'require': {'scope': 'current'}})
+    monkeypatch.setattr(vp, 'registry', lambda: deepcopy(registry))
+    plan = rp.draft(case.doc, case.contract(), catalogue=corpus.catalogue)
+    target = node(plan, operation)
+    edge = next(e for e in plan['edges'] if e['to'] == {'ref': target['id'], 'slot': 'independent_check'})
+    supplied = next(i for i in plan['inputs'] if i['id'] == edge['from']['ref'])
+    assert supplied['source'] == 'owner_action' and supplied['status'] == 'awaited'
+    assert supplied['pin'] is None and supplied['evidence'] == []
+    assert supplied['provides'] == {'kind': 'validation:independent-check', 'require': {'scope': 'current'}}
+    assert not [e for e in errors(case, plan, reg=registry) if e['error_class'] == 'slot_unfilled']
+    plan['edges'].remove(edge)
+    assert 'slot_unfilled' in classes(errors(case, plan, reg=registry))

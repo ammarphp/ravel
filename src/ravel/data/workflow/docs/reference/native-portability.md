@@ -152,7 +152,7 @@ architecture and C++ runtime. When the selected Fortran linker needs libc++, it
 adds only the missing `-lc++` token. Conflicting runtime flags, Rosetta, foreign
 library search paths and changed compiler/PDF inputs are rejected.
 
-An unsupported build/import override error lists the offending variable names in
+A build/import override validation error lists the offending variable names in
 sorted order and omits their values. Inspect those fields before capturing a new
 decision in an explicitly declared environment; the diagnostic does not relax
 the refusal rule or automatically change the parent process environment.
@@ -203,7 +203,7 @@ and process basis as their signal sample. Signed-weight bookkeeping remains
 separate from the validity of an uncertainty estimator; the positive-uniform
 replica-pooling adapter does not accept signed samples.
 
-## Remaining provisioning and validation work
+## Provisioning and native validation
 
 The [complete installation guide](../installation.md) supplies the current ordered setup for the full methodology and separates platform-specific routes. The helpers on this page cover macOS Miniforge, the MG5 environment/source and builds against supplied dependencies. Retain exact post-install versions, resolved package records and native build/ABI observations. The [environment inventory](environment.md) describes the existing source-machine installation.
 

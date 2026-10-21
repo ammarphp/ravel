@@ -218,7 +218,10 @@ def test_site_record_generates_snakemake_without_path_or_distribution(project, t
 
 def test_site_record_under_declared_prefix_generates_snakemake(project, tmp_path, monkeypatch, no_site_prefix):
     monkeypatch.setattr(surf, 'observe', lambda *a: {})
-    assert 'software-snakemake' not in surf.software_skills(project=project)
+    # The workflow manager is a declared runtime dependency, so an installed one may already have
+    # its skill; before the site record none is declared by a site-wms record or carries its version.
+    before = surf.software_skills(project=project).get('software-snakemake', '')
+    assert '9.27.1' not in before and 'site-wms record' not in before
     prefix = tmp_path / 'prefix'
     site_record(prefix, version='9.27.1')
     monkeypatch.setenv('RAVEL_SITE_PREFIX', str(prefix))

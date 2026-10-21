@@ -29,13 +29,13 @@ be to prior nodes, with distinct local and native identities.
 | partonic_tops | literal cuts, decay_mode, emu_from_prompt_tau bool, include_hadronic_taus bool, which_top first/last and record_scope=native_generator_record |
 | heavy_hadrons | literal cuts on the native UnstableParticles input before heavy-flavor/terminal-copy selection |
 
-Outputs may use native particles, particles_by_pt, raw_particles or, for a dressed
+Outputs can use native particles, particles_by_pt, raw_particles or, for a dressed
 node, dressed_leptons; an invariant_mass node also supports particle_pairs.
 Projection registration is required for access. Native pT
 sorting leaves equal-pT order unspecified. Native base types are enforced: PartonicTops is a ParticleFinder rather than a
-FinalState. It may be a VetoedFinalState particle-finder veto, but cannot be an
+FinalState. It can be a VetoedFinalState particle-finder veto, but must not be an
 input to FinalState-based selection, FastJets, DileptonFinder or MissingMomentum.
-HeavyHadrons is FinalState-derived and may use those native interfaces. This is
+HeavyHadrons is FinalState-derived and can use those native interfaces. This is
 a C++ type boundary; passing it does not establish physical applicability.
 
 The source-bound meanings matter. Promptness is Rivet ancestry, not reconstructed
@@ -57,20 +57,13 @@ all original source outside explicitly recorded projection/header slots, exact
 assets, collection retrieval, event selection, histogram booking and finalization.
 Their new capsules are incomplete and unresolved. Source-body restoration and
 regeneration controls do not establish native API/particle-event equality or paper
-physics. CMS/ATLAS WW input populations are not presently qualified here.
-
-Unsupported particle construction remains explicit: nonprompt-only filtering,
-AKT/CLUSTER dressing,
-flavour dressing, dynamic radius, arbitrary cuts/OR expressions other than a PID
-roster, arbitrary decay-chain finders, detector responses and solver/classifier input.
-Such directions remain candidates for construction and testing, not blanket
-refusals of the analysis.
+physics. External diboson input populations are not presently qualified here.
 
 The selection/composition extension is bound to inspected Rivet4.1.4 native
 headers and implementations. InvisibleFinalState uses an uncut whole FinalState;
-it may select invisible BSM species as well as neutrinos. Promptness uses
+it can select invisible BSM species as well as neutrinos. Promptness uses
 isDirect and the explicit tau/muon policies. It is not a detector-MET projection.
-ChargedLeptons may contain charged stable taus if the parent does; it does not
+ChargedLeptons can contain charged stable taus if the parent does; it does not
 reconstruct tau decays.
 
 LeadingParticlesFinalState selects the highest-pT particle per signed PID, with
@@ -80,9 +73,7 @@ strictly positive-pT leader exists, including empty input. That mode requires
 empty_policy="native_default_particle"; ordinary per-PID mode requires
 "empty_collection". No unchecked single-particle accessor is emitted.
 
-InvMassFinalState uses literal ordered signed PID pairs. Equal-species pairs are
-unsupported because the pinned native selector's if/else-if cannot populate
-both species buckets. Negative full mass-squared is rejected before the native
+InvMassFinalState uses literal ordered signed PID pairs. Each pair requires two distinct signed species so the pinned native selector populates both species buckets. Negative full mass-squared is rejected before the native
 mass window. A transverse window still chooses a positive target by closest
 full invariant mass. The pinned native1e30 distance sentinel and strict comparison
 are retained: if no distance falls below that sentinel, the passing set remains.
@@ -98,9 +89,7 @@ The pinned native cache comparison omits InvisibleFinalState prompt/decay flags
 and InvMassFinalState target mass. One recipe therefore permits only identical
 invisible policy, and only identical target for an equal PID-pair/window/measure
 policy, conservatively even across different parent local names. Distinct
-declaration names do not establish native cache separation. This guard cannot
-inspect independently authored enclosing C++ projections; review the complete
-routine for additional conflicting declarations before compilation.
+declaration names do not establish native cache separation. Review independently authored enclosing C++ projections in the complete routine for additional conflicting declarations before compilation.
 
 Three complete source construction cases preserve SYN_9023_I1422,
 SYN_9024_I1071 and SYN_9025_I1358 outside explicit init/header slots.
@@ -121,7 +110,7 @@ opportunities, not49 served routines. Five constructor families are implemented;
 zero new routines have native-event or whole-task qualification.
 
 The complete547-row census retains626 eligible survey rows (547 Rivet and79
-user-deferred SimpleAnalysis), with no new scientific coverage credit. Source
+SimpleAnalysis by recorded user decision), with no new scientific coverage credit. Source
 references142PromptFinalState/147LeptonFinder/103IdentifiedFinalState/161VetoedFinalState
 have241 distinct routines in their union. Constructor overloads and actual
 per-routine applicability must be inspected before assigning a component recipe.
@@ -135,10 +124,10 @@ objects and flows. Only the observed nominal weight domain is covered by those
 existing contracts. Named-weight generalization requires new source/actual
 weight evidence. A whole-output compatibility check does not infer MC covariance.
 
-The particle component needs a future independent ancestry/shared-photon/cone-edge/
+The particle component needs a subsequent independent ancestry/shared-photon/cone-edge/
 post-cut/raw-veto cohort with explicitly declared all-weight/signed/zero cases,
 fresh baseline and derivative builds, whole RAW/final outputs and event-level
-projection witnesses. It cannot use a pure-jet or empty event fixture to claim
+projection witnesses. It must not use a pure-jet or empty event fixture to claim
 that endpoint. A source proposal is useful before that cohort exists, but native
 approval and scientific support remain absent until the actual experiment.
 
@@ -154,7 +143,7 @@ decay classifier scans native allDescendants, with prompt-lepton and photon-
 ancestor rules. Hadronic tau selection examines direct charged-lepton children.
 Negative energy or mass is rejected after native copy/decay selection.
 
-record_scope must be native_generator_record. Event-record tops may be absent,
+record_scope must be native_generator_record. Event-record tops can be absent,
 unphysical or outside the lab frame; this selector is not a fiducial pseudo-top
 or detector reconstruction. tops, particles, particles_by_pt and raw_particles
 are complete collection accessors; no unchecked singleton is emitted.
@@ -179,7 +168,7 @@ header/init/access spans, with all original assets. Their18 normalized spectra,
 6 cross-section spectra and full asymmetry/RAW operands retain the original
 finalization. The four tau policies of the asymmetry source remain separate.
 Ordinary native_construction packets bind the original full source and the
-deterministic proposal as support, requiring a distinct future target name.
+deterministic proposal as support, requiring a distinct subsequent target name.
 They do not label it a fresh model output. Fresh source_capsule identities keep
 dependency review incomplete, and ordinary routine_build refuses them until
 complete runtime admission. No prior source or baseline acceptance carries.
@@ -199,15 +188,15 @@ weights, full RAW/final/flow/error states and paper applicability remain pending
 `primary_particles` lowers `Rivet::PrimaryParticles({pids}, Cut)` with an explicit
 ordered roster of 0–128 distinct positive native `int` PID literals. The native
 selector compares `abs(record.pid)` to each literal; an empty roster accepts no
-species, and a negative roster element cannot match. Order is preserved because
+species, and each roster element must use the declared absolute-species convention. Order is preserved because
 native projection comparison includes the ordered roster. `alice_primary_particles`
 lowers `ALICE::PrimaryParticles(Cut)` from `Rivet/Projections/AliceCommon.hh`.
 It uses the unchanged native ALICE species switch, including nuclei and neutrinos;
-it cannot accept a user PID override. Both kinds require
+it must not accept a user PID override. Both kinds require
 `record_scope="native_generator_record"`, literal `cuts`, and the usual optional
 registration/output fields. They are ParticleFinder-derived, **not FinalState**:
-raw-identity projection vetoes may consume them, but FinalState selectors,
-FastJets, DileptonFinder and MissingMomentum inputs may not. The native source
+raw-identity projection vetoes can consume them, but FinalState selectors,
+FastJets, DileptonFinder and MissingMomentum inputs must not. The native source
 can still use them as ParticleFinder inputs to Correlators or EventMixingFinalState.
 
 PrimaryParticles walks only the native first production-vertex parent, skipping
@@ -225,7 +214,7 @@ are gt/ge/lt/le/eq/ne. `native_range` takes `value:{low,high}` with finite, orde
 literal endpoints and calls `Cuts::range` directly; Rivet's interval is lower
 inclusive and upper exclusive. Equal endpoints intentionally denote an empty
 interval. pT ranges use GeV; the old nonnegative absolute-quantity and pT limits
-remain. Signed eta/rapidity/charge may be negative. Predicate count and duplicate
+remain. Signed eta/rapidity/charge can be negative. Predicate count and duplicate
 identity guards remain, and jet/pair cut contracts are separate. Existing recipes
 retain exact emitted source and metadata.
 
@@ -261,6 +250,6 @@ applicability require fresh execution and independent scientific review.
 
 `decayed_particles` constructs Rivet `DecayedParticles` from an earlier native ParticleFinder node. Required fields are `input`, `stable_pids` (distinct signed native integer PID roster, empty permitted) and `record_scope: native_generator_record`. It emits native `addStable` calls; stopping on a PID does not automatically stop on its antiparticle. Native decay recursion, source generator history, aligned table order and `modeMatches` remain in Rivet and the enclosing full routine.
 
-The class derives from Projection, not ParticleFinder or FinalState. It cannot be a FastJets, MET, FinalState or raw-identity veto input, or another decay-table parent. Optional output `access` is `projection`, `decaying`, `n_stable` or `decay_products`; each emits a complete const native reference. Null output retains lazy native projection construction. No singleton/index/mode kernel is lowered.
+The class derives from Projection, not ParticleFinder or FinalState. It must not be a FastJets, MET, FinalState or raw-identity veto input, or another decay-table parent. Optional output `access` is `projection`, `decaying`, `n_stable` or `decay_products`; each emits a complete const native reference. Null output retains lazy native projection construction. No singleton/index/mode kernel is lowered.
 
 Native4.1.4 sorts parent particles by pT, skips mothers with zero/one direct child, recurses to leaf or exact signed stop PID, and counts every terminal product. Mother, total count and signed PID-map tables share the same filtered mother index. `modeMatches` checks the supplied total and each requested species multiplicity; preserve the original complete maps, conjugation and safe indices. This is generator record semantics, not a detector decay efficiency, branching fraction or lifetime model. Complete upstream native-source execution remains available beyond this bounded construction subset; fresh version/API/compile/load/whole output and physical cohort qualification is required.

@@ -35,7 +35,7 @@ from datetime import datetime, timezone
 from typing import Callable, Sequence
 
 from . import graph_environment  # noqa: F401  (strict msgpack before any LangGraph import)
-from . import agent_graph
+from . import agent_graph, agent_tripwire
 from .state_io import atomic_json, file_lock, read_json
 
 SCHEMA_VERSION = 2
@@ -549,6 +549,7 @@ def call(scope_root, *, graph, path, kind, identity, provisioning, function: Cal
     defines equality; ``provisioning`` is recorded and never compared. A provisioning
     difference on reuse is appended to ``drift`` (a list) and to the receipt's reuses.
     """
+    agent_tripwire.check('effect_ledger.call')
     root = _scope(scope_root)
     if (type(graph) is not dict or set(graph) != {"id", "version"} or type(graph["id"]) is not str
             or type(graph["version"]) is not int or graph["version"] < 0):

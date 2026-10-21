@@ -19,7 +19,7 @@ parent IDs. Text evidence identifies an exact line range, excerpt SHA256 and
 human locator. Original PDFs or raw HTML can be retained as binary parents of a
 located text extraction. This binds their custody, not the correctness of an OCR
 or extraction operation. Fact/convention/procedure nodes require located evidence;
-hypothesis nodes, including an entirely exploratory index, may have no citations.
+hypothesis nodes, including an entirely exploratory index, can have no citations.
 
 Nodes retain their statement, tags, domain, conventions, applicability, equations
 (expression/unit/basis/domain), evidence and stable test obligations. Edges retain
@@ -48,8 +48,8 @@ be established first.
 The existing AgentHost offers `physics-knowledge` with
 `parameters: {"request_input": "<bound-input-id>"}`. Every expanded graph/source
 pin must also be present in that node's explicit inputs. Source-aware retrieval
-cannot assert a blinded critic/verifier context. The kernel source is part of
-Host identity, so cached graph output cannot bypass a changed implementation.
+must retain its nonblind context classification. The kernel source is part of
+Host identity, so cached graph output must not bypass a changed implementation.
 No model, network, native process or scientific worker is invoked by this action.
 
 A retrieved JSON packet can feed `scientific_context` as an ordinary API/example

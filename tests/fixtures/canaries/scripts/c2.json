@@ -1,0 +1,84 @@
+{
+ "schema_version": 1,
+ "kind": "canary-worker-script",
+ "rules": [
+  {
+   "name": "prepare",
+   "when": {
+    "step": "prepare"
+   },
+   "outputs": {
+    "outputs/campaign-request.json": {
+     "schema_version": 1,
+     "kind": "research-campaign-design",
+     "campaign": {
+      "id": "toy-power-campaign",
+      "budget": {
+       "calls": 1,
+       "output_tokens": 60000,
+       "wall_seconds": 600,
+       "native_attempts": 0
+      },
+      "max_experiments": 1,
+      "exploration_every": 1,
+      "required_experiments": [],
+      "premises": []
+     },
+     "evidence": [
+      {
+       "input": "toy_measurements.csv",
+       "purpose": "model_context"
+      }
+     ],
+     "candidate_modes": null,
+     "review": {
+      "arguments": {},
+      "allow_control": false
+     },
+     "max_decisions": 2,
+     "max_output_tokens": 4096,
+     "max_wall_seconds": 300
+    },
+    "outputs/child-requests.json": []
+   },
+   "final": {
+    "decisions": [
+     {
+      "statement": "Designed a bounded campaign over the supplied table; the controller derives its request.",
+      "cites": [
+       "final_record#/instruction_ack/manifest_sha256"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "research-decision",
+   "when": {
+    "step": "research-[0-9a-f]+"
+   },
+   "outputs": {
+    "outputs/public-record.json": {
+     "kind": "research-source-request",
+     "context_json": "{}",
+     "obligation_mapping_json": "[]",
+     "modes": [
+      "quantities"
+     ],
+     "reason": "Read the quantities operation source before declaring the context."
+    }
+   },
+   "final": {
+    "decisions": [
+     {
+      "statement": "Requested no further source before declaring the context.",
+      "cites": [
+       "final_record#/instruction_ack/manifest_sha256"
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "include": "common.json"
+}

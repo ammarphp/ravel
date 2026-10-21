@@ -4,8 +4,10 @@ Synthetic run fixtures only; no physics, native or model process is started.
 """
 import hashlib
 import json
+from pathlib import Path
 
 import pytest
+from ravel.workflow import research_evaluation
 
 from ravel import cli
 from ravel.workflow import (research_protocol as p, research_launch as launch, research_admission,
@@ -260,14 +262,17 @@ def test_default_protocol_runs_every_stage_past_validate(tmp_path, monkeypatch):
     The decision provider and role graphs are inert synthetic seams; no review is claimed.
     """
     from copy import deepcopy
-    from ravel.workflow import research_cycle as c, agent_graph
+    from ravel.workflow import research_cycle as c, agent_graph, role_registry
     from test_research_protocol_enforcement import observed
     from test_research_default_protocol import synthetic_artifacts, write as pin_write, STAGES
     from test_research_cycle import write
     monkeypatch.setenv('RAVEL_STATE_DIR', str(tmp_path/'ledger'))
     monkeypatch.setenv('RAVEL_ML_TEST_NAMESPACE', str(tmp_path/'ledger'))
     monkeypatch.setattr(p, 'decision_errors', lambda *a, **k: [])
-    root, state = observed(tmp_path, monkeypatch, measured=1, max_rounds=1)
+    # Two actual idea calls add 2*30 seconds and 2*2048 output tokens to
+    # the original fixture allocation, before the campaign is created.
+    root, state = observed(tmp_path, monkeypatch, measured=1, max_rounds=1,
+                           budget={'wall_seconds': 660, 'output_tokens': 4096})
     # Commit selection on the observed trial, then dispatch and observe one confirmation.
     request = {'rule': {'direction': 'maximize', 'metric': 'response', 'k': 1, 'alpha': .05},
                'regime': 'closed_scored',
@@ -282,6 +287,7 @@ def test_default_protocol_runs_every_stage_past_validate(tmp_path, monkeypatch):
     write(rd/'outputs/attempt-1/result.json', {'metric': 1, 'p': .001, 'decision': 'better'})
     state['experiments'].append(e)
     state = c._commit(root, state, 'fixture_confirmation_prepared')
+    research_evaluation.prepare_dispatch_action(root, 'confirm')
     p.record_confirmation_dispatch(root, state, 'confirm')
     c.observe(root, 'confirm')
     report = p.produce_selection_report(root)
@@ -295,19 +301,39 @@ def test_default_protocol_runs_every_stage_past_validate(tmp_path, monkeypatch):
     claim.update(N=receipt['N'], selection_receipt=selected, selection_report=report)
     for name, row in (('selection', validate['selection']), ('claim', claim)):
         rebind_rdj(root, name, row)
-    monkeypatch.setattr(c, 'validate_graph_reservation', lambda *a: None)
+    actual_reservation = c.validate_graph_reservation
+    actual_result = c._graph_result
+    actual_receipt = agent_graph.role_receipt
+    monkeypatch.setattr(c, 'validate_graph_reservation', lambda state, root, spec:
+        actual_reservation(state, root, spec) if spec['graph_id'].startswith('actual-idea-stream-') else None)
     # Producers mocked present; acceptance otherwise refuses with producer_pending.
     present = p.protocol_producers_present()
     monkeypatch.setattr(p, 'protocol_producers_present', lambda **k: {**present, 'missing': [], 'valid': True})
     for stage in STAGES:
+        if stage == 'ideas':
+            from test_research_full_cycle_ideas import actual_ideas
+            artifacts[stage] = actual_ideas(root, artifacts[stage], root/'actual-ideas')
         artifact = pin_write(root, stage + '.json', artifacts[stage])
-        prepared = p.prepare_stage(root, stage, artifact, root/('review-' + stage), model='stub')
-        def receipt_for(graph_root, node_id, stage=stage, **kwargs):
+        roles = next(row['roles'] for row in p.default_protocol()['stages'] if row['id'] == stage)
+        def model(role):
+            return 'gpt-5' if role_registry.load(role)['independence']['kind'] == 'producer' else 'claude-x'
+        prepared = p.prepare_stage(root, stage, artifact, root/('review-' + stage), model='gpt-5',
+            role_models={role: {'model': model(role)} for role in roles})
+        def receipt_for(graph_root, node_id, **kwargs):
+            if node_id == 'ideas':
+                return actual_receipt(graph_root, node_id, **kwargs)
+            stage = Path(graph_root).name[len('graph-'):]
             manifest = json.loads((root/('review-' + stage)/node_id/'packet/manifest.json').read_text())
+            # Each synthetic seat is its own observed actor, session and packet.
+            seat = 'synthetic-' + stage + '-' + node_id
             return {'context_transport_separated': True, 'execution_observation': 'host_attested_external',
+                    'transport': {'observed_model': model(node_id), 'actor_id': seat, 'invocation_id': seat},
+                    'context_manifest_sha256': manifest['sha256'],
                     'presented_subject_sha256s': [r['sha256'] for r in manifest['artifacts']], 'synthetic_stub': True}
         monkeypatch.setattr(agent_graph, 'role_receipt', receipt_for)
         def result(graph_root, node_id, stage=stage, prepared=prepared):
+            if node_id == 'ideas':
+                return actual_result(graph_root, node_id)
             return {'value': {'value': {'stage': stage, 'role_id': node_id, 'subject_sha256': prepared['subject']['sha256'],
                                         'verdict': 'accept', 'findings': [], 'attributed_claim_ids': ['K1']}}}
         monkeypatch.setattr(c, '_graph_result', result)

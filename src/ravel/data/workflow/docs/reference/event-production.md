@@ -61,7 +61,7 @@ The production runs only through ordinary `ravel plan`, approval and `ravel run`
   and filter efficiency as its factor.
 - `merge` is `list` (the chunk files, pinned, are the sample) or `hadd` (one file, with its entry
   count and weight sums checked against the chunks).
-- `tools` may name `shower`, `shower_merged`, `delphes` and `hadd` programs. By default the
+- `tools` can name `shower`, `shower_merged`, `delphes` and `hadd` programs. By default the
   installed programs from the native toolchain are used; `ravel doctor` reports a missing one.
 
 ## Invisible particles and detector cards
@@ -71,7 +71,7 @@ model:
 
 - with `model.slha` and `model.produced`, every stable BSM state reached by the decay chains of the
   produced states must be declared invisible or listed in `visible_stable`, and no declared
-  invisible state may decay in the card;
+  invisible state can decay in the card;
 - with `model.closure_report` (the decay-closure check of a simplified spectrum), every state in
   its invisible census must be declared.
 

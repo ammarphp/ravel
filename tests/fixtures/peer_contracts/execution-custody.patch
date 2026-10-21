@@ -1,0 +1,106 @@
+diff --git a/src/ravel/workflow/execution.py b/src/ravel/workflow/execution.py
+--- a/src/ravel/workflow/execution.py
++++ b/src/ravel/workflow/execution.py
+@@ -663,6 +663,11 @@ def await_worker_registration(rundir, stage, *, timeout=5.0):
+     rd = Path(rundir).resolve()
+     if os.environ.get(BACKEND_JOB_ENV) and os.getppid() != _recorded_supervisor(rd, stage):
+         return _await_backend_payload(rd, stage, timeout)
++    if os.environ.get(CONFINED_CUSTODY_ENV):
++        # A confined worker proves its attempt's custody by the launch's secret: inside a sandbox
++        # the pid chain cannot be shown (ravel.controller.confine.custody).
++        from ravel.controller.confine import custody
++        return custody.confined_worker(rd, stage, timeout=timeout)
+     parent, child = os.getppid(), os.getpid()
+     parent_identity = process_identity(parent)
+     child_identity = process_identity(child)
+@@ -689,6 +694,7 @@ def await_worker_registration(rundir, stage, *, timeout=5.0):
+ 
+ # ---------------------------------------------------------------- backend payload custody
+ BACKEND_JOB_ENV = 'RAVEL_BACKEND_JOB'
++CONFINED_CUSTODY_ENV = 'RAVEL_STAGE_CUSTODY'
+ 
+ 
+ def _parent_pid(pid):
+@@ -725,9 +731,13 @@ def worker_custody(rundir, stage, record=None):
+     refused = 'scientific worker requires its current approved supervised attempt'
+     if record.get('status') != 'running':
+         raise ValueError(refused)
++    confined = bool(os.environ.get(CONFINED_CUSTODY_ENV))
++    if confined and not os.environ.get(BACKEND_JOB_ENV):
++        from ravel.controller.confine import custody
++        return custody.confined_worker(rd, stage, record)
+     me, parent = os.getpid(), os.getppid()
+     identity = process_identity(me)
+-    if identity is None:
++    if identity is None and not confined:
+         raise ValueError('scientific worker process registration identity unavailable')
+     supervisor = record.get('supervisor_pid')
+     if parent == supervisor:
+@@ -743,9 +753,10 @@ def worker_custody(rundir, stage, record=None):
+             or any(p.is_symlink() for p in (job, *job.parents))):
+         raise ValueError('backend payload job directory is not the current attempt\'s job')
+     worker, worker_identity = record.get('child_pid'), record.get('child_identity')
+-    if (type(worker) is not int or worker_identity is None or process_identity(worker) != worker_identity
+-            or type(supervisor) is not int or process_identity(supervisor) is None
+-            or _parent_pid(worker) != supervisor):
++    if not confined and (type(worker) is not int or worker_identity is None
++                         or process_identity(worker) != worker_identity
++                         or type(supervisor) is not int or process_identity(supervisor) is None
++                         or _parent_pid(worker) != supervisor):
+         raise ValueError('backend worker is not the live registered child of the live supervisor')
+     handle = read_json(attempt / 'backend-handle.json')
+     remote = handle.get('remote') if isinstance(handle.get('remote'), dict) else {}
+@@ -753,10 +764,17 @@ def worker_custody(rundir, stage, record=None):
+     if (handle.get('backend') != 'native' or handle.get('job_dir') != str(job)
+-            or handle.get('state') not in ('submitted',) or type(launcher) is not int):
++            or handle.get('state') not in (('dispatching', 'submitted') if confined else ('submitted',))
++            or (not confined and type(launcher) is not int)):
+         raise ValueError('backend payload custody requires the attempt\'s submitted native job')
+-    if (parent != launcher or remote.get('identity') is None
++    if confined:
++        # Inside a launch sandbox the pid chain cannot be shown; the controller-side launcher
++        # recorded this payload's custody secret in payload.json (backends/native.py).
++        from ravel.controller.confine import custody
++        if not custody.confined_payload(job):
++            raise ValueError('backend launcher did not acknowledge this confined payload')
++    elif (parent != launcher or remote.get('identity') is None
+             or process_identity(launcher) != remote['identity'] or _parent_pid(launcher) != worker):
+         raise ValueError('backend payload is not the child of the recorded launcher of the registered worker')
+-    if read_json(job / 'payload.json') != {'pid': me, 'identity': identity}:
++    elif read_json(job / 'payload.json') != {'pid': me, 'identity': identity}:
+         raise ValueError('backend launcher did not acknowledge this payload process')
+     # The attempt keeps the exact bytes of the pinned plan; the handle names their digests.
+     plan_file = attempt / 'plan.json'
+@@ -768,7 +786,7 @@ def worker_custody(rundir, stage, record=None):
+         raise ValueError('backend payload plan is not the pinned plan of the approved attempt')
+     return {'mode': 'backend', 'supervisor_pid': supervisor, 'worker_pid': worker, 'launcher_pid': launcher,
+             'payload_pid': me, 'job_dir': str(job), 'output_dir': str(job / 'output'),
+-            'plan_sha256': handle.get('plan_sha256')}
++            'plan_sha256': handle.get('plan_sha256'), 'confined': confined}
+ 
+ 
+ def _await_backend_payload(rd, stage, timeout):
+diff --git a/src/ravel/workflow/science.py b/src/ravel/workflow/science.py
+--- a/src/ravel/workflow/science.py
++++ b/src/ravel/workflow/science.py
+@@ -2045,7 +2045,7 @@ def _verify_worker_observed(rd, session, *, _readonly=None):
+         raise ValueError('scientific worker requires its current approved supervised attempt')
+     # A placed stage writes into its attempt's backend staging; the backend fetch
+     # moves the hashed result to the declared output afterward.
+-    output = (stage['outputs'][0] if custody['mode'] == 'direct'
++    output = (stage['outputs'][0] if custody['mode'] in ('direct', 'confined')
+               else str(Path(custody['output_dir']) / Path(stage['outputs'][0]).name))
+     return {**p, 'stages': [stage], 'stage_binding': binding, 'max_seconds': budget,
+             'output_directory': output, 'attempt': attempt['attempt']}
+diff --git a/src/ravel/workflow/scoped.py b/src/ravel/workflow/scoped.py
+--- a/src/ravel/workflow/scoped.py
++++ b/src/ravel/workflow/scoped.py
+@@ -536,6 +536,8 @@ def verify_worker(rundir):
+         return proposal
+     # A placed stage: this worker is the payload of the attempt's native backend job.
+     custody = execution.await_worker_registration(rd, stage)
++    if custody.get("mode") == "confined":
++        return proposal
+     if custody.get("mode") != "backend":
+         raise ValueError("worker must be launched by its current supervised attempt")
+     return {**proposal, "output_directory": str(Path(custody["output_dir"]) / "outputs")}

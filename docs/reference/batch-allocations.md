@@ -3,7 +3,8 @@
 On a Slurm cluster RAVEL runs one complete study per batch allocation. The driving agent and
 RAVEL both run inside one Slurm job, and inside it RAVEL behaves as on a laptop: a local stage
 supervisor, local custody and the allocation's CPUs. Many studies run in parallel as separate
-jobs. Nothing heavy runs on the login node.
+jobs. Nothing heavy runs on the login node. On an HTCondor facility the same request runs as one
+HTCondor job ([below](#htcondor-one-driver-job)).
 
 This page uses one university Slurm cluster as the example. The commands are the same on any
 Slurm site; only the account, partition, modules and paths change.
@@ -21,7 +22,7 @@ Slurm site; only the account, partition, modules and paths change.
   `scope`.
 - **User-wide records stay user-wide.** Custody and the ML exposure ledger stay in
   `~/.local/state/ravel/machine/` (`machine_lease.machine_state_root()`). They are shared by every
-  allocation, so a withheld test split read in one job counts in every other job.
+  allocation, so a protected test split read in one job counts in every other job.
 - **Receipts name the allocation.** Every stage attempt under an allocation's lease records
   `allocation` (cluster, job id, node list, partition, account, CPUs) in its execution record.
   The launcher writes `logs/allocations/slurm-<cluster>-<job id>/allocation.json` in the run.
@@ -90,6 +91,65 @@ agent's.
 Watch and stop studies with Slurm itself (`squeue -u $USER`, `sacct -j <id>`, `scancel <id>`).
 Cancel only jobs you submitted, by id.
 
+## HTCondor: one driver job
+
+On an HTCondor facility the same request runs as one HTCondor job. Add `--scheduler htcondor`;
+there is no account or partition. Site settings go in `--submit-option`, one submit command or
+custom attribute each, for example a queue attribute `+queue="long"` or an `accounting_group`.
+Options that would replace a field RAVEL writes or controls are refused: the universe,
+executable, arguments, directories, logs, environment, resource requests, the wall-time
+attribute, the `queue` statement and the kill, hold, remove and retry policies.
+
+```sh
+ravel site study-job submit --scheduler htcondor --universe local \
+  --rundir /data/<me>/runs/<run> --cpus 4 --time 5760 --max-attempts 3 \
+  --rung none --prefix /data/<me>/ravel-tools --claude-config-dir $HOME/.claude-ravel \
+  --env X509_USER_PROXY=/tmp/x509up_u<uid> \
+  -- /data/<me>/runs/<run>/driver.sh
+```
+
+- `--universe vanilla` (the default) runs the study on an execute node in its own slot. The
+  description asks for `request_cpus`, `request_memory` (`--memory`, in MiB) and the site's
+  wall-time attribute (`--runtime-attribute`, default `+MaxRuntime`; `none` leaves it out), and
+  the wrapper selects the batch-slot lease, so the slot is the machine. The job transfers no
+  files: the run directory, checkout and virtual environment must be on a filesystem the
+  execute nodes share.
+- `--universe local` runs the study on the access point it was submitted from. It asks for no
+  slot and keeps that host's ordinary lease. It outlives the login session and can submit
+  further jobs, so it is the route for a driver that coordinates batch work through
+  `ravel wms launch`. Heavy stages belong in those batch jobs, not on the access point. A site
+  can disable the local universe; one pilot submission shows whether it runs.
+- `--time` is also enforced inside the job: at the bound the agent's process group gets SIGTERM,
+  then SIGKILL after 120 seconds, and the receipt records the ending as `deadline`.
+- An HTCondor job can start again after an eviction or an access-point restart. Each start is
+  one attempt in the receipt, and the agent sees `RAVEL_ALLOCATION_ATTEMPT`, so its command can
+  resume the run instead of beginning again. A start beyond `--max-attempts` (default 1, at most
+  10) runs nothing and exits 75. A recorded ending is never run again.
+- `--use-x509userproxy` lets the scheduler copy and refresh the submitter's grid proxy in a
+  vanilla job; on the local universe pass the proxy's path with `--env X509_USER_PROXY=...`.
+  The request never carries credential contents.
+- The run directory must be a plain path (letters, digits and `._/+,@:=-`), because the submit
+  description carries it literally.
+- `--dry-run` writes `request.json`, `study.sub` and its wrapper `study.sh` without submitting.
+
+A driver command that resumes on a later attempt, for example `driver.sh`:
+
+```sh
+#!/bin/bash
+if [ "${RAVEL_ALLOCATION_ATTEMPT:-1}" = 1 ]; then
+  exec claude -p "$(cat prompt.md)" --model claude-opus-5-5
+fi
+exec claude --continue -p "Resume: run ravel status --rundir . --write and continue from its blocker."
+```
+
+Inside the job, `ravel site study-job run` proves that it is the job of this request from the
+job's own ad: `_CONDOR_JOB_AD` must name the ad inside the job's owned `_CONDOR_SCRATCH_DIR`,
+and the ad must carry `RavelStudyRequest` with the request id. The receipt is
+`logs/allocations/htcondor-<schedd>-<cluster>.<proc>/allocation.json`; it records the job, every
+attempt, the ending and the agent's exit. Watch and stop the driver with HTCondor itself
+(`condor_q`, `condor_history <cluster>.0`, `condor_rm <cluster>.0`); removal reaches the agent's
+process group as SIGTERM. `ravel study-grid` dispatch remains Slurm-only.
+
 ## Limits
 
 - The lease scope separates allocations, not processes the scheduler did not place. A process
@@ -97,7 +157,7 @@ Cancel only jobs you submitted, by id.
 - The allocation is one node (`--nodes=1`). Studies that need many nodes use the `site` backend
   from inside the allocation (see [execution backends](execution-backends.md)). Those jobs are
   remote slots, not this lease.
-- `ravel doctor --profile site` checks lxplus requirements (CVMFS, grid proxy, HTCondor) and
+- `ravel doctor --profile site` checks the selected site requirements (CVMFS, grid proxy, HTCondor) and
   does not pass on a Slurm facility without them. Use `ravel site doctor --profile generic` there.
 
 ## Finite grids of prepared studies
@@ -160,7 +220,7 @@ exit, or an approval that changed before dispatch) is recorded as a `failed` att
 error; it holds no slot but keeps its reservation. Failed, cancelled, timed-out and
 completed attempts retain their terminal observation even after accounting is purged.
 To retry a terminal or explicitly missing submission, use `resume --supersede CELL_ID`
-(repeatable). Confirm externally that a missing job cannot still run before superseding it.
+(repeatable). Confirm externally that the original job has stopped before superseding it.
 Live or unknown submissions refuse supersession. Original attempts and reservations remain.
 
 Approval expiry, changed approval bytes, specification mutation or budget exhaustion stops

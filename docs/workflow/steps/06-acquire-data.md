@@ -1,5 +1,28 @@
 # Step 6 — Acquire the analysis's data + likelihood  ·  [judgment] / [agent]
 
+## On the controller
+
+On a controller run this step is plan step `acquire.data`: an `acquire` step (operation `acquire-published`) that
+runs `ravel.workflow.hepdata_fetch` for the record the route analysis names (`hepdata_record`), through the governed
+acquisition path, and writes `outputs/hepdata/hepdata_manifest.json`. The route adapter refuses a manifest that
+names no table and no likelihood. The step needs no compute rung, so it can run while the smoke rung is reviewed.
+When the run's environment profile records no network egress, the plan runs this step with `--offline
+--offline-mirror <mirror>` instead: the record is read from the site mirror's offline fixture
+(`<mirror>/hepdata/ins<digits>/`), a missing copy fails the step with no network attempt, and
+`parameters.source_mode` records the switch. The controller admits that form only under such a profile.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
+The controller acquisition uses the registered `resource_census --fetch-published-data` entry, which preserves
+the data reader's source restrictions and completeness checks. Acquisition is a trusted controller action;
+scientific launches and workers retain their network restrictions. The adopted data manifest embeds each
+acquired member's relative path, digest and exact bytes in `acquired_members`, so tables and likelihoods remain
+available after only declared outputs cross custody. Nonzero acquisition, symlinks and output beyond the
+approved byte ceiling refuse adoption.
+
 Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
 this selects the native build and binary paths, including an existing local toolchain.
 `CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda` — every `$CONDA` below.
@@ -16,7 +39,7 @@ refuses remote-source arguments. The layout and statistics handoff are in the
 fixtures establish software behavior, not published-data acquisition evidence.
 
 ## 6.1 Published likelihood — programmatic, no browser (preferred)
-If the analysis published a serialized likelihood (increasingly standard for ATLAS SUSY), it is the
+If the analysis published a serialized likelihood, it is the
 strongest input and it downloads directly. The HEPData JSON API (`?format=json`) lists the record's
 `resources`, and the resource endpoint `/record/resource/<id>?view=true` is open (unlike the bulk/
 table `/download/` paths, which return 403):
@@ -55,7 +78,7 @@ own background estimate is what makes the counting limit reproduce the published
 Some analyses (esp. preliminary/CONF results) publish no machine-readable tables. The honest
 fallback: digitize the needed curve/points off the published figure (note the tool + figure +
 date in the run's provenance), declare the result's fidelity label **degraded-anchor**
-(`docs/reference/scope.md` §5) in `result.json` limitations[] AND the check-in, and treat the
+(`docs/reference/scope.md` §5) in `result.json` qualifications[] AND the check-in, and treat the
 digitization uncertainty as a stated systematic. Never present a digitized anchor as HEPData.
 
 ## 6.4 Published reference results for a scan comparison (when the plan declares one)

@@ -56,12 +56,15 @@ GENERATION = _object({
                           "version": {"type": "string", "pattern": r"^(auto|[0-9]+\.[0-9]+\.[0-9]+)$"}},
                          ("name", "version")),
     "model_origin": _TEXT,
+    "model_validation": {"type": "object"},
     "parameter_points": {"type": "array", "minItems": 1, "maxItems": 64, "items": _object({
         "id": {"type": "string", "pattern": r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"},
         "overrides": {"type": "array", "minItems": 1, "maxItems": 64, "items": _object({
             "block": {"type": "string", "pattern": r"^[A-Za-z][A-Za-z0-9_]*$"},
             "code": {"type": "array", "items": {"type": "integer"}, "minItems": 1, "maxItems": 4},
             "value": {"anyOf": [NUMBER, {"type": "string", "const": "Auto"}]}}, ("block", "code", "value"))},
+        "model_validation": {"type": "object"},
+        "parameter_card": _TEXT,
     }, ("id", "overrides"))},
     "cross_section_only": {"type": "boolean"},
     "lhe_transform": _TEXT,

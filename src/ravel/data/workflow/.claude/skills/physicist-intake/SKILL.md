@@ -7,7 +7,7 @@ allowed-tools: Bash, Read, Write
 ---
 # Physicist intake
 
-State the required output and precision in the user's terms. Choose the cheapest method that meets the output, validity domain and precision, record why each cheaper method is insufficient or unavailable with evidence in `inputs/method-decision.json`, and stop when the answer is complete. Validate and render the record with `ravel method-decision --rundir RUN` before CHECK-IN 1 approval; full and scan launches refuse a missing, invalid or unjustified decision.
+State the required output and precision in the user's terms. Choose the cheapest method that meets the output, validity domain and precision, record why each cheaper method is insufficient or missing with evidence in `inputs/method-decision.json`, and stop when the answer is complete. Validate and render the record with `ravel method-decision --rundir RUN` before CHECK-IN 1 approval; full and scan launches refuse a missing, invalid or unjustified decision.
 
 Read `docs/workflow/start.md` first and pick the route from its table "Which route a request
 takes". This skill handles scientific intent and the initial plan; it does not grant compute
@@ -36,11 +36,11 @@ reproduction request remains subject to the full procedure below.
    `--prompt "<verbatim request>"` is equivalent. Without installation, replace `ravel` with
    `python3 scripts/run.py ravel.__main__` from the checkout. Existing output paths are refused.
 2. Review the draft. The action/negation parser is a bounded fallback. For unfamiliar phrasing,
-   the host agent may supply `--interpretation <intent.json>` with the original request SHA-256
+   the host agent can supply `--interpretation <intent.json>` with the original request SHA-256
    and exact text spans; see `docs/cli.md`. When you can already see that the parser will miss
    the request's kind, supply the interpretation on the first `initiate` call. Do not invent an analysis, dataset or result through
    that interface. `TBD-judgment`, required inputs and unresolved intent become numbered flags.
-   Unsupported claims receive the named boundary and a relevant supported alternative.
+   Unverified claims receive the named boundary and a relevant supported alternative.
 3. Read `current_state.json` and perform only the next required work. For analysis intake, use
    **resource-sweep** then **route-analysis** to identify evidence and candidate figures, following
    `docs/workflow/steps/02-inputs.md`. Use **figure-contract** and **cost-preflight** for the
@@ -89,7 +89,7 @@ do not reinitialize the run or survey the repository again.
 
 ## Boundaries
 
-Invalid contracts cannot advance. Missing physics inputs stay explicit. A plan may remain a
+Invalid contracts must not advance. Missing physics inputs stay explicit. A plan can remain a
 zero-compute proposal; do not force a method study into an implemented training pipeline. A
 blocked action remains blocked until the required evidence or actual user response exists.
 After changing skill names or routes, run `scripts/maintenance/sync_skills.py` and the

@@ -1,9 +1,17 @@
 # Model transports
 
+The Claude login route checks owner-provided file metadata and the CLI's prompt-free
+status before each attempt. Renew the dedicated login with
+`CLAUDE_CONFIG_DIR=/absolute/login-directory claude`, then `/login`. Use the owner's
+own setup step to make that login available as a private regular file in the worker's
+configuration home. The typed refusal names the required worker file. Worker failures
+retain bounded, redacted error tails and the renewal remedy in their receipt and
+qualification output.
+
 A transport is a declared route from a RAVEL role to a model. RAVEL ships one JSON declaration per
 route in `src/ravel/data/transports/`. You can add your own in `.ravel/transports/` in the project, or
-in any directory named by `RAVEL_TRANSPORT_PATH`. A user declaration cannot reuse a built-in id, and it
-cannot claim blind review or isolation above `cli-policy`: those need a shipped declaration.
+in any directory named by `RAVEL_TRANSPORT_PATH`. A user declaration that reuses a built-in id is refused, and a user
+declaration claims neither blind review nor isolation above `cli-policy`: those need a shipped declaration.
 
 ```bash
 ravel transport list              # every declaration, its billing, auth and probe state
@@ -18,6 +26,36 @@ when the host is configured: by the run preferences given as `"preferences"`, ot
 installed CLI in the order claude, codex, antigravity, gemini. The host then carries that CLI's
 one-shot transport and its declaration digest.
 
+## Choosing models
+
+Retain a passed transport qualification with `ravel transport qualify TRANSPORT
+--rundir EMPTY_DIRECTORY --model MODEL --for-operator`. Each new controller run
+adopts the authenticated operator record against the current declaration and
+transport code identity. CLI routes bind their executable; loop routes bind the
+interpreter and enforcing modules. Seat selection verifies the current probe
+against that protected record.
+
+Choose a spending preset with `ravel setup-models`. The `premium` preset favors
+capability, `balanced` mixes capability and cost, and `economy` favors lower
+cost. `ravel setup-models --yes` picks the balanced default; `ravel setup-models`
+is also available as an alias.
+
+```bash
+ravel models detect --adopt --yes
+ravel setup-models
+ravel models estimate --preset balanced
+```
+
+Detection can adopt the available local configuration. Review model identifiers,
+capabilities and prices in the local catalogue overlay at
+`.ravel/models/catalogue.json`, or select an overlay with `RAVEL_MODEL_CATALOGUE`.
+The overlay lets you maintain model information without editing shipped data.
+
+The estimate is an uncached upper bound for the stated workload, not a bill or a
+spending authorization. Actual usage can differ. Unknown prices stay unknown;
+a missing price is never treated as zero. Model selection does not replace
+transport probes, qualification or run cost ceilings.
+
 ## What a declaration says
 
 | Field | Meaning |
@@ -26,7 +64,7 @@ one-shot transport and its declaration digest.
 | `launcher`, `argv_template` | The program and its exact arguments, with `{model}`, `{effort}`, `{schema}` and other placeholders |
 | `models` | The model identifiers (or `{configured}`), their family and the tiers they serve |
 | `auth` | `login` (the CLI's own login, no key), `env` (named variables), `command` (a token program run per request) or `none`; HTTP routes also name the header style |
-| `pass_env` | The extra environment variable names the child may see |
+| `pass_env` | The extra environment variable names visible to the child |
 | `billing` | `subscription`, `api`, `local` or `none`; every `api` route needs a USD cap in the run ceilings |
 | `capabilities` | Tools, structured output, isolation, attestation, blind capability, effort control, session id and usage report |
 | `qualification` | `declared`, `stub_tested`, `probed` or `live_qualified`, with the record that shows it |
@@ -55,12 +93,17 @@ Before executing even `--version`, probes refuse executables whose resolved path
 (directory defaults to the current working directory), a project root, the system temporary directory,
 or `$TMPDIR`. The refusal names the location class. Symlink targets are checked. The Python wrapper
 requires `PYTHONPATH` to equal the source root exactly, or to be absent for an installed package.
-The unit-test harness may designate `RAVEL_TEST_TRUSTED_BIN`; it is ignored outside a test lock
+The unit-test harness alone designates `RAVEL_TEST_TRUSTED_BIN`; it is ignored outside a test lock
 domain (which only the test harness selects) and is not an operator trust mechanism.
 
 A same-user process can still write the probe record. Operator-path separation, including host and
 receipt registration, is not provided yet. These checks do not establish separation from other
-processes running under the same account.
+processes running under the same account. The same holds for the dispatch evidence behind
+independent review credit (`review_dispatch`): the worker dispatcher's launch custody and the graph
+runner's completion records lie outside the run tree and every worker sandbox, so neither a reviewer
+nor an agent editing run files can write them, but an unsandboxed process of the same account can. A
+host controller with a stronger boundary installs its own resolver with
+`review_independence.authority_session`.
 
 Help text shows that a flag exists, not what it does. A probe confirms structured output and effort
 control only when the flag carrying `{schema}` or `{effort}` is present. It never confirms tools,
@@ -77,7 +120,11 @@ Code routes (`claude-cli-worker` and its `-apikey`, `-bedrock` and `-vertex` var
 Claude Code enforces one), `codex-cli-worker-azure` until its Azure provider configuration is generated,
 `antigravity-cli-worker` as `worker_surface.mcp:probe_required` (its MCP loading is unconfirmed),
 `opencode-worker` and `qwen-worker` as `adapter:<launcher>`, and `codex-oss-worker` as
-`worker_surface`. RAVEL-loop routes are refused as `unimplemented:ravel-loop`.
+`worker_surface`. The RAVEL HTTP loop has a worker adapter on the same governed path.
+Its declaration must supply an endpoint, supported authentication and a wire format; an API
+loop also needs catalogue limits/prices and an explicit cost ceiling. Controller admission,
+host executor availability and current qualification remain separate checks; inspect the
+code-generated `controller.step.seats.wired_transports()` inventory for exact exclusions.
 
 ## Selection
 
@@ -93,13 +140,25 @@ transports in order for each role family and name the model per tier:
 RAVEL takes the first transport whose declared and probed capabilities meet the role card's
 `requires`. When none does, it refuses before any process starts and names what is missing:
 `tools`, `structured_output`, `isolation`, `attestation`, `blind`, `tier:<tier>`, `model:<tier>`,
-`probe`, `local_only`, `local_models` or `distinct_family_from:<role>`, and also `qualification`,
+`probe`, `local_only` or `local_models`, and also `qualification`,
 `effort`, `model:family`, `model:family-unbound`, `probe:<flag>`, `probe:stale-executable`,
 `unimplemented:<kind>` or `local_only:cloud-model`. Nothing is downgraded: a card that asks for an
-effort on a route that cannot carry one is refused with `effort`.
+effort on a route that carries no effort setting is refused with `effort`.
+
+The model comes from `tier_models` for the role card's tier. A card whose `model.cheap_ok` is true
+(mechanical roles such as encoding, naming, sanitising, document compilation and convention
+translation) uses the `cheap` tier instead whenever `tier_models.cheap` names a model for that
+transport; otherwise it keeps its own tier, and every other card ignores the cheap mapping. The
+selection records the effective `tier`, the card's own `card_tier`, and a `catalogue` label:
+`catalogued` when the model catalogue (`src/ravel/data/models/catalogue.json` plus any overlay)
+lists the model, `uncatalogued` when it does not, `unavailable` when the build has no catalogue.
+The label never refuses a selection.
 
 A model named in `tier_models` must be a declared id, or fit a `{configured}` entry of the same
-family. A model whose identifier does not reveal its family needs an explicit binding in
+family. It must also be a row of the model catalogue: `ravel operator init|set --agent-preferences`
+refuses a model the catalogue does not list, with one remedy line per model and exit status 2,
+before writing. `ravel models detect --adopt` or a row in the catalogue overlay admits a new model.
+A model whose identifier does not reveal its family needs an explicit binding in
 `"model_families": {"<model id>": "<family>"}`. Review roles (critic, verifier, decider, plan critic,
 or any blind card) run with the route's full tools in an isolated workspace. Their independence comes
 from the sandbox and the isolation of user configuration, not from withholding tools. On a CLI or
@@ -112,11 +171,53 @@ verified local destination, and a `:cloud` model id is refused.
 
 A blind role runs only on a stateless HTTP route, the RAVEL loop, the external relay, or a CLI
 worker isolated to its workspace (`ravel-sandbox` or `os-sandbox`). A CLI one-shot relies on the CLI's
-own tool policy (`cli-policy`) and cannot serve a blind role.
+own tool policy (`cli-policy`), so blind roles go to the routes above.
 
-When a card sets `distinct_family_from`, the selected model's family must differ from those roles'
-families. A named role with no assignment yet, or a family that cannot be read, refuses. The same
-check, `check_distinct_families`, runs on the observed models in the receipts.
+Selection never compares model families. Any family serves any role, including a reviewer of the
+author's own family: review independence rests on separate observed sessions and artifact-only RAVEL
+packets, which the credit decision verifies on the delivered roles. The selection records the chosen
+model's family, and a credited review seat carries a label stating that the sessions were separate
+and whether the two families coincide, differ or are unknown. `check_distinct_families` returns that
+label and never refuses. The card field `model.distinct_family_from` is retired: every shipped card leaves it
+empty, and nothing reads it as a requirement.
+
+A seat of a run the controller owns is selected in controller mode. Only the installed package's
+declarations count (`$RAVEL_TRANSPORT_PATH` and a project's `.ravel/transports` add nothing); the
+external relay, host subagents and one-shot CLIs never fill a seat (`controller:<kind>`); and a CLI
+worker's live qualification counts only with protected controller evidence. The operator-run
+qualifier appends its full successful observation with `record_qualification(store, record)`;
+selection receives `store_qualifications(store)` through its `qualifications` argument. Review
+preflight reads the same store. This path never reads the same-user qualification file, and a
+declaration labelled `live_qualified` alone grants nothing. A digest register
+(`register_qualification`, `registered_qualifications`) is a narrower alternative: a qualification
+file in the same-user state counts only while the operator's register names its exact digest.
+Incomplete or failed conformance steps, changed probes or executables, and absent confinement
+keep the seat unfilled. A software control with synthetic observations does not qualify a host.
+
+### Review seats on a host without the OS worker sandbox (operator fallback)
+
+Without `sandbox-exec` or `bwrap` a review seat holds (`worker_sandbox_unavailable`, labelled
+`INDEPENDENT REVIEW INCOMPLETE`); the driver never reviews its own work instead. The operator can
+configure one fallback for later runs: `ravel operator set --review-sandbox-fallback
+restricted-unsandboxed` (default `none`). It is frozen into each run at intake, and a child run can
+only keep or drop it. Under it, and only for a review seat on a host with no sandbox:
+
+- selection admits the restricted Claude CLI worker (no built-in tools, the broker's toolbelt only)
+  with isolation `cli-policy` and no blind capability. Only the requirements the sandbox enforces
+  (`isolation`, `blind`) are relaxed, and the selection names them under `sandbox_fallback`. Every
+  other requirement still applies, including the controller-recorded live qualification;
+- the worker starts without the OS wrapper. Its inventory probe runs the same way and compares the
+  served tools and the environment. The writable set and the network are recorded as `unconfined`,
+  with what the probe actually reached kept beside them. The issuer-key exposure of a same-account
+  process is recorded, not treated as denied;
+- the store records each such seat (`review-sandbox-fallback`). The receipt's isolation evidence is
+  unconfirmed, so the blind-confinement row (V04) stays unmet. The sink labels the delivery
+  `REVIEW WITHOUT OS SANDBOX (OPERATOR-CONFIGURED FALLBACK)` and refuses acceptance
+  (`review_unsandboxed`), so the delivery is qualified.
+
+A fallback review is machine review whose only confinement was the CLI's own policy. It is never
+recorded or labelled as human review. Producer and other non-review seats still hold without the
+sandbox.
 
 ## CLI workers
 
@@ -131,7 +232,7 @@ without starting a process. The descriptor holds:
 - the broker MCP configuration from the declaration's `worker_surface.mcp` row. The CLI's only tools
   are the card's toolbelt served by `ravel work mcp`, so every tool call is a broker call with a
   receipt. Claude runs with `--tools ''` and `--allowedTools` naming only the `mcp__ravel__*` tools.
-  Codex runs with `--sandbox read-only`, so its native shell and file tools cannot write. Review roles
+  Codex runs with `--sandbox read-only`, so its native shell and file tools are read-only. Review roles
   get the route's full toolbelt; blind roles keep only the workspace read and write tools;
 - the toolbelt pinned by its manifest digest. The supervisor's broker comes from
   `tool_gate.production_broker`, the one factory every real worker broker uses (the host-subagent
@@ -141,80 +242,29 @@ without starting a process. The descriptor holds:
   allowed action; a malformed call (a non-string name, non-object arguments) is refused with a receipt
   too. Knowledge calls have one argument shape, `{"op": <op>, "args": {...}}`, for the toolbelt and
   the handler alike;
-- a CLI home the sandbox lets the child read and write. Codex, Gemini CLI and the Claude key, Bedrock
-  and Vertex routes get a fresh `<attempt>.cli-home` beside the workspace, holding a copy of the
-  login file and any credential file a declared variable names. It is removed when the child is
-  gone. The Claude login route uses `CLAUDE_CONFIG_DIR`, which must name a dedicated login-only
-  directory: the route refuses an unset variable, `~/.claude`, and a directory that holds
-  `CLAUDE.md`, skills, agents, commands, hooks, output styles, installed or enabled plugins, or a
-  `settings.json` with any key besides the display keys (`theme`, `preferredNotifChannel`,
-  `spinnerTipsEnabled`, `terminalProgressBarEnabled`). It admits what every real login creates: a
-  display-only `settings.json`, a `plugins/` folder holding only `known_marketplaces.json`,
-  `marketplaces/` catalogs and account-synced `synced/<org>/` content, plus at most a top-level
-  `installed_plugins.json` whose `plugins` map is empty (an interactive login writes it with
-  nothing installed; any listed plugin, or the file anywhere else, is refused), and a `skills/` folder holding only account-synced `synced/<org>/<skill>/` content.
-  Nothing in these folders may be a symbolic link. Any other entry under `skills/` or `plugins/` is
-  refused. The synced folders are admitted on measured evidence: Claude Code's account sync creates
-  them on every real login, and a Claude Code 2.1.296 login with these folders reported no available
-  skills under RAVEL's launch flags (`--restricted --setting-sources project --strict-mcp-config
-  --tools ''`). With default flags the same login listed about 25 skills, including the synced ones.
-  Live qualification repeats this check on every route (see below);
-- for Claude Code, `USER` and `LOGNAME` listed in `pass_env_names` and set by the supervisor from the
-  password database, never copied from the parent environment. Claude Code reads its stored login by
-  running `/usr/bin/security find-generic-password -a $USER`; without these names it reports "Not
-  logged in". Both are reserved names: no other route can pass them;
+- a private `<attempt>.cli-home` beside the workspace. External owner setup supplies its
+  login files. RAVEL checks regular-file, owner, permission and link metadata and preserves
+  those files during cleanup. The dedicated `CLAUDE_CONFIG_DIR` identifies the operator's
+  login for the renewal remedy; the worker uses its own file-backed configuration home.
+  The configured login directory retains its instruction, plugin and settings checks;
+- for Claude Code, `USER` and `LOGNAME` from the password database;
 - for Claude Code, `CLAUDE_CODE_TMPDIR` and `TMPDIR` set to the worker's own `scratch/tmp`. Claude
   Code ignores `TMPDIR` for its own temporary directory (`/tmp/claude-<uid>`), which the sandbox
   denies;
-- for Claude Code on macOS, a login keychain home, described below;
 - provider network egress, described below.
-
-### The login keychain for Claude workers on macOS
-
-Claude Code stores its login in the macOS login keychain and finds it through
-`$HOME/Library/Keychains`. With any other `HOME` it reports "Not logged in". So each Claude worker on
-macOS gets an adapter-owned `<attempt>.home` beside the workspace as its `HOME`. That home holds one
-entry: `Library/Keychains`, a symbolic link to the invoking account's keychain directory, read from
-the password database. Nothing else from the account home is linked or copied. This link is the one
-exception to RAVEL's no-symlink path rule: the adapter creates it, in a home the adapter owns, and
-removes the home when the child is gone. The supervisor accepts only the workspace's own
-`<attempt>.home`. The adapter refuses an existing home that holds anything else.
-
-The sandbox profile for these workers:
-
-- reads the real keychain directory. Writes to it are denied, including writes through the link;
-- reads the system Module Directory Service database (`/private/var/db/mds`). It also reaches the
-  Security services `com.apple.securityd`, `com.apple.security.agent`, `com.apple.ocspd` and
-  `com.apple.system.opendirectoryd.membership`, which the Security framework needs before it opens
-  any keychain;
-- reads and executes `/usr/bin/security`, the tool Claude Code runs to read its stored login. The
-  base profile already allows process execution for every worker; the keychain block names this tool
-  so the grant does not depend on the read roots. Run inside the profile, `security
-  show-keychain-info` on the linked login keychain succeeds, and a lookup of an absent item reaches
-  the keychain search and reports it not found. The tool needs nothing beyond the grants above;
-- leaves every other path in the account home denied.
-
-Codex and Gemini CLI workers get none of this. Their profiles never name the keychain directory or
-these services, and the denial probe records `login_keychain: false` for them.
-
-Reading the keychain directory does not expose its contents. The keychain files are encrypted.
-macOS decides through each item's access control list which program may read a secret, and asks the
-user when the list does not already allow that program. The worker cannot query the keychain itself.
-Claude runs with `--tools ''`, so it has no shell, file or other native tool. Its only tools are the
-broker MCP tools, and no toolbelt tool reads the keychain.
 
 ### Provider network egress
 
 On macOS the provider profile allows outbound TCP to port 443 only, name resolution through
 `mDNSResponder`, and the TLS trust and security services the CLI needs. Every
 other port is denied, and listening sockets stay denied. The sandbox denial probe runs under the
-exact profile the child launches with (its CLI home, its keychain home and its network mode) and records `network:
+exact profile the child launches with (its private CLI home and network mode) and records `network:
 tcp-443`. It checks that a listening socket and an outbound connection to a port other than 443 (on
 the loopback address, so nothing leaves the machine) are both denied. On Linux, `bwrap --share-net`
-cannot filter ports, and the probe records `network: unrestricted`.
+leaves ports unfiltered, and the probe records `network: unrestricted`.
 
 Hosts are not filtered. Domain-level filtering needs a RAVEL-owned proxy that only the sandbox can
-reach, which is future work. Until then a worker can reach any server on port 443, and two workers
+reach; the shipped sandbox has no such proxy, so a worker can reach any server on port 443, and two workers
 running at the same time could still collude through an outside server. RAVEL's isolation guarantees
 cover the filesystem, the tools and the broker, not the internet.
 
@@ -228,7 +278,8 @@ event stream.
 
 A declared output is credited only when an `ok` broker receipt of the same attempt pins its path and
 its current bytes. A file a native tool wrote, or a pinned file changed afterwards, is never credited.
-Gemini CLI cannot turn its native file tools off, so on that route only broker output pins would count.
+Generated Codex and Gemini worker configurations exclude native tools; conformance must verify
+that the installed version respects the exclusions. Native output files never earn credit.
 
 The workspace and every directory above it must hold no `CLAUDE.md`, `AGENTS.md` or `GEMINI.md`,
 with one exception: the run's declared project instruction document and files that only import it
@@ -283,6 +334,12 @@ unexpected names. It goes to
 `$RAVEL_STATE_DIR/transports/<id>.qualification.json` with status `live_qualified`, the record path, the
 executable, declaration and probe digests, the receipt path and digest, the observed model, session,
 turns and cost, and the time. A new probe, a changed declaration or a replaced executable voids it.
+The controller qualifier must additionally retain that successful observation in its protected
+store with `record_qualification`; writing the same-user file alone does not qualify a controller
+seat. The operator targets the existing governed run with `--controller-rundir <run>` while
+`--rundir` remains a separate empty conformance workspace. Both review preflight and governed
+seat selection read the full protected observation. The operator performs this live step on each
+run host before admitting blind review work; inert qualification tests do not qualify a host.
 Exit status 3 means refused before any process started; 4 means the run happened and named steps failed.
 Pass `--rundir` as a real path: on macOS `/tmp` is a symlink, so use `/private/tmp/...`. A path through a
 symlink is refused, and the refusal names the real path to use.
@@ -340,9 +397,9 @@ RAVEL's own instructions:
   and the receipt shows delivery only when that sha256 is the pinned one. Without it the check
   answers `project_instructions:unobserved` and the session is not credited.
 
-An HTTP model route and a command host other than the RAVEL `agent-cli` launcher cannot deliver the
-document. For a graph whose run pins a document, such a host refuses every model node before any
-request is sent. The RAVEL loop cannot deliver the document either: it reads the declaration before
+Only the RAVEL `agent-cli` launcher delivers the document; an HTTP model route and any other command
+host leave it undelivered. For a graph whose run pins a document, such a host refuses every model node before any
+request is sent. The RAVEL loop also leaves the document undelivered: it reads the declaration before
 every model turn and sends nothing for a run that pins a document. Workers of such a run go through
 a CLI worker transport.
 
@@ -417,9 +474,9 @@ and its receipts keep their earlier bytes.
 | CLI | How RAVEL keeps your own configuration out | Model tools | `user_configuration_loaded` |
 |---|---|---|---|
 | Claude Code | One-shot: `--setting-sources project --safe-mode --strict-mcp-config --tools ''`. Worker: `--setting-sources project --restricted --strict-mcp-config --tools ''` plus `--allowedTools` for RAVEL's tools, in an empty directory. Not `--bare`, which drops the subscription login. Admin-managed settings stay in force; their digest is recorded | none | `false` |
-| Codex | A fresh `CODEX_HOME` per call holding a copy of `auth.json` and a generated `config.toml`. The read-only sandbox refuses native writes | a shell that can read files | `false` |
+| Codex | A fresh `CODEX_HOME` per call holding a copy of `auth.json` and a generated `config.toml`. Workers additionally disable native shell, patch, collaboration, app, image and web tools; the read-only sandbox refuses native writes | workers: broker tools after qualification; one-shots: native read tools | `false` |
 | Antigravity (`agy`) | A fresh `HOME` holding only the Google login files; the working directory is empty. No flag excludes other configuration | read tools | `true` |
-| Gemini CLI | A fresh `HOME` holding only the Vertex AI application-default credentials; `~/.env` and `~/.gemini/.env` are left out and listed in the receipt | read tools | `true` |
+| Gemini CLI | A fresh `HOME` holding authentication material; `~/.env` and `~/.gemini/.env` are excluded. Workers generate core-tool exclusions and an empty context-file list | workers: broker tools after qualification; one-shots: native read tools | workers: `false` when exclusion is established; one-shots: `true` |
 
 Extra arguments come from a closed allowlist (for Claude, `--verbose`; for the others, none). Any
 other argument is refused before launch, naming whether it repeats a template flag or can re-enable
@@ -434,9 +491,8 @@ with `user_configuration_loaded: true` is not a fresh context and is never count
 review. `ravel agent-cli answer` refuses a critic or verifier on a route with model tools or without
 transport attestation (the Codex, Gemini CLI and Antigravity one-shots) before any process starts.
 
-Codex refreshes its login token inside the per-call copy of `auth.json`. The copy is deleted after the
-call and your own `~/.codex/auth.json` is not updated, so a refresh made during a call is lost; run
-`codex login` again if Codex later reports an expired refresh token.
+External owner setup manages login files and renewal for each private configuration home.
+The launcher generates the CLI configuration and records its identity.
 
 Antigravity takes the prompt as an argument, where other local users can read it in the process list.
 The prompt must fit in what `ARG_MAX` leaves after the environment; the receipt records
@@ -475,7 +531,7 @@ call stops the CLI and anything it started. The attestation is computed, never c
 | `host_attested` | A verified launcher receipt that fails one of those conditions |
 | `self_attested` | Every relay response, including schema 3 with a matching declaration digest, evidence printed by any other command, and receipts that fail verification |
 
-A transport label must describe the executor: a `command` host may carry only the label of the
+A transport label must describe the executor: a `command` host carries only the label of the
 launcher it runs, and an HTTP host only an `http-model` label whose endpoint and credential variable
 match its own. The relay retains the full schema-3 evidence in the node result and refuses a second
 critic or verifier that reuses an earlier CLI session id, whatever actor it names. The graph's agent
@@ -490,11 +546,11 @@ votes: "self-attested review is advisory; it does not count as independent". Exp
 software controls and nonvoting context/evidence requests retain their advisory paths. A relay is
 not a human-review channel, and no transport label records human review.
 
-A request may carry `role_requires: {"tools": "broker-readonly"}` (default `none`). The launcher
+A request can carry `role_requires: {"tools": "broker-readonly"}` (default `none`). The launcher
 records `configuration.tools_required` beside `effective_tools`, and AgentHost checks the recorded
 requirement against the request before computing attestation. Effective tools above the requested
 policy add a downgrade reason; equal tools do not. The order is `none`, `broker-readonly`,
-`broker-full`. Role cards do not yet supply this policy automatically; a caller that omits it gets
+`broker-full`. The caller supplies this policy; role cards leave it unset, so a caller that omits it gets
 `none`. Voting status uses
 `independence.kind == "voting"`; legacy voting/blind/name tests apply only without `independence`.
 
@@ -506,7 +562,7 @@ Consumers bind to these fields, not to actor names:
 
 - `agent_graph.role_receipt` returns `attestation`, `execution_observation` and `session`
   (`transport_id`, `cli_session_id`, `session_receipt_pin`). Read `attestation` directly; an
-  observation-to-attestation table may map `transport_attested_cli` to `transport_attested` only when the computed label verifies.
+  observation-to-attestation table maps `transport_attested_cli` to `transport_attested` only when the computed label verifies.
 - A session is identified by `<transport_id>:<cli_session_id>`. Count distinct sessions from these
   values, and treat a null session id as not distinct.
 - The pinned record (`<graph>/<session_receipt_pin.path>`, sha256 in the pin) is a regular file inside
@@ -568,3 +624,51 @@ Live evidence (Claude Code 2.1.296, real login): with `--restricted --setting-so
 throwaway stdio MCP server named `ravel`, the worker reported "Tools: mcp__ravel__ping. No other
 tools are loaded. Skills: none." and returned the tool's output. The account-synced skills in
 `CLAUDE_CONFIG_DIR` did not load.
+
+
+## Governed worker wiring
+
+The controller selects from `controller.step.seats.wired_transports()`. Model setup and doctor
+use that same inventory. A declaration, installed CLI, provider model listing and successful
+model qualification are separate observations. A controller run still needs current protected
+qualification evidence; only that protected record supplies it, never local discovery state.
+
+Claude and Codex CLI workers use fresh homes, a code-generated broker configuration and native-tool
+restrictions. Codex model identity is read from its fresh session's CLI rollout when its JSON
+stream omits it. Gemini worker wiring supports a login/subscription declaration with owner-provided login
+material, generated core-tool exclusions and excluded context files. The shipped Gemini API CLI
+route remains refused because its CLI has no monetary ceiling enforcement; the Gemini HTTP loop
+provides the budgeted API route. Qualify every installed CLI version before use; ignoring a
+configuration key or exposing any extra tool must fail the conformance surface check.
+
+Subscription workers validate CLI authentication status and nonsecret settings before launch. A Codex API-key login or a
+Gemini API/Vertex authentication mode refuses with `subscription_auth:<cli>`; use a subscription
+login or a budgeted HTTP route. Explicitly passed API credential selectors refuse on those
+subscription routes too. Gemini workers select personal OAuth. The owner supplies login files through their own setup
+step. Login lifecycle stays with the owner, and diagnostics retain redacted error text.
+
+HTTP and local models run as sandboxed RAVEL workers under the same worker spec, broker, budget,
+instruction packet and receipt path. Their LangGraph nodes obtain steering admission from the
+supervisor over a connection that lasts exactly as long as the node. Admission and release are
+recorded in supervisor custody against the original step and attempt. The worker never reads that
+custody. Cards with an explicit zero broker-call contract and no tool requirement receive only the
+final-record channel, with no executable broker actions. A minimum requirement of no tools does
+not remove an ordinary reviewer's workspace tools. Model calls, including these one-call nodes,
+keep checkpoint and effect receipts.
+
+API loop calls require catalogue prices and context/output limits plus an explicit authorised cap.
+Before each request, the loop reserves the price of a full context and maximum output. It stops
+before the next call if complete provider usage or a matching model identity is absent. This
+conservative reservation does not lower the requested model or effort. Token usage is measured;
+catalogue-priced dollars and provider-reported billed dollars retain their distinct basis.
+
+Local HTTP endpoints get a dedicated port grant. On Linux the OS filter restricts the destination
+port; the code-owned sender fixes the configured host and refuses redirects. The inventory records
+the actual TCP-port grant. No native execution tool is exposed by the HTTP worker. On hosts without
+the required local port filter, selection refuses the local route.
+
+`ravel setup-models --verify` opts into the existing conformance qualification command. It displays
+a cost scenario and the API reservation first; `--verification-cost-cap-usd` supplies a finite API
+ceiling. Subscription qualification uses the operator login and has no monetary cap. Setup never
+runs a separate ungoverned verification prompt. A failed or unreported model identity remains
+unqualified for setup. No live call is necessary for ordinary discovery and configuration.

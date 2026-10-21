@@ -1,0 +1,29 @@
+--- a/src/ravel/controller/graph.py
++++ b/src/ravel/controller/graph.py
+@@ -3802,8 +3802,25 @@
+ 
+ def _admitted(state, store, plan, ready, steps):
+     """The route's admission of each ready step (``admit(step, context)``): a refused step is held, not sent."""
++    if not ready:
++        return [], {}, {}
++    route = state.get("route") or {}
++    try:
++        pin = route.get("record_id")
++        record = store.read("route", pin)["record"] if isinstance(pin, str) and pin else None
++        pinned = isinstance(route.get("id"), str) and bool(route["id"]) and isinstance(record, dict) \
++            and record.get("route") == route["id"]
++    except (OSError, ValueError, KeyError, TypeError):
++        pinned = False
++    if not pinned:
++        text = "route_not_pinned: select the route and pin its controller-store record before dispatch"
++        held = {s: {**(steps.get(s) or {}), "status": "held", "reason": text} for s in ready}
++        holds = {s: {"reason": "route_not_pinned", "would_make_possible": text} for s in ready}
++        store.append("admission", {"held": list(ready), "code": "route_not_pinned",
++                                   "reasons": {s: text for s in ready}})
++        return [], held, holds
+     module = adapter(state, store)
+-    if not ready or module is None or not hasattr(module, "admit"):
++    if module is None or not hasattr(module, "admit"):
+         return list(ready), {}, {}
+     context = adapter_context(state, store)
+     by_id = {s["id"]: s for s in plan["steps"]}

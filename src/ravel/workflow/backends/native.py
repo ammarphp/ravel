@@ -24,6 +24,12 @@ ceiling is enforced by the worker and thread counts are set from ``cpus``. A
 RAVEL scientific payload declares ``inherit_runtime_environment``: it keeps the
 approved runtime environment (thread counts and ``PYTHONPATH``), which its own
 registration verifies, and sets its own thread counts.
+
+A job of a run the controller owns gets the allowlisted environment capsule instead of the
+worker's whole environment, and the launcher starts its payload through the confined
+launcher (``ravel.controller.confine``): writes only to the job's ``output`` and ``work``
+directories, reads of the system runtime, the toolchain and the plan's inputs and read-only
+trees, no network. ``payload.json`` then also records the payload's custody digest.
 """
 from __future__ import annotations
 
@@ -107,10 +113,24 @@ def verify_executable(plan, env=None):
     return str(resolved)
 
 
+def _controller_job(job):
+    from ravel.controller.confine import runs
+    return job is not None and runs.owner_of(Path(job)) is not None
+
+
 def environment(plan, job=None):
     spec = plan['spec']
-    env = dict(os.environ)
+    controller = _controller_job(job)
+    if controller:
+        from ravel.controller.confine import capsule_from
+        env = capsule_from(spec.get('env', {}))
+    else:
+        env = dict(os.environ)
     env.update(spec.get('env', {}))
+    if controller:
+        # Even an explicitly supplied plan environment cannot restore selectors/secrets.
+        from ravel.controller.confine.environment import scrub
+        env, _ = scrub(env)
     for fact in plan['readonly_trees']:
         if 'env' in fact:
             env[fact['env']] = fact['path']
@@ -124,6 +144,8 @@ def environment(plan, job=None):
         # Names the job whose custody chain a RAVEL payload proves at registration;
         # it grants nothing by itself (execution.worker_custody).
         env['RAVEL_BACKEND_JOB'] = str(job)
+    if controller:
+        env, _ = scrub(env)
     return env
 
 
@@ -137,6 +159,9 @@ class NativeBackend(eb.Backend):
     local = True
 
     def validate(self, spec):
+        if {'processes', 'disk_mib'}.intersection(spec['resources']):
+            raise ValueError('resource_limit_unsupported: native backend cannot enforce aggregate process '
+                             'count or retained disk; select a qualified execution adapter')
         if 'image' in spec:
             raise ValueError('the native backend runs host executables; use oci-local for an image')
         resolved = _resolve(spec['argv'][0], {**os.environ, **spec.get('env', {})}.get('PATH', os.defpath))
@@ -151,7 +176,10 @@ class NativeBackend(eb.Backend):
                 'limits_enforced': {'wall_seconds': 'worker',
                                     'cpus': ('payload (approved runtime environment kept)' if spec.get('inherit_runtime_environment')
                                              else 'thread environment'),
-                                    'memory_mib': False}}
+                                    'memory_mib': False},
+                'resource_enforcement': {'status': 'partial', 'label': 'RESOURCE PROTECTION INCOMPLETE',
+                    'aggregate_memory_mib': 'unsupported', 'processes': 'unsupported', 'disk_mib': 'unsupported',
+                    'filesystem_receipt_headroom': 'not reserved'}}
 
     def doctor(self):
         checks = [{'name': 'python', 'ok': True, 'detail': sys.version.split()[0]},
@@ -182,6 +210,9 @@ class NativeBackend(eb.Backend):
                                           handle_dir=handle['attempt_dir'])
             env[machine_lease.ENV] = lease.lease_id
             env[machine_lease.JOB_ENV] = token
+            if _controller_job(job):
+                from ravel.controller.confine import brokers
+                env = brokers.environment(env)
             # Evidence that a launch may have started, for recovery when no identity is recorded.
             atomic_json(job / DISPATCH_MARKER, {'tag': handle['tag'], 'utc': eb.utc_now(), 'job_token': token})
             try:
@@ -435,16 +466,32 @@ def launch(job, argv, argv0=None):
     except (OSError, ValueError, KeyError) as exc:
         print(f'native launcher: refused before the payload started: {exc}', file=sys.stderr, flush=True)
         return 125
+    confined = None
     try:
-        proc = subprocess.Popen([argv0 or argv[0], *argv[1:]], executable=argv[0])
-    except OSError as exc:
+        if _controller_job(job):
+            confined = _confined_payload(job, argv, argv0)
+            atomic_json(job / 'payload.json', {'confinement_custody_sha256': confined.record['custody_sha256']})
+            # Pin the token before spawn; this file remains visible through a read-only
+            # bind even after the parent atomically publishes the process identity.
+            confined.reads.append(job / 'payload.json')
+            from ravel.controller.confine import start
+            proc = start(confined)
+        else:
+            proc = subprocess.Popen([argv0 or argv[0], *argv[1:]], executable=argv[0])
+    except (OSError, ValueError) as exc:
         print(f'native launcher: {exc}', file=sys.stderr, flush=True)
         code = 127
     else:
         try:
-            atomic_json(job / 'payload.json', {'pid': proc.pid, 'identity': _process_identity(proc.pid)})
+            row = {'pid': proc.pid, 'identity': _process_identity(proc.pid)}
+            if confined is not None:
+                row['confinement_custody_sha256'] = confined.record['custody_sha256']
+            atomic_json(job / 'payload.json', row)
         finally:
             code = proc.wait()
+            if confined is not None:
+                from ravel.controller.confine import finish
+                atomic_json(job / 'confinement.json', {'launch': confined.record, 'finish': finish(proc)})
     # The ps that lists the group is itself a member while it runs; keep only pids still alive after it.
     descendants = [pid for pid in _group_members(os.getpgid(0)) if pid != me and _exists(pid)]
     record = {'exit_code': code if code >= 0 else 128 - code}
@@ -452,6 +499,53 @@ def launch(job, argv, argv0=None):
         record['descendants'] = descendants
     atomic_json(job / 'exit.json', record)
     return 0
+
+
+def _confined_payload(job, argv, argv0):
+    """Prepare from the verified native plan and exact custody files, never ambient state."""
+    from ravel.controller.confine import prepare, runs, capsule_from
+    from ravel.controller.confine.environment import channels, scrub
+    job = Path(job)
+    plan_path = job.parent / 'plan.json'
+    if not plan_path.is_file():
+        raise ValueError('a confined native payload requires its pinned plan.json')
+    plan = eb.load_plan(plan_path, verify_inputs=True)
+    owner = runs.owner_of(job)
+    reads = [str(fact['path']) for fact in [*plan.get('inputs', []), *plan.get('readonly_trees', [])]
+             if isinstance(fact, dict) and fact.get('path')]
+    custody_files = [job / 'payload.json', job / 'launcher.json',
+                     job.parent / 'backend-handle.json', plan_path]
+    if owner:
+        custody_files.append(Path(owner[1]) / 'execution_state.json')
+    reads += [str(path) for path in custody_files if path.is_file()]
+    # Runtime values must come from the approved spec; only supervisor channels may
+    # come from the current launcher. Never copy its full process environment.
+    env, _ = scrub(plan['spec'].get('env', {}))
+    for fact in plan.get('readonly_trees', []):
+        if 'env' in fact:
+            env[fact['env']] = fact['path']
+    env.update({name: os.environ[name] for name in channels() if name in os.environ})
+    env, _ = scrub(env)
+    resources = plan['spec'].get('resources', {})
+    limits = {name: resources[name] for name in ('cpus', 'wall_seconds', 'memory_mib') if name in resources}
+    digests = {}
+    for fact in [*plan.get('inputs', []), *plan.get('readonly_trees', [])]:
+        path = Path(fact['path'])
+        # Recheck the complete manifest around collecting individual-file pins; the
+        # launcher captures exactly those bytes before the payload starts.
+        before = eb.identity(path)
+        if fact.get('sha256') is not None and before['sha256'] != fact['sha256']:
+            raise ValueError(f'native input changed before confinement: {path}')
+        files = sorted(p for p in path.rglob('*') if p.is_file()) if path.is_dir() else [path]
+        digests.update({str(p): eb.file_sha256(p) for p in files})
+        if eb.identity(path) != before:
+            raise ValueError(f'native input changed while pinned: {path}')
+    return prepare({'argv': [argv0 or argv[0], *argv[1:]], 'env': env, 'reads': sorted(set(reads)),
+                    'input_digests': digests,
+                    'writes': [str(job / 'output'), str(job / 'work')], 'cwd': str(job / 'work'),
+                    'attempt_dir': str(job), 'label': 'native-backend-payload',
+                    **({'controller': {'run_id': owner[0]}} if owner else {}),
+                    **({'limits': limits} if limits else {})})
 
 
 def main(argv=None):

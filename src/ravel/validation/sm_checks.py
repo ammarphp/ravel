@@ -583,13 +583,15 @@ def _registration(name):
 
 
 def derive_review_points(plan):
-    """Derive SM staffing rows without launching work; compose at the spawn seam."""
+    """Derive specialist obligations and qualify them against the effective role registry."""
     if plan.get('agent_layer_epoch') != 2:
         return []
     from ravel.workflow.spawn_rows import review_metadata
     nodes = plan.get('plan', plan).get('nodes', [])
     _labels([node['id'] for node in nodes]) if nodes else None
     rows = _registration('spawn-rows')['rows']
+    from ravel.workflow import role_registry
+    registry_sha = None
     points = []
     for node in nodes:
         stage = review_metadata(node).get('stage', node.get('stage'))
@@ -602,6 +604,17 @@ def derive_review_points(plan):
                            'roles': deepcopy(row['roles']), 'mode': row['mode'], 'blocking': True,
                            'gate': row['gate'], 'parallel_group': 'spawn:' + scope, 'depends_on': [],
                            'attestation_min': 'transport'})
+            unavailable = []
+            for role in row['roles']:
+                try:
+                    role_registry.load(role['role'])
+                except (ValueError, KeyError):
+                    unavailable.append(role['role'])
+            if unavailable:
+                registry_sha = registry_sha or role_registry.registry_sha256()
+                points[-1]['qualification'] = {
+                    'status': 'required-specialist-unavailable', 'registry_sha256': registry_sha,
+                    'required_roles': sorted(unavailable)}
     return sorted(points, key=lambda point: (point['row'], point['id']))
 
 

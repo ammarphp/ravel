@@ -6,6 +6,7 @@ import pytest
 
 from ravel.workflow import (agent_worker, broker, review_points as points, review_projection,
                             review_projection_checks as checks, review_rubric as rubric, role_registry, rdj_custody)
+from inert_dispatch import inert_dispatch  # noqa: F401
 from test_review_actor_identity import spec, registered
 from test_review_points import receipt, run, write
 from test_search_review_rubric import complete
@@ -16,7 +17,7 @@ def custody(tmp_path, monkeypatch):
     monkeypatch.setenv("RAVEL_STATE_DIR", str(tmp_path / "state"))
 
 
-def test_actor_review_credit_alone_records_no_executed_method_check(tmp_path):
+def test_actor_review_credit_alone_records_no_executed_method_check(tmp_path, inert_dispatch):
     run(tmp_path, claims=[{"id": "C1", "kind": "calculation", "inherits": []}])
     point = "RP4:C1:physics-critic"
     receipt(tmp_path, point, "physics-critic", methodological_independence={"different_route": True})
@@ -94,7 +95,7 @@ def test_selected_check_is_visible_in_packet_and_actor_claim_cannot_replace_exec
     assert record(root)['_advisory'] == 'executable_check_missing'
 
 
-def test_actual_own_check_earns_credit_and_reports_callable_separation_only(tmp_path):
+def test_actual_own_check_earns_credit_and_reports_callable_separation_only(tmp_path, inert_dispatch):
     root, target, _, path, _ = fixture(tmp_path)
     assert run_check(target, path)['status'] == 'ok'
     receipt(root, POINT, 'physics-critic')
@@ -176,7 +177,7 @@ def test_pass_label_with_material_finding_cannot_earn_review_credit(tmp_path, mo
     assert record(root)['_executable_checks'][0]['execution'] == 'conflicting_result'
 
 
-def test_optional_method_requirement_preserves_unknown_without_claiming_independence(tmp_path):
+def test_optional_method_requirement_preserves_unknown_without_claiming_independence(tmp_path, inert_dispatch):
     root, target, _, path, _ = fixture(tmp_path, with_producer=False, require_distinct=False)
     run_check(target, path); receipt(root, POINT, 'physics-critic')
     assert points.satisfied(root, POINT)
@@ -220,7 +221,7 @@ def test_later_inconclusive_result_cannot_reuse_an_earlier_pass(tmp_path, monkey
 
 
 @pytest.mark.parametrize('changed', ['receipt', 'output'])
-def test_later_broken_check_custody_cannot_reuse_an_earlier_pass(tmp_path, monkeypatch, changed):
+def test_later_broken_check_custody_cannot_reuse_an_earlier_pass(tmp_path, monkeypatch, changed, inert_dispatch):
     root, target, _, path, _ = fixture(tmp_path)
     assert run_check(target, path)['status'] == 'ok'
     original = checks.CHECKS['review.rubric']
@@ -280,7 +281,8 @@ def test_later_failed_check_of_a_subject_path_alias_cannot_reuse_a_pass(tmp_path
     assert report['execution'] == 'completed' and report['status'] == 'failed'
 
 
-def test_completed_failed_check_of_another_subject_preserves_the_exact_subject_pass(tmp_path, monkeypatch):
+def test_completed_failed_check_of_another_subject_preserves_the_exact_subject_pass(tmp_path, monkeypatch,
+                                                                                    inert_dispatch):
     root, target, _, path, _ = fixture(tmp_path)
     assert run_check(target, path)['status'] == 'ok'
     (target.workspace / 'inputs/other.json').write_text('{}')
@@ -318,7 +320,7 @@ def test_raised_check_without_subject_pins_cannot_prove_an_unrelated_subject(tmp
 
 
 @pytest.mark.parametrize('target_file', ['input', 'output', 'source', 'receipt'])
-def test_changed_check_input_output_source_or_receipt_reopens_obligation(tmp_path, target_file):
+def test_changed_check_input_output_source_or_receipt_reopens_obligation(tmp_path, target_file, inert_dispatch):
     root, target, contract, path, _ = fixture(tmp_path)
     run_check(target, path); receipt(root, POINT, 'physics-critic')
     assert points.satisfied(root, POINT)
@@ -418,7 +420,7 @@ def normalization_review(tmp_path, changes=None, *, document=None, role='normali
     return root, target, source, copied, reply, result, record
 
 
-def test_numerical_reviewer_independently_recomputes_the_supplied_normalization(tmp_path):
+def test_numerical_reviewer_independently_recomputes_the_supplied_normalization(tmp_path, inert_dispatch):
     root, target, _, _, reply, result, record = normalization_review(tmp_path)
     assert reply['status'] == 'ok' and points.satisfied(root, 'RP5:C1')
     # 2 pb * 1000 * 3 /fb * 0.25 * 1.2 * 0.5 = 900 events.
@@ -448,7 +450,7 @@ def test_numerical_wrong_value_and_modifier_siblings_refuse_credit(tmp_path, cha
 
 
 @pytest.mark.parametrize('source_or_copy', ['source', 'copy'])
-def test_changed_numerical_source_or_copy_cannot_reuse_review_credit(tmp_path, source_or_copy):
+def test_changed_numerical_source_or_copy_cannot_reuse_review_credit(tmp_path, source_or_copy, inert_dispatch):
     root, target, source, copied, _, _, _ = normalization_review(tmp_path)
     assert points.satisfied(root, 'RP5:C1')
     path = root / source['path'] if source_or_copy == 'source' else target.workspace / copied

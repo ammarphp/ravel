@@ -35,6 +35,22 @@ METHOD_REQUEST_BYTES=8*1024*1024
 ORDINARY_REQUEST_BYTES=2*1024*1024
 
 
+def presented_effects(core, context):
+    """Read complete effect records from the actual model presentation only."""
+    from ravel.workflow.research_coordinator_decisions import expand_decision_context
+    core = expand_decision_context(core)
+    effects = []
+    for reference in core['prior_operation_effects']:
+        pin = reference['effect']
+        shown = [row for row in context['input_artifacts'] if row['sha256'] == pin['sha256']]
+        assert shown, pin
+        raw = shown[0]['content'].encode('utf-8')
+        assert len(raw) == pin['size'] and hashlib.sha256(raw).hexdigest() == pin['sha256']
+        assert all(row['content'] == shown[0]['content'] for row in shown)
+        effects.append(json.loads(raw))
+    return effects
+
+
 def write(path, value):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     if type(value) is str:path.write_text(value)
@@ -298,18 +314,19 @@ def open_fixture(base, *, mutation=None, extra_evidence=(), initial_premises=(),
                 'kill_condition':{'comparison':'differs','observable':'relation'},
                 'reopening_trigger':{'kind':'changed_input','field':'revision','op':'gt','value':0},
                 'what_is_new':None}]}
-        turn=len(core['prior_operation_effects'])
+        effects=presented_effects(core,ctx)
+        turn=len(effects)
         if turn==0:
             action='preparation-tool';arguments={'action':'scientific-context','parameters':{'request_input':'missing'},'inputs':[],'records':[]}
         elif turn==1:
-            assert core['prior_operation_effects'][0]['actual_effect']['status']=='preparation_failed'
+            assert effects[0]['actual_effect']['status']=='preparation_failed'
             action='preparation-tool';arguments={'action':'scientific-context','parameters':{'request_input':'request'},
                 'inputs':[{'id':'request','pin':{'generated_record':'context-request','field':'pin3'}},
                     {'id':'method','pin':source}],
                 'records':[{'id':'context-request','purpose':'prospective_configuration',
                     'value':deepcopy(declared),'source_basis':[source]}]}
         elif turn==2:
-            prepared=core['prior_operation_effects'][1]['actual_effect']
+            prepared=effects[1]['actual_effect']
             assert prepared['status']=='prepared' and prepared['scientific_acceptance'] is False
             assert prepared['actual_preparation']['value']['action']=='scientific-context'
             # This is a source-grounded configuration, not observed covariance.
@@ -368,6 +385,9 @@ def complete_initial_stages(root,base,monkeypatch):
     settings={'model':'host-agent','reasoning_effort':'high','adapter':'external','max_output_tokens':1024,'max_wall_seconds':900}
     stage_host=agent_host.AgentHost()
     for stage in ('limitation_census','ideas'):
+        if stage == 'ideas':
+            from test_research_full_cycle_ideas import actual_ideas
+            artifacts[stage] = actual_ideas(root, artifacts[stage], base/'actual-ideas')
         artifact=write(base/('stage-'+stage+'.json'),artifacts[stage]);out=base/('stage-'+stage)
         assert not orchestration.run_protocol_stage(root,artifact,out,host=stage_host,settings=settings)['complete']
         for role,row in graph.status(out/'graph')['nodes'].items():
@@ -377,7 +397,8 @@ def complete_initial_stages(root,base,monkeypatch):
             public={key:fields[key]['const'] for key in ('stage','role_id','subject_sha256')}
             public.update(verdict='accept',findings=['Synthetic transport control only.'],attributed_claim_ids=[])
             graph.deliver_external(out/'graph',role,external_response(pending,out/(role+'-response.json'),
-                value=public,actor_id='synthetic-'+role,observed_model='host-agent'))
+                value=public,actor_id='synthetic-'+role,invocation_id='synthetic-'+pending['request_id'],
+                observed_model='host-agent'))
         assert orchestration.run_protocol_stage(root,artifact,out,host=stage_host,settings=settings)['complete']
     register(root)
     record=protocol.methodology_status(root)['record']
@@ -406,6 +427,8 @@ def test_complete_open_question_actual_design_failed_preparation_science_resume_
     assert len(host.actual_contexts)==initial_calls and cycle._usage(unapproved)==ceiling
     admit_method(e['rundir'])
     science.approve(e['rundir'],'Root-authorized inert software control; no physicist/native/model authority.',scripted=True)
+    from ravel.workflow import research_evaluation
+    research_evaluation.prepare_dispatch_action(root, e['id'])
     result=orchestration.open_research(root,rp,out,host=host)
     _,now=cycle._load(root);e=now['experiments'][0]
     assert read_json(Path(e['rundir'])/'outputs/attempt-1/result.json')['quantities']['covariance']==[[1.0]]
@@ -633,7 +656,7 @@ def test_actual_exposure_producer_requires_fresh_charged_design_without_private_
         core=json.loads(next(p['content'] for p in ctx['input_artifacts'] if p['id']=='scientific-core'))
         turn=len(core.get('prior_operation_effects',[]))
         if core['phase']=='action' and turn==3:
-            previous=core['prior_operation_effects'][-1]['actual_effect']
+            previous=presented_effects(core,ctx)[-1]['actual_effect']
             assert previous['status']=='prepared_not_admitted'
             exposure=read_json(read_json(previous['prepared_experiment']['path'])['experiment']['input_exposure']['path'])
             assert {r['path']:r['purpose'] for r in exposure['inputs']}[str(binary)]=='execution_dependency'
@@ -705,8 +728,9 @@ def test_actual_committed_premise_revision_recovers_before_effect_checkpoint(tmp
     assert len([event for event in after['events'] if event['kind']=='premise_revised'])==1
     assert after['premises'][0]['statement']=='New prospective assumption.'
     origin=revisions[0]['coordinator_origin']
-    assert cycle._coordinator_effect(after,origin)['document']['actual_effect']['sha256']==read_json(
-        root/'history'/f"{revisions[0]['revision']:04d}.json")['sha256']
+    # History records may be authenticated deltas; compare with the replayed state at that revision.
+    assert cycle._coordinator_effect(after,origin)['document']['actual_effect']['sha256']==cycle.historical_state(
+        root,revisions[0]['revision'])['sha256']
     assert all(row in after['resource_ledger'] for row in calls)
     assert result['parent_task_accepted'] is False
     with pytest.raises(ValueError,match='actual original decision'):
@@ -726,18 +750,33 @@ def _record_initial_stage_fixtures(root, base, monkeypatch):
     artifacts = synthetic_artifacts(base/'methodology-fixture')
     monkeypatch.setattr(protocol, 'decision_errors', lambda *a, **k: [])
     for stage in ('limitation_census', 'ideas'):
+        if stage == 'ideas':
+            from test_research_full_cycle_ideas import actual_ideas
+            artifacts[stage] = actual_ideas(root, artifacts[stage], base/'actual-ideas')
         artifact = write(base/('skip-'+stage+'.json'), artifacts[stage])
         prepared = protocol.prepare_stage(root, stage, artifact, base/('skip-review-'+stage), model='stub')
         def result(graph_root, node_id, stage=stage, prepared=prepared):
+            if node_id == 'ideas':
+                return actual_result(graph_root, node_id)
             return {'value':{'value':{'stage':stage, 'role_id':node_id,
                 'subject_sha256':prepared['subject']['sha256'], 'verdict':'accept',
                 'findings':[], 'attributed_claim_ids':[]}}}
         def receipt(graph_root, node_id, stage=stage, **kwargs):
+            if node_id == 'ideas':
+                return actual_receipt(graph_root, node_id, **kwargs)
             manifest = read_json(base/('skip-review-'+stage)/node_id/'packet/manifest.json')
+            # Each synthetic seat is its own observed actor, session and packet.
+            seat = 'synthetic-' + stage + '-' + node_id
             return {'context_transport_separated':True, 'execution_observation':'host_attested_external',
+                'transport': {'observed_model': 'gpt-5', 'actor_id': seat, 'invocation_id': seat},
+                'context_manifest_sha256': manifest['sha256'],
                 'presented_subject_sha256s':[r['sha256'] for r in manifest['artifacts']], 'synthetic_stub':True}
         with monkeypatch.context() as patch:
-            patch.setattr(cycle, 'validate_graph_reservation', lambda *a: None)
+            actual_reservation = cycle.validate_graph_reservation
+            actual_result = cycle._graph_result
+            actual_receipt = graph.role_receipt
+            patch.setattr(cycle, 'validate_graph_reservation', lambda state, root, spec:
+                actual_reservation(state, root, spec) if spec['graph_id'].startswith('actual-idea-stream-') else None)
             patch.setattr(cycle, '_graph_result', result)
             patch.setattr(graph, 'role_receipt', receipt)
             status = protocol.complete_stage(root, prepared, base/('skip-graph-'+stage))
@@ -804,6 +843,10 @@ def _actual_tool_exposure_case(base, monkeypatch, *, private):
         'context_request':context_pin, 'goal_binding':goal}
     cycle.create(root, contract, base_dir=base, evaluation_harness=True)
     _record_initial_stage_fixtures(root, base, monkeypatch)
+    # The shared stage setup charges exactly the two genuine idea-stream calls;
+    # decision-turn assertions below count only their own calls beyond it.
+    setup_calls = cycle._usage(cycle._load(root)[1])['calls']
+    assert setup_calls == 2
     hypotheses = [{'id':identity, 'statement':'Explicit supplied-record rival law.',
         'stream':stream, 'premise_ids':[], 'source_basis':[method], 'parents':[],
         'operator':'limitation_fix', 'identity_signature':{'observable':'relation',
@@ -890,7 +933,7 @@ def _actual_tool_exposure_case(base, monkeypatch, *, private):
     return {'root':root, 'base':base, 'value':value, 'settings':settings, 'first':first,
         'first_origin':first_origin, 'first_effect':first_effect, 'turn':turn,
         'tool_pins':tool_pins, 'complete':complete, 'binary':binary_pin, 'wires':wires,
-        'request':request, 'extra_api':extra_api}
+        'request':request, 'extra_api':extra_api, 'setup_calls':setup_calls}
 
 
 @pytest.mark.parametrize('private',[False,True])
@@ -914,7 +957,7 @@ def test_actual_host_tool_context_uses_complete_public_or_two_turn_worker_custod
     assert experiment['rundir'] is None and experiment['observation'] is None and experiment['adjudication'] is None
     assert state['parent_task']['contract']==case['value']['parent_contract']
     assert state['contract']['budget']==case['value']['campaign']['budget']
-    assert cycle._usage(state)['calls']==(2 if private else 1)
+    assert cycle._usage(state)['calls']==case['setup_calls']+(2 if private else 1)
     if private:
         manifest = read_json(experiment['input_exposure']['path'])
         assert manifest['study']==experiment['study']
@@ -954,7 +997,7 @@ def test_actual_fresh_designer_cannot_admit_absent_changed_or_uncommitted_prepar
         decisions.admit_experiment(case['root'],case['value'],origin,case['root']/'turn-2/effect',arguments)
     _,state=cycle._load(case['root'])
     assert state['experiments']==[] and state['parent_task']['contract']==case['value']['parent_contract']
-    assert cycle._usage(state)['calls']==2
+    assert cycle._usage(state)['calls']==case['setup_calls']+2
 
 
 @pytest.mark.parametrize('role',['critic','verifier'])

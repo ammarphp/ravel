@@ -69,6 +69,9 @@ SCHEMA_VERSION = 1
 STAT_MODES = (
     "published-likelihood",
     "simplified-likelihood",
+    # a HistFactory model constructed from supplied yields, background estimates and a
+    # declared systematics registry with correlations (the yields+systematics rung of the ladder)
+    "constructed-likelihood",
     "best-sr-counting",
     "combined-counting",
     "stability-only",
@@ -197,6 +200,22 @@ def pin_run_file(rundir, path, what):
         die(f"{what} must be a regular file inside the run: {path}")
     return {"path": target.relative_to(root).as_posix(),
             "sha256": hashlib.sha256(target.read_bytes()).hexdigest()}
+
+
+def stat_mode_decision_block(rundir, path, stat_mode):
+    """The pack's summary of a valid statistical-mode decision record that selected ``stat_mode``."""
+    from ravel.workflow import stat_mode_decision
+    pinned = pin_run_file(rundir, path, "statistical-mode decision record")
+    record = load_json(os.path.join(rundir, pinned["path"]), "statistical-mode decision record")
+    errors = stat_mode_decision.validate_record(record)
+    if errors:
+        die("statistical-mode decision record invalid: " + "; ".join(errors))
+    if record["selected"] != stat_mode:
+        die(f"statistical-mode decision selected {record['selected']!r}, not --stat-mode {stat_mode!r}")
+    return {"selected": record["selected"], "status": record["status"], "downgrades": record["downgrades"],
+            "label": record["label"],
+            "ladder": [{"stat_mode": row["stat_mode"], "status": row["status"]} for row in record["ladder"]],
+            "record_path": pinned["path"], "record_sha256": pinned["sha256"]}
 
 
 def rel_to_run(rundir, abspath):
@@ -680,6 +699,7 @@ def build_result(args, rundir, prov, excl, cert, cert_ptr,
         if key in excl:
             result[key] = excl[key]
     attach_limits(result, result=limits)
+    statistics_block(result, excl, sr_yields)
     if ptr.get("exclusion"):
         bind_source(result, rundir, ptr["exclusion"])
     if certificates:
@@ -689,7 +709,42 @@ def build_result(args, rundir, prov, excl, cert, cert_ptr,
             result[key] = excl[key]
         elif cert and key in cert:
             result[key] = cert[key]
+    from ravel.workflow import architecture_receipt
+    result.update(architecture_receipt.label_delivery(
+        rundir, architecture_receipt.pack_artifacts(result), label="diagnostic"))
     return result
+
+
+def statistics_block(result, excl, sr_yields):
+    """Carry the limit's uncertainty statement and its statistics outcome into the headline.
+
+    The exclusion record's statistics record is recomputed (``situations.audit``) against the packed
+    region counts; one that does not recompute, or a held outcome, refuses the pack, and every
+    qualification label becomes a keyed ``statistics-qualified`` limitation. An exclusion record
+    written before these records existed carries neither and packs as before.
+    """
+    from ravel.physics.inference import situations, uncertainty
+    statement, block = excl.get("uncertainty"), excl.get("statistics")
+    if statement is not None:
+        problems = uncertainty.statement_errors(statement) or uncertainty.document_errors(excl)
+        if problems:
+            die("the exclusion's uncertainty statement is invalid: " + "; ".join(problems))
+        result["uncertainty"] = statement
+    if block is None:
+        return
+    counts = {normalize_sr(row.get("name", "")): row.get("n") for row in sr_yields if isinstance(row, dict)}
+    problems = situations.audit(block) or situations.result_facts_errors(block, counts)
+    if problems:
+        die("the exclusion's statistics record does not recompute: " + "; ".join(problems[:3]))
+    outcome, labels = block["validity"]["outcome"], situations.labels(block)
+    if outcome == "held":
+        die("the statistics outcome is held: " + "; ".join(labels))
+    result["statistics"] = {"outcome": outcome, "labels": labels, "catalogue_sha256": block["catalogue_sha256"],
+                            "choices": [{k: row.get(k) for k in ("situation", "method", "origin")}
+                                        for row in block["decision"]["choices"]]}
+    for label in labels:
+        if not any(isinstance(row, dict) and row.get("note") == label for row in result["limitations"]):
+            result["limitations"].append({"key": "statistics-qualified", "note": label})
 
 
 def tier_of(residual):
@@ -746,6 +801,11 @@ def main(argv=None):
     ap.add_argument("--normalization-ledger",
                     help="normalization ledger inside the run, pinned for the delivery checks; "
                          "absolute SR yields are refused without one")
+    ap.add_argument("--stat-mode-decision", metavar="PATH",
+                    help="the run's statistical-mode decision record (inputs/stat_mode_decision.json); "
+                         "it must select --stat-mode, and its downgrades become a keyed limitation")
+    ap.add_argument("--delivery-label", choices=("diagnostic", "governed", "accepted"),
+                    default="diagnostic", help="Requested custody label; promotion requires live evidence")
     args = ap.parse_args(argv)
     requested_detector_mode = args.detector_mode
     args.detector_mode = DETECTOR_MODE_ALIASES.get(args.detector_mode, args.detector_mode)
@@ -753,6 +813,13 @@ def main(argv=None):
     rundir = os.path.abspath(args.rundir)
     if not os.path.isdir(rundir):
         die(f"--rundir is not a directory: {rundir}")
+    from ravel.controller.sink import legacy as sink_legacy
+    try:  # only the controller's sole sink delivers a controller-owned run
+        sink_legacy.refuse_controller_owned(rundir, 'ravel result-pack')
+        if args.out:
+            sink_legacy.refuse_controller_owned(args.out, 'ravel result-pack')
+    except ValueError as exc:
+        die(str(exc))
     # HOOKLESS raw-launch invariant: generation output without a launch-journal entry bound to an
     # approval refuses delivery on every host, with or without hooks.
     from ravel.workflow import host_governance
@@ -807,6 +874,12 @@ def main(argv=None):
         result["physics_review"] = physics_review.status(rundir)
         result["limitations"].append("Scientific review accepts only the recorded claim scope: "
                                      + result["physics_review"]["claim_scope"] + ".")
+    if args.stat_mode_decision:
+        result["stat_mode_decision"] = stat_mode_decision_block(rundir, args.stat_mode_decision, args.stat_mode)
+        label = result["stat_mode_decision"]["label"]
+        if result["stat_mode_decision"]["downgrades"] and not any(
+                row.get("key") == "stat-mode-downgrade" for row in result["limitations"] if isinstance(row, dict)):
+            result["limitations"].append({"key": "stat-mode-downgrade", "note": label})
     if requested_detector_mode != args.detector_mode:
         result["detector_mode_requested"] = requested_detector_mode
     # what guarded execution on this host, and the surface digest.
@@ -844,6 +917,15 @@ def main(argv=None):
     result["pointers"]["figures"] = "figures.json"
     result["n_figures"] = figures["n_figures"]
 
+    from ravel.workflow import architecture_receipt
+    try:
+        labelling = architecture_receipt.label_delivery(
+            rundir, architecture_receipt.pack_artifacts(result, figures), label=args.delivery_label)
+    except ValueError as exc:
+        die(str(exc))
+    result.update(labelling)
+    figures.update(labelling)
+
     # --- write ---
     res_out = os.path.join(out_dir, "result.json")
     fig_out = os.path.join(out_dir, "figures.json")
@@ -856,6 +938,9 @@ def main(argv=None):
     host_governance.stamp_claims(rundir, result["enforcement"])
 
     # --- console summary ---
+    for notice in result["notices"]:
+        print(notice)
+    print("Delivery label: " + result["delivery_label"])
     print(f"RESULT-PACK written (schema_version={SCHEMA_VERSION}):")
     print(f"  result.json  -> {res_out}")
     print(f"  figures.json -> {fig_out}  ({figures['n_figures']} figure(s))")

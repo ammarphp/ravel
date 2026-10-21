@@ -23,7 +23,7 @@ controller and creates a real unapproved ordinary plan. The returned handoff lis
 the existing run/observe/adjudicate commands. Its approve command is a prefix:
 append `--quote` with actual CHECK-IN 1 assent. No approval or scientific worker
 runs here. If an older branch is preferred or resources are exhausted, that fact
-remains visible; the connector cannot force the new branch or reset expenditure.
+remains visible; the connector must not force the new branch or reset expenditure.
 
 For a designer turn, `choice-spec` builds the existing finite model schema with
 all actual APIs, current premises and live knowledge contexts. Execute it through

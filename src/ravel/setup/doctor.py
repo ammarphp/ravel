@@ -13,6 +13,11 @@ Statuses: ready, missing, version_mismatch, unconfigured, manual_required,
 remote_route (runs on a Linux site, not on this machine), unsupported and
 conflict. The doctor never changes anything: it does not activate Wolfram,
 read API keys, start container machines or contact model providers.
+
+Every report also carries ``controller_admission``: the identity check controller mode runs for
+the code ``ravel ask`` would run (the current sealed runtime when it holds the imported bytes,
+else the imported package), ``ready`` or ``not-ready`` with its fix. A refusal makes the report
+not ready.
 """
 from __future__ import annotations
 
@@ -312,34 +317,78 @@ class Doctor:
 
     def _agent_cli_check(self, check):
         from ravel.workflow import transport_registry as registry
-        candidates = [(name, self.which(name)) for name in ("claude", "codex")]
-        older = None
-        for name, path in candidates:
-            if not path:
+        from ravel.controller.step import seats
+        from .models_setup import qualification_remedy
+        inventory = seats.wired_transports()
+        pending = []
+        for transport_id in inventory['wired']:
+            document = registry.load(transport_id, installed_only=True)
+            kind = document['transport_kind']
+            version, path, record, matches = None, None, None, False
+            authentication = None
+            if kind == 'ravel-loop':
+                # RAVEL loop qualification binds the interpreter and source code;
+                # no provider endpoint or CLI is contacted by the doctor.
+                record = registry.loop_identity(document)
+                matches = not record.get('unusable')
+                path = record.get('executable_path')
+                version = record.get('cli_version')
+            elif kind in registry.CLI_KINDS:
+                name = document['launcher']
+                path = self.which(name)
+                if not path:
+                    continue
+                code, version = self._probe([path, '--version'])
+                if name == 'claude' and (code != 0 or not version_matches(version, '>=2.1.296')):
+                    pending.append({'status': 'version_mismatch', 'path': path, 'found': version,
+                                    'expected': '>=2.1.296', 'transport': transport_id,
+                                    'detail': 'Claude Code 2.1.296 or newer is required', 'fix': 'claude update'})
+                    continue
+                if name == 'claude' and document['auth']['kind'] == 'login':
+                    from ravel.workflow.transports import cli_login
+                    source = self.environ.get('CLAUDE_CONFIG_DIR')
+                    try:
+                        if not source or not Path(source).is_absolute() or not Path(source).is_dir():
+                            raise cli_login.LoginRefused('Set CLAUDE_CONFIG_DIR to the dedicated login directory.')
+                        authentication = cli_login.preflight(path, source, environment=self.env,
+                                                              run_probe=self.run_probe)
+                    except (cli_login.LoginRefused, OSError, UnicodeError) as exc:
+                        pending.append({'status': 'unconfigured', 'path': path, 'transport': transport_id,
+                                        'detail': str(exc), 'fix': cli_login.remedy(source or 'LOGIN_DIRECTORY'),
+                                        'authentication': 'login_required'})
+                        continue
+                record = registry.read_probe(transport_id)
+                try:
+                    current_sha = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                except OSError:
+                    current_sha = None
+                matches = (code == 0 and record is not None and registry.probe_problem(record, document) is None
+                           and not record['unusable'] and record['executable_sha256'] == current_sha
+                           and Path(record['executable_path']).resolve() == Path(path).resolve())
+            else:
                 continue
-            code, version = self._probe([path, "--version"])
-            if name == "claude" and (code != 0 or not version_matches(version, ">=2.1.296")):
-                older = {"status": "version_mismatch", "path": path, "found": version,
-                         "expected": ">=2.1.296", "detail": "Claude Code 2.1.296 or newer is required", "fix": "claude update"}
-                continue
-            transport_id = name + "-cli-worker"
-            document = registry.load(transport_id)
-            record = registry.read_probe(transport_id)
-            try:
-                current_sha = hashlib.sha256(Path(path).read_bytes()).hexdigest()
-            except OSError:
-                current_sha = None
-            matches = (record is not None and registry.probe_problem(record, document) is None
-                       and not record["unusable"] and record["executable_sha256"] == current_sha
-                       and Path(record["executable_path"]).resolve() == Path(path).resolve())
             qualification = registry.qualification_status(document, record if matches else None)
-            qualified = matches and qualification == "live_qualified"
-            detail = f"{name} command line found; {transport_id} " + (
-                "is qualified on this host" if qualified else f"is not qualified on this host; run `ravel transport qualify {transport_id}`")
-            return {"status": "ready", "path": path, "found": version, "transport": transport_id,
-                    "qualification": qualification, "transport_qualified": qualified, "detail": detail}
-        return older or {"status": "missing", "detail": "neither the claude nor the codex command line is on PATH",
-                         "fix": "Install Claude Code or the Codex CLI and put its command on PATH."}
+            evidence = registry.read_qualification(document, record if matches else None)
+            observed = (evidence or {}).get('observed', {})
+            qualified = bool(matches and qualification == 'live_qualified'
+                             and registry._store_qualification_valid(evidence)
+                             and seats.model_matches(observed.get('requested_model'), observed.get('model')))
+            row = {'status': 'ready' if qualified else 'unconfigured', 'path': path, 'found': version,
+                   'transport': transport_id, 'qualification': qualification, 'transport_qualified': qualified,
+                   'governed_inventory': inventory,
+                   'detail': (f'{transport_id} is qualified on this host; controller runs require their own '
+                              'protected qualification evidence.' if qualified else
+                              f'{transport_id} is installed but not qualified on this host. '
+                              + qualification_remedy(transport_id, 'MODEL_ID'))}
+            if authentication is not None:
+                row['authentication'] = authentication
+            if qualified:
+                return row
+            pending.append(row)
+        return pending[0] if pending else {
+            'status': 'missing', 'detail': 'no installed worker or loop is wired for governed seats',
+            'fix': 'Install/configure a governed worker route; run `ravel transports list`. '
+                   + qualification_remedy('TRANSPORT_ID', 'MODEL_ID'), 'governed_inventory': inventory}
 
     def _container_image_check(self, check):
         engine = self.values["CONTAINER_ENGINE"]
@@ -530,6 +579,17 @@ class Doctor:
                                     for r in self.manifest.get("refusal_classes", [])]}
 
 
+def controller_admission():
+    """The controller admission ``ravel ask`` would get (``governed_runtime.admission``), never raising."""
+    try:
+        from . import governed_runtime
+        return governed_runtime.admission()
+    except (ImportError, OSError, ValueError) as exc:
+        return {"status": "not-ready", "runs": None, "package_dir": None, "kind": None, "runtime_id": None,
+                "launcher": None, "reason": f"the admission check could not run: {type(exc).__name__}: {exc}",
+                "fix": "ravel governed-runtime status"}
+
+
 LABELS = {"ready": "ready", "remote_route": "remote", "manual_required": "owner-action",
           "unconfigured": "owner-action", "unsupported": "unsupported", "conflict": "not-ready",
           "missing": "not-ready", "version_mismatch": "not-ready"}
@@ -596,6 +656,15 @@ def format_report(report):
                 lines.append(f"{'':<{width}}    fix: {check['fix']}")
     for conflict in report["conflicts"]:
         lines.append("conflict: " + conflict)
+    admission = report.get("controller_admission")
+    if admission:
+        if admission["status"] == "ready":
+            code = (f"the sealed runtime {admission['runtime_id']}" if admission.get("runs") == "sealed"
+                    else f"{admission.get('kind')} code at {admission.get('package_dir')}")
+            lines.append(f"controller-admission  ready: ravel ask runs {code}")
+        else:
+            lines.append(f"controller-admission  not-ready - {admission.get('reason')}")
+            lines.append(f"  fix: {admission.get('fix')}")
     if report.get('tool_census'):
         lines.append('')
         lines.append('Tool census (readiness; historical evidence remains scoped):')
@@ -644,6 +713,8 @@ def main(argv=None, *, repo=None, environ=None, run_probe=probe):
             report['tool_census'] = doctor.census_report()
             report['ready'] = report['ready'] and all(row['readiness'] in OK_STATUSES or row['readiness'] == 'excluded'
                                                      for row in report['tool_census'])
+        report['controller_admission'] = controller_admission()
+        report['ready'] = report['ready'] and report['controller_admission']['status'] == 'ready'
     except mf.ManifestError as error:
         print("ravel doctor: " + str(error), file=sys.stderr)
         return 2

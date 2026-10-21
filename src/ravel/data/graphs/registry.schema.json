@@ -134,6 +134,22 @@
           "owner": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
+          "resources": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "starts_launches": {
+                "type": "boolean"
+              },
+              "budget_builder": {
+                "type": "string",
+                "pattern": "^[a-z_][a-z0-9_]*$"
+              },
+              "records_worker_items": {
+                "type": "boolean"
+              }
+            }
           }
         }
       }

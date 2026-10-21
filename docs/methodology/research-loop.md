@@ -3,13 +3,20 @@
 Open-ended questions, method studies, anomaly searches, reproductions and reinterpretations all bind one
 research protocol. For a search, the loop turns hypotheses into experiments, compares each experiment with a
 baseline under a rule fixed in advance, selects candidates on one part of the data and confirms them on a part
-withheld from selection. A plain reproduction or reinterpretation, with no search, calibration or selection
+protected from selection. A plain reproduction or reinterpretation, with no search, calibration or selection
 declared or observed, skips the candidate-search and confirmation stages. Every trial, failed or not, stays in
 the record, and code computes when the loop stops.
 
+The current controller binds the campaign, original task and declared loop budget. Before each decision cycle
+it records a source-linked expected-gain and cost judgment; a stop prevents more cycles or children, and a
+projected high cost beyond the approved remainder ends admission. Each child gets its own fact-derived engagement
+tier. These controls differ from the staged protocol's numerical stop below. The [research architecture](../architecture/research.md)
+states the current ordinary-child and literature-role execution boundaries; declared campaign steps confer no
+unexecuted scientific support.
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../figures/svg/dark/methodology-research-loop.svg">
-  <img src="../figures/svg/light/methodology-research-loop.svg" width="100%" alt="The research loop. Sealed hypotheses from two independent idea streams enter a register. Experiments run in stages: a baseline, a screen on adaptive screening cells, a full evaluation on adaptive full cells, a committed selection, a confirmation on withheld cells with fresh seeds, then ablations and objection tests. Each comparison against the baseline yields a gain interval that a fixed rule maps to better, equivalent, worse or unknown. Code stops the loop on the target number of successes with family coverage, the round limit or the budget. Critique, acceptance, meta-review and integrity stages follow, and objections return work to experiments.">
+  <img src="../figures/svg/light/methodology-research-loop.svg" width="100%" alt="The research loop. Sealed hypotheses from two independent idea streams enter a register. Experiments run in stages: a baseline, a screen on adaptive screening cells, a full evaluation on adaptive full cells, a committed selection, a confirmation on sealed cells with fresh seeds, then ablations and objection tests. Each comparison against the baseline yields a gain interval that a fixed rule maps to better, equivalent, worse or unknown. Code stops the loop on the target number of successes with family coverage, the round limit or the budget. Critique, acceptance, meta-review and integrity stages follow, and objections return work to experiments.">
 </picture>
 
 ## Terms
@@ -23,10 +30,10 @@ the record, and code computes when the loop stops.
 - **Cell.** One unit of evaluation: a population (a pinned dataset or event sample), a normalization, a metric
   and its unit, and an *exposure*.
 - **Fidelity.** How completely a cell reproduces the final evaluation; each cell records its fidelity as text.
-  A screening cell runs on a declared subset and cannot claim full fidelity; a full-fidelity cell is the
+  A screening cell runs on a declared subset and must not claim full fidelity; a full-fidelity cell is the
   evaluation that selection and the stop rule count.
 - **Exposure.** The role a cell's data plays: `adaptive_screen` (cheap screening), `adaptive_full` (full
-  fidelity, used to select) or `withheld_confirmation` (read after selection is committed; each withheld
+  fidelity, used to select) or `withheld_confirmation` (read after selection is committed; each protected
   population is consumed once).
 - **Stage.** An experiment on one candidate over a set of cells, with a *purpose*.
 - **Comparison.** Two stages over the same cells, judged by a rule declared before the data are seen.
@@ -41,11 +48,11 @@ calibration or selection is declared or observed.
 
 | # | Stage | Roles | What it produces |
 |---|---|---|---|
-| 1 | Limitation census | limitation census, sufficiency verifier | Flaws and approximations of the reference method, with testable signatures |
+| 1 | Reference-method census | reference-method census, sufficiency verifier | Flaws and approximations of the reference method, with testable signatures |
 | 2 | Ideas | two idea proposers, novelty scout | Two independent idea streams, one citation-led and one speculative |
 | 3 | Baseline | baseline producer, comparative reviewer | Three columns: our result, our reproduction, the published result |
 | 4 | Screen | screen producer, plan critic | Promote, discard or engineer each idea on a declared subset |
-| 5 | Validate | research evolver, comparative reviewer | Evolution rounds, committed selection, withheld confirmation, the stop |
+| 5 | Validate | research evolver, comparative reviewer | Evolution rounds, committed selection, protected confirmation, the stop |
 | 6 | Critique to experiments | rebuttal planner, skeptical verifier | One discriminating experiment per concern |
 | 7 | Acceptance | ablation critic, skeptical verifier | Claims, with mechanism gains attributed by ablation |
 | 8 | Meta-review | research meta-reviewer | An independent review of every claim and every failed trial |
@@ -61,7 +68,7 @@ marked inapplicable with a reason. Novelty orders ideas; it never accepts a resu
 Hypotheses enter through a sealed board. Each participant first commits the digest of its proposals, then all
 participants reveal; follow-ups and posts open after every initial reveal. The board is a hash-chained
 journal. Posts are typed (hypothesis, prediction, rival, evidence request, finding, refutation, question) and
-cannot carry a status, a vote or an approval.
+must not carry a status, a vote or an approval.
 
 Code alone moves a hypothesis between states, from evidence it reads in the run:
 
@@ -70,7 +77,7 @@ Code alone moves a hypothesis between states, from evidence it reads in the run:
 | A registered comparator finds the prediction matches | survived test |
 | The comparator finds it differs | prediction mismatch |
 | It differs and a sensitivity check passes | rejected within the tested scope |
-| The comparator cannot decide | inconclusive |
+| The comparison is unresolved | inconclusive |
 | The experiment fails to execute | execution failure (never counted as a refutation) |
 | The budget for the hypothesis is spent | parked |
 | A declared reopening condition is met | reopened |
@@ -81,24 +88,24 @@ signature or a satisfied reopening condition.
 ## Staged experiments
 
 Each stage has one of six purposes. Code checks that every stage reads the exposures its purpose permits;
-withheld cells are reserved for confirmation. The purposes do not impose one global order: each experiment
+protected cells are reserved for confirmation. The purposes do not impose one global order: each experiment
 waits for its declared prerequisites and exposure gates, a confirmation waits for the committed selection, and
 an ablation or a full experiment after a computed stop needs a recorded decision to continue.
 
 | Purpose | Reads | Rule |
 |---|---|---|
 | `baseline` | adaptive | The reference every candidate is compared with |
-| `screen` | adaptive screen | Requires an R1 decision before launch; cannot claim full fidelity |
+| `screen` | adaptive screen | Requires an R1 decision before launch; must not claim full fidelity |
 | `full` | adaptive full | The results that count toward selection and the stop |
-| `confirm` | withheld confirmation | After the selection is committed; each withheld population is consumed once |
+| `confirm` | protected confirmation | After the selection is committed; each protected population is consumed once |
 | `ablation` | adaptive | Changes exactly one component of its parent: remove, replace or add |
 | `objection_test` | adaptive | Answers a registered objection; runs outside the computed stop |
 
 **Separation of selection and confirmation.** A confirmation cell differs from every selection cell in
-population digest, seeds and generation. The selection is committed before any withheld read, with its rule
+population digest, seeds and generation. The selection is committed before any protected read, with its rule
 (direction, metric, the number *k* of candidates to keep and the significance level *α*), the full trial count *N*
 including failures, and every candidate's value. A candidate's value is the mean over its full-fidelity trials,
-never its best seed; a candidate with any failed or unresolved full trial is ineligible. Each withheld
+never its best seed; a candidate with any failed or unresolved full trial is ineligible. Each protected
 population is consumed once in a ledger shared across the study, and a failed dispatch still spends it. A
 selected candidate can receive further confirmation reads when their cells, seeds and generation are disjoint
 from its earlier reads. With several selected candidates, noisy confirmations are corrected with the Holm
@@ -174,7 +181,7 @@ permitted outcomes are `better` and `equivalent`. Cost and accuracy use distinct
 `cost` and `accuracy` axes and distinct supplied metrics; the cost rule minimizes
 cost. Their intervals and decisions remain separate. There is no implicit cost
 weight, score, predictive law, or statistical combination of portfolio members.
-Screening and withheld cells cannot enter these adaptive objective declarations.
+Screening and protected cells must not enter these adaptive objective declarations.
 Missing or ambiguous evidence leaves the declared objective unresolved and
 retains every named candidate, including complementary members. Existing
 search-frontier rules and periodic exploration continue independently.
@@ -195,7 +202,7 @@ when the whole comparison is a tradeoff; it does not fulfill a separately
 required whole-comparison decision or an original uniform reporting obligation.
 Ordinary source custody, acceptance scope, premise freshness, review and
 objection requirements still apply. Bound objective rows and claim bindings
-cannot be rewritten to match observed outcomes.
+must not be rewritten to match observed outcomes.
 
 Experiment allocation defaults to guaranteed eliminated hypothesis classes per
 worst path cost, abstaining at zero gain. The selectable `expected_information`
@@ -247,8 +254,8 @@ is *better* when the lower edge of its gain interval exceeds 0.08.
 | High mass | adaptive full | 0.60 [0.59, 0.61] | 0.60 [0.59, 0.61] | [−0.02, 0.02] | equivalent |
 
 The full comparison is *better*. With a stop rule of one success, a coverage floor of two families and four
-rounds, the loop stops after round two, when this candidate and a second family have been evaluated. The
-selection (*k* = 1, *N* = 7 trials, two of them failed) is committed. The confirmation then reads a withheld
+rounds, the loop stops after round two, when this candidate and one additional candidate class have been evaluated. The
+selection (*k* = 1, *N* = 7 trials, two of them failed) is committed. The confirmation then reads a protected
 cell with fresh seeds: baseline 1.10 [1.07, 1.13], candidate 0.95 [0.93, 0.97], gain [0.10, 0.20], *better*.
 An ablation removes the new selection requirement and leaves everything else fixed; the ablated arm is
 *equivalent* to the baseline on all three full cells, so the ablation critic attributes the gain to that
@@ -279,15 +286,15 @@ stop), `ravel.physics.research_comparison` (the comparison rule), `research_cycl
 | Candidate | A method under test: named components plus fixed inputs |
 | Cell | Population, normalization, metric, unit and exposure |
 | Coverage floor | The number of hypothesis families that must be evaluated before a success stop |
-| Exposure | Screening, full or withheld use of a cell's data |
-| Fidelity | How completely a cell reproduces the final evaluation; screening cells cannot claim full fidelity |
+| Exposure | Screening, full or protected use of a cell's data |
+| Fidelity | How completely a cell reproduces the final evaluation; screening cells must not claim full fidelity |
 | Generic controls | The held inputs and other components an ablation keeps fixed |
 | Gain interval | The range of improvement of a candidate over the baseline in one cell |
 | Holm procedure | A step-down correction for testing several selected candidates |
 | Hypothesis family | A named group of related hypotheses; the coverage floor counts families |
 | Null funnel | A report in which no candidate confirmed or coverage was unmet |
 | Preregistration | Approximations, expected effect, evaluators and the stop rule, fixed before experiments |
-| Withheld confirmation | A read of data unused in selection, with fresh seeds; each withheld population is consumed once |
+| protected confirmation | A read of data unused in selection, with fresh seeds; each protected population is consumed once |
 
 See also the [RAVEL glossary](../reference/glossary.md), the [agent architecture](agent-architecture.md) and
 [Recursive Decision Justification](decision-justification.md).

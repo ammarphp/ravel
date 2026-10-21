@@ -1,0 +1,1525 @@
+{
+ "schema_version": 1,
+ "kind": "instruction-sources",
+ "purpose": "Inventory of instruction-bearing files for the instruction catalogue: each canonical source with the controller nodes that deliver it, the mirror relations that map host profiles, skill mirrors and bundled copies to their canonical source, and the node manifest selectors. Built by scripts/maintenance/build_instruction_catalogue.py; a discovered file that is neither canonical nor a verified mirror fails the build.",
+ "discover": [
+  "AGENTS.md",
+  "CLAUDE.md",
+  "GEMINI.md",
+  ".antigravity/RAVEL.md",
+  ".opencode/RAVEL.md",
+  "docs/reference/host-enforcement.md",
+  "docs/reference/environment.md",
+  "docs/reference/manuscript-production.md",
+  "docs/reference/staged-manuscript-authoring.md",
+  "docs/cli.md",
+  "docs/workflow/**/*",
+  ".claude/skills/**/*",
+  ".agents/skills/**/*",
+  ".claude/rules/*",
+  "src/ravel/data/skills/**/*",
+  "src/ravel/data/workflow/docs/workflow/**/*",
+  "src/ravel/data/workflow/docs/reference/host-enforcement.md",
+  "src/ravel/data/workflow/.claude/**/*",
+  "src/ravel/data/agent_surface/instructions.md",
+  ".ravel/roles/*",
+  ".claude/agents/*",
+  ".codex/agents/*",
+  ".gemini/agents/*",
+  ".antigravity/agents/*",
+  ".opencode/agents/*",
+  "src/ravel/data/roles/**/*.json",
+  "src/ravel/data/higgs/registration/roles.json",
+  "src/ravel/data/ml/handbooks.json",
+  "src/ravel/data/knowledge/premises.json",
+  "src/ravel/data/higgs/registration/premises.json",
+  "docs/reference/classifier-inputs.md",
+  "docs/reference/published-classifier-composition.md",
+  "docs/reference/symbolic-evaluation.md"
+ ],
+ "canonical": [
+  {
+   "path": ".claude/rules/madgraph-pythia.md",
+   "kind": "rule",
+   "nodes": [
+    "route.analysis.step[03-generate]"
+   ]
+  },
+  {
+   "path": ".claude/rules/plots.md",
+   "kind": "rule",
+   "nodes": [
+    "route.analysis.step[05-visualize]"
+   ]
+  },
+  {
+   "path": ".claude/rules/statistics.md",
+   "kind": "rule",
+   "nodes": [
+    "route.analysis.step[07-exclude]"
+   ]
+  },
+  {
+   "path": ".claude/skills/certify/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "review.final"
+   ]
+  },
+  {
+   "path": ".claude/skills/cost-preflight/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": ".claude/skills/directory-keeper/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": ".claude/skills/figure-contract/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "route.analysis.step[05-visualize]"
+   ]
+  },
+  {
+   "path": ".claude/skills/judgment-protocols/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "judgment.protocol"
+   ]
+  },
+  {
+   "path": ".claude/skills/new-analysis/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": ".claude/skills/physicist-intake/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "controller.intake"
+   ]
+  },
+  {
+   "path": ".claude/skills/resource-sweep/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": ".claude/skills/route-analysis/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": ".claude/skills/run-scan/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "route.analysis.scan"
+   ]
+  },
+  {
+   "path": ".claude/skills/run-stage/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.launch"
+   ]
+  },
+  {
+   "path": ".claude/skills/stage-recovery/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.launch"
+   ]
+  },
+  {
+   "path": ".claude/skills/verification-panel/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": "AGENTS.md",
+   "kind": "agents-file",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": "CLAUDE.md",
+   "kind": "agents-file",
+   "nodes": [
+    "hosts.surface"
+   ]
+  },
+  {
+   "path": "docs/reference/host-enforcement.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "hosts.surface"
+   ]
+  },
+  {
+   "path": "docs/reference/environment.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis.step[01-environment]"
+   ]
+  },
+  {
+   "path": "docs/reference/manuscript-production.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.manuscript"
+   ]
+  },
+  {
+   "path": "docs/reference/staged-manuscript-authoring.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.manuscript"
+   ]
+  },
+  {
+   "path": "docs/cli.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.inspect"
+   ]
+  },
+  {
+   "path": "docs/workflow/README.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.packet",
+    "judgment.protocol"
+   ]
+  },
+  {
+   "path": "docs/workflow/analysis-simpleanalysis/01-container-runtime.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[simpleanalysis]"
+   ]
+  },
+  {
+   "path": "docs/workflow/analysis-simpleanalysis/02-install-mapyde.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[simpleanalysis]"
+   ]
+  },
+  {
+   "path": "docs/workflow/analysis-simpleanalysis/03-configure.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[simpleanalysis]"
+   ]
+  },
+  {
+   "path": "docs/workflow/analysis-simpleanalysis/04-run.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[simpleanalysis]"
+   ]
+  },
+  {
+   "path": "docs/workflow/analysis-simpleanalysis/05-read-results.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[simpleanalysis]"
+   ]
+  },
+  {
+   "path": "docs/workflow/analysis-simpleanalysis/README.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[simpleanalysis]"
+   ]
+  },
+  {
+   "path": "docs/workflow/analysis-simpleanalysis/config-decisions.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[simpleanalysis]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/check-ins.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "authority.ci1",
+    "authority.ci2",
+    "authority.ci3",
+    "controller.deviation"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/choosing-routine.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[02-inputs]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/complex-analysis.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[04-analyze]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/conformance.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[09-verify]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/data-acquisition.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "step.acquire"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/detector-fidelity.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[04-analyze]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/exclusion-model.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[07-exclude]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/figure-contract.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[05-visualize]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/generation-settings.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[03-generate]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/independent-numerics.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "review.crosscheck"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/judgment-protocols.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "judgment.protocol"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/merging.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[03-generate]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/ml-training.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.ml.training"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/model-cards.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.study.chain"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/option-c-judgment.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "judgment.protocol"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/physics-traps.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[02-inputs]",
+    "judgment.protocol"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/plot-criteria.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[05-visualize]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/plot-guidelines.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[05-visualize]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/plot-naming.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[05-visualize]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/prompt-logging.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "controller.intake"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/reproduction-closure.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[09-verify]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/scan-and-contour.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.scan"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/summary-plot.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis[summary_plot]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/troubleshooting.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "judgment.recovery"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/validation.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[09-verify]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/verification-ladder.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "route.analysis.step[09-verify]"
+   ]
+  },
+  {
+   "path": "docs/workflow/checklists/verification-panel.md",
+   "kind": "workflow-checklist",
+   "nodes": [
+    "review.final"
+   ]
+  },
+  {
+   "path": "docs/workflow/dijet-calibration.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[calibration]"
+   ]
+  },
+  {
+   "path": "docs/workflow/hooks.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "hosts.surface"
+   ]
+  },
+  {
+   "path": "docs/workflow/orchestration.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "controller.graph"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/dark-matter-observables.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/data-read-outcomes.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "step.launch",
+    "step.acquire"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/durable-execution.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "step.launch",
+    "step.acquire"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/effmap-folding.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/example-rivet-ewk-path.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/example-rivet-path.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/example-simpleanalysis-path.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/failed-stage-review.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "review.seat"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/fault-diagnosis.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "judgment.step"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/generated-native-output-custody.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "step.launch",
+    "step.acquire"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/generated-spectrum.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/higgs-decay-programs.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/initialized-settings-retained.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "step.launch",
+    "step.acquire"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/literature-context.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.research",
+    "step.operation[literature]"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/literature-discovery.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.research",
+    "step.operation[literature]"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/model-derivation-bridge.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/model-provider-bridge.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/model-tool-bridge.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/mssm-physical-map.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/named-scans.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/native-pipeline.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "step.launch",
+    "step.acquire"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/pdf-variations.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/physics-review.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "review.seat"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/projection-replane.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/provider-policy.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "step.launch",
+    "step.acquire"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/published-summaries.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "controller.deliver"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/research-orchestration.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.research",
+    "step.operation[literature]"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/research-protocols.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.research",
+    "step.operation[literature]"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/research-tools.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.research",
+    "step.operation[literature]"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/result-templates.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "controller.deliver"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/science-review.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "review.seat"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/scientific-context-continuation.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "judgment.step"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/scientific-judgment.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "judgment.step"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/scientific-studies.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/scoped-workflows.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/sfitter-source-context.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/shower-config-template.cfg",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.analysis"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/sn-jnl-publication.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.manuscript"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/supplied-document-builds.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.manuscript"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/task-completion.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "controller.deliver"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/theory-uncertainty.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/width-input-materialization.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/reference/workspace-combination-study.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "route.study",
+    "step.operation"
+   ]
+  },
+  {
+   "path": "docs/workflow/review-context-resources.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "review.packet"
+   ]
+  },
+  {
+   "path": "docs/workflow/run-directory.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "controller.store"
+   ]
+  },
+  {
+   "path": "docs/workflow/session-guide.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.packet"
+   ]
+  },
+  {
+   "path": "docs/workflow/sfitter-domain-review.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[sfitter]"
+   ]
+  },
+  {
+   "path": "docs/workflow/sfitter-phase-continuation.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "step.operation[sfitter]"
+   ]
+  },
+  {
+   "path": "docs/workflow/start.md",
+   "kind": "workflow-doc",
+   "nodes": [
+    "controller.intake",
+    "controller.route_select",
+    "authority.service"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/01-environment.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[01-environment]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/02-inputs.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[02-inputs]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/03-generate.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[03-generate]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/04-analyze.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[04-analyze]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/05-visualize.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[05-visualize]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/06-acquire-data.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[06-acquire-data]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/07-exclude.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[07-exclude]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/08-scan.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[08-scan]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/09-verify.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "route.analysis.step[09-verify]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/cosmology-solvers.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "step.operation[cosmic-evolution]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/eft-conventions.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "step.operation[eft]"
+   ]
+  },
+  {
+   "path": "docs/workflow/steps/sfitter.md",
+   "kind": "workflow-step",
+   "nodes": [
+    "step.operation[sfitter]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/higgs/registration/premises.json",
+   "kind": "knowledge",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/knowledge/premises.json",
+   "kind": "knowledge",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/ml/handbooks.json",
+   "kind": "knowledge",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/executors.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/schema/card.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/schema/outputs/findings.v1.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/schema/outputs/findings.v2.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/schema/outputs/findings.v3.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/schema/outputs/producer.v1.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/schema/outputs/producer.v2.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/roles/schema/qualification-record.json",
+   "kind": "role-card-or-profile",
+   "nodes": [
+    "step.packet[role]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/operation-fields.json",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/columnar-analysis/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/columnar-analysis/references/checks.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/columnar-analysis/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/cross-section-normalization/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/cross-section-normalization/references/checks.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/cross-section-normalization/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/delphes-cards/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/delphes-cards/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/feynrules/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/feynrules/references/checks.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/feynrules/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/hepdata-retrieval/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/hepdata-retrieval/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/inference-engines/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/inference-engines/references/checks.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/inference-engines/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/lhapdf-pdf-sets/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/lhapdf-pdf-sets/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/ma5-expert/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/ma5-expert/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/madgraph-launch/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/madgraph-launch/references/launch-script.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/madgraph-launch/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/madgraph-model-import/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/madgraph-model-import/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/mcfm-amplitudes/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/mcfm-amplitudes/references/checks.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/mcfm-amplitudes/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/model-authoring/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/model-authoring/references/checks.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/model-authoring/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/pyhf-workspace-patching/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/pyhf-workspace-patching/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/pythia-shower-cards/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/pythia-shower-cards/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/rivet-routine/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/rivet-routine/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/roofit-histfactory/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/roofit-histfactory/references/checks.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/roofit-histfactory/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/smodels-input/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/smodels-input/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/snakemake-workflows/SKILL.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "src/ravel/data/skills/tools/snakemake-workflows/references/review.md",
+   "kind": "skill",
+   "nodes": [
+    "step.packet[knowledge]"
+   ]
+  },
+  {
+   "path": "docs/reference/classifier-inputs.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "role.consult-onnx"
+   ]
+  },
+  {
+   "path": "docs/reference/published-classifier-composition.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "role.consult-onnx"
+   ]
+  },
+  {
+   "path": "docs/reference/symbolic-evaluation.md",
+   "kind": "workflow-reference",
+   "nodes": [
+    "role.consult-symbolic"
+   ]
+  }
+ ],
+ "mirrors": [
+  {
+   "mirror": ".agents/skills/{rest}",
+   "canonical": ".claude/skills/{rest}",
+   "relation": "identical"
+  },
+  {
+   "mirror": "src/ravel/data/workflow/{rest}",
+   "canonical": "{rest}",
+   "relation": "identical"
+  },
+  {
+   "mirror": "src/ravel/data/agent_surface/instructions.md",
+   "canonical": "AGENTS.md",
+   "relation": "generated-from"
+  },
+  {
+   "mirror": ".claude/agents/ravel-{name}.md",
+   "canonical": ".ravel/roles/ravel-{name}.json",
+   "relation": "card-profile"
+  },
+  {
+   "mirror": ".codex/agents/ravel-{name}.toml",
+   "canonical": ".ravel/roles/ravel-{name}.json",
+   "relation": "card-profile"
+  },
+  {
+   "mirror": ".gemini/agents/ravel-{name}.md",
+   "canonical": ".ravel/roles/ravel-{name}.json",
+   "relation": "card-profile"
+  },
+  {
+   "mirror": ".antigravity/agents/ravel-{name}.md",
+   "canonical": ".ravel/roles/ravel-{name}.json",
+   "relation": "card-profile"
+  },
+  {
+   "mirror": ".opencode/agents/ravel-{name}.md",
+   "canonical": ".ravel/roles/ravel-{name}.json",
+   "relation": "card-profile"
+  },
+  {
+   "mirror": "src/ravel/data/roles/cards/{name}.json",
+   "canonical": ".ravel/roles/ravel-{name}.json",
+   "relation": "card-input"
+  },
+  {
+   "mirror": "src/ravel/data/roles/registry.json",
+   "canonical": ".ravel/roles/",
+   "relation": "card-input"
+  },
+  {
+   "mirror": "src/ravel/data/roles/registration/{name}.json",
+   "canonical": ".ravel/roles/",
+   "relation": "card-input"
+  },
+  {
+   "mirror": "src/ravel/data/higgs/registration/roles.json",
+   "canonical": ".ravel/roles/",
+   "relation": "card-input"
+  },
+  {
+   "mirror": "GEMINI.md",
+   "canonical": "AGENTS.md",
+   "relation": "host-stub"
+  },
+  {
+   "mirror": ".antigravity/RAVEL.md",
+   "canonical": "AGENTS.md",
+   "relation": "host-stub"
+  },
+  {
+   "mirror": ".opencode/RAVEL.md",
+   "canonical": "AGENTS.md",
+   "relation": "host-stub"
+  }
+ ],
+ "preamble": [
+  "AGENTS.md",
+  "docs/workflow/README.md#roles-the-model-tier-policy-binding+",
+  "docs/workflow/session-guide.md"
+ ],
+ "protocols": {
+  "common": [
+   "docs/workflow/checklists/judgment-protocols.md#checklist-judgment-protocols-the-how-behind-every-judgment-tag",
+   "docs/workflow/checklists/judgment-protocols.md#judgment-sites-under-the-controller"
+  ],
+  "P1": [
+   "docs/workflow/checklists/judgment-protocols.md#p1-look-first"
+  ],
+  "P2": [
+   "docs/workflow/checklists/judgment-protocols.md#p2-basis-manifest"
+  ],
+  "P3": [
+   "docs/workflow/checklists/judgment-protocols.md#p3-trap-sweep"
+  ],
+  "P4": [
+   "docs/workflow/checklists/judgment-protocols.md#p4-anchor-chain"
+  ],
+  "P5": [
+   "docs/workflow/checklists/judgment-protocols.md#p5-discrepancy-decomposition"
+  ],
+  "P6": [
+   "docs/workflow/checklists/judgment-protocols.md#p6-source-ladder"
+  ],
+  "P7": [
+   "docs/workflow/checklists/judgment-protocols.md#p7-conservative-default"
+  ],
+  "P8": [
+   "docs/workflow/checklists/judgment-protocols.md#p8-kill-the-result"
+  ]
+ },
+ "step_kinds": {
+  "compare": [
+   "P2"
+  ],
+  "decide": []
+ },
+ "checkins": {
+  "common": [
+   "docs/workflow/checklists/check-ins.md#checklist-check-ins-the-physicist-facing-layer-judgment-composes-every-check-in",
+   "docs/workflow/checklists/check-ins.md#escalation-is-a-check-in-a-weak-model-composes-the-flag-and-waits-it-never-skips-one",
+   "docs/workflow/checklists/check-ins.md#two-rules-that-govern-every-check-in",
+   "docs/workflow/checklists/check-ins.md#composing-rules-all-check-ins+",
+   "docs/workflow/checklists/check-ins.md#epoch-two-agent-review-and-resource-section+"
+  ],
+  "CI1": [
+   "docs/workflow/checklists/check-ins.md#check-in-1-plan-after-step-2-before-any-heavy-compute+"
+  ],
+  "CI2": [
+   "docs/workflow/checklists/check-ins.md#check-in-2-early-verification-at-the-waypoint-before-the-bulk-of-compute+"
+  ],
+  "CI3": [
+   "docs/workflow/checklists/check-ins.md#final-check-in-results-deck-after-step-7-8-only-after-the-step-9-panel+"
+  ],
+  "deviation": [
+   "docs/workflow/checklists/check-ins.md#deviation-check-ins-immediate-own-message-never-batched+"
+  ],
+  "steering": [
+   "docs/workflow/checklists/check-ins.md#live-physicist-steering+"
+  ]
+ },
+ "governing_skills": [
+  {
+   "skill": "route-analysis",
+   "stages": [
+    "route"
+   ],
+   "sources": [
+    "docs/workflow/steps/02-inputs.md"
+   ]
+  },
+  {
+   "skill": "certify",
+   "stages": [
+    "analysis"
+   ],
+   "sources": [
+    "docs/workflow/steps/04-analyze.md",
+    "docs/workflow/checklists/detector-fidelity.md"
+   ]
+  },
+  {
+   "skill": "verification-panel",
+   "stages": [
+    "verification"
+   ],
+   "sources": [
+    "docs/workflow/steps/09-verify.md"
+   ]
+  },
+  {
+   "skill": "run-scan",
+   "stages": [],
+   "sources": [
+    "docs/workflow/steps/08-scan.md"
+   ]
+  }
+ ],
+ "packet": {
+  "inline_tokens": 120000,
+  "chars_per_token": 4
+ },
+ "reviewed_context": [],
+ "knowledge_source_migrations": []
+}

@@ -53,7 +53,7 @@ contains live text, or when a figure breaks one of the rules below.
   | Records and evidence | `#E5ECF2` / `#78838B` | `#292F33` / `#C8D3DC` |
 
   Borders vary in lightness as well as hue, so any two layers stay distinguishable for readers with
-  deuteranopia or protanopia (CIEDE2000 difference of at least 12, tested). The pale fills cannot all stay
+  deuteranopia or protanopia (CIEDE2000 difference of at least 12, tested). The pale fills must not all stay
   distinct under colour-vision deficiency, which is why every layer is also labelled.
 
 - **Shapes.** Rounded rectangles for components, actions and records, coloured by layer; the chamfered shape only

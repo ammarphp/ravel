@@ -43,7 +43,25 @@ def location(pin, pointer):
 
 
 @pytest.fixture(scope='module')
-def seed(tmp_path_factory):
+def seed_domain(_machine_lease_module_domain):
+    """The machine-state domain the module-scoped seed dispatched its review roles in."""
+    return _machine_lease_module_domain
+
+
+@pytest.fixture(autouse=True)
+def seed_dispatch_domain(request, lock_domain_at):
+    """A test that reuses the seed works in the seed's machine-state domain.
+
+    The graph runner recorded the seed's role dispatches in that domain, as one machine state
+    root holds them in a real campaign; a fresh per-test domain would hide the records and
+    with them the seed's independent review credit.
+    """
+    if {'seed', 'classified_seed'} & set(request.fixturenames):
+        lock_domain_at(request.getfixturevalue('seed_domain'))
+
+
+@pytest.fixture(scope='module')
+def seed(tmp_path_factory, seed_domain):
     base=tmp_path_factory.mktemp('replication-original')
     root=base/'cycle';cycle.create(root,campaign(base),base_dir=base, evaluation_harness=True);propose(base,root)
     e=experiment(base,'paired',grouped=True)
@@ -132,7 +150,9 @@ def review(rd,root,identity):
         first=manifest['artifacts'][0]
         content=review_context.read_artifact(out,first['id'],expected_manifest_sha256=manifest['sha256'])
         assert hashlib.sha256(content).hexdigest()==first['sha256']
-        physics_review.submit_review(rd,role=role,actor_id=actor,verdict='accept',claim_scope='supplied_math_diagnostic',
+        # The recorded vote is the bound response of the dispatched role; a declared name is advice.
+        from bound_review import bound_review
+        bound_review(rd,role=role,verdict='accept',claim_scope='supplied_math_diagnostic',
             summary='Synthetic complete finite arithmetic/control review only; no scientific/model/physicist acceptance.')
     cycle.adjudicate(root,identity)
 
@@ -420,7 +440,7 @@ def test_absent_capacity_preserves_common_legacy_policy(tmp_path):
 # FR1 controls use a genuinely classified ORIGINAL study before its first
 # ordinary execution. They never attach an invented manifest to completed state.
 @pytest.fixture(scope='module')
-def classified_seed(tmp_path_factory):
+def classified_seed(tmp_path_factory, seed_domain):
     base=tmp_path_factory.mktemp('classified-replication-original')
     root=base/'cycle';cycle.create(root,campaign(base),base_dir=base, evaluation_harness=True);propose(base,root)
     e=experiment(base,'paired',grouped=True)

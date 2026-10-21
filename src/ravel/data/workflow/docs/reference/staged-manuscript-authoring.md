@@ -39,14 +39,14 @@ The APIs live in
 `prepare_story(request_pin, out, base_dir=..., campaign=...)` creates the initial
 Graph binding. `execute_phase(prepared, host)` uses the existing charged campaign
 executor. `consume_phase(prepared, out, base_dir=...)` authenticates the current
-response into a story product. Preparation alone cannot supply the outline.
+response into a story product. The outline requires the actual charged writer response.
 
 ## Consume the story and its phases
 
 The actual story contains the complete claim/evidence/counterevidence map,
 method and quantity references, plotting objectives, introduction and related
 work tasks, section dependencies, citation obligations, phase plan and unresolved
-population. Statements such as a proposed novelty gap or unsupported theorem
+population. Statements such as a proposed novelty gap or unsubstantiated theorem
 remain hypotheses or unknown claims. Matching a citation's identity does not
 establish its scientific applicability.
 
@@ -91,7 +91,7 @@ current. Figure records use actual numerical plotting/source contracts; numerica
 plots are not image-model inventions. Supplied templates remain exact sources.
 
 `prepare_revision` consumes the actual current independent critic, verifier and
-synthesizer assessment. Located material objections and unsupported edges become
+synthesizer assessment. Located material objections and unsubstantiated edges become
 unresolved revision tasks; scores and prose do not resolve them. Changing a
 method/evidence source invalidates its dependent captions, sections, native build
 and compiled review. `prepare_supplementary` uses the ordinary fresh replication
@@ -111,14 +111,14 @@ it never forges a single-call receipt representing several calls.
 Use the existing source-bound integrity roles and ordinary manuscript-build
 preparation on that package, followed by fresh compiled visual/CI3 review and
 `task_completion.require_final`. Failed fits, unscorable quantities, missing
-proofs, acquisition failures and unsupported claims remain in the delivered
-record. A format-only edit cannot renew scientific evidence or prior review.
+proofs, acquisition failures and unsubstantiated claims remain in the delivered
+record. A format-only edit must not renew scientific evidence or prior review.
 
 The staged caption/section/reflection mechanism and the explicit
 outline/figure/refinement plan run through RAVEL's existing charged services and current
 source consumers.
 
-Revision obligations retain the authenticated original writer campaign, current original task and quantity context, and its actual remaining one-time reservation. A fresh campaign, even with copied context, cannot renew that allowance. The original campaign and source pins are rechecked at return; concurrent changes require preparation against the current original state. Preparing obligations grants neither execution nor scientific acceptance.
+Revision obligations retain the authenticated original writer campaign, current original task and quantity context, and its actual remaining one-time reservation. A fresh campaign, even with copied context, must not renew that allowance. The original campaign and source pins are rechecked at return; concurrent changes require preparation against the current original state. Preparing obligations grants neither execution nor scientific acceptance.
 
 Each noninitial phase presents complete reauthenticated prior product records, including their original source, actual role receipts and accounting. The issued binding separately retains the exact ordered prior product pin roster. Preparation and consumption reconstruct the same full context; pins alone do not stand in for the presented product contents.
 
@@ -134,7 +134,7 @@ ordered row for **every** objection: `objection_index`, `kind`, `response`,
 Kinds are `editorial`, `citation`, `empirical`, and `core-method`. The service
 derives affected manuscript claims, methods, citations, figures and the complete
 section population from the authenticated audit. These are proposed action
-choices; a writer cannot declare a material objection resolved.
+choices; a writer must not declare a material objection resolved.
 
 Editorial and citation actions use a new complete writer request without a
 numerical job. Scientific source and quantities stay fixed. Citation records
@@ -150,7 +150,7 @@ dependencies; new stages, fresh ordinary observations and their current reviews
 are still required. Existing `manuscript-supplementary`, replication design and
 comparison services produce the full original/fresh studies. A changed-method
 request does not reuse old baseline/ablation votes or only favorable cells.
-The complete inline meta context currently refuses if it exceeds its admitted
+The complete inline meta context refuses if it exceeds its admitted
 capacity; it never samples objections or correlated cells.
 
 Once the linked protocol holds have actual fresh replacement resolution,
@@ -159,11 +159,11 @@ production request. It preserves the original task, author, venue, account polic
 and cumulative revision allocation, checks current replacement method receipts,
 and inserts a pinned response-lineage record in the ordinary source manifest.
 The real improver Graph reads this evidence and creates the next full package.
-Pure editorial/citation changes cannot substitute a new quantitative result.
+Pure editorial/citation changes must not substitute a new quantitative result.
 
 `manuscript-action-resolve` consumes that exact new package and its fresh actual
 independent integrity review. A prepared writer, old review, failed observation,
-response string or unknown outcome cannot close an objection. The resolution
+response string or unknown outcome must not close an objection. The resolution
 records all original objection indices and replacement lineage. It certifies
 only the current scoped manuscript response; the real native build, compiled
 CI3, scientific judgments and original whole-parent completion remain separate
@@ -190,7 +190,7 @@ its complete baseline, full-evaluation and ablation replacements, regardless of
 the caller's label. Unmapped new methods are refused at this revision boundary.
 
 
-## Preserve every planned claim through independent review
+## Preserve every declared claim through independent review
 
 The consumed story assigns every ordered `claim_map` entry a section and phase
 processing path. Terminal synthesis reconciles the full original roster. Each
@@ -198,22 +198,22 @@ nonstory response must fill the provider-facing `claim_dispositions` schema for
 every claim allocated to that phase, even if drafting is empty. Use exactly one
 of `retained`, `merged`, `qualified`, `withdrawn`, or `unresolved`; keep the entire
 original row, including status, scope, evidence, counterevidence and every
-indexed literal limitation. A merge lists its complete ordered reciprocal group
+indexed literal scope condition. A merge lists its complete ordered reciprocal group
 on every original entry and maps them to the same actual targets.
 
 `paragraph_ids` and `figure_ids` identify actual returned scientific paragraphs
-or captions. Each indexed limitation maps to those targets; the final prose or
+or captions. Each indexed scope condition maps to those targets; the final prose or
 caption must contain its exact literal text, the original scope and the stated
 reason. `evidence_ids` and `counterevidence_ids` retain all original references
-and map to actual target sources. A phase may explicitly retain missing source
+and map to actual target sources. A phase can explicitly retain missing source
 IDs in `unresolved_evidence_ids`; final assembly requires actual resolved source
-records. A label or acquisition task cannot supply missing evidence. Caption-only
+records. A label or acquisition task must not supply missing evidence. Caption-only
 claims use actual source-bound captions instead of invented prose targets.
 
-Write natural scientific prose inside the contracted results, limitations and
+Write natural scientific prose inside the contracted results, scope conditions and
 other permitted sections, or an allowed appendix/caption. Do not add a machine
 census heading, internal claim IDs or an implementation log to the manuscript.
-An unsupported positive claim can be honestly withdrawn using its existing
+An unsubstantiated positive claim can be honestly withdrawn using its existing
 negative evidence; no fictional successful experiment is needed. Changed
 methods, empirical sources or results still need the existing original action,
 protocol requalification, linked ordinary observations and fresh review.
@@ -225,13 +225,13 @@ The integrity preparation observes the current real writer and complete
 transcript, checks this census once, derives literal Unicode locations, and adds
 one material `planned-claim` audit node per original claim. The ordinary critic,
 verifier and synthesizer receive the complete typed original/disposition rows,
-negative evidence, indexed limitations and final locations as authenticated
+negative evidence, indexed scope conditions and final locations as authenticated
 case anchors. They must judge qualifier preservation and evidential validity;
 structural correspondence establishes neither scientific truth nor acceptance.
 An unresolved node follows the existing objection/action pathway.
 
 A direct improver of a package with this census inherits its complete original
-roster even without a new staged run. It cannot omit the planned fields by using
+roster even without a new staged run. It must not omit the declared fields by using
 the direct writer API. The unplanned legacy one-call schema remains unchanged.
 All existing figure/viewing, method/citation, accounting, native build, compiled
 CI3 and whole original task gates remain required.

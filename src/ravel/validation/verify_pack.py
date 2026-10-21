@@ -519,6 +519,7 @@ def main(argv):
         except (json.JSONDecodeError, UnicodeDecodeError) as e:
             rep.fail(rel, f"NOT valid JSON ({e}) — corrupt artifact")
     if not docs:
+        rep.warn("architecture", "INDEPENDENT REVIEW INCOMPLETE / NOT GOVERNED: no delivery artifacts")
         rep.warn(os.path.basename(rundir), "no artifact JSONs found — nothing machine-"
                  "checkable; the run cannot pass a mechanical-integrity tier")
         return rep.emit()
@@ -526,6 +527,34 @@ def main(argv):
              + ", ".join(sorted(docs)))
 
     figures_doc = docs.get("figures.json")
+    from ravel.workflow import architecture_receipt
+    # Saved labels and receipt hashes are not authority. Recompute against custody
+    # for every result/figures pair, including packs written below outputs/.
+    packs = {}
+    for name, document in docs.items():
+        base = os.path.basename(name)
+        if base in ("result.json", "figures.json") and isinstance(document, dict):
+            packs.setdefault(os.path.dirname(name), {})[base] = document
+    for folder, pack in sorted((packs or {"": {}}).items()):
+        result_doc = pack.get("result.json") or {}
+        artifacts = architecture_receipt.pack_artifacts(result_doc, pack.get("figures.json"))
+        if not result_doc:
+            artifacts = [{"path": name, "kind": "number"} for name in docs]
+        observed = architecture_receipt.build_receipt(rundir, artifacts)
+        for notice in observed["notices"]:
+            rep.warn(os.path.join("architecture", folder) if folder else "architecture", notice)
+        for base, document in sorted(pack.items()):
+            name = os.path.join(folder, base)
+            label = architecture_receipt.claimed_label(document)
+            try:
+                if "architecture_receipt" in document:
+                    architecture_receipt.verify_saved_receipt(document["architecture_receipt"])
+                architecture_receipt.require_label(observed, label)
+            except ValueError as exc:
+                rep.fail(name, str(exc))
+            if label != "diagnostic" and not isinstance(document.get("architecture_receipt"), dict):
+                rep.fail(name, "NOT GOVERNED: architecture receipt is absent")
+
     scan_docs = {n: d for n, d in docs.items()
                  if isinstance(d, dict) and "points" in d and "n_done" in d}
     for name, doc in sorted(docs.items()):

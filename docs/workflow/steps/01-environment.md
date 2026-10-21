@@ -1,5 +1,78 @@
 # Step 1 — Environment · [agent]
 
+## On the controller
+
+When RAVEL's controller runs an analysis request (`ravel drive`), this step is plan step `env` of the
+analysis route (`src/ravel/data/controller/routes/analysis.json`). It runs in the prepare phase, before CHECK-IN 1,
+at no compute rung, as a worker step (role `coordinator`) through the governed step graph:
+
+- **Delivers** this document and the environment reference to the worker, with a receipt the worker acknowledges.
+- **Writes** `outputs/environment.json`: `tools` (each `{name, status: available | missing | unknown, required,
+  required_by}`, from the controller's inventory probe, never from memory) and `operations` (every operation the
+  plan names).
+- **Checks** (route adapter `environment`): every declared operation is accounted for; a required tool reported
+  missing fails the step with the repair it needs. The run must not reach CHECK-IN 1 until the step holds.
+
+A readiness record authorizes nothing: compute still needs the CHECK-IN 1 authority.
+
+Before any plan exists, the controller observes the host once and keeps one `environment-profile` record in
+the run's store: CPUs, memory, GPUs and free disk at the run and store roots, network egress, the batch system,
+the sandbox and container backends, and every census tool's readiness, version, licence and platform
+qualification from the doctor's own checks. A saved site profile (`ravel site init`) supplies what a probe
+needs you to specify (the site's network policy, a local source mirror, credential requirements, the scheduler) and is
+pinned by its digest. A resumed run keeps the profile it was admitted with.
+
+Planning reads that profile. The tool census declares the capability needs a plan can have and, for each, its
+candidate tools in preference order with the operations or roles through which a step uses them (for example,
+routine construction: the agentic Rivet construction roles first, a hand-written analysis second; global and
+effective-field-theory fits: SFitter first; symbolic model building: the FeynRules packages first, then a supplied
+UFO model, then a pregenerated spectrum generator, then a SymPy derivation run as authored code). A need arises
+from the request's task label or wording, a requested tool, a step that declares it, or a step that uses a
+candidate implying it. The judgment planner sees
+every need with its candidates' state on this host; every need that arises must be served by its best available
+candidate, or the plan records a typed reason (`not_applicable` with a statement and evidence: a reading item or a
+decide or ask step). The controller records the check as a `tool-selection` record and obligation CT09 at every plan
+revision. A fixed route that leaves a need unserved hands it to the judgment graph as an open obligation.
+At each step's preflight a tool the plan bound and found available is checked again; one lost since approval
+holds the step (`tool_unavailable`) with the need's other candidates, before any effect.
+
+When the profile records no network egress (a probe found none, or the site profile declares the network
+offline), the route's publication acquisitions read local sources only: the resource census consults its local
+rungs and the site mirror, and the data step reads the mirror's copy of the record; the step's
+`parameters.source_mode` records the switch.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Choosing provider models
+
+Before creating a run, the operator can use `ravel setup-models` to discover providers
+and choose a spending preset. `--yes` selects balanced defaults; `--preset premium`
+or `--preset economy` selects another level without questions. `--cost-cap-usd` sets
+an optional per-run ceiling. Discovery reads model listings and login status only;
+`--verify` explicitly opts into governed transport conformance after a displayed cost scenario
+and confirmation. It permits up to eight turns per selected model; the scenario is not a
+spending bound. `--verification-cost-cap-usd` supplies the finite per-qualification API ceiling.
+Subscription routes use the operator's login and have no monetary ceiling.
+An agent session receives the operator command instead of changing operator authority.
+Use `ravel models detect --adopt` to propose newly listed identifiers,
+`ravel models preset balanced --write` to save a selection, `ravel models check`
+to check current selections (`--run RUN_ID` reads frozen selections), and
+`ravel models estimate --preset balanced` to inspect typical full-tier route costs.
+Unknown prices remain unknown, and cache-unsplit inputs make these list-price
+estimates upper bounds for the projected workload. See the
+[transport reference](../../reference/transports.md#choosing-models) for overlays.
+
+Setup and `ravel doctor` derive their worker claims from the controller's wired transports.
+A listed model remains an unverified candidate until the operator qualifies that model and
+installed transport version through `ravel transport qualify`; a controller run needs that
+evidence in its protected store. HTTP and local loop workers use the same worker spec, broker,
+instruction custody and receipt path as CLI workers. An explicit zero broker-call card keeps
+only its final-record channel. Model or effort requirements exceeding a provider's declared contract hold
+the role with a remedy; choosing a cheaper preset never removes a required capability.
+
+## Procedure
+
 Run commands from the repository root in Bash. A passing readiness check does not
 authorize generation or any other compute; that still needs the CHECK-IN 1 approval.
 
@@ -10,8 +83,8 @@ and prints its exact repair command; licence activation remains a user action.
 
 Groups marked `qualification.required_per_platform` in `native/setup` enter the
 implicit installer and doctor selection only when a successful qualification record
-matches this host platform. The `mcfm-amplitudes` group currently has evidence for
-`linux-x86_64`; its macOS container route remains unqualified. Operation availability
+matches this host platform. The `mcfm-amplitudes` group  has evidence for
+`linux-x86_64`. Operation availability
 and planning refuse `amplitude-integration` on platforms without matching evidence,
 naming the missing group and platform. Explicit `--only mcfm-amplitudes` remains the
 route for approved installation and qualification work; installation alone does not
@@ -49,7 +122,9 @@ fixes each problem. It changes nothing. Report its findings in CHECK-IN 1:
 - `manual_required` and `unconfigured` (Wolfram licence, TeX, Rosetta, API key, grid
   credentials) are actions for the user. Never activate licences or handle credentials.
 
-Do not substitute a different tool, version or analysis to work around a missing one.
+Do not substitute a different tool, version or analysis to work around a missing one. On the
+controller, an alternative is only one of the need's declared candidates, chosen because the preferred one is
+missing on this host or with a recorded typed reason; anything else is a plan change.
 Record the doctor report (`--json`) with the study's runtime record. Installation
 readiness grants no numerical qualification. Compare a supplied operation/version/
 condition receipt using `ravel.setup.qualification.compare_receipt`; the input and
@@ -104,9 +179,8 @@ blocker. Lifecycle invariant checking is documented in
 For source-only planning,
 `ravel.workflow.recast_route.rank_routes(signal_basis=..., routine_ids=..., family=...)`
 returns the released ranks and a census hash; `load_census()["tools"]` gives each tool's
-historical label and evidence scope. The current
-portfolio prepares only its existing configured adapter routes; a prospective
-rank does not add a missing route. Literature services are
+historical label and evidence scope.
+The portfolio prepares its configured adapter routes. Literature services are
 `research_tools.discover_literature` and `research_tools.acquire_literature`;
 they require the ordinary source and execution contracts.
 
@@ -122,12 +196,10 @@ change the declared source applicability or grant execution approval. A `census_
 can bind an alternate pinned census for a planning record. The portfolio uses this
 ranking through its existing API; overlapping results still require explicit review.
 
-`ravel doctor --census --json` also reports the Higgs reference-data hold with public
-locators, expected files, owner action, download-size uncertainty and what acquisition
-would make possible. The shipped registration is **not installed — owner action:
-approve download**. There are no shipped Higgs cross-section or branching-fraction
-values. Do not download from this registration automatically or substitute the test
-fixtures. The recorded planning allowance is not a measured download size.
+`ravel doctor --census --json` reports Higgs reference-data acquisition locators,
+expected files, required owner action and download-size uncertainty. Obtain owner
+approval before downloading the source tables. Do not download from this registration automatically or substitute the test
+fixtures. Measure the actual download size during approved acquisition.
 
 After approved acquisition and source review, register ordinary local primary files and
 one normalized table file with SHA-256 pins in the reference `SOURCE.json`.
@@ -143,6 +215,12 @@ the primary/table pins and any unresolved applicability or uncertainty interpret
 See the [reference loader contract](../../reference/knowledge.md) for the acquisition hold.
 
 ### Additional source and licence records
+
+When package requirements or native manifest groups change, regenerate the
+[component inventory](../../reference/component-inventory.md) in the full-profile
+host environment with `python scripts/maintenance/render_component_inventory.py`.
+Use `--check` to refuse stale metadata, then run
+`python scripts/maintenance/sync_instruction_bundle.py` to refresh packaged documents.
 
 Before installing an additional tool, resolve its filled entry in
 `native/setup/tools-pins.json` and apply the offline licence/Containerfile lint.

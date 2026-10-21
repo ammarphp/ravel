@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import Run, prepare_case
 from ravel.workflow import decision_gate as dg, gate_wiring as gw, rdj_custody as custody
 from ravel.workflow import rdj_loop as rdj, run_ceilings
@@ -133,7 +134,7 @@ def test_delegated_go_needs_the_checkin2_accept_gate(delegated, monkeypatch):
     assert not (delegated.root / "inputs/checkin2_go.json").exists()
 
 
-def test_approve_plan_passes_for_a_delegated_fixture_plan(delegated, monkeypatch):
+def test_approve_plan_passes_for_a_delegated_fixture_plan(delegated, monkeypatch, inert_dispatch):
     """With the real role cards and a synthetic host whose transport selection
     succeeds, an authorized R2 case for the plan clears the approve_plan gate."""
     from ravel.workflow import transport_registry
@@ -173,15 +174,23 @@ def test_delivery_action_ignores_the_stamped_enforcement_record(delegated):
     assert gw.delivery_action(delegated.root)["digest"] != before
 
 
+def confirmed_respond(rundir, text, case_id):
+    """The operator confirms exactly this case at the controller terminal (inert stand-in)."""
+    from operator_capture import operator_at_terminal
+    with pytest.MonkeyPatch.context() as patch:
+        operator_at_terminal(patch)
+        return gw.respond(rundir, text, approve=[case_id], confirm=True)
+
+
 def _authorized_r3(run, gate, kind, action, *, approve):
     case_id = prepare_case(run, gate, kind, "R3", action=action)
     if approve:
-        gw.respond(run.root, f"I approve {case_id} as presented.", approve=[case_id])
+        confirmed_respond(run.root, f"I approve {case_id} as presented.", case_id)
     assert rdj.authorize(run.root, case_id)["outcome"] == "authorize"
     return case_id
 
 
-def test_r3_gate_needs_a_recorded_human_approval_under_same_user_transport(delegated):
+def test_r3_gate_needs_a_recorded_human_approval_under_same_user_transport(delegated, inert_dispatch):
     action = gw.delivery_action(delegated.root, write=True)
     case_id = _authorized_r3(delegated, "delivery", "delivery", action, approve=False)
     assert rdj.authorizing_receipt(delegated.root, "delivery", action) is not None
@@ -189,13 +198,13 @@ def test_r3_gate_needs_a_recorded_human_approval_under_same_user_transport(deleg
     assert codes(errors) == ["r3_human_approval_missing"] and errors[0].pins == (f"rdj/cases/{case_id}.json",)
 
 
-def test_r3_human_approval_comes_from_the_trusted_response_path(delegated):
+def test_r3_human_approval_comes_from_the_trusted_response_path(delegated, inert_dispatch):
     action = gw.delivery_action(delegated.root, write=True)
     _authorized_r3(delegated, "delivery", "delivery", action, approve=True)
     assert gw.human_approval_errors(delegated.root, "delivery", action) == []
 
 
-def test_steering_text_never_supplies_the_r3_human_approval(delegated):
+def test_steering_text_never_supplies_the_r3_human_approval(delegated, inert_dispatch):
     action = gw.delivery_action(delegated.root, write=True)
     case_id = prepare_case(delegated, "delivery", "delivery", "R3", action=action)
     gw.record_steering(delegated.root, f"Please approve {case_id} soon.", effect="note")
@@ -219,7 +228,7 @@ def _spend_run(run):
     return (run.root / run_ceilings.RECORD).read_text()
 
 
-def test_spend_above_ceiling_positive_path_end_to_end(delegated):
+def test_spend_above_ceiling_positive_path_end_to_end(delegated, inert_dispatch):
     response = _spend_run(delegated)
     # 1. The operator's CHECK-IN 1 response, which raises the ceiling, is custody-recorded.
     assert gw.record_checkin1(delegated.root, quote=response)["response_recorded"]
@@ -230,7 +239,7 @@ def test_spend_above_ceiling_positive_path_end_to_end(delegated):
     case_id = prepare_case(delegated, "spend_above_ceiling", "spend", "R3", action=action)
     with pytest.raises(rdj.OpenItems):
         rdj.authorize(delegated.root, case_id)
-    gw.respond(delegated.root, f"I approve {case_id}: spend one more invocation.", approve=[case_id])
+    confirmed_respond(delegated.root, f"I approve {case_id}: spend one more invocation.", case_id)
     receipt = rdj.authorize(delegated.root, case_id)
     assert receipt["outcome"] == "authorize" and receipt["class"] == "R3"
     assert receipt["attestation_summary"]["human_approver"]
@@ -249,12 +258,12 @@ def test_spend_above_ceiling_without_the_recorded_response_is_refused(delegated)
         run_ceilings.charge(delegated.root, "rdj", 1)
 
 
-def test_spend_above_ceiling_on_an_impossible_fixture_is_a_gaming_event(delegated):
+def test_spend_above_ceiling_on_an_impossible_fixture_is_a_gaming_event(delegated, inert_dispatch):
     response = _spend_run(delegated)
     gw.record_checkin1(delegated.root, quote=response)
     action = gw.spend_action(delegated.root, 1, write=True)
     case_id = prepare_case(delegated, "spend_above_ceiling", "spend", "R3", action=action)
-    gw.respond(delegated.root, f"I approve {case_id}.", approve=[case_id])
+    confirmed_respond(delegated.root, f"I approve {case_id}.", case_id)
     rdj.authorize(delegated.root, case_id)
     gw.register_impossible_fixture(delegated.root, "synthetic-spend", "no honest spend exists")
     assert codes(gw.delegated_errors(delegated.root, "spend_above_ceiling", action)) == ["impossible_fixture_pass"]

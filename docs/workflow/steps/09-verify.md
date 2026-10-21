@@ -1,5 +1,28 @@
 # Step 9 — Adversarial verification panel  ·  [agent] mechanics / [judgment] adversary  ·  MANDATORY · CHECK-IN
 
+## On the controller
+
+On a controller run the panel is three plan steps after the result, then the controller's own final review:
+
+- `verify.mechanical` (Tier A, kind `review`, worker `integrity-auditor`): `outputs/tier_a.json` with a `PASS` or
+  `FAIL` verdict and every reported number traced to an accepted artifact. A `FAIL` verdict holds the step;
+  each numerical source must have current accepted custody and unchanged bytes, so a fabricated artifact
+  name or a changed source also fails the step.
+- `verify.adversary` (Tier B and P8, worker `physics-critic`): `outputs/tier_b.json` with three written attacks
+  (basis, acceptance, statistics), each with how it was tested.
+- `synthesize` (the results deck, worker `coordinator`): the headline, every number with its artifact, the claims
+  and the recipe ledger with every unknown row unchanged. Its numerical sources receive the same
+  custody checks as Tier A; source artifacts can be JSON records, tables or other adopted files.
+
+The controller then runs the final review triad (physics critic, skeptical verifier, physics decider) in fresh
+sessions, renders the final check-in from the accepted artifacts and delivers only through the sink. A bounded
+ending delivers a qualified result that states every obligation's status.
+
+On a run the controller does not own, the host follows the procedure below as before; such a run's
+results read NOT GOVERNED, and the controller refuses its legacy commands for a controller-owned run.
+
+## Procedure
+
 Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
 this selects the native build and binary paths, including an existing local toolchain.
 `CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda` — every `$CONDA` below.
@@ -49,7 +72,7 @@ never the other way around. Tier A asserts:
   generator-model failure (its record's `stage` is a generation stage, or
   `failure_class == "tool_generator_model"`), then
   `resource_census.py --assert-recipe-search --rundir <rd>` must PASS (exit 0) before the deck ships:
-  a diagnosed generator failure cannot be closed on local diagnosis alone — `inputs/recipe_search.json`
+  a diagnosed generator failure must not be closed on local diagnosis alone — `inputs/recipe_search.json`
   (the CO-PRIMARY external search, `--debug recipe-search`) must exist first. This is NON-invariant (it
   is not a lifecycle stage), so it does NOT ride the D18 umbrella; it has its own Stop-branch.
 - **Open-defect close-block (N5 / G26)** — an OPEN `run_state.open_defect_notes` entry (a helper flagged
@@ -88,8 +111,8 @@ Before serving, also follow `docs/reference/scientific-results.md`: known one-si
 
 **D18 umbrella (Stop dispatcher).** The Stop hook `stop_dispatch.py` runs
 `validate_run_state.py --rundir` on any CHECK-IN/RESULT **delivery** turn and BLOCKS turn-end
-(exit 2, reason fed back) if it does not exit 0 — so a lifecycle-broken run cannot post a
-check-in. FALLBACK (when the hook is unavailable): the agent runs
+(exit 2, reason fed back) if it does not exit 0 — so a lifecycle-broken run must not post a
+check-in. FALLBACK (when the hook is missing): the agent runs
 `python3 scripts/run.py ravel.validation.validate_run_state --rundir <rundir>` itself before posting.
 The G8 recipe-search close-block above is NON-invariant, so it rides its OWN sibling Stop-branch
 (`branch_recipe_search` in `stop_dispatch.py`, G8) — which shells
@@ -101,7 +124,7 @@ NON-invariant, riding its OWN DELIVERY-only sibling Stop-branch (`branch_open_de
 (exit 2, token `G26-OPEN-DEFECT:`) when an open defect note is present. FALLBACK: the agent runs
 `python3 scripts/run.py ravel.validation.verify_pack <rundir>` itself before posting.
 
-The script cannot read prose: the number-tracing and coverage-**claim** checks (artifact ↔ check-in
+Review prose for the number-tracing and coverage-**claim** checks (artifact ↔ check-in
 text) remain the [agent]'s job, artifact value next to quoted value, line by line.
 
 ## Tier B — physics adversary ([judgment], fresh context)
@@ -121,7 +144,7 @@ The panel returns **PASS / CONCERNS / FAIL** with itemized findings. The finding
 the final check-in verbatim** — even after a fix, the check-in shows what the panel found. Never
 silently patch the result and present it as if the panel found nothing.
 - **PASS** — deliver; append the panel verdict + the `verify_pack.py` report.
-- **CONCERNS** — deliver **with** the findings appended and each one answered (accepted-as-limitation
+- **CONCERNS** — deliver **with** the findings appended and each one answered (accepted-as-qualification
   in `limitations[]`/`RESULT.md`, or fixed + noted). Unanswered findings block delivery.
 - **FAIL** — do not deliver. Fix, log the fix in `DEVIATIONS.md`, **re-run the panel** (both tiers).
   When the FAIL traces to a stage-level defect whose fix is not obvious (an empty-SR spectrum, a
@@ -133,6 +156,23 @@ silently patch the result and present it as if the panel found nothing.
 ## CHECK-IN
 Attach to the final check-in: the panel verdict, the itemized findings (with dispositions), and the
 `verify_pack.py` report. Only then does the result go to the physicist.
+
+Controller delivery includes every recorded assumption from intake, judgment frames,
+assumption records and the current scientific plan. `<run>/delivery/ASSUMPTIONS.md`
+and `<run>/delivery/ASSUMPTIONS.json` retain each statement, its record locator and digest, including
+controlled assumptions and every severity level. Delivered result notices link this
+complete appendix; the delivery receipt and inventory bind its bytes.
+
+The controller manuscript graph records a procedure-note request after assembly.
+Its native source and rendering commands write directly in the attempt's output
+root. Receipts retain the plan's `outputs/` paths; launch custody maps those paths
+to the files in that root and checks their inventory digests before adoption.
+Isolated module launches read the controller's installed package inside the same
+confined environment.
+The final sink rechecks the assembly and accepted source bytes, then writes the
+procedure, audit and evidence-verification workflow inside the private atomic delivery.
+The package records controller outcomes and dependencies alongside source pins;
+its completion status follows the recorded step outcomes.
 
 When the accepted result is also a submission (an analysis challenge, a journal or a collaboration
 repository), package it after acceptance with `ravel export-submission --request REQUEST --into REPO`,
@@ -148,7 +188,7 @@ reads Python metadata, resolved interpreter, OS/machine/libc, an installer-writt
 `.ravel-site/lcg-view.json`, supplied image records and allowlisted container markers.
 It never sources helpers or probes native tools. Supply `doctor_record` explicitly,
 or retain JSON in `logs/site-doctor.json` or `logs/site-doctor/*.json`; capture uses
-the latest modification time. Site-doctor currently prints JSON, so record retention
+the latest modification time. Site-doctor  prints JSON, so record retention
 must be explicit. Missing tool versions or image identity remain unknown.
 
 `environment_export.write(package_dir, runtime_snapshots, wms_lock=None)` exports
@@ -185,7 +225,7 @@ checks retain their separate validation requirements. Run
 `ravel procedure verify --package EXPORT --deep` for full source-content checking.
 Default verification checks package closure plus source existence and size;
 Snakemake node rules check their own evidence content and shared source records.
-A source without a recorded digest cannot pass deep content verification.
+A source without a recorded digest must not pass deep content verification.
 
 Refresh-time package upgrades do not change the export identity. When available,
 per-stage runtime snapshots bind the execution environment as source pins; absence
@@ -222,3 +262,5 @@ conventions. Follow [portable submission packages](../../reference/site-workflow
 for release-tree checks, `make env`, `make check`, `make verify` and the fresh governed
 replay approval gate. Use `verify --fresh-clone` to check a second parent directory.
 Historical approval records grant no authority to a new replay.
+
+Report the architecture receipt and its plain-language notices before the numerical summary. `ravel result-pack` defaults to diagnostic delivery. `--delivery-label governed` requires current supervisor custody and a matching approval-bound launch for every numerical source and figure; `--delivery-label accepted` additionally requires credited required roles and current review of those exact artifacts. `python -m ravel.validation.verify_pack` recomputes these decisions. Mechanical verification does not establish scientific acceptance. A saved receipt or successful number is not authority. Diagnostic artifacts stay diagnostic. Missing role coverage prints INDEPENDENT REVIEW INCOMPLETE; missing launch coverage prints NOT GOVERNED.

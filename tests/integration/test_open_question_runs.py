@@ -50,6 +50,12 @@ def run(request, tmp_path_factory):
         mp.undo()
 
 
+@pytest.fixture(autouse=True)
+def retained_run_custody(request, lock_domain_at):
+    if 'run' in request.fixturenames:
+        lock_domain_at(request.getfixturevalue('run').machine_dir)
+
+
 def stage_pin(run, stage):
     return next(r['artifact'] for r in h.stage_records(run.root) if r['id'] == stage)
 
@@ -86,7 +92,9 @@ def test_every_stage_completes_with_exactly_its_protocol_roles(run):
 def test_the_loop_dispatches_every_stage_turn_by_code(run):
     if run.engine != 'graph':
         pytest.xfail(LOOP_PENDING)
-    assert run.outcome['kind'] == 'research_progress_synthesis'
+    assert run.outcome['kind'] == 'research_bounded_synthesis'
+    assert run.outcome['phase'] == 'budget_exhausted'
+    assert run.outcome['parent_task_accepted'] is False and run.outcome['delivery_receipt'] is None
     snapshot = h.orch.parity_snapshot(run.root)
     effects = snapshot['coordinator_effects']
     assert [e['action'] for e in effects] == ['protocol-stage'] * len(h.LOOP_TURNS)

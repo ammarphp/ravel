@@ -126,7 +126,9 @@ def review_math(rd, root, identity):
         manifest = review_context.create(rd, packet_role, packet)
         for artifact in manifest["artifacts"]:
             review_context.read_artifact(packet, artifact["id"], expected_manifest_sha256=manifest["sha256"])
-        physics_review.submit_review(rd, role=role, actor_id=actor, verdict="accept", claim_scope="supplied_math_diagnostic",
+        # The recorded vote is the bound response of the dispatched role; a declared name is advice.
+        from bound_review import bound_review
+        bound_review(rd, role=role, verdict="accept", claim_scope="supplied_math_diagnostic",
             summary="Synthetic separate test actor checks the complete arithmetic population; no scientific expert or independent model claim.")
     return cycle.adjudicate(root, identity)
 
@@ -217,7 +219,8 @@ def test_connected_two_iteration_real_host_studies_roles_and_synthesis(tmp_path)
     assert "| 1.0 |" in synthesis["report"]["report_text"]
     assert synthesis["actual_graph_usage"][0]["usage"]["calls"] == 1
     assert not synthesis["benefit_measured"] and not synthesis["physics_validated"]
-    science.run(second, resume=True)
+    with pytest.raises(ValueError, match='research dispatch must reserve exposure'):
+        science.run(second, resume=True)
     assert len(list((second / "logs/science-attempts").glob("*.json"))) == 1
 
 

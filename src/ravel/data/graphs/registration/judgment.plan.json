@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "kind": "graph-registration",
+  "graphs": [
+    {
+      "id": "judgment.plan",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.controller.judgment.graph",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": [
+        "run_id"
+      ],
+      "roles": [
+        "coordinator",
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "rdj-critic",
+        "skeptical-verifier"
+      ],
+      "gates": {
+        "approve_plan": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings"
+          ]
+        },
+        "deviation": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        },
+        "failed_stage_feedback": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        },
+        "final_task": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "raw_launch",
+            "input_closure"
+          ]
+        },
+        "delivery": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "raw_launch",
+            "input_closure"
+          ]
+        }
+      },
+      "subgraphs": [],
+      "interrupts": [
+        "reconcile_evidence"
+      ],
+      "structure_sha256": "4bd6e49d4af15856df52a71cbb1e536d851b88df1dab001778bc90d988835ea2",
+      "owner": "controller-judgment"
+    }
+  ]
+}

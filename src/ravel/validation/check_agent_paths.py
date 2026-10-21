@@ -713,8 +713,9 @@ def host_surface_problems():
         paths = role_registry.profile_paths(surface)
         for card in cards:
             content = files.get(paths[card["id"]], "")
-            redirect = f"Do not perform this role here. Run `ravel work dispatch --role {card['id']}`."
-            if redirect not in content:
+            redirect = (f'`python -m ravel.workflow.transports.host_subagent dispatch --rundir RUN '
+                        f'--node NODE --role {card["id"]} --spec SPEC.json --subject SUBJECT.json`')
+            if redirect not in content or "Do not perform this role here." not in content:
                 problems.append(f"{surface}/{card['id']}: profile lacks the work dispatch redirect")
             if "Contract:" in content:
                 problems.append(f"{surface}/{card['id']}: profile carries the role contract and can run locally")

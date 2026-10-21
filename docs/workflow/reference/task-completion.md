@@ -1,14 +1,50 @@
 # Original task and scoped child delivery
 
-Keep the full original request in `inputs/task_contract.json`. New routing retains a literal `original-request` obligation in `task_requirements`; finer source-located obligations describe experiment, model, domain, quantity, method, deliverable and quality. They supplement that whole request. They cannot replace it. Caller declarations and matching criteria do not prove scientific relevance or semantic completeness.
+Keep the full original request in `inputs/task_contract.json`. New routing retains a literal `original-request` obligation in `task_requirements`; finer source-located obligations describe experiment, model, domain, quantity, method, deliverable and quality. They supplement that whole request. They must not replace it. Caller declarations and matching criteria do not prove scientific relevance or semantic completeness.
 
-Decompose normally. Each assignment names its purpose and the original obligations it addresses, with its bounded criteria. A smaller study is useful even when it cannot finish the parent. In a version-2 scientific-study specification or AgentGraph, supply `goal_binding: {contract: {path, sha256, size}, assignment_id}` with an absolute parent-contract path. The ordinary input census, check-in, Host context, status and genuine reviewer manifest carry the original request, full obligation census, amendments and selected assignment. A missing source or changed binding must be repaired before that assignment is executed or reused; it does not show that the scientific question is impossible.
+Decompose normally. Each assignment names its purpose and the original obligations it addresses, with its bounded criteria. A smaller study contributes its bounded result to the full parent question. In a version-2 scientific-study specification or AgentGraph, supply `goal_binding: {contract: {path, sha256, size}, assignment_id}` with an absolute parent-contract path. The ordinary input census, check-in, Host context, status and genuine reviewer manifest carry the original request, full obligation census, amendments and selected assignment. A missing source or changed binding must be repaired before that assignment is executed or reused; it does not show that the scientific question is impossible.
+
+## Runs the controller owns
+
+For a run started with `ravel drive` (or `ravel ask`), the controller's sole sink is the only writer of the
+delivery. Its `deliver` node enumerates the bytes actually present in the run directory, fixes the delivered
+population from the approved plan and the controller's custody records, traces every table and figure number to
+an accepted artifact (prose numbers that match nothing are labelled unverified), compares the delivered statistic
+and fidelity with the intake pins, records each delivery obligation in the run's ledger, takes the `delivery`,
+`final_task` and `report_integrity` decisions through it and writes `delivery/`: the DELIVERY.md report,
+`RECEIPT.json`, `INVENTORY.json` and copies of the declared outputs. Every delivered text document starts with a notice block the
+sink renders, so worker prose must not strip or override a label. The label is `accepted` only when every gate and
+check passes; otherwise the delivery is `qualified` (only waivable obligations remain) or `diagnostic`.
+
+The installed route packages' delivery checks run on every delivery: a document built outside the manuscript-build
+mode, or a staged training step without its accepted stage record for the delivered plan, withholds acceptance,
+and every field the route reported is rendered. Before anything is read, the engagement envelope is checked for
+the delivery; acceptance needs the engagement policy's own verdict on that check, and its labels and section are
+rendered. Every notice block also carries the host governance label: `NOT GOVERNED` (with its reasons) for a run
+directory the controller does not own, which is never accepted, or the host integrity findings recorded for a run
+it does own. The receipt carries the authority issuer's own description of its authentication and its residual
+same-user risk, the confinement probe observed for each launch, and `terminal_identity_attested: false`.
+
+When a budget, bound, stop or unanswered escalation ends the run, the bounded ending is a qualified delivery:
+`qualified-delivery.json` in `delivery/` states every original obligation as `satisfied`, `negative`, `partial` or
+`blocked` with its reason, lists every ledger obligation with its status, keeps the final review findings and adopts
+no claim. It renders every route's ending record (unfinished stages, scan holes, study state, progress syntheses).
+When a route selects artifacts for the ending, for example a note's reviewed sources when its document could not be
+built, the sink delivers them only after the route selects the same set again and their custody, bytes and lineage
+verify; each carries `QUALIFIED ARTIFACT` with the route's qualification and is never an accepted result. Its
+receipt is never accepted or architecture-complete. The operator's notification command receives
+the run and a state code once, never the reason text. A trusted-side results file (for example a harness results
+template) is filled only for an accepted delivery and only after the `export` decision passes.
+
+`ravel task-completion qualified`, `--require-final`, the whole-task final gate and a writing `compose` refuse a
+controller-owned run and write nothing; continue it with `ravel drive --resume <run id>`. They keep working on runs
+the controller does not own, whose receipts carry `NOT GOVERNED` and are never architecture-complete.
 
 ## Progress, evidence and completion
 
 A completion request is a pinned JSON document with `schema_version: 1`, `contract`, `outcomes`, `parent_review` and `report`. Each outcome contains its declared `assignment_id`, child `rundir`, scoped `claim_scope` and the complete assignment `coverage` census. Each coverage row has `obligation_id`, exact assigned `criteria`, `state`, pinned `evidence` and an explanation. States are `satisfied`, `negative`, `partial`, `blocked` and `unknown`.
 
-Partial or unavailable inputs remain visible and active. Source-negative evidence can satisfy a reviewed search-eligibility question: for example, an analysis outside the requested mass window need not produce an invented curve. Resolved and negative contributions require an actual current accepted child review that captured the exact parent contract, child study binding and evidence. A child whose assigned criteria are narrower than an original obligation does not close that obligation. Independent matching of complete criteria produces readiness for parent review, not final acceptance.
+Partial or missing inputs remain visible and active. Source-negative evidence can satisfy a reviewed search-eligibility question: for example, an analysis outside the requested mass window need not produce an invented curve. Resolved and negative contributions require an actual current accepted child review that captured the exact parent contract, child study binding and evidence. A child whose assigned criteria are narrower than an original obligation does not close that obligation. Independent matching of complete criteria produces readiness for parent review, not final acceptance.
 
 Use `ravel task-completion --request completion.json --base BASE` for the read-only census. The output distinguishes `ready_for_parent_review` and `parent_task_accepted`. These projections authorize no execution. Historical runs without explicit requirements remain unassessed for whole-task completion; their original scoped reviews are preserved.
 
@@ -50,14 +86,14 @@ The accepted kinds are science, scoped, route-a, research and calculation. A chi
 publishes `inputs/completion_outcome.json` in the existing outcome shape (legacy
 `outputs/completion_outcome.json` is also read):
 `assignment_id`, `rundir`, `claim_scope`, and a complete `coverage` census including
-unresolved obligations. One assignment may have several distinct child scopes.
+unresolved obligations. One assignment can have several distinct child scopes.
 
 An optional `<rundir>/inputs/completion_sources.json` binds existing collector
 denominators: `schema_version:1`, `resonance:{request:pin,runs:{stage:absolute_run}}`
 and `research_cycles:[head_pin]`. Composition reuses `resonance_study.collect`
 with no output destination and the current research-cycle ledger. Every discovered
 ordinary run must bind the exact parent. These sources discover contributions;
-their component status cannot substitute for complete coverage and accepted review.
+their component status must not substitute for complete coverage and accepted review.
 Both source-ledger state and input population are checked again before return.
 
 ```bash
@@ -127,7 +163,7 @@ forecast. A trap's PASS discharge must bind its current artifact pin.
 
 Ordinary decomposition and authorized repairs require no extra scope approval. To replace or withdraw a parent obligation, preserve its original row and add a pinned `task-scope-instruction` amendment with the literal instruction, original prompt hash and each exact preceding obligation hash. Such notes are proposals until the existing original task CHECK-IN1 envelope binds the amended contract and amendment bytes and its recorded quote matches the instructions. An agent-created file claiming `authority: direct-user-instruction` is insufficient. If authorization is absent, the original obligations stay effective while ordinary constructive work continues.
 
-The software checks source custody and the existing approval envelope; it cannot authenticate a person's identity from a quote or an actor field. `authority_origin_authenticated: false` and `semantic_entailment_verified: false` remain explicit. Trusted direct-user provenance and a scientifically adequate whole-goal decision are review responsibilities, not benefits inferred from passing structural controls.
+The software checks source custody and the existing approval envelope. Review trusted direct-user provenance and the scientific adequacy of the whole-goal decision alongside those structural checks.
 
 Every contributing accepted child and the parent review are observed within existing per-run `ValidationSession` objects lasting only for the completion projection. Their full live scientific source, journal, output and runtime custody is checked at the final return boundary, then every session is closed, including failures. The small completion dependency table does not duplicate the potentially large native scientific input inventory. A later call creates fresh sessions; no saved acceptance proof substitutes for current custody.
 
@@ -141,7 +177,7 @@ parent_review_root:absolute_path, completion_base:absolute_path}`. Both request 
 request has `parent_review:null`, its exact base report recipe and the complete
 original outcomes/census. The final request must differ only by
 `parent_review:{rundir:parent_review_root,claim_scope:original_task_completion}`.
-It cannot change the goal, outcomes, report or source population. The root must
+It must not change the goal, outcomes, report or source population. The root must
 be distinct from every contributor child.
 
 The study binds the actual full original `goal_binding`, permits exactly one

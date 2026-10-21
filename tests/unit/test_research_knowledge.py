@@ -49,6 +49,20 @@ def setup(base):
     return root, pin, state
 
 
+
+def _assert_delta_history_state(root, expected):
+    # A state digest and the immutable delta record/file pins have different jobs.
+    path = root / 'history' / f"{expected['revision']:04d}.json"
+    raw = read_json(path)
+    assert raw['kind'] == 'research-history-delta.v1'
+    assert raw['result_sha256'] == expected['sha256']
+    assert raw['sha256'] != expected['sha256']
+    record_pin = cycle._pin(path)
+    assert cycle._read(record_pin, root) == raw
+    assert cycle._read(record_pin, root) != expected
+    assert cycle.historical_state(root, expected['revision']) == expected
+
+
 def designs(base, root):
     first = experiment(base, "a-ordinary", grouped=False, premise_ids=list(MAPPING.values()))
     first["predictions"]["grouped"] = "shared"
@@ -86,7 +100,7 @@ def test_retrieval_source_drift_refuses_and_does_not_recapture(tmp_path):
     root, pin, state = setup(tmp_path)
     (tmp_path / "v1-source.txt").write_text("changed\n")
     with pytest.raises(ValueError): cycle.knowledge_next(root, obligation_designs={})
-    assert read_json(root / "history" / f"{state['revision']:04d}.json") == state
+    _assert_delta_history_state(root, state)
 
 
 def test_ending_source_drift_before_first_binding_refuses(tmp_path, monkeypatch):
@@ -110,8 +124,8 @@ def test_domain_successor_reopens_child_without_erasing_original_history(tmp_pat
     state = cycle.bind_knowledge(root, request(tmp_path, identity="v2", extra=True), premise_map=MAPPING,
         reason="An immutable context successor changes an explicit convention.")
     assert {e["id"] for e in state["experiments"] if "applicability_reopened" in e} == {"parent", "child"}
-    assert read_json(root / "history" / f"{old['revision']:04d}.json") == old
-    assert read_json(root / "history" / f"{before['revision']:04d}.json") == before
+    _assert_delta_history_state(root, old)
+    _assert_delta_history_state(root, before)
     assert len(state["hypotheses"]) == len(before["hypotheses"])
     assert not any(r["affordable"] for r in cycle.select(root)["designs"])
 
@@ -200,7 +214,7 @@ def test_manual_premise_revision_requires_explicit_knowledge_rebinding(tmp_path)
     with pytest.raises(ValueError, match="manually revised"):
         cycle.knowledge_next(root, obligation_designs=mapping)
     state = cycle.bind_knowledge(root, pin, premise_map=MAPPING, reason="Explicitly restore the unchanged literal source assertion context.")
-    assert read_json(root / "history" / f"{revised['revision']:04d}.json") == revised
+    _assert_delta_history_state(root, revised)
     assert not any(row["affordable"] for row in cycle.knowledge_next(root, obligation_designs=mapping)["designs"])
 
 

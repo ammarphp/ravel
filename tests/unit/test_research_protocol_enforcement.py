@@ -3,22 +3,24 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import pytest
-from ravel.workflow import research_cycle as c, research_protocol as p, science, physics_review
+from ravel.workflow import research_cycle as c, research_protocol as p, science, physics_review, research_evaluation
 from test_research_cycle import contract, write
 from test_research_protocol_followup import hypothesis, selection, stop_trace
 
 
-def campaign(tmp_path, regime=None):
+def campaign(tmp_path, regime=None, *, budget=None):
     root = tmp_path/'cycle'
     value = contract(tmp_path)
+    if budget is not None:
+        value['budget'].update(budget)
     if regime is not None:
         value['research_regime'] = regime
     c.create(root, value, base_dir=tmp_path, evaluation_harness=True)
     return root
 
 
-def observed(tmp_path, monkeypatch, measured=0, *, max_rounds=3, hidden_ids=None):
-    root = campaign(tmp_path, 'closed_scored')
+def observed(tmp_path, monkeypatch, measured=0, *, max_rounds=3, hidden_ids=None, budget=None):
+    root = campaign(tmp_path, 'closed_scored', budget=budget)
     p.bind_default(root, regime='closed_scored')
     rule = {'direction': 'maximize', 'metric': 'response', 'k': 1, 'alpha': .05}
     prereg = write(root/'prospective.json', {'schema_version': 1, 'kind': 'research-preregistration',
@@ -341,6 +343,7 @@ def test_observe_selection_dispatch_confirmation_report(tmp_path, monkeypatch):
     write(rd/'outputs/attempt-1/result.json', {'metric': 1, 'p': .001, 'decision': 'better'})
     state['experiments'].append(e)
     state = c._commit(root, state, 'fixture_confirmation_prepared')
+    research_evaluation.prepare_dispatch_action(root, 'confirm')
     state = p.record_confirmation_dispatch(root, state, 'confirm')
     state = c.observe(root, 'confirm')
     report = p.selection_report(receipt, [state['experiments'][-1]['observation']['result']], base_dir=root, state=state)
@@ -391,6 +394,7 @@ def test_failed_confirmation_has_one_typed_recovery(tmp_path, monkeypatch):
     e['evaluation'].update(purpose='confirm', cells=['confirm'], seeds=[31], generation='fresh', population_pins=[population])
     write(rd/'attempt.json', {'status': 'failed', 'wall_seconds': 1})
     state['experiments'].append(e); state = c._commit(root, state, 'fixture_failed_prepared')
+    research_evaluation.prepare_dispatch_action(root, 'confirm')
     p.record_confirmation_dispatch(root, state, 'confirm')
     monkeypatch.setattr(science.execution, 'load_execution', lambda *a, **k: {'stages': {'science': {
         'status': 'failed', 'attempt_id': 'attempt-1', 'attempt_record': 'attempt.json'}}})
@@ -445,11 +449,14 @@ def test_deleted_dispatch_marker_cannot_bypass_bound_plan(tmp_path):
 
 
 def test_science_plan_pins_research_dispatch_binding(tmp_path):
-    from test_research_cycle import specification
-    spec = specification(tmp_path, 'plan-control', False, False)
+    from test_research_cycle import propose, experiment
+    root = tmp_path/'campaign'
+    c.create(root, contract(tmp_path), base_dir=tmp_path, evaluation_harness=True)
+    propose(tmp_path, root)
+    c.design(root, experiment(tmp_path, 'e', grouped=False))
     rd = tmp_path/'planned'
-    binding = {'root': str(tmp_path/'campaign'), 'experiment_id': 'e'}
-    science.plan(rd, spec['path'], research_binding=binding)
+    binding = {'root': str(root), 'experiment_id': 'e'}
+    c.prepare_experiment(root, 'e', rd)
     plan = science.verify_plan(rd)
     assert plan['research_binding'] == binding
     assert str(rd/'inputs/research-experiment.json') in plan['stage_binding']['input_snapshot']

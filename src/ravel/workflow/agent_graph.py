@@ -850,6 +850,15 @@ def _run_admitted_node(root, node_id, host, host_sha):
             _event(state, "node_result_fenced" if state["cancelled"] else "node_completed",
                    node_id=node_id, result_sha256=reference["result_sha256"])
             _save(root, state)
+            completed = not state["cancelled"]
+        if completed and node["kind"] == "model":
+            # The runner that executed this call records what it observed, outside the
+            # graph and the run; review_dispatch reads only such records for credit.
+            from . import review_dispatch
+            try:
+                review_dispatch.record_graph(root, node, saved, reference)
+            except Exception:  # noqa: BLE001 - a missing record earns no credit; the result itself stands
+                pass
         return node_id
     except Exception as exc:
         with file_lock(root / "state.lock"):
@@ -1434,6 +1443,14 @@ def _external_completion_evidence(root, node, current, saved):
             "actual_token_ceiling_enforced": False}
 
 
+def observation_for(mode):
+    """What this host observed of a model call, from the execution mode its adapter recorded."""
+    return ("host_attested_external" if mode == "host_mediated_external" else
+            "remote_transport_observed" if mode in {"responses_http", "provider_http"} else
+            "local_transport_observed" if mode == "provider_http_local" else
+            "control_only" if mode == "responses_http_loopback_control" else "unestablished")
+
+
 def model_receipt(root, node_id, *, expected_subject_sha256, expected_packet_sha256=None,
                   require_exact_subject=False):
     """Check a current model-call receipt, never authenticate its scientific vote.
@@ -1510,6 +1527,8 @@ def role_receipt(root, node_id, *, expected_subject_sha256, expected_packet_sha2
         if not accounted or type(result) is not dict or result.get("kind") != "model_result":
             raise GraphError("review has no accounted structured model response")
         transport, isolation = result.get("transport", {}), result.get("isolation", {})
+        deferred_read = False
+        read_subjects = set()
         if "evidence_presentation" in isolation:
             presentation = isolation["evidence_presentation"]
             if (type(presentation) is not dict or presentation.get("manifest_sha256") != packet_sha
@@ -1517,7 +1536,26 @@ def role_receipt(root, node_id, *, expected_subject_sha256, expected_packet_sha2
                     or not set(presentation["presented_subject_sha256s"]) <= subjects):
                 raise GraphError("model evidence presentation differs from bound packet")
             presented_subjects = set(presentation["presented_subject_sha256s"])
-            exact_subject_presented = expected_subject_sha256 in presented_subjects
+            deferred_read = presentation.get("deferred_content_read", False)
+            if deferred_read is not False:
+                if (receipt_index is None or type(deferred_read) is not dict
+                        or set(deferred_read) != {"manifest_sha256", "artifacts"}
+                        or deferred_read["manifest_sha256"] != packet_sha
+                        or type(deferred_read["artifacts"]) is not list or not deferred_read["artifacts"]):
+                    raise GraphError("model deferred evidence presentation differs from bound packet")
+                read_ids = set()
+                for item in deferred_read["artifacts"]:
+                    if (type(item) is not dict or set(item) != {"id", "sha256", "bytes"}
+                            or type(item["id"]) is not str or item["id"] in read_ids
+                            or item["id"] not in receipt_index.entries
+                            or item["sha256"] != receipt_index.entries[item["id"]]["sha256"]
+                            or type(item["bytes"]) is not int
+                            or item["bytes"] != len(receipt_index.read(receipt_index.entries[item["id"]]))):
+                        raise GraphError("model deferred evidence presentation differs from bound packet")
+                    read_ids.add(item["id"])
+                    read_subjects.add(item["sha256"])
+            # Keep inline digests separate while allowing an exact subject received through verified pages.
+            exact_subject_presented = expected_subject_sha256 in presented_subjects | read_subjects
             if require_exact_subject and not exact_subject_presented:
                 raise GraphError("model review did not present the exact scientific subject")
         if require_exact_subject and not exact_subject_presented:
@@ -1527,10 +1565,7 @@ def role_receipt(root, node_id, *, expected_subject_sha256, expected_packet_sha2
         mode = transport.get("execution_mode", "unestablished")
         completion_evidence = (_external_completion_evidence(root, node, current, saved)
                                if mode == "host_mediated_external" else None)
-        observation = ("host_attested_external" if mode == "host_mediated_external" else
-                       "remote_transport_observed" if mode in {"responses_http", "provider_http"} else
-                       "local_transport_observed" if mode == "provider_http_local" else
-                       "control_only" if mode == "responses_http_loopback_control" else "unestablished")
+        observation = observation_for(mode)
         attestation, session = _receipt_attestation(root, transport, observation, isolation)
         _require_declared_instructions(root, isolation)
         if mode == "transport_attested_cli":
@@ -1539,6 +1574,7 @@ def role_receipt(root, node_id, *, expected_subject_sha256, expected_packet_sha2
                 "role": node["role"], "subject_sha256": expected_subject_sha256,
                 "exact_subject_presented": exact_subject_presented,
                 "presented_subject_sha256s": sorted(presented_subjects),
+                "deferred_content_read": deepcopy(deferred_read),
                 "context_manifest_sha256": packet_sha, "request_id": transport["request_id"],
                 "receipt_sha256": current["result"]["sha256"], "host_sha256": saved["host_sha256"],
                 "transport": transport, "isolation": isolation, "execution_observation": observation,

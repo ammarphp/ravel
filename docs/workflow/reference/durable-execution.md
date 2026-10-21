@@ -16,7 +16,7 @@ Replace the example with the actual approved command and artifact paths. A gener
 
 The supervisor writes `execution_state.json` atomically and retains individual attempt records under `logs/execution/`. A successful process is reusable only if the command, working directory, executable/package source, declared inputs, runtime context, parent receipts and current outputs still match. Relevant supervisor environment settings and installed package versions are fingerprinted. External runtimes, dynamically linked libraries and external data still need explicit dependency or environment manifests in the stage's declared inputs. This is not an operating-system sandbox or a complete machine image.
 
-Every changed parent invalidates its descendants. Changed output bytes also invalidate reuse. A zero exit code with missing, empty or malformed declared JSON output is a failed attempt. Input mutation during execution is rejected. Distinct stages cannot own overlapping output paths, and stage outputs cannot overwrite their declared inputs. Directory artifacts must not conceal symlinked content.
+Every changed parent invalidates its descendants. Changed output bytes also invalidate reuse. A zero exit code with missing, empty or malformed declared JSON output is a failed attempt. Input mutation during execution is rejected. Distinct stages must not own overlapping output paths, and stage outputs must not overwrite their declared inputs. Directory artifacts must not conceal symlinked content.
 
 Do not mutate or delete a stage output after its receipt is written. Decompressing a generated event file is a separate stage that preserves the compressed original. Keep scratch process directories separate from the immutable scientific products used by downstream stages.
 
@@ -28,13 +28,13 @@ recreates the system executable and loader aliases only when their targets are
 already mounted. Supplied read roots still require ordinary paths and must pass
 the protected-directory checks.
 
-The supervisor holds a per-stage process lock, runs the child in its own process group and terminates that group on timeout or interruption. Log silence is not a default stall signal because buffered scientific programs may remain healthy without printing. Set an explicit `--stall-secs` only when log updates are a valid progress contract for that program. A wall-time budget always remains.
+The supervisor holds a per-stage process lock, runs the child in its own process group and terminates that group on timeout or interruption. Log silence is not a default stall signal because buffered scientific programs can remain healthy without printing. Set an explicit `--stall-secs` only when log updates are a valid progress contract for that program. A wall-time budget always remains.
 
 Retrying retains the previous outputs, logs and failure record before creating a new attempt. After a killed supervisor, resume identifies an owned orphan using its recorded process identity and group before termination. A mismatched identity is held for reconciliation; the supervisor does not kill an unrelated process. Abrupt machine loss remains a recoverable interruption, not a successful receipt.
 
 The lifecycle gate, result pack and scan harvester reject known stale execution evidence. Historical runs without a durable ledger remain explicitly outside stage-reuse certification. Archived attempts never count as current scientific outputs or unresolved live failures.
 
-An unavailable applicable validator holds delivery and records a repairable gate failure. Repair the runtime or validator, rerun it and resolve the failure record with evidence. Do not relabel an unavailable check as a pass.
+An missing applicable validator holds delivery and records a repairable gate failure. Repair the runtime or validator, rerun it and resolve the failure record with evidence. Do not relabel an missing check as a pass.
 
 ## Resume the agent as well as the processes
 

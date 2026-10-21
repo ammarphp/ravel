@@ -52,8 +52,7 @@ When neither holds the recorded bytes the row is flagged
 `declared document bytes unavailable`. A worker row whose transcript names no
 model takes the reported model and CLI version from the worker receipt.
 Provider records preserve the exact serialized HTTP request body inside the
-existing guarded call; they do not include authentication headers or private
-response content. Failed calls retain unknown usage.
+existing guarded call. Exclude authentication headers and private response content. Failed calls retain unknown usage.
 
 Loop model turns are collected from effect-ledger records under `calls/`, one
 row per call identity even after replay. The loop keeps the serialized request
@@ -70,19 +69,15 @@ Provider dispatch without a run root records under
 and `recording_session_id` on each row. The default state directory is
 `~/.local/state/ravel`; hosts without a session ID use a process-local identity.
 Pass that session folder as `--rundir` to export it. Run exports do not absorb
-unrelated session folders. Coverage reports explicitly state that one-shot
-failures are not yet recorded; complete accounting remains unavailable until
-the launcher writes started records and finalizes every failure. The worker
-census (`ravel.workflow.worker_audit.build`) carries the same coverage row in its
-`gaps`, so its `complete` is false as well.
+unrelated session folders. The worker census (`ravel.workflow.worker_audit.build`) records coverage alongside the prompt receipts.
 
 The generated source census accompanies the Markdown export. It extends the
 repository AST agent-path checker with host dispatch and process sinks. An
 unmapped call site is a gap, and the shipped source has none: every spending
-site maps to a collected record. This syntactic inventory cannot authenticate
+site maps to a collected record. This syntactic inventory must not authenticate
 external implementations, prove absent dynamic calls or supply missing telemetry.
 Hook-only prompts remain visible with unknown usage; completion notifications
-cannot establish the original prompt submission time. Zero-gap conformance
+must not establish the original prompt submission time. Zero-gap conformance
 requires qualified runtime records, exact reported builds and complete usage.
 
 Programmatic consumers use

@@ -14,7 +14,10 @@ lookup aid; it authorizes nothing. stdlib-only, so hooks can import it with any 
   python -m ravel.workflow.active_run release [--session ID]
 
 A development session that runs `ravel initiate` becomes a physics session for that run (its
-enforcement surface turns read-only); `release` ends the registration.
+enforcement surface turns read-only); `release` ends the registration. A release is recorded in
+the host ledger and labels the run's later deliveries NOT GOVERNED: its guards stopped treating
+the session as physics. The controller never consults this registry, and a registration whose
+run the controller owns is not released.
 """
 import argparse
 import hashlib
@@ -83,13 +86,36 @@ def register(rundir, session_id, *, by):
     return record
 
 
+class ReleaseRefused(ValueError):
+    """The registration belongs to a run the controller owns; nothing was removed."""
+
+
 def release(session_id):
-    """Remove a session's registration; returns whether one existed."""
+    """Remove a session's registration; returns whether one existed.
+
+    The release is recorded in the host ledger first (``host_governance.record_host_event``);
+    a run the controller owns is refused with ``ReleaseRefused``.
+    """
     session_id = (session_id or "").strip()
     if not session_id:
         return False
+    path = _record_path(session_id)
     try:
-        _record_path(session_id).unlink()
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return False
+    except (OSError, ValueError):
+        record = {}
+    rundir = record.get("rundir") if type(record) is dict else None
+    from . import host_governance
+    if isinstance(rundir, str) and host_governance.controller_owned(Path(rundir)):
+        raise ReleaseRefused(f"the controller owns {rundir}; its registration is not released "
+                             "(stop or end the run through the controller)")
+    host_governance.record_host_event("registration_released", session=session_id,
+                                      rundir=rundir if isinstance(rundir, str) else None,
+                                      by=record.get("by") if type(record) is dict else None)
+    try:
+        path.unlink()
         return True
     except FileNotFoundError:
         return False
@@ -199,7 +225,15 @@ def main(argv=None):
             return 1
         print(json.dumps(record, indent=2))
         return 0
-    print("released" if release(session) else "no registration")
+    try:
+        released = release(session)
+    except ReleaseRefused as exc:
+        print(f"active_run: {exc}", file=sys.stderr)
+        return 1
+    if released:
+        print("NOT GOVERNED: the session's guards no longer treat it as physics; the run's later "
+              "deliveries carry this label", file=sys.stderr)
+    print("released" if released else "no registration")
     return 0
 
 

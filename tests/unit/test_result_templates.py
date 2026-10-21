@@ -85,11 +85,27 @@ def test_provenance_records_hashes_acceptance_and_units(tmp_path, monkeypatch):
     assert record['template']['sha256'] == digest(tpl)
     assert record['result']['sha256'] == digest(result)
     assert record['output']['sha256'] == digest(out)
-    assert record['acceptance']['accepted'] and record['acceptance']['claim_scope'] == 'diagnostic'
+    assert record['acceptance']['review_accepted'] and record['acceptance']['claim_scope'] == 'diagnostic'
+    assert record['acceptance']['delivery_label'] == 'diagnostic' and record['acceptance']['accepted'] is False
     assert record['units']['axes'][0] == {'template_name': 'MET', 'template_unit': 'GeV', 'result_name': 'MET', 'result_unit': 'GeV'}
     assert record['units']['value'] == {'template': None, 'result': 'events'}
     saved = json.loads(out.with_name(out.name + '.provenance.json').read_text())
     assert saved == json.loads(json.dumps(record))
+
+
+def test_non_diagnostic_fill_without_a_governed_launch_is_refused(tmp_path, monkeypatch):
+    # The accepted review covers this result, but no approval-bound supervised launch produced
+    # its bytes: only the diagnostic scope may deliver it.
+    rd = tmp_path / 'run'
+    result = rd / 'inputs/result.json'
+    result.parent.mkdir(parents=True)
+    result.write_text(json.dumps(table(edges((250, 350), (350, 450)))))
+    review_run(rd, [str(result)], monkeypatch, scope='original_task_completion')
+    out = tmp_path / 'filled.yaml'
+    with pytest.raises(ValueError, match='accepted delivery refused'):
+        rt.fill(template(tmp_path / 'template.yaml'), result, out, rundir=rd,
+                claim_scope='original_task_completion', base_dir=tmp_path)
+    assert not out.exists()
 
 
 def test_weighted_quantities_fill_plain_json_template_with_covariance_uncertainty(tmp_path, monkeypatch):

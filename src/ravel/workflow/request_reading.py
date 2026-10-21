@@ -502,7 +502,43 @@ TOOLS = (
     ("Lilith", r"Lilith"), ("Nyx", r"(?-i:Nyx)"), ("LHAPDF", r"LHAPDF"), ("EasyScan", r"EasyScan"),
     ("FastJet", r"FastJet"), ("coffea", r"coffea"), ("TensorFlow", r"TensorFlow"), ("PyTorch", r"PyTorch"),
 )
-_TOOL_RES = tuple((name, re.compile(r"(?<![\w@])(?:" + rx + r")(?![\w@])", re.I)) for name, rx in TOOLS)
+def _census_tool_patterns():
+    """Extend the reading floor from packaged bytes without loading a catalogue."""
+    from ravel.workflow.tool_census import census_bytes
+
+    def normalized(name):
+        return re.sub(r"[\s_-]", "", name).lower()
+
+    seen = {normalized(name) for name, _ in TOOLS}
+    patterns = []
+    try:
+        rows = json.loads(census_bytes())["tools"]
+        for row in rows:
+            names = row.get("request_names", [])
+            fallback = next((n for n in names if not n.startswith("re:")),
+                            re.split(r"[\s(]", row["title"], maxsplit=1)[0])
+            for entry in names:
+                if entry.startswith("re:"):
+                    rx = entry[3:]
+                    # A scoped case flag changes matching, not a literal tool's identity.
+                    identity = rx[5:-1] if rx.startswith("(?-i:") and rx.endswith(")") else rx
+                    name = fallback
+                else:
+                    identity = name = entry
+                    rx = re.escape(entry)
+                    if entry.isupper():
+                        rx = "(?-i:" + rx + ")"
+                key = normalized(identity)
+                if key not in seen:
+                    patterns.append((name, re.compile(r"(?<![\w@])(?:" + rx + r")(?![\w@])", re.I)))
+                    seen.add(key)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, ImportError, re.error):
+        return ()
+    return tuple(patterns)
+
+
+_TOOL_RES = (tuple((name, re.compile(r"(?<![\w@])(?:" + rx + r")(?![\w@])", re.I)) for name, rx in TOOLS)
+             + _census_tool_patterns())
 _FILE_TOKEN_RE = re.compile(r"[^\s()\[\]{}<>,;\"'`]*\w/[^\s()\[\]{}<>,;\"'`]*|(?<![\w/])[\w+-]+(?:\.[A-Za-z]\w{0,7})+\b")
 _FILE_SUFFIX = re.compile(r"\.(?:hepmc\d?|lhe|lhef|root|json|ya?ml|slha|dat|csv|cc|cpp|py|pdf|onnx|yoda|txt|tex|"
                           r"tar|tgz|gz|h5|hdf5|parquet|npz|npy|ufo|zip)$", re.I)

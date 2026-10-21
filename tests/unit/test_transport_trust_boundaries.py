@@ -491,22 +491,23 @@ def test_grok_model_on_claude_transport_refused(stub_path):
     assert tr.select(card, preferences)['family'] == 'anthropic'
 
 
-def test_unknown_family_fails_distinct_family_requirement():
+def test_unknown_family_is_labelled_not_refused():
     card = {'id': 'critic', 'model': {'distinct_family_from': ['producer']}}
-    with pytest.raises(tr.TransportRefusal, match='unknown'):
-        tr.check_distinct_families(card, {'critic': 'mystery-1', 'producer': 'mystery-1'})
+    assert tr.check_distinct_families(card, {'critic': 'mystery-1', 'producer': 'mystery-1'}) == 'unknown'
 
 
-def test_missing_assigned_role_refuses():
+def test_a_named_role_without_an_assignment_is_not_a_family_refusal():
     card = {'id': 'synthetic-reviewer', 'family': 'review', 'requires': {},
             'model': {'tier': 'judgment', 'effort': None, 'distinct_family_from': ['producer']}}
     preferences = {'schema_version': 1, 'kind': 'agent-preferences', 'families': {'review': ['http-responses']},
                    'tier_models': {'judgment': {'http-responses': 'gpt-x'}}}
-    with pytest.raises(tr.TransportRefusal) as refused:
-        tr.select(card, preferences, assigned={})
-    assert refused.value.missing == ['distinct_family_from:producer:unassigned']
-    with pytest.raises(tr.TransportRefusal):
-        tr.check_distinct_families(card, {'synthetic-reviewer': 'gpt-x'})
+    try:
+        selected = tr.select(card, preferences)
+    except tr.TransportRefusal as refusal:
+        assert not any('distinct_family_from' in code for code in refusal.missing)
+    else:
+        assert selected['family'] == 'openai'
+    assert tr.check_distinct_families(card, {'synthetic-reviewer': 'gpt-x'}) == 'unknown'
 
 
 def test_required_effort_on_effort_less_transport_refused():

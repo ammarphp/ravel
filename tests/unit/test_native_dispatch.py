@@ -339,13 +339,17 @@ else:raise RuntimeError('unexpected command '+repr(cmd))
     for name in ('pythia_shower','rjr_resolve'):
         path=build/name;path.write_text('#!/bin/sh\nexit 89\n');path.chmod(0o755)
     monkeypatch.setattr(pipeline,'native_build_root',lambda:build)
+    monkeypatch.setenv('RAVEL_NATIVE_BUILD', str(build))
     monkeypatch.setattr(pipeline,'native_binary',lambda name:build/name)
     return build
 
 
 def quick_supervisor(*args,**kwargs):
     from ravel.workflow.stage_supervisor import supervise
-    return supervise(*args,**kwargs,poll=.005,grace=.1,kill_secs=30)
+    result = supervise(*args,**kwargs,poll=.005,grace=.1,kill_secs=30)
+    if result and len(args) > 3 and Path(args[3]).is_file():
+        print(Path(args[3]).read_text()[-8000:])
+    return result
 
 
 @pytest.mark.parametrize('model,routine',[
@@ -362,6 +366,8 @@ def test_every_registered_family_subprocess_receipts_and_changed_card_resume(tmp
                                 'squark-neutralino':('ul ul~',1000002,'2 1000022 2')}[model]
         (tmp_path/'cards/process.dat').write_text('import model MSSM_SLHA2\ngenerate p p > '+particle+'\n')
         (tmp_path/'cards/param.dat').write_text(f'Block MASS\n {pdg} 300\n 1000022 100\nDECAY {pdg} 1\n 1 {daughters}\n')
+    from model_validation_fixture import native_evidence
+    native_evidence(config, pipeline.native_build_root())
     plan=pipeline.build_execution_plan(tmp_path,config)
     approve_fixture(plan)
     assert pipeline.execute_plan(plan,supervisor=quick_supervisor)==0
@@ -522,6 +528,8 @@ def test_statistical_adapters_execute_their_declared_subprocess_plan(tmp_path,mo
     if statistics=='mapped-likelihood':
         (tmp_path/'channels.json').write_text('{"A":{"region":"SRlow"}}')
         config.write_text(config.read_text()+'channel_map = "channels.json"\n')
+    from model_validation_fixture import native_evidence
+    native_evidence(config, pipeline.native_build_root())
     plan=pipeline.build_execution_plan(tmp_path,config);approve_fixture(plan)
     assert pipeline.execute_plan(plan,supervisor=quick_supervisor)==0
     assert validate_execution(tmp_path)==[] and (tmp_path/'output/exclusion.json').is_file()

@@ -16,6 +16,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 README = ROOT / "README.md"
 ARCH = ROOT / "docs" / "architecture"
+OVERVIEW = ARCH / "visual-overview.md"
 STAGES = ["stage-1-environment", "stage-2-inputs", "stage-3-generate", "stage-4-analyze", "stage-5-visualize",
           "stage-6-acquire-data", "stage-7-exclude", "stage-8-scan", "stage-9-verify"]
 CROSS = ["checkins", "guardrails", "records", "backends"]
@@ -112,8 +113,8 @@ ARCH_PARTS = {"Physicist steering and compute": "arch-steering", "The physics to
               "Statistics and inference": "arch-statistics", "Models and hosts": "arch-models-hosts",
               "Provenance and receipts": "arch-provenance", "Workflow engines": "arch-engines"}
 GLOSSARY = ["Ablation", "Anchor", "Approval scope", "CHECK-IN 1, 2 and 3", "Custody", "Deviation", "Driver agent", "Hypothesis board", "Mode",
-            "Operation", "Qualification", "Receipt", "Recursive Decision Justification (RDJ)", "Research loop", "Reviewer",
-            "Run directory", "Stage", "Study", "Supervisor", "Transport", "Withheld confirmation", "Worker"]
+            "Operation", "Protected confirmation", "Qualification", "Receipt", "Recursive Decision Justification (RDJ)", "Research loop", "Reviewer",
+            "Run directory", "Stage", "Study", "Supervisor", "Transport", "Worker"]
 DETAILS = re.compile(r"<details>.*?</details>", re.S)
 HEDGES = re.compile(r"\b(?:may|might|should be able|attempts? to|experimental|limited|only|not yet)\b", re.I)
 
@@ -252,46 +253,49 @@ def test_every_toolchain_tool_has_a_citation_row():
 
 
 def test_how_it_works_parts_and_collapsible_appendix_figures():
-    text = README.read_text(encoding="utf-8")
+    text = OVERVIEW.read_text(encoding="utf-8")
     how = _section(text, "How it works")
     assert re.findall(r"^### (.+)$", how, re.M) == list(HOW_PARTS)
-    assert "docs/methodology/README.md" in how
+    assert "../methodology/README.md" in how
     for part, (figure, page) in HOW_PARTS.items():
         body = how.split(f"### {part}\n", 1)[1].split("\n### ", 1)[0]
         pictures = PICTURE.findall(body)
-        assert len(pictures) == 1 and _check_picture(pictures[0], ROOT) == figure, part
-        assert page is None or f"]({page})" in body, part
-    appendix = _section(text, "Appendix A: Architecture")
+        assert len(pictures) == 1 and _check_picture(pictures[0], ARCH) == figure, part
+        assert page is None or f"]({page.replace('docs/', '../')})" in body, part
+    appendix = _section(text, "Architecture diagrams")
     blocks = DETAILS.findall(appendix)
     assert [re.search(r"<summary><b>(.+?)</b></summary>", b).group(1) for b in blocks] == list(ARCH_PARTS)
     for block, figure in zip(blocks, ARCH_PARTS.values()):
         pictures = PICTURE.findall(block)
-        assert len(pictures) == 1 and _check_picture(pictures[0], ROOT) == figure, figure
+        assert len(pictures) == 1 and _check_picture(pictures[0], ARCH) == figure, figure
         assert "**In:**" in block and "**Out:**" in block, figure
 
 
-def test_every_appendix_is_collapsible():
+def test_readme_routes_to_appendices_and_collapses_long_generated_tables():
     text = README.read_text(encoding="utf-8")
-    for name in SECTIONS:
-        if name.startswith("Appendix"):
-            section = _section(text, name)
-            assert "<details>" in section and "<summary>" in section and section.count("<details>") == section.count("</details>"), name
-    assert "<details>" not in text.split("\n## Appendix A", 1)[0]
+    assert "](docs/architecture/README.md)" in _section(text, "Appendix A: Architecture")
+    assert "](docs/reference/glossary.md)" in _section(text, "Appendix C: Glossary")
+    for name in ("Toolchain", "Appendix B: Citing upstream tools"):
+        section = _section(text, name)
+        assert "<details>" in section and "<summary>" in section
+        assert section.count("<details>") == section.count("</details>") == 1
+    assert not PICTURE.findall(text), "Detailed diagrams belong in the linked appendices"
+    assert len(PICTURE.findall(OVERVIEW.read_text())) == len(HOW_PARTS) + len(ARCH_PARTS)
 
 
 def test_terms_are_defined_at_first_use_and_in_the_glossary():
-    text = README.read_text(encoding="utf-8")
-    main = DETAILS.sub("", text.split("\n## Appendix A", 1)[0])
-    glossary = _section(text, "Appendix C: Glossary")
+    text = OVERVIEW.read_text(encoding="utf-8")
+    main = DETAILS.sub("", text.split("\n## Architecture diagrams", 1)[0])
+    glossary = _section(text, "Glossary")
     page = (ROOT / "docs/reference/glossary.md").read_text(encoding="utf-8")
     assert re.findall(r"^- \*\*(.+?)\.\*\* ", glossary, re.M) == sorted(re.findall(r"^- \*\*(.+?)\.\*\* ", glossary, re.M), key=str.lower)
     for term in GLOSSARY:
         assert f"- **{term}.** " in glossary, term
         assert re.search(rf"^## {re.escape(term)}$", page, re.M), term
-    # Each defined term is introduced in bold in the reader's README before the appendices.
+    # Each defined term is introduced in bold in the visual overview before the appendices.
     for term in ("study", "run directory", "operations", "mode", "stages", "supervisor", "receipt", "CHECK-IN 1",
                  "CHECK-IN 2", "CHECK-IN 3", "approval scope", "driver agent", "plan critic", "Workers", "Reviewers",
-                 "transport", "qualification", "research loop", "hypothesis board", "ablation", "Withheld confirmation",
+                 "transport", "qualification", "research loop", "hypothesis board", "ablation", "protected confirmation",
                  "Recursive Decision Justification", "anchor", "custody"):
         assert re.search(rf"\*\*{re.escape(term)}\.?\*\*", main), term
 
@@ -333,9 +337,11 @@ def test_required_symbolic_setup_preserves_declared_alternative():
 
 def test_study_commands_are_prospective_and_approval_is_explicit():
     section = _section(README.read_text(encoding="utf-8"), "A first study")
-    commands = [section.index(c) for c in ("ravel initiate", "ravel status", "ravel approve", "ravel run")]
+    commands = [section.index(c) for c in ("ravel ask", "ravel status", "ravel drive")]
     assert commands == sorted(commands)
-    assert "CHECK-IN 1" in section and "--quote" in section
+    assert "CHECK-IN 1" in section and "for approval" in section
+    assert "--input" in section and "--rundir" in section and "--resume RUN_ID" in section
+    assert "scope.md" in section and "original question" in section
     assert "43.651372" not in section and "GATE: OK" not in section
 
 
@@ -411,7 +417,10 @@ def test_diagrams_have_readable_responsibility_and_scope_text():
     assert rows[0] == "| Family | Operations | Examples |" and len(rows) <= 12
     assert not [line for line in rows if line.startswith("- ")]
     index = (ARCH / "README.md").read_text(encoding="utf-8")
-    assert "Boxes name implemented operations" in index
+    assert "Boxes name operations in the lifecycle" in index
+    assert "handoffs that require the selected route's admission and current evidence" in index
+    assert "The manuscript branch shows the bound short-note profile" in index
+    assert "phased authoring and procedure export are separate interfaces" in index
     assert re.search(r"^\| Layer \| Implemented interface \| Purpose \|$", index, re.M)
     for layer in ("Intake", "Source context", "Design", "Controller", "Agent/tool graph", "Study lifecycle", "Scientific judgment", "Delivery"):
         assert re.search(rf"^\| {re.escape(layer)} \|", index, re.M)
@@ -428,7 +437,8 @@ def test_legacy_public_readme_anchors_remain_resolvable():
     assert set(expected) <= _ids(README.read_text(encoding="utf-8"))
 
 
-@pytest.mark.parametrize("path", [README, ARCH / "README.md", *[ARCH / f"{p}.md" for p in STAGES + CROSS],
+@pytest.mark.parametrize("path", [README, OVERVIEW, ARCH / "README.md",
+                                    *[ARCH / f"{p}.md" for p in ("controller", "research", "execution", "providers", "safety", "upstream-tools")], *[ARCH / f"{p}.md" for p in STAGES + CROSS],
                                     ROOT / "THIRD-PARTY-NOTICES.md",
                                     ROOT / "docs/figures/README.md", ROOT / "CONTRIBUTING.md"])
 def test_local_document_and_asset_links_resolve(path: Path):

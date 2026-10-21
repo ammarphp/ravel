@@ -32,7 +32,7 @@ point setting, worker count, initialization, constraints, programme chain, mappi
 result folder and plot directives. `Parallel threads` is explicit; multiple workers also
 require `Parallel folder`. EMCEE requires explicit walkers. GRID retains the native
 endpoint-inclusive interval law; it can have any supplied dimensionality. Serial-only
-native sampler interfaces retain that limitation. Required fields or mappings omitted
+native sampler interfaces retain that scope condition. Required fields or mappings omitted
 from the contract raise `ScanInputError`, with `reason="missing_scan_input"` and the missing
 `field`. Missing mappings are checked before external trees are inspected. No study identity
 creates an intentional refusal, changes a count or supplies missing scientific input.
@@ -41,13 +41,13 @@ Each programme uses canonical relative paths. Its INI file mappings must match t
 ordered inputs and outputs, and every output variable must have a supplied unit. `status`
 is a source-interface convention (`native` or the admitted PhaseTracer interface), never
 an implicit study selection. Declare all retained intermediates and mutable logs explicitly.
-Executable/source code cannot be declared mutable. Commands, expressions, bounds, units,
+Executable/source code must not be declared mutable. Commands, expressions, bounds, units,
 constraints and compiler/library choices remain source premises requiring scientific review.
 Expression mappings are forwarded to the native tool; cold context never evaluates them.
 
 The selected JSON export preserves the complete parsed table, row ordinals, raw lexemes and
 invalid-row classifications. CSV preserves the source header fields and raw data rows,
-including malformed, blank and nonfinite rows. An unavailable selected table is refused,
+including malformed, blank and nonfinite rows. An missing selected table is refused,
 never replaced by a fabricated empty result. Native plot directives retain their source
 format and supplied names; JSON/CSV selection controls the table export. Source-required
 native table names are upstream interfaces rather than study-specific layouts.
@@ -74,7 +74,7 @@ reviews. Cold context grants no execution authority.
 
 The Graph `parameter-space-sampling-context` tool requires a pinned task and all dependencies returned by
 `parameter_space_sampling.context_inputs(task, base)`. Supplied request/INI/config pins replace the
-removed population dependency. Blinded critic and verifier roles cannot invoke this
+removed population dependency. Blinded critic and verifier roles must not invoke this
 producer tool. The source manifest retains the admitted framework interface revision;
 source/runtime membership is checked by planning and again around dispatch.
 
@@ -84,7 +84,7 @@ The child authenticates source/runtime assets, binds argv and cwd, and calls the
 once in a private work copy. Recording wrappers forward programme and sampler calls once,
 preserving returns and exceptions. Raw cards, outputs, intermediates, full sampler arrays,
 worker exits and nonfinite payloads remain retained. Shared resource ceilings stop further
-dispatch; exceeded bounds yield failed partial output. Root exit zero cannot establish
+dispatch; exceeded bounds yield failed partial output. Successful delivery requires
 parallel-worker success. Immutable source bytes, permissions and complete membership are
 rechecked. Intended emitted bytes are committed before writing and checked immediately
 and at ending reads. These finite observations do not establish arbitrary shell descendant
@@ -95,7 +95,7 @@ is a native iteration ceiling, not a likelihood-call count. EMCEE preserves full
 step/walker slots separately from its finite exported chain; physical coordinates bind to
 the actual captured native prior projection. DYNESTY retains samples, likelihoods, weights,
 evidence arrays and call counts; diagnostic weights use the final evidence normalization,
-with unavailable/overflowing normalization explicit. Gaussian normalization constants are
+with missing/overflowing normalization explicit. Gaussian normalization constants are
 omitted by the native likelihood, so absolute physical evidence is unqualified. MCMC retains
 the source acceptance, dwell and proposal conventions. Rows and weights are not independent
 collision events. Python random seeding does not establish complete parallel or sampler

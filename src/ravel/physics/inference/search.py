@@ -145,9 +145,50 @@ class SearchModel:
         d = deepcopy(document)
         required = {'regions', 'backgrounds', 'signal_points', 'mc_statistics', 'systematics', 'data',
                     'computations', 'asimov_source', 'cls_level', 'mc_adequacy', 'contours'}
-        if type(d) is not dict or not required <= set(d) or set(d) - required - {'toys', 'reference_contour'}:
+        if type(d) is not dict or not required <= set(d) or set(d) - required - {'toys', 'reference_contour', 'model_construction', 'background_covariance', 'cls_calculator', 'cls_toys', 'statistics_choices'}:
             raise ValueError('search document needs exactly: ' + ', '.join(sorted(required)))
+        self.background_covariance = d.get('background_covariance')
+        if 'background_covariance' in d:
+            if not isinstance(self.background_covariance, dict):
+                raise ValueError('background_covariance must be a covariance document')
+            if any(r.get('role') != 'SR' for r in d['regions']):
+                raise ValueError('background_covariance requires SR regions only; CR and VR regions are not represented')
+            if d['systematics'] is not None:
+                raise ValueError('background_covariance requires systematics to be null')
+            if d['mc_statistics'] != 'none':
+                raise ValueError('background_covariance requires mc_statistics none: signal MC statistics are not represented')
+            if d['computations'].get('discovery'):
+                raise ValueError('discovery is not supported with a background covariance')
+            if d['asimov_source'] != 'nominal':
+                raise ValueError('background_covariance requires asimov_source nominal')
+            if d['computations'].get('background_only_fit'):
+                raise ValueError('background_only_fit is not supported with a background covariance')
+            if any(b.get('normfactor') is not None for b in d['backgrounds']):
+                raise ValueError('background normfactors are not represented with a background covariance')
+            if 'model_construction' in d:
+                raise ValueError('model_construction builds a HistFactory model; a background covariance is a simplified likelihood')
+        self.cls_calculator = d.get('cls_calculator', 'asymptotic')
+        if self.cls_calculator not in ('asymptotic', 'auto', 'toybased'):
+            raise ValueError('cls_calculator must be asymptotic, auto or toybased')
+        self.cls_toys = None
+        if self.cls_calculator == 'asymptotic':
+            if 'cls_toys' in d:
+                raise ValueError('cls_toys requires cls_calculator auto or toybased')
+        else:
+            from .toy_cls import _validate_options
+            opts = d.get('cls_toys')
+            if (type(opts) is not dict or not {'count', 'seed'} <= set(opts)
+                    or set(opts) - {'count', 'seed', 'max_fits', 'max_seconds'}):
+                raise ValueError('cls_toys needs count, seed and optional max_fits, max_seconds')
+            _validate_options(opts['count'], opts['seed'], opts.get('max_fits'), opts.get('max_seconds'))
+            self.cls_toys = opts
+        if self.cls_calculator != 'asymptotic' and 'background_covariance' in d:
+            raise ValueError('cls_calculator toys apply to pyhf models; a background covariance uses the spey asymptotic engine')
         self.toys = toy_options(d.get('toys'))
+        from .model_construction import validate_construction
+        self.construction = validate_construction(d.get('model_construction'))
+        self.construction_folder = None
+        self.construction_records = []
         if self.toys and not d['computations'].get('discovery'):
             raise ValueError('discovery toys require computations.discovery')
         self.abcd = []
@@ -174,6 +215,7 @@ class SearchModel:
             estimate['region'] = region['name']
             self.abcd.append(estimate)
         self.document = d
+        self.background_fit = None
         if d['mc_statistics'] not in MC_STATISTICS:
             raise ValueError('mc_statistics must be staterror, shapesys or none')
         if d['asimov_source'] not in ASIMOV_SOURCES:
@@ -253,6 +295,128 @@ class SearchModel:
         if (type(adequacy) is not dict or set(adequacy) != {'max_relative_uncertainty', 'min_effective_entries'}
                 or any(type(v) not in (int, float) or v <= 0 for v in adequacy.values())):
             raise ValueError('mc_adequacy needs positive max_relative_uncertainty and min_effective_entries')
+        if self.background_covariance is not None:
+            self._prepare_covariance()
+            # Validate every signal and the covariance before any backend execution.
+            for point in self.points or [None]:
+                self._simplified_engine(point)
+
+    def _prepare_covariance(self):
+        from .simplified import _labels, _vector
+        d = deepcopy(self.background_covariance)
+        allowed = {'regions', 'covariance', 'correlation', 'errors', 'third_moments', 'source', 'blocks'}
+        if set(d) - allowed:
+            raise ValueError('unknown background_covariance fields')
+        regions = _labels(d.get('regions'), 'background_covariance regions')
+        if set(regions) != set(self.regions):
+            raise ValueError('covariance region set must equal the SR region set')
+        labels = {r: [r] if self.regions[r] == 1 else [f'{r}[{i}]' for i in range(self.regions[r])]
+                  for r in regions}
+        self._covariance_regions = regions
+        self._covariance_labels = labels
+        flat = [label for r in regions for label in labels[r]]
+        self._covariance_errors = [0.] * len(flat)
+        if 'correlation' in d:
+            if 'errors' not in d:
+                raise ValueError('background_covariance correlation requires explicit per-bin errors')
+            errors = _vector(d.pop('errors'), 'background_covariance errors')
+            if len(errors) != len(flat):
+                raise ValueError('background_covariance errors must match total bin count')
+            self._covariance_errors = errors.tolist()
+        elif 'errors' in d:
+            raise ValueError('background_covariance errors apply only to correlation')
+        blocks = d.get('blocks', [regions])
+        if not isinstance(blocks, list) or not blocks:
+            raise ValueError('blocks must partition regions')
+        for block in blocks:
+            _labels(block, 'block regions')
+        names = [r for block in blocks for r in block]
+        if len(set(names)) != len(names) or set(names) != set(regions):
+            raise ValueError('blocks must partition regions exactly')
+        d['regions'] = flat
+        d['blocks'] = [[label for r in block for label in labels[r]] for block in blocks]
+        self._covariance_document = {'schema_version': 1, 'kind': 'background-covariance', **d}
+
+    def _simplified_engine(self, point):
+        from .simplified import from_document
+        rows, offset = [], 0
+        observed = self.data_mode == 'observed' and not self.blinded
+        for region in self._covariance_regions:
+            background = sum(b['yields'][region]['values'] for b in self.backgrounds if region in b['yields'])
+            signal = (point['yields'][region]['values'] if point is not None and region in point['yields']
+                      else np.zeros(self.regions[region]))
+            for i, label in enumerate(self._covariance_labels[region]):
+                rows.append({'name': label, 'n': float(self.observed[region][i]) if observed else None,
+                             'b': float(background[i]), 's': float(signal[i]),
+                             'db': self._covariance_errors[offset]})
+                offset += 1
+        return from_document(self._covariance_document, rows)
+
+    def _simplified_point(self, point):
+        from .simplified import EXPECTED_ORDER
+        engine = self._simplified_engine(point)
+        computations = self.document['computations']
+        observed = self.data_mode == 'observed' and not self.blinded
+        out = {'id': point['id'], 'coordinates': point['coordinates'],
+               'blinded_signal_regions': list(self.blinded),
+               'signal_yields': {r: row['values'].tolist() for r, row in point['yields'].items()},
+               'workspace_channels': list(self._covariance_regions)}
+        if computations.get('cls_at_nominal'):
+            band = engine.cls(1.0, 'apriori')
+            out['cls_at_nominal'] = {'engine': 'spey-simplified-likelihood',
+                'observed': engine.cls(1.0, 'observed')[0] if observed else None,
+                'observed_on_pseudo_data': None, 'expected': band, 'expected_order': EXPECTED_ORDER,
+                'level': self.document['cls_level'],
+                'excluded_expected_median': band[2] < self.document['cls_level']}
+        if computations.get('cls_limits'):
+            result = engine.limits(level=self.document['cls_level'])
+            out['cls_limits'] = {'engine': 'spey-simplified-likelihood',
+                'parameter': 'signal strength', 'level': self.document['cls_level'],
+                'status': _limit_status(result, observed),
+                'observed': ({'value': result['obs_limit'], 'status': result['limit_status']['observed']}
+                             if observed else None),
+                'expected': {'values': result['exp_limits'], 'status': result['limit_status']['expected'],
+                             'order': EXPECTED_ORDER},
+                'flags': {k: result[k] for k in ('at_poi_cap', 'median_at_cap', 'band_degenerate', 'at_mu_floor')},
+                'limits': result['limits'], 'numerical_evidence': result['numerical_evidence'],
+                'inference': result['inference'], 'optimizer': None}
+            from . import situations, uncertainty
+            from ravel.limits import read_limits
+            limits = read_limits(result)
+            facts = self.simplified_statistics_facts(point)
+            assessment = situations.assess(facts)
+            detected = {r['situation'] for r in assessment['situations']}
+            # Toy CLs does not apply to a simplified likelihood; the catalogue records that and qualifies.
+            choices = {k: v for k, v in self.document.get('statistics_choices', {}).items() if k in detected}
+            out['statistics'] = situations.record(
+                facts, {'limits': {'observed': limits.observed.status if observed else 'missing',
+                                   'median': limits.expected[2].status}, 'mc_statistics': 'none'},
+                decision=situations.decide(assessment, choices))
+            out['cls_limits']['uncertainty'] = uncertainty.for_limits(
+                _reported_limits(result, observed), sources={'systematic': list(self._covariance_regions)},
+                signal_types=[], stat_only={'status': 'not-evaluated',
+                                            'reason': 'the covariance engine has no fixed-nuisance reference'},
+                not_included=self._omissions())
+        return out
+
+    def simplified_statistics_facts(self, point):
+        """Facts for the existing covariance backend, which has no pyhf model."""
+        from . import situations
+        bins = []
+        for region in self.regions:
+            backgrounds = [b['yields'][region] for b in self.backgrounds if region in b['yields']]
+            for i in range(self.regions[region]):
+                background = float(sum(b['values'][i] for b in backgrounds))
+                bins.append({'channel': region, 'bin': i, 'role': self.roles[region],
+                             'observed': float(self.counts(region)[i]) if self.counts(region) is not None else background,
+                             'background': background,
+                             'signal': float(point['yields'][region]['values'][i]) if region in point['yields'] else 0.0,
+                             'mc': {'sumw': background, 'sumw2': float(sum(b['sumw2'][i] for b in backgrounds))}
+                             if all(b['sumw2'] is not None for b in backgrounds) else 'absent'})
+        return situations.make_facts(
+            deliverables=['exclusion'] if self.document['computations'].get('cls_limits') else [],
+            model_origin='simplified', bins=bins, mc_statistics='none',
+            likelihood={'covariance': True, 'covariance_source': self.background_covariance.get('source')})
 
     def _infer_bins(self, yields):
         if type(yields) is not dict:
@@ -307,7 +471,17 @@ class SearchModel:
 
     def model(self, point=None, roles=('SR', 'CR')):
         pyhf, pyhf_exclude = _pyhf()
-        spec = self.workspace(point, roles)
+        if self.construction is not None:
+            # Both builders run; the parity record is the construction's validator and a
+            # mismatch refuses the model (model_construction.construct raises).
+            from .model_construction import construct
+            if self.construction_folder is None:
+                raise ValueError('model_construction needs an output folder for the template histograms')
+            channels, record = construct(self, point, roles, self.construction_folder, self.construction['builder'])
+            self.construction_records.append(record)
+            spec = {'channels': channels}
+        else:
+            spec = self.workspace(point, roles)
         poi = POI if point is not None and any(s['name'] == 'signal' for c in spec['channels'] for s in c['samples']) else None
         return pyhf.Model(spec, poi_name=poi, modifier_settings=pyhf_exclude.MODIFIER_SETTINGS,
                           validate=True), spec
@@ -355,13 +529,16 @@ class SearchModel:
         return flags
 
     @staticmethod
-    def _mle(model, data, init, bounds, names=None):
+    def _mle(model, data, init, bounds, names=None, fixed=None):
         """iminuit MIGRAD (strategy 1, then 2 if invalid) on -ln L of a pyhf model."""
         import iminuit
         objective = lambda pars: float(-model.logpdf(np.asarray(pars), data)[0])
         minuit = iminuit.Minuit(objective, init, name=names)
         minuit.errordef = iminuit.Minuit.LIKELIHOOD
         minuit.limits = bounds
+        for index, value in (fixed or {}).items():
+            minuit.values[index] = value
+            minuit.fixed[index] = True
         minuit.strategy = 1
         minuit.migrad()
         if not minuit.fmin.is_valid:
@@ -435,14 +612,144 @@ class SearchModel:
             toy=gof.pyhf_toy(cr_model, values, refit), request=goodness_of_fit,
             statistic='saturated -2 ln lambda of the control-region fit',
             data_description=self.data_mode)
-        return {'status': 'converged' if valid else 'not_converged', 'minimizer': 'iminuit MIGRAD + HESSE',
+        self.background_fit = {'status': 'converged' if valid else 'not_converged', 'minimizer': 'iminuit MIGRAD + HESSE',
                 'goodness_of_fit': goodness,
                 'edm': float(minuit.fmin.edm), 'fit_channels': list(cr_model.config.channels),
                 'twice_nll': float(2 * minuit.fval), 'parameters': parameters,
                 'correlation': [[float(x) for x in row] for row in correlation], 'parameter_order': names,
-                'region_predictions': predictions, 'mapped_parameters': mapped.tolist()}, mapped
+                'region_predictions': predictions, 'mapped_parameters': mapped.tolist()}
+        return self.background_fit, mapped
 
     # ------------------------------------------------------------------ point statistics
+    def statistics_facts(self, model, data):
+        """Model counts plus supplied MC moments, registry correlations and region roles.
+
+        VR rows carry their identity only: they are validation evidence, never
+        main likelihood bins or inputs to the small-count calculator policy.
+        """
+        from . import situations
+        deliverables = [name for key, name in (('cls_limits', 'exclusion'), ('discovery', 'discovery'))
+                        if self.document['computations'].get(key)]
+        facts = situations.facts_from_model(model, data, origin='constructed', deliverables=deliverables)
+        for row in facts['bins']:
+            region, index = row['channel'], row['bin']
+            row['role'] = self.roles[region]
+            backgrounds = [b['yields'][region] for b in self.backgrounds if region in b['yields']]
+            row['mc'] = ({'sumw': float(sum(b['values'][index] for b in backgrounds)),
+                          'sumw2': float(sum(b['sumw2'][index] for b in backgrounds))}
+                         if all(b['sumw2'] is not None for b in backgrounds) else 'absent')
+        facts['bins'] += [{'channel': r, 'bin': i, 'role': 'VR'} for r in self.regions
+                          if self.roles[r] == 'VR' for i in range(self.regions[r])]
+        facts['mc_statistics'] = self.document['mc_statistics']
+        if self.registry is not None:
+            facts['systematics'] = [
+                {'name': source['name'], 'correlation': source['correlation'],
+                 'regions': [r for r in self.regions if
+                             (source['regions'] == 'all' or r in source['regions']) and
+                             any((source['samples'] == 'all' or name in source['samples']) and r in yields
+                                 for name, yields in [(b['name'], b['yields']) for b in self.backgrounds]
+                                 + [('signal', p['yields']) for p in self.points])]}
+                for source in self.registry.sources]
+        return facts
+
+    def _omissions(self):
+        rows = deepcopy(self.registry.absent) if self.registry is not None else []
+        if self.blinded:
+            rows.append({'component': 'blinded signal regions',
+                         'reason': 'No observed result in ' + ', '.join(self.blinded)})
+        if self.data_mode == 'mc-pseudo-data':
+            rows.append({'component': 'experimental observations',
+                         'reason': 'MC pseudo-data use supplied background yields and declared injections'})
+        return rows
+
+    def _statistics(self, model, data, result, observed, discovery=None):
+        """Record the executed calculator and evaluate evidence owed by the decision.
+
+        Toys run only within a declared budget: without ``cls_toys`` (the calculator then defaults
+        to asymptotic) or discovery ``toys``, a small-count situation records the toy method as
+        refused by that budget, so its asymptotic result is qualified rather than silently trusted.
+        """
+        from . import model_checks, situations
+        from ravel.limits import read_limits
+        facts = self.statistics_facts(model, data)
+        calculator = (result or {}).get('calculator') or {}
+        toys = calculator.get('toys')
+        availability, evidence = {}, {'mc_statistics': situations.facts_from_model(
+            model, data, origin='constructed')['mc_statistics']}
+        refusals = []
+        if discovery is not None:
+            evidence['discovery'] = {k: discovery[k] for k in ('expected_q0', 'observed_q0') if k in discovery}
+            if 'toys' in discovery:
+                evidence['discovery_toys'] = deepcopy(discovery['toys'])
+        if result is not None:
+            limits = read_limits(result)
+            evidence['limits'] = {'observed': limits.observed.status if observed else 'missing',
+                                  'median': limits.expected[2].status}
+        if isinstance(toys, dict):
+            if toys.get('status') == 'run':
+                intervals = result.get('limit_mc_interval') or {}
+                evidence['toys'] = {'status': 'run', 'observed': result['obs_limit'] if observed else None,
+                                    'median': result['exp_limits'][2],
+                                    'observed_mc_interval': intervals.get('observed') if observed else None,
+                                    'median_mc_interval': (intervals.get('expected') or [None] * 5)[2]}
+            else:
+                evidence['toys'] = {'status': toys.get('status'), 'reason': toys.get('reason')}
+                if toys.get('reason') == 'budget':
+                    availability['toy-cls'] = {'available': False, 'reason': 'budget: declared toy resource cap'}
+                    refusals.append({'method': 'toy-cls', **deepcopy(toys)})
+        detected = {r['situation'] for r in situations.assess(facts)['situations']}
+        choices = {k: v for k, v in self.document.get('statistics_choices', {}).items() if k in detected}
+        if 'low-counts' in detected and calculator.get('requested') == 'asymptotic':
+            if 'cls_calculator' in self.document:
+                choices.setdefault('low-counts', {'method': 'asymptotic-cls',
+                                                 'justification': 'the document requests cls_calculator asymptotic'})
+            else:
+                availability['toy-cls'] = {'available': False,
+                                           'reason': 'budget: the document declares no CLs toy budget'}
+                refusals.append({'method': 'toy-cls', 'status': 'not_run', 'reason': 'budget',
+                                 'bound': 'undeclared'})
+        if 'low-count-significance' in detected and 'discovery_toys' not in evidence:
+            availability['toy-significance'] = {'available': False,
+                                                'reason': 'budget: the document declares no discovery toys'}
+            refusals.append({'method': 'toy-significance', 'status': 'not_run', 'reason': 'budget',
+                             'bound': 'undeclared'})
+        if refusals:
+            evidence['budget_refusals'] = refusals
+        assessment = situations.assess(facts, availability=availability)
+        decision = situations.decide(assessment, choices)
+        chosen = {r['situation']: r['method'] for r in decision['choices']}
+        if self.background_fit is not None:
+            evidence['pulls'] = {p['name']: p['pull'] for p in self.background_fit['parameters']
+                                 if p.get('pull') is not None}
+            evidence['validation_residuals'] = {
+                r['region']: max(abs(x) for x in r['residuals'])
+                for r in self.background_fit['region_predictions']
+                if r['role'] == 'VR' and r.get('residuals')}
+        elif chosen.get('systematic-nuisances') == 'profiled-nuisances':
+            try:
+                start = np.asarray(model.config.suggested_init(), float)
+                start[model.config.poi_index] = 0.0
+                fixed = {i: float(start[i]) for i, frozen in enumerate(model.config.suggested_fixed()) if frozen}
+                fixed[model.config.poi_index] = 0.0
+                fit = self._mle(model, data, start, model.config.suggested_bounds(),
+                                fixed=fixed)
+                fit.hesse()
+                evidence['pulls'] = {name: float((fit.values[i] - prior['nominal']) / prior['width'])
+                                     for i, (name, prior) in enumerate(zip(_labels(model), _priors(model)))
+                                     if prior['constrained'] and prior['width'] and
+                                     getattr(model.config.param_set(name.split('[')[0]), 'pdf_type', 'normal') == 'normal'}
+                evidence['pull_fit_valid'] = bool(fit.fmin.is_valid)
+            except Exception as exc:
+                evidence['pulls_error'] = f'{type(exc).__name__}: {exc}'[:500]
+        if chosen.get('model-validation') == 'signal-injection':
+            median = result['exp_limits'][2] if result is not None else None
+            strengths = sorted({1.0, *([float(median)] if median and math.isfinite(median) else [])})
+            try:
+                evidence['injection'] = model_checks.signal_injection(model, injected=strengths)
+            except Exception as exc:
+                evidence['injection_error'] = f'{type(exc).__name__}: {exc}'[:500]
+        return situations.record(facts, evidence, availability=availability, decision=decision)
+
     def _data_for(self, model, background_pars):
         """Main counts per channel: data where available, else the background prediction."""
         prediction = _main_by_channel(model, background_pars)
@@ -453,6 +760,8 @@ class SearchModel:
         return np.concatenate(main + [np.asarray(model.config.auxdata, float)])
 
     def point(self, point, background_fit_pars=None, full_background=None):
+        if self.background_covariance is not None:
+            return self._simplified_point(point)
         pyhf, pyhf_exclude = _pyhf()
         model, spec = self.model(point, roles=('SR', 'CR'))
         if model.config.poi_index is None:
@@ -468,6 +777,7 @@ class SearchModel:
         observed_available = self.data_mode == 'observed' and not self.blinded
         init, bounds = model.config.suggested_init(), model.config.suggested_bounds()
         fixed = model.config.suggested_fixed()
+        result = None
         if computations.get('discovery'):
             signal_pars = pars.copy(); signal_pars[model.config.poi_index] = 1.0
             asimov = np.asarray(model.expected_data(signal_pars), float)
@@ -498,18 +808,80 @@ class SearchModel:
                                      'level': self.document['cls_level'],
                                      'excluded_expected_median': bool(float(band[2]) < self.document['cls_level'])}
         if computations.get('cls_limits'):
+            from . import toy_cls
             result = pyhf_exclude.compute(model, expected_data, level=self.document['cls_level'])
+            opts = self.cls_toys or {}
+            toy_cls.apply(model, expected_data, result, requested=self.cls_calculator,
+                          ntoys=opts.get('count', 2000), seed=opts.get('seed', 1),
+                          max_fits=opts.get('max_fits'), max_seconds=opts.get('max_seconds'))
             out['cls_limits'] = {
                 'parameter': 'signal strength', 'level': self.document['cls_level'],
+                'status': _limit_status(result, observed_available),
                 'observed': ({'value': float(result['obs_limit']), 'status': result['limit_status']['observed']}
                              if observed_available else None),
                 'expected': {'values': [float(x) for x in result['exp_limits']],
                              'status': list(result['limit_status']['expected']),
                              'order': ['-2 sigma', '-1 sigma', 'median', '+1 sigma', '+2 sigma']},
                 'flags': {k: bool(result.get(k)) for k in ('median_at_cap', 'band_degenerate', 'at_mu_floor')},
-                'optimizer': result.get('optimizer')}
+                'optimizer': result.get('optimizer'), 'calculator': result['calculator']}
+            if result['calculator']['applied'] == 'toybased':
+                reference = result['asymptotic_reference']
+                out['cls_limits']['asymptotic_reference'] = {
+                    'observed': ({'value': reference['obs_limit'], 'status': reference['limit_status']['observed']}
+                                 if observed_available else None),
+                    'expected': {'values': reference['exp_limits'], 'status': reference['limit_status']['expected']}}
+                intervals = result['limit_mc_interval']
+                out['cls_limits']['mc_interval'] = {
+                    'observed': intervals['observed'] if observed_available else None,
+                    'expected': intervals['expected']}
+            from . import uncertainty
+            parameters = model.config.npars
+            stat_only = {'status': 'not-evaluated',
+                         'reason': f'the model has {parameters} parameters; automatic breakdown is limited to '
+                                   f'{uncertainty.BREAKDOWN_PARAMETER_LIMIT}'}
+            if parameters <= uncertainty.BREAKDOWN_PARAMETER_LIMIT:
+                try:
+                    stat_only = uncertainty.stat_only_expected(
+                        model, expected_data, lambda m, d: pyhf_exclude.compute(m, d, level=self.document['cls_level']))
+                except Exception as exc:
+                    stat_only = {'status': 'not-evaluated',
+                                 'reason': f'the statistical-only reference failed: {type(exc).__name__}: {exc}'[:400]}
+            # Suppress the internally computed observed root when data are blinded.
+            reported = _reported_limits(result, observed_available)
+            out['cls_limits']['uncertainty'] = uncertainty.for_limits(
+                reported, sources=uncertainty.model_sources(model), signal_types=uncertainty.signal_modifiers(model),
+                stat_only=stat_only, not_included=self._omissions())
+        if computations.get('cls_limits') or computations.get('discovery'):
+            out['statistics'] = self._statistics(model, expected_data, result, observed_available,
+                                                 out.get('discovery'))
         out['workspace_channels'] = [c['name'] for c in spec['channels']]
         return out
+
+
+def _limit_status(result, observed):
+    """Validity of the reported headline roots; censored roots stay unresolved."""
+    status = result['limit_status']
+    return ('resolved' if status['expected'][2] == 'resolved' and
+            (not observed or status['observed'] == 'resolved') else 'unresolved')
+
+
+def _reported_limits(result, observed):
+    """Remove the internal observed reference when only expected limits are reported."""
+    from dataclasses import replace
+    from ravel.limits import LimitCurve, attach_limits, read_limits
+    reported = deepcopy(result)
+    if not observed:
+        limits = read_limits(result)
+        reported['obs_limit'] = None
+        if 'at_poi_cap' in reported:
+            reported['at_poi_cap'] = False
+        if 'at_mu_floor' in reported:
+            reported['at_mu_floor'] = bool(reported['at_mu_floor'] and any(
+                c.status in ('below_scan', 'unverified') for c in limits.expected))
+        if all(c.usable(allow_legacy=True) or c.status == 'missing' for c in limits.expected):
+            reported.pop('quality', None)
+        attach_limits(reported, result=replace(limits, observed=LimitCurve(None, 'missing')))
+    return reported
 
 
 def _labels(model):
@@ -601,8 +973,9 @@ def systematics_selfcheck(model):
     return regression_triggers.systematics_selfcheck(rows, shape_measurement=shape)
 
 
-def run(document, *, goodness_of_fit=None):
+def run(document, *, goodness_of_fit=None, construction_folder=None):
     model = SearchModel(document)
+    model.construction_folder = construction_folder
     result = {'mc_adequacy_flags': model.mc_adequacy(), 'data_mode': model.data_mode,
               'injections': model.injections, 'blinded_signal_regions': list(model.blinded),
               'regions': [{'name': r, 'role': model.roles[r], 'bins': model.regions[r]} for r in model.regions],
@@ -625,4 +998,7 @@ def run(document, *, goodness_of_fit=None):
                 comparisons[bkg['name']] = rows
         result['alternative_sample_comparison'] = comparisons
         result['systematics_selfcheck'] = systematics_selfcheck(model)
+    if model.construction is not None:
+        result['model_construction'] = {'builder': model.construction['builder'],
+                                        'records': model.construction_records}
     return result

@@ -456,3 +456,30 @@ def test_htcondor_facility_record_overrides_default_scheduler_and_credentials():
     assert checks['batch scheduler'] == 'ok'
     assert ['condor_q', '-totals'] in host.calls
     assert ['squeue', '-h'] not in host.calls and ['klist', '-s'] not in host.calls
+
+
+def _saved_site(**settings):
+    from ravel.setup import environment_profile as ep
+    base = {'scheduler': None, 'requires_proxy': False, 'requires_kerberos': False, 'requires_afs': False,
+            'cvmfs': []}
+    return ep.site_profile_document(name='lab', seed='generic', settings={**base, **settings})
+
+
+def test_a_saved_site_profile_replaces_the_built_in_settings(tmp_path):
+    site = _saved_site(scheduler='slurm', requires_kerberos=True, cvmfs=['/cvmfs/fictional.repo'])
+    host = FakeHost(tools=('python3.12', 'bwrap', 'sbatch', 'squeue', 'klist'), outputs={'klist -s': (1, '')})
+    report = sd.doctor(site_profile=site, host=host)
+    found = statuses(report)
+    assert report['site_profile'] == 'lab' and report['profile'] == 'generic'
+    assert found['kerberos'] == 'fail' and found['grid proxy'] == 'skip'
+    assert found['batch scheduler'] == 'ok' and found['cvmfs /cvmfs/fictional.repo'] == 'fail'
+    overridden = sd.doctor(site_profile=site, site_record={'requires_kerberos': False}, host=host)
+    assert statuses(overridden)['kerberos'] == 'skip'
+    builtin = sd.doctor(profile='generic', host=host)
+    assert 'site_profile' not in builtin and not any(n.startswith('cvmfs') for n in statuses(builtin))
+
+
+def test_an_invalid_saved_site_profile_is_refused():
+    site = {**_saved_site(), 'seed': 'unknown-seed'}
+    with pytest.raises(ValueError, match='site profile is invalid'):
+        sd.doctor(site_profile=site, host=FakeHost())

@@ -1,0 +1,53 @@
+--- a/src/ravel/controller/step/graph.py
++++ b/src/ravel/controller/step/graph.py
+@@ -907,6 +907,14 @@
+     if branch == 'worker':
+         node_id = state['preflight']['spec']['node_id']
+         receipt = agent_worker.load_receipt(run_dir, node_id, attempt)
++        from ravel.workflow import review_dispatch, review_independence
++        review_store = review_independence.controller_store(run_dir)
++        if review_store is not None:
++            is_review = ((_seat(state) or {}).get('purpose') == 'review'
++                         or state['acting']['kind'] == 'review')
++            review_dispatch.capture_worker_session(
++                review_store, receipt=receipt, step_id=state['acting']['id'],
++                seat=f'{node_id}:{attempt}', role_kind='reviewer' if is_review else 'producer')
+         rows = evidence.mirror(store, run_dir, step_id=state['acting']['id'], attempt=attempt, node_id=node_id,
+                                worker_attempt=attempt)
+         measured = _measured(receipt)
+@@ -1174,18 +1182,17 @@
+              'subject_sha256': subject_sha, 'receipt_sha256': receipt_sha,
+              'output_sha256': (receipt.get('final_record') or {}).get('sha256'), 'packet_sha256': None}
+     try:
++        from ravel.workflow import review_dispatch, review_independence
++        review_store = review_independence.controller_store(run_dir)
++        if review_store is not None:
++            review_dispatch.capture_worker_review(review_store, query)
+         decided = independence.decide(query)
+     except Exception as exc:  # the decision is fail-closed; an error is no credit
+         decided = {'independent': False, 'advisory': 'decision_error:' + type(exc).__name__}
+     credited = bool(decided.get('independent', decided.get('credited')))
+-    family = None
+-    relation = getattr(independence, 'family_relation', None)
+-    if relation is not None:
+-        try:
+-            family = relation({'reviewer': (receipt.get('model') or {}).get('family')})
+-        except Exception:
+-            family = None
+-    return {'credited': credited, 'decision': deepcopy(decided), 'family_relation': family}
++    return {'credited': credited, 'decision': deepcopy(decided),
++            'family_relation': decided.get('family_relation'), 'label': decided.get('label'),
++            'evidence_boundary': decided.get('evidence_boundary')}
+ 
+ 
+ def credit(state):
+@@ -1209,7 +1216,8 @@
+             receipt = agent_worker.load_receipt(run_dir, found['node_id'], found['attempt'])
+             decided = _decision(run_dir, found['receipt_sha256'], receipt, found['subject_sha256'])
+             row.update(credited=decided['credited'], decision=decided['decision'],
+-                       family_relation=decided['family_relation'])
++                       family_relation=decided['family_relation'], label=decided['label'],
++                       evidence_boundary=decided['evidence_boundary'])
+             if not decided['credited']:
+                 row['reasons'].append('independence:' + str(decided['decision'].get('advisory')))
+         seat_rows.append(row)

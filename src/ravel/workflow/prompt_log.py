@@ -7,7 +7,7 @@ import argparse
 from collections import defaultdict
 from functools import lru_cache
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import json
 from math import fsum, isfinite
@@ -411,6 +411,7 @@ def _call_site_census(source_root, fingerprint, effect_routes):
         records.update({
             'ravel.workflow.ravel_chat_model:RavelTransportChatModel.turn.dispatch': '**/calls/*.json (model effects, graph.id=ravel-loop)',
             'ravel.transports.ravel_loop:RavelLoop._model': '**/calls/*.json (model effects, graph.id=ravel-loop)',
+            'ravel.transports.ravel_loop_worker:Sender.__call__': '**/calls/*.json (model effects, graph.id=ravel-loop)',
         })
     for path in sorted(root.rglob('*.py')):
         relative = path.relative_to(root.parent).as_posix()
@@ -558,8 +559,35 @@ def build(rundir, transcripts=(), *, price_table=None):
     # The worker census names what no recorded session can show; the log carries that row once.
     if worker_audit.COVERAGE_LIMIT not in gaps:
         gaps.append(dict(worker_audit.COVERAGE_LIMIT))
-    return {'schema_version': 1, 'rows': rows, 'totals': _totals(rows, price_table), 'gaps': gaps,
-            'call_site_census': census, 'complete': not gaps}
+    log = {'schema_version': 1, 'rows': rows, 'totals': _totals(rows, price_table), 'gaps': gaps,
+           'call_site_census': census, 'complete': not gaps}
+    decisions = controller_decisions(rundir)
+    if decisions is not None:
+        log['controller_decisions'] = decisions
+    return log
+
+
+def controller_decisions(rundir):
+    """The controller's machine approvals, judgment calls, escalations and boundaries for a controller-owned run
+    (timestamp, rule and evidence digest per row), or None for any other run. They go to the companion audit file
+    ``controller-audit.jsonl`` beside the prompt log."""
+    try:
+        from ravel.controller.authority import autonomy, common
+    except ImportError:
+        return None
+    identifier = common.owned_run(rundir)
+    if identifier is None:
+        return None
+    try:
+        store = common.open_store(identifier)
+    except (ValueError, OSError) as exc:
+        return [{'event': 'audit_unavailable', 'error': f'{type(exc).__name__}: {exc}'[:300]}]
+    rows = autonomy.audit_rows(store)
+    for row in rows:
+        if type(row.get('time_ns')) is int:
+            row['timestamp'] = datetime.fromtimestamp(row['time_ns'] / 1e9, timezone.utc).strftime(
+                '%Y-%m-%dT%H:%M:%S.%fZ')
+    return rows
 
 
 def write(log, out):
@@ -595,7 +623,14 @@ def write(log, out):
         stream.write(''.join(json.dumps(r, ensure_ascii=False, sort_keys=True, allow_nan=False) + '\n' for r in log['rows']))
     with markdown.open('x', encoding='utf-8') as stream:
         stream.write('\n'.join(lines))
-    return {'jsonl': str(jsonl), 'markdown': str(markdown), 'prompts': len(log['rows']), 'gaps': len(log['gaps'])}
+    result = {'jsonl': str(jsonl), 'markdown': str(markdown), 'prompts': len(log['rows']), 'gaps': len(log['gaps'])}
+    if log.get('controller_decisions') is not None:
+        audit = out / 'controller-audit.jsonl'
+        with audit.open('x', encoding='utf-8') as stream:
+            stream.write(''.join(json.dumps(r, ensure_ascii=False, sort_keys=True, default=str) + '\n'
+                                 for r in log['controller_decisions']))
+        result.update(controller_audit=str(audit), controller_decisions=len(log['controller_decisions']))
+    return result
 
 
 def main(argv=None):

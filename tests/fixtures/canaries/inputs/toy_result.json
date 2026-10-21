@@ -1,0 +1,3 @@
+{"schema_version": 1, "kind": "toy-result", "model": "fictional toy model",
+ "rows": [{"coupling": 0.5, "observable": 25.0, "uncertainty": 1.5},
+          {"coupling": 1.0, "observable": 100.0, "uncertainty": 2.0}]}

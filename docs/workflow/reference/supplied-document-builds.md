@@ -32,7 +32,7 @@ authoring and independent integrity requirements.
 Authoring, conformance and the built result retain the grouped bundle's kind and
 redistribution flag. Private packages retain the files and provenance. Public
 submission export refuses any staged bytes matching a non-redistributable
-bundle leaf, including renamed copies. Metadata alone may be exported; it does
+bundle leaf, including renamed copies. Metadata alone can be exported; it does
 not grant rights to distribute the files. Preserve the bundle record in the
 declared formatting/package/build metadata when exporting products. The guard
 follows declared JSON pin references and inspects staged JSON, without searching
@@ -42,7 +42,7 @@ unrelated folders.
 
 No note rule pack ships with the product. Supply the pack pin to
 `manuscript_format.build_note_contract`. Its sections, page ceiling, counting
-exclusions and limits remain supplied data. A pack may include
+exclusions and limits remain supplied data. A pack can include
 `required_sentences:["exact requester sentence", ...]`. Each sentence becomes a
 `required_text` rule with `scope="document"`; absence is a mechanical finding.
 Literal text presence does not verify the scientific truth of the sentence.
@@ -101,7 +101,7 @@ Installation and native qualification remain prerequisites.
 The generic workflow-manager task rule already dispatches both note and slide
 tasks through guarded `site-workflow run-step`. Changed results require a fresh
 authenticated authored note/build and a fresh admitted task/export, which
-rebuilds the document. A spent completion marker cannot authorize another
+rebuilds the document. A spent completion marker must not authorize another
 compile; unchanged authenticated output is retained rather than relabelled as
 a fresh build. Do not bypass admission to force a scheduler rerun.
 

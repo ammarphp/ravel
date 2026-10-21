@@ -17,7 +17,7 @@ answer, discovery completeness, a calibrated constraint, or publication delivery
 
 Use an exact HEPData record and version. Every table in the returned record needs
 an explicit `capture` or `context` disposition. Table IDs, rather than names,
-determine filenames, so colliding table-name slugs cannot overwrite one another.
+determine filenames, so colliding table-name slugs must not overwrite one another.
 The whole record is retained even when some tables are context only.
 
 Illustration with invented record and table numbers:
@@ -37,7 +37,7 @@ Illustration with invented record and table numbers:
 ```
 
 This abbreviated example must be expanded to include every actual record table;
-it deliberately cannot claim or pass a complete record census as written.
+it deliberately must not claim or pass a complete record census as written.
 Optional assets declare `id`, `url`, `format`, and `expected_sha256` (a digest or
 `null`). Available formats are `text`, `pdf`, `json`, `hepdata_yaml`, and
 `hepdata_record_data`. The callable and CLI are:
@@ -97,7 +97,7 @@ Each study has `id`, `question_ids`, `source_ids`, `basis`, `applicability`,
 }
 ```
 
-Each field may instead be `null` when unknown. Unknown fields cannot be called
+Each field can instead be `null` when unknown. Unknown fields must not be called
 `source_declared` compatibility. Applicability declares a `state` of
 `source_declared`, `unresolved`, or `incompatible`, a `reason`, and located
 `evidence_ids` from the study's sources. Unknown or incompatible studies stay
@@ -117,10 +117,10 @@ tokens and complete errors/qualifiers are preserved. Record/data JSON keeps its
 whole original block alongside the exact rectangular view.
 
 Source-declared delivered units must match literal source units. The operation
-cannot manufacture a unit from a model label. The generic report accommodates
+must not manufacture a unit from a model label. The generic report accommodates
 point, bin, categorical, and multi-axis source coordinates. Publication mass
 mapping is narrower: it requires literal one-axis point coordinates in GeV and
-cannot relabel histogram edges or category labels as masses.
+must not relabel histogram edges or category labels as masses.
 
 ## Use the ordinary worker and existing report contracts
 
@@ -143,7 +143,7 @@ the complete input snapshot. Cell IDs derive from study/resource/column/row
 identity. Reports paginate 32 cells at a time through existing
 `scientific_artifact` and `scientific_report` selectors, including coordinate,
 value/errors, header/qualifiers, and unknown state for every cell. The top-level
-report links exact retained page paths; its directory may differ from the
+report links exact retained page paths; its directory can differ from the
 adapter's output directory. Generated page sources, reports, raw copies and route
 witnesses are checked before a success portfolio is published.
 
@@ -167,7 +167,7 @@ its figure-target, source, publication-style and runtime contracts. The route's
 candidate denominator and original parent question must equal the delivery
 request. Its candidate model basis must match the supplied study, and drawn
 series need fully known, source-declared applicability. Incompatible domain or
-interference declarations cannot share a panel.
+interference declarations must not share a panel.
 
 Each drawn `mass_gev`, `obs`, `exp`, or `theory` series with any nonnull value needs
 one exact mapping:
@@ -207,4 +207,4 @@ guards, exact source-to-publication vectors, actual ordinary metadata planning,
 and the shared worker/report route with only execution authority mocked. They
 make no live HTTP, native, model, provider, fit, or publication-render calls.
 
-The ordinary delivery input hook requires its outer `goal_binding` to equal the exact inner parent before planning creates a run. A published-summary specification must declare publication role with full joins; a study label cannot bypass those checks. Final report attachment verifies every referenced page source and report pin before publishing either top-level file.
+The ordinary delivery input hook requires its outer `goal_binding` to equal the exact inner parent before planning creates a run. A published-summary specification must declare publication role with full joins; a study label must not bypass those checks. Final report attachment verifies every referenced page source and report pin before publishing either top-level file.

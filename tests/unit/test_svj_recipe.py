@@ -57,6 +57,8 @@ def hidden(base,rinv=.5):
     raw+='\n'.join(k+':m0 = '+str(v) for k,v in masses.items())+'\n'
     raw+='\n'.join(k+' = '+v for k,v in decays)+'\n';pythia.write_text(raw);c['cards']['pythia']={k:pin(pythia)[k] for k in ('path','sha256')}
     contract={'schema_version':1,'parameter_bindings':[{'axis':'mediator_GeV','block':'HIDDEN','codes':[1]}],'particle_mass_bindings':[{'axis':'dark_pion_GeV','pdg':4900111},{'axis':'dark_rho_GeV','pdg':4900113}],'decay_fraction_bindings':[{'axis':'r_inv','pdg':4900111},{'axis':'r_inv','pdg':4900113}],'visible_pdgs':[1,2,3,4,5],'settings':settings,'particle_masses':masses,'invisible_pdgs':[4900211,4900213],'decays':decays,'source_pins':[emit(base/'synthetic-shower-source.json',{'qualified':False})],'assumptions':['Inert pp->ttbar process is a source/API stand-in only, not an SVJ matrix element or shower.']}
+    from model_validation_fixture import record_model_events_validation
+    record_model_events_validation(c,base/'validation')
     return emit(base/'generation.json',c),emit(base/'shower-contract.json',contract)
 
 

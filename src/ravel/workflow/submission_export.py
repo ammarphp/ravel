@@ -234,8 +234,18 @@ def _results(pkg, request, rundir):
             raise ValueError('every exported result must come from the same accepted review')
         acceptance = record
         pkg.copy(path, f'results/{path.name}', 'results')
-    return {'accepted': True, 'claim_scope': request['claim_scope'], 'review_sequence': acceptance['review_sequence'],
-            'run': Path(rundir).name}
+    from .architecture_receipt import label_delivery
+    labelling = label_delivery(rundir,
+        [{'path': str(pkg.resolve(value)), 'kind': 'number'} for value in request['results']],
+        label='diagnostic' if request['claim_scope'] == 'diagnostic' else 'accepted')
+    # A package stays portable: it records the fresh decision, its notices and the receipt
+    # digest. The receipt itself names local paths and is recomputed from the run, never shipped.
+    # `accepted` is the scientific label; every result above was captured by an accepted review.
+    return {'accepted': labelling['delivery_label'] == 'accepted', 'review_accepted': True,
+            'claim_scope': request['claim_scope'], 'review_sequence': acceptance['review_sequence'],
+            'run': Path(rundir).name, 'delivery_label': labelling['delivery_label'],
+            'notices': labelling['notices'],
+            'architecture_receipt_sha256': labelling['architecture_receipt']['sha256']}
 
 
 def _run_records(rundir):
@@ -616,7 +626,7 @@ def _framework_release(mode, checkout):
                       **({'release_tree': [{'path': name, **tree[name]} for name in names]} if mode == 'vendor' else {})}, names, tree
 
 
-def _write_framework(pkg, mode, checkout):
+def _write_framework(pkg, mode, checkout, *, controller_run=None):
     checkout, record, names, tree = _framework_release(mode, checkout)
     if mode == 'vendor':
         # Git archive guarantees bytes from the tag, never modified working-tree files.
@@ -637,7 +647,8 @@ def _write_framework(pkg, mode, checkout):
                 pkg.add('vendor/ravel/' + name, 'code')
                 extracted[name] = {'path': name, 'sha256': hashlib.sha256(raw).hexdigest(), 'blob_id': blob}
         if set(extracted) != set(names): raise ValueError('framework archive is incomplete')
-        scanned = _restricted_source_scan(checkout, record['tag'], pkg.root / 'vendor/ravel')
+        scanned = _restricted_source_scan(checkout, record['tag'], pkg.root / 'vendor/ravel',
+                                          controller_run=controller_run)
         pkg.write_json('vendor/ravel/VENDOR-MANIFEST.json',
                        {'tag': record['tag'], 'commit': record['commit'], 'files': list(extracted.values()),
                         'restricted_source_scan': scanned}, 'code')
@@ -651,19 +662,76 @@ def _write_framework(pkg, mode, checkout):
 RESTRICTED_SCAN = 'scripts/maintenance/restricted_source_scan.py'
 
 
-def _restricted_source_scan(checkout, tag, vendor_root):
+def _pinned_deny_list(controller_run):
+    """The frozen mode's source path, authenticated by the one admission policy pin.
+
+    The mode freezes the operator's absolute path; confined execution owns its byte pin and
+    validation. Both must identify the same list. Environment selectors never participate.
+    """
+    import importlib
+    try:
+        authority = importlib.import_module('ravel.controller.authority')
+        store = importlib.import_module('ravel.controller.store')
+    except ImportError:
+        return None
+    if not hasattr(authority, 'frozen'):
+        return None
+    run = store.RunStore(controller_run)
+    mode = authority.frozen(run, required=False) or {}
+    configured = mode.get('restricted_sources')
+    if not isinstance(configured, str) or not Path(configured).is_absolute():
+        return None
+    from ravel.controller.confine.policy import restricted_sources, SOURCE_KIND
+    validated = restricted_sources(run.run_dir)
+    if validated != configured:
+        raise ValueError('the frozen restricted-source policy differs from the admission pin')
+    rows = [r.get('record', r) for r in run.scan(SOURCE_KIND)]
+    if len(rows) != 1 or rows[0].get('path') != validated:
+        raise ValueError('the controller run requires one pinned restricted-source policy')
+    return {'path': validated, 'sha256': rows[0]['sha256']}
+
+
+def _restricted_source_scan(checkout, tag, vendor_root, *, controller_run=None):
     """Run the release's own restricted-source scan over the vendored files; refuse on any finding.
 
     The owner's deny list comes from the scanner's environment variable (RAVEL_RESTRICTED_SOURCES).
     Without it only the uncited document-hash rule runs; the manifest records which case applied,
-    never the list's path or content."""
+    never the list's path or content. For a controller-owned run the variable is ignored: the list
+    is the one the run pinned at intake (its digest checked), and a run that pinned none refuses
+    vendoring, because absence is not permission. That policy is checked before the release's
+    scanner is fetched or loaded."""
+    policy_bytes = None
+    if controller_run is not None:
+        pinned = _pinned_deny_list(controller_run)
+        if pinned is None:
+            raise ValueError('a controller-owned run has no pinned restricted-source policy; absence is not '
+                             'permission; vendoring refused')
+        policy_bytes = Path(pinned['path']).read_bytes()
+        if hashlib.sha256(policy_bytes).hexdigest() != pinned['sha256']:
+            raise ValueError('the pinned restricted-source list changed after intake; vendoring refused')
+        resolved, vendor = Path(pinned['path']).resolve(), Path(vendor_root).resolve()
+        if resolved == vendor or vendor in resolved.parents:
+            raise ValueError('the restricted-source deny list must live outside the vendored files')
     done = _git('show', f'refs/tags/{tag}:{RESTRICTED_SCAN}', cwd=checkout, text=False)
     if done is None or done.returncode:
         raise ValueError('framework release carries no restricted-source scan; vendoring refused')
     with tempfile.TemporaryDirectory(prefix='ravel-restricted-scan-') as scratch:
         script = Path(scratch) / 'restricted_source_scan.py'
         script.write_bytes(done.stdout)
+        if policy_bytes is not None:
+            # Scanner loading cannot replace the already validated policy bytes.
+            policy_copy = Path(scratch) / 'restricted-sources.json'
+            policy_copy.write_bytes(policy_bytes)
         scanner = run_path(str(script))
+        if policy_bytes is not None:
+            deny_list = scanner['load_deny_list'](policy_copy)
+    if controller_run is not None:
+        findings = scanner['scan']([vendor_root], deny_list, root=vendor_root)
+        if findings:
+            paths = sorted({str(f['path']) for f in findings})
+            raise ValueError(f'vendored framework files have {len(findings)} restricted-source finding(s): '
+                             + ', '.join(paths[:5]) + (' ...' if len(paths) > 5 else ''))
+        return {'deny_list': 'pinned', 'findings': 0}
     supplied = os.environ.get(scanner['ENV'])
     deny_list = None
     if supplied:
@@ -856,6 +924,12 @@ def export(request_path, into, *, subdir='submission', rules=None, layout=None,
     """Write a submission package into `into/subdir`; return its summary."""
     request_path = Path(request_path).absolute()
     request = validate_request(json.loads(request_path.read_text()))
+    from ravel.controller.sink import legacy as sink_legacy
+    named = Path(request['rundir']).expanduser()
+    # Only the controller's sole sink delivers a controller-owned run; refuse before any staging is created.
+    controller_run = sink_legacy.refuse_controller_owned(
+        named if named.is_absolute() else request_path.parent / named, 'ravel export-submission')
+    sink_legacy.refuse_controller_owned(Path(into).absolute(), 'ravel export-submission')
     rules_value = validate_rules(json.loads(Path(rules).read_text())) if rules is not None else None
     layout_value = _layout(layout, subdir)
     repository = Path(into).absolute()
@@ -889,7 +963,8 @@ def export(request_path, into, *, subdir='submission', rules=None, layout=None,
         site = _site(pkg, request['site_workflow'])
         pkg.write_json('workflow/dag.json', workflow_graph(rundir, partitions, site), 'workflow')
         audit = _audit(pkg, request['audit'], rundir)
-        framework = _write_framework(pkg, framework_source, framework_checkout) if framework_source is not None else None
+        framework = (_write_framework(pkg, framework_source, framework_checkout, controller_run=controller_run)
+                     if framework_source is not None else None)
         if framework is None:
             framework = {'source': 'distribution', **_package_metadata()}
             pkg.write('environment/ravel-requirements.txt',
@@ -1067,7 +1142,17 @@ def _check(package, *, roots=()):
     for row in manifest.get('inputs', []):
         if not _hex64(row.get('sha256')):
             errors.append(f"input {row.get('name')!r} has no sha256")
-    if manifest.get('acceptance', {}).get('accepted') is not True:
+    acceptance = manifest.get('acceptance')
+    acceptance = acceptance if isinstance(acceptance, dict) else {}
+    if 'delivery_label' in acceptance:
+        # A labelled package records its accepted review apart from the scientific label.
+        if acceptance.get('review_accepted') is not True:
+            errors.append('the package does not record an accepted review')
+        label = acceptance['delivery_label']
+        if (label not in ('diagnostic', 'accepted') or acceptance.get('accepted') is not (label == 'accepted')
+                or (acceptance.get('claim_scope') == 'diagnostic') != (label == 'diagnostic')):
+            errors.append('the package delivery label differs from its accepted claim scope')
+    elif acceptance.get('accepted') is not True:
         errors.append('the package does not record an accepted review')
     if (package / 'workflow/dag.json').is_file():
         dag = json.loads((package / 'workflow/dag.json').read_text())
@@ -1166,6 +1251,8 @@ def main(argv=None):
                         framework_source=args.framework_source, framework_checkout=args.framework_checkout)
     except (OSError, ValueError, KeyError) as exc:
         parser.exit(1, f'export submission: {exc}\n')
+    for notice in result['acceptance'].get('notices', []):
+        print(notice, file=sys.stderr)
     print(json.dumps(result, indent=2))
     return 0
 

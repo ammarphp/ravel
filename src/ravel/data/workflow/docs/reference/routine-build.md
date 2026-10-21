@@ -1,8 +1,8 @@
 # Source-bound routine builds
 
 `mode: analyze`, `task.backend: routine-build` builds supplied unchanged source
-and runs a declared executable/listing probe. It does not process events or
-certify a detector, selection, paper reproduction or statistical interpretation.
+and runs a declared executable/listing probe. Detector, selection and scientific
+interpretation claims require independent qualification.
 It uses the supplied-study approval, supervision and review lifecycle described
 in [scientific studies](../workflow/reference/scientific-studies.md).
 
@@ -17,7 +17,7 @@ unknown routine. Routine-name registration is not an admission requirement.
 `analysis_sources.from_catalogue(catalogue, row, root)` verifies selected pinned
 blob bytes and generates an incomplete dependency-review seed. Review its
 dynamic assets, helper includes, submodules and runtime requirements before
-proposing a build. A missing feature match cannot prove no dependency.
+proposing a build. Confirm dependencies against the complete source and build manifest.
 
 ## Source capsule
 
@@ -118,11 +118,11 @@ The three closed recipes are:
   output, then a bound `probe` runtime tool whose expected stdout includes the
   exact routine identity. The preserved source/metadata/model layout is exposed
   through explicit Rivet analysis, info, reference and data search paths. Build
-  paths cannot contain whitespace because of the upstream builder's protocol.
+  paths must not contain whitespace because of the upstream builder's protocol.
 - `simpleanalysis-analysisbase`: require bound CMake, compiler,
   `AnalysisBaseConfig.cmake`, explicit `CMAKE_PREFIX_PATH`, root CMake source,
   submodule content and every staged compile unit. A portable ROOT/RestFrames
-  hand-port environment does not meet this prerequisite. The declared output may
+  hand-port environment does not meet this prerequisite. The declared output can
   be a build-relative path such as a platform `bin/simpleAnalysis` path. The CMake
   target is its basename. This recipe's actual compatibility still requires an
   observed build; schema support is not that evidence.
@@ -143,14 +143,14 @@ Actual execution writes `source-inventory.json`, `build-plan.json`,
 `compiler.log`, one `build-N.log` per command, `probe.log`, the staged source and
 binary, and `build-receipt.json`. Process logs are JSON containing exact argv,
 return code and raw base64 stdout/stderr. A failed compile or probe retains its
-log and cannot produce a passing receipt. A successful zero exit without every
+log and must retain a failed receipt. A successful zero exit without every
 declared expected probe string also fails. Original source/runtime identities and
 staged source bytes are rechecked after execution.
 
 `verify_receipt(receipt, plan, base, outroot)` performs no execution. It rebinds
 the original build input/capsule, complete source inventory, declared runtime,
 commands, staged source, binary, every process log, compiler observation and
-probe stdout. Changing a log and merely updating its hash cannot bypass command,
+probe stdout. Changing a log and merely updating its hash must not bypass command,
 return-code or expected-output checks. The receipt verifier establishes retained
 evidence integrity; authentication of arbitrary caller-supplied process logs
 requires lifecycle custody. Every result retains `physics_validated: false`.
@@ -158,7 +158,7 @@ requires lifecycle custody. Every result retains `physics_validated: false`.
 A registered executable is useful evidence of buildability and a loaded runtime
 interface. Complete event exposure, selection/observable semantics, calibrated
 response, reference agreement, full output denominator and inference/data-use
-closure are separate admission obligations. An ONNX routine may catch a missing
+closure are separate admission obligations. An ONNX routine can catch a missing
 model exception and still fill inclusive observables. A listing probe does not
 close that event-execution hazard.
 
@@ -199,7 +199,7 @@ same original output directory. Read-only planning rebinds the complete original
 build configuration, capsule, source, runtime, staged source layout, compiler and
 probe logs, source inventory and binary. These are all scientific-stage inputs.
 The selected Python must belong to the unchanged bound build runtime. The Rivet
-executable and environment come from that build plan. Callers cannot replace the
+executable and environment come from that build plan. Callers must not replace the
 plugin, supply a fallback source directory or override runtime dependencies.
 
 Execution rechecks that evidence before launching events and after export. It
@@ -222,16 +222,14 @@ A finalized Estimate0D does not acquire invented Counter moments. A selected
 RAW Counter uses its own moments. Missing or wrong RAW storage, incompatible
 entries, unknown scalar types and invalid weighted moments fail.
 
-Scalar output bypasses continuous bin-width operations. It does not provide
-cross-counter covariance, a count-data likelihood or permission to reinterpret
-a weighted yield as Poisson observations. Units remain an explicit scientific
+Scalar output retains its direct counter moments. Cross-counter covariance and a count-data likelihood require their own supplied source law; weighted yields require their declared sampling model. Units remain an explicit scientific
 obligation. For example, SYN_9011_I1400 scales counters to an expected yield
 at 35.9/fb; those finalized outputs have unit `1`, rather than a cross-section
 unit inferred merely from the supplied cross section.
 
 ## Source-bound centrality calibration preloads
 
-Both `rivet` and `rivet-built` tasks may supply `centrality_preload` in a
+Both `rivet` and `rivet-built` tasks can supply `centrality_preload` in a
 schema-2 scientific study. Set `options.cent` explicitly to `GEN`, `IMP` or
 `USR`; these modes require the exact source-declared generated calibration
 object, with `_IMP` or `_USR` appended for those modes. `USR` requires HepMC3;
@@ -253,7 +251,7 @@ No calibration values, flow states, native marginal errors, widths or weights
 are changed. The normal scientific `plan`, `approve`, `run` and review workflow
 then consumes the contract; this helper grants no approval or native authority.
 
-Only a single calibration object/file is currently admitted. Rivet4.1.3/4.1.4
+Only a single calibration object/file is admitted. Rivet4.1.3/4.1.4
 `AnalysisHandler.readData` replaces its preload map on each call, so multiple
 files would silently discard earlier ones. RAW/global counters and unrelated
 objects are excluded from the dispatched subset to prevent accidental resumed

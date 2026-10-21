@@ -109,7 +109,7 @@ The consumer checks reported adaptive counters against the source algorithm's
 feasible bounds and the prospective per-call ceiling. It does not require old
 runtime counters to equal a new host's adaptive traversal, rewrite raw reports,
 or turn Richardson estimates into certified numerical or physical uncertainty.
-Genuine failed prefixes may end during a kernel group or after a returned group
+Genuine failed prefixes can end during a kernel group or after a returned group
 before a TOTAL mean is emitted. Their unknown failed counts, unresolved slots
 and all unissued slots remain in the original full denominator. Failed and
 unissued evidence is not substituted for a resolved delivery.

@@ -18,7 +18,7 @@ pairs. A control channel with background but without its released signal sample
 fails. Modifier type changes report both the missing and extra pair. The result
 names every structural mismatch, pins the three JSON operands and records
 `physics_validated: false`. Nominal coefficients and modifier response magnitudes
-may differ for a new model and are outside this check's scope.
+can differ for a new model and are outside this check's scope.
 
 ```bash
 python -m ravel.validation.patch_parity \
@@ -59,7 +59,7 @@ python -m ravel.physics.statistics_links --workspace workspace.json \
 
 The optional `--released` file holds the same four-field object. Downstream
 figure consumers can use `profiles[].poi` and `profiles[].delta_twice_nll`, while
-retaining the record's stated scope and numerical limitations.
+retaining the record's stated scope and numerical scope conditions.
 
 `search_yields(binned_values)` returns the existing search core's `values` and
 `sumw2` interface for absolute integrated event yields. The shared producer
@@ -72,7 +72,7 @@ covariance are refused by this independent-bin interface.
 `covariance` records with explicit producer bin IDs, units, complete covariance,
 edges, representation, normalization and provenance. It checks positive
 semidefiniteness and never substitutes a diagonal covariance. This covariance
-describes producer sampling; the caller must separately supply experimental
+describes producer sampling; the caller must separately supply measurement
 covariance and any justified independence assumptions to the measurement core.
 
 ## Offline fetch fixtures

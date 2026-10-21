@@ -7,6 +7,7 @@ from ravel.workflow import agent_graph as graph, finding_routing as routing
 from ravel.workflow import physics_review as review, role_registry as roles
 from ravel.workflow import research_protocol, scientific_judgment
 from ravel.workflow.state_io import read_json, atomic_json
+from bound_review import bound_review
 from test_agent_graph import node, pin, spec
 from test_role_registry import finding as role_finding
 from test_physics_review import run as physics_run, opened, finding as journal_finding
@@ -185,14 +186,14 @@ def disposition_package(root, item, *, chosen=None):
 def test_headline_invalidated_without_rework_or_endless_delivery_loop(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'limitation', effect='invalidates', bound='claim fails')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                         summary='Withdraw the headline claim', findings=[item])
+    bound_review(root, role='physics_critic', verdict='send_back',
+                 summary='Withdraw the headline claim', findings=[item])
     assert review.status(root)['state'] == 'awaiting_review'
     with pytest.raises(ValueError, match='correction'):
         review.authorize_correction(root, actor_id='physicist', changed_paths=[], stages=['detector'], recheck_checks=['agreement'])
-    for role, actor in [('skeptical_verifier', 'skeptic'), ('physics_decider', 'physicist')]:
-        review.submit_review(root, role=role, actor_id=actor, verdict='accept', summary='Deliver the scoped negative result', claim_scope='diagnostic',
-                             **({'supporting_artifacts': [disposition_package(root, item)]} if role == 'physics_decider' else {}))
+    for role in ['skeptical_verifier', 'physics_decider']:
+        bound_review(root, role=role, verdict='accept', summary='Deliver the scoped negative result', claim_scope='diagnostic',
+                     **({'supporting_artifacts': [disposition_package(root, item)]} if role == 'physics_decider' else {}))
     state = review.status(root)
     assert state['state'] == 'accepted' and state['redos_used'] == 0
     assert state['limitation_census'][0]['disposition'] == 'withdrawn'
@@ -206,8 +207,8 @@ def test_headline_invalidated_without_rework_or_endless_delivery_loop(run):
 def test_journal_decider_reclassification_is_durable_and_original_is_preserved(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'defect')
-    original = review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                                   summary='Review error', findings=[item])
+    original = bound_review(root, role='physics_critic', verdict='send_back',
+                            summary='Review error', findings=[item])
     replacement = classification('limitation', sha=item['classification']['artifact_sha256'])
     with pytest.raises(ValueError, match='decider'):
         review.reclassify_finding(root, item['id'], replacement, actor_id='critic', reason='Override')
@@ -235,7 +236,7 @@ def test_failed_classified_correction_cannot_spend_another_redo_on_same_bytes(ru
     from test_physics_review import correct
     root, _ = run; opened(run)
     item = journal_classified(root, 'defect')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back', summary='Repair the input', findings=[item])
+    bound_review(root, role='physics_critic', verdict='send_back', summary='Repair the input', findings=[item])
     first = correct(root)
     review.fail_correction(root, correction_id=first['correction_id'], reason='Synthetic failed repair')
     with pytest.raises(ValueError, match='unchanged finding'):
@@ -247,7 +248,7 @@ def test_failed_classified_correction_cannot_spend_another_redo_on_same_bytes(ru
 def test_research_census_cannot_drop_review_limitations(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'limitation')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back', summary='Scope disclosure', findings=[item])
+    bound_review(root, role='physics_critic', verdict='send_back', summary='Scope disclosure', findings=[item])
     value = {'limitations': [{'id': 'scope', 'subject': 'Declared domain', 'flaw': 'Finite approximation',
         'consequence': 'Restricted claim', 'opportunity': 'Report the bound',
         'testable_signature': 'A supplied check', 'evidence': ['located record']}]}
@@ -278,12 +279,12 @@ def test_fresh_defect_on_changed_bytes_can_repair_without_recharging_inherited_f
     from test_physics_review import correct, make_attempt, check_packet
     root, _ = run; opened(run)
     first_finding = journal_classified(root, 'defect')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back', summary='First defect', findings=[first_finding])
+    bound_review(root, role='physics_critic', verdict='send_back', summary='First defect', findings=[first_finding])
     first = correct(root)
     attempt = make_attempt(root, value=2); check_packet(root, attempt)
     opened((root, attempt), correction_id=first['correction_id'])
     second_finding = journal_classified(root, 'defect'); second_finding['id'] = 'F2'
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back', summary='Changed artifact defect', findings=[second_finding])
+    bound_review(root, role='physics_critic', verdict='send_back', summary='Changed artifact defect', findings=[second_finding])
     (root/'inputs/settings.cfg').write_text('efficiency=0.9\n')
     second = review.authorize_correction(root, actor_id='physicist', changed_paths=['inputs/settings.cfg'],
                                          stages=['detector'], recheck_checks=['agreement'])
@@ -298,7 +299,7 @@ def test_repeated_defect_on_unchanged_bytes_stays_visible_and_cannot_be_reworked
     root, _ = run; opened(run)
     unchanged = review.execution.file_hash(root / 'inputs/held-fixed.txt')
     first = journal_finding(); first['classification'] = classification(sha=unchanged, target='detector')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back', summary='Repair', findings=[first])
+    bound_review(root, role='physics_critic', verdict='send_back', summary='Repair', findings=[first])
     amendment = correct(root)
     fresh = make_attempt(root, value=2); check_packet(root, fresh)
     opened((root, fresh), correction_id=amendment['correction_id'])
@@ -306,11 +307,11 @@ def test_repeated_defect_on_unchanged_bytes_stays_visible_and_cannot_be_reworked
     later = make_attempt(root, value=3); check_packet(root, later)
     opened((root, later), checkpoint=True)
     repeated = deepcopy(first); repeated['id'] = 'F2'
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back', summary='Same objection', findings=[repeated])
+    bound_review(root, role='physics_critic', verdict='send_back', summary='Same objection', findings=[repeated])
     state = review.status(root)
     assert state['state'] == 'send_back' and [f['id'] for f in state['unresolved_findings']] == ['F2']
     with pytest.raises(ValueError, match='rejected cycle'):
-        review.submit_review(root, role='skeptical_verifier', actor_id='skeptic', verdict='accept', summary='Accept', claim_scope='reproduction')
+        bound_review(root, role='skeptical_verifier', verdict='accept', summary='Accept', claim_scope='reproduction')
     with pytest.raises(ValueError, match='unchanged finding'):
         correct(root)
     assert review.status(root)['redos_used'] == 1
@@ -319,20 +320,26 @@ def test_repeated_defect_on_unchanged_bytes_stays_visible_and_cannot_be_reworked
 def test_decider_cannot_send_back_limitations_without_an_actionable_defect(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'limitation')
+    # The decider is dispatched only after the critic and the verifier have decided this cycle.
+    for role in ('physics_critic', 'skeptical_verifier'):
+        bound_review(root, role=role, verdict='accept', summary='Qualified scope', claim_scope='diagnostic')
     with pytest.raises(ValueError, match='decider'):
-        review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='send_back',
-                             summary='Scope disclosure', findings=[item])
+        bound_review(root, role='physics_decider', verdict='send_back',
+                     summary='Scope disclosure', findings=[item])
     assert review.status(root)['state'] == 'awaiting_review'
-    review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept',
-                         summary='Deliver the qualified scope', findings=[item], claim_scope='diagnostic',
-                         supporting_artifacts=[disposition_package(root, item)])
+    bound_review(root, role='physics_decider', verdict='accept',
+                 summary='Deliver the qualified scope', findings=[item], claim_scope='diagnostic',
+                 supporting_artifacts=[disposition_package(root, item)])
     assert review.status(root)['limitation_census'][0]['finding_id'] == item['id']
 
 
 def test_reclassification_cannot_strand_a_decider_rejection_or_hide_a_defect_in_an_acceptance(run):
     root, _ = run; opened(run)
     defect = journal_classified(root, 'defect')
-    review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='send_back', summary='Repair', findings=[defect])
+    # The decider rejects after both independent decisions exist; the rule concerns a decider send_back.
+    for role in ('physics_critic', 'skeptical_verifier'):
+        bound_review(root, role=role, verdict='accept', summary='Evidence supports the scope', claim_scope='reproduction')
+    bound_review(root, role='physics_decider', verdict='send_back', summary='Repair', findings=[defect])
     sha = defect['classification']['artifact_sha256']
     with pytest.raises(ValueError, match='actionable defect'):
         review.reclassify_finding(root, defect['id'], classification('limitation', sha=sha), actor_id='physicist', reason='Scope only.')
@@ -342,8 +349,8 @@ def test_reclassification_cannot_strand_a_decider_rejection_or_hide_a_defect_in_
 def test_reclassified_limitation_in_an_acceptance_cannot_become_an_ignored_defect(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'limitation')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='accept', summary='Qualified',
-                         findings=[item], claim_scope='diagnostic')
+    bound_review(root, role='physics_critic', verdict='accept', summary='Qualified',
+                 findings=[item], claim_scope='diagnostic')
     sha = item['classification']['artifact_sha256']
     with pytest.raises(ValueError, match='acceptance'):
         review.reclassify_finding(root, item['id'], classification(sha=sha, target='detector'), actor_id='physicist', reason='Input error.')
@@ -355,19 +362,19 @@ def test_submitted_defect_target_must_be_an_allowed_owning_stage(run):
     item = journal_classified(root, 'defect')
     item['classification']['target'] = 'absent-stage'
     with pytest.raises(ValueError, match='owning stage'):
-        review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                             summary='Located defect', findings=[item])
+        bound_review(root, role='physics_critic', verdict='send_back',
+                     summary='Located defect', findings=[item])
 
 
 def test_nonmanuscript_delivery_cannot_ignore_an_invalidated_accepted_scope(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'limitation', effect='invalidates', bound='claim fails')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                         summary='Withdraw the result claim', findings=[item])
-    review.submit_review(root, role='skeptical_verifier', actor_id='skeptic', verdict='accept', summary='Scoped result', claim_scope='reproduction')
+    bound_review(root, role='physics_critic', verdict='send_back',
+                 summary='Withdraw the result claim', findings=[item])
+    bound_review(root, role='skeptical_verifier', verdict='accept', summary='Scoped result', claim_scope='reproduction')
     with pytest.raises(ValueError, match='withdrawn'):
-        review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept', summary='Scoped result',
-                             claim_scope='reproduction', supporting_artifacts=[disposition_package(root, item)])
+        bound_review(root, role='physics_decider', verdict='accept', summary='Scoped result',
+                     claim_scope='reproduction', supporting_artifacts=[disposition_package(root, item)])
     assert review.gate_errors(root, 'delivery')
 
 
@@ -376,16 +383,16 @@ def test_limitation_claim_alias_must_be_explicitly_mapped_before_submission(run)
     item = journal_classified(root, 'limitation', claim='unrelated-claim')
     head = (root / review.HEAD).read_bytes()
     with pytest.raises(ValueError, match='policy claim scope'):
-        review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                             summary='Unbound alias', findings=[item])
+        bound_review(root, role='physics_critic', verdict='send_back',
+                     summary='Unbound alias', findings=[item])
     assert (root / review.HEAD).read_bytes() == head
 
 
 def test_reclassified_limitation_cannot_introduce_an_unbound_claim_alias(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'defect')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                         summary='Located defect', findings=[item])
+    bound_review(root, role='physics_critic', verdict='send_back',
+                 summary='Located defect', findings=[item])
     replacement = classification('limitation', sha=item['classification']['artifact_sha256'], claim='unrelated-claim')
     with pytest.raises(ValueError, match='policy claim scope'):
         review.reclassify_finding(root, item['id'], replacement, actor_id='physicist', reason='Bounded claim')
@@ -394,15 +401,15 @@ def test_reclassified_limitation_cannot_introduce_an_unbound_claim_alias(run):
 def test_bounded_claim_scope_can_deliver_with_visible_witnessed_qualification(run):
     root, _ = run; opened(run)
     item = journal_classified(root, 'limitation', bound='restricted supplied domain')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                         summary='Qualification required', findings=[item])
-    review.submit_review(root, role='skeptical_verifier', actor_id='skeptic', verdict='accept',
-                         summary='Qualified scope', claim_scope='reproduction')
+    bound_review(root, role='physics_critic', verdict='send_back',
+                 summary='Qualification required', findings=[item])
+    bound_review(root, role='skeptical_verifier', verdict='accept',
+                 summary='Qualified scope', claim_scope='reproduction')
     with pytest.raises(ValueError, match='disposition package'):
-        review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept',
-                             summary='Missing witness', claim_scope='reproduction')
+        bound_review(root, role='physics_decider', verdict='accept',
+                     summary='Missing witness', claim_scope='reproduction')
     proof = disposition_package(root, item)
-    decision = review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept',
+    decision = bound_review(root, role='physics_decider', verdict='accept',
         summary='Witnessed qualification', claim_scope='reproduction', supporting_artifacts=[proof])
     assert decision['limitation_disposition']['sha256'] == proof['sha256']
     assert review.gate_errors(root, 'delivery') == []

@@ -129,11 +129,11 @@ def test_named_suite_digests_match_one_word_or_two_adjacent_words():
 
 
 def test_the_shipped_tree_names_no_internal_label():
-    assert hits(INTERNAL_LABEL) == []
+    assert hits(INTERNAL_LABEL) == [], '\n'.join(hits(INTERNAL_LABEL))
 
 
 def test_the_shipped_tree_points_at_no_development_record():
-    assert hits(DEVELOPMENT_RECORD) == []
+    assert hits(DEVELOPMENT_RECORD) == [], '\n'.join(hits(DEVELOPMENT_RECORD))
 
 
 def test_the_shipped_tree_holds_no_workstation_path():

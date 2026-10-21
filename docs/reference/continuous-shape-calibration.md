@@ -7,7 +7,7 @@ is no separate shape-calibration engine. Use `full_auxiliary_calibration.context
 or its existing Graph/Host `full-auxiliary-context` tool to inspect the complete
 fixed truth and scheduled count population; prepare an ordinary science plan,
 then obtain the original Check-In 1 approval before supervised execution.
-Preparation does not generate trials or fit anything.
+
 
 `regional_calibration.means` and `source_nll` now consume admitted
 `normalized_exponential` and `normalized_power` terms. The exponential convention
@@ -18,7 +18,7 @@ responses and numerical envelopes are the existing
 [exponential](parametric-exponential-construction.md) and
 [power](parametric-power-construction.md) contracts. The power kernel and its
 whole-law lowering are a separately reviewed dependency. Unknown shape kinds,
-including an unjoined dijet family, refuse; an input cannot provide a callback.
+including an unjoined dijet family, refuse; callbacks come from the installed trusted registry.
 
 At every complete truth and returned fit state, the consumer computes the shape
 parameter from the original bounded physical parameter and supplied Gaussian
@@ -64,7 +64,7 @@ complete closed package membership, path and byte check using the original
 commitments; known-leaf hashes alone are insufficient. The checker repeats its
 complete namespace census after all descriptor reads and imported-origin checks,
 and compares every known leaf's ending identity with its authenticated read.
-Changes during a later member read cannot hide behind the opening census.
+Changes during a later member read must not hide behind the opening census.
 These finite observations
 do not lock the filesystem or certify absence of every transient change.
 No host-installed RAVEL implementation supplies the native shape

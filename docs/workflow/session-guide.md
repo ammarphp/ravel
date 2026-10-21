@@ -1,59 +1,90 @@
-# Session manual — run the pipeline in a fresh session
+# Working in a governed research session
 
-Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
-this selects the native build and binary paths, including an existing local toolchain.
+RAVEL carries a research question through source acquisition, planning, calculations,
+experiments, review and delivery. The task contract defines the requested quantities,
+units, domain and uncertainty conventions. Select methods from the task contract and
+source evidence. Keep each requested output and its original scope in view throughout
+the run.
 
-Self-contained: everything needed is in this repository — no external paper or reference is required.
+## Route and seat scope
 
-## What it does
-Given a published analysis (with a Rivet **or** SimpleAnalysis routine) and a new-physics model,
-simulate the model and test it against that analysis's data: MadGraph → Pythia8 → analysis routine →
-named comparison plots → HEPData/bundled data → a **pyhf** 95% CL limit — and, for the actual
-deliverable, the **step-8 mass-plane scan → exclusion contour**, gated by the **step-9
-verification panel** before anything is delivered.
+The controller pins the verbatim request and selects its route through
+`docs/workflow/start.md`. Open questions use the judgment graph and bounded research
+experiments. Each step receives its route, stage, inputs, declared outputs and authority
+scope. The packet's Seat scope is derived from those step fields and the effective role
+card: role identity, purpose, family and final response schema.
 
-## Prerequisites
-- macOS / Apple Silicon, no admin rights, network access, a few GB free.
-- The conda toolchain in the repo (`$RAVEL_NATIVE_BUILD/tools/`); if absent, step 1 of
-  `docs/workflow/README.md` builds it.
+Work within that seat's purpose and admitted tools. Read the complete role card,
+its must-read sources and the route's step instructions. Apply specialist methods
+when the contracted operation and source evidence call for them. Preserve the exact
+requested statistic, axes, populations and output formats. Carry assumptions and
+uncertainty through dependent calculations and the final delivery.
 
-## The prompt to give the agent
-The RECOMMENDED form is the physicist entrypoint — paste into a fresh session in this repo:
+## Environment and execution
 
-> Initiate: **[your request — e.g. "reproduce Figure N of arXiv:XXXX.XXXXX", or "run
-> <analysis code> on <model / spectrum>", or "what do <this class of searches> say about
-> <a scenario>?"]** — cards attached / to be defined.
+Use the run's recorded platform and site inventory to choose its execution backend.
+Read `docs/reference/environment.md` and the admitted operation's environment step
+when preparing native work. From a source checkout, `source native/scripts/paths.sh`
+selects the recorded native paths. Bind tools, versions and source inputs before
+execution. Heavy compute follows the actual CHECK-IN 1 approval within its recorded
+scope. Long stages use the supervised execution workflow.
 
-That routes through `docs/workflow/start.md`: the agent classifies the request into a machine task contract
-(`route_prompt.py`), surveys WITHOUT generating, and sends **CHECK-IN 1** (published-figure
-gallery, plan, cost estimate, numbered flags) — **no heavy compute until you approve**. Then it
-drives `docs/workflow/README.md` steps 3→9: generation, the detector-fidelity gate, analysis, plots, data,
-per-point pyhf, the **scan → contour** (step 8 — the deliverable for any
-reproduction/reinterpretation, not a single point), and the **mandatory verification panel**
-(step 9) whose verdict ships with the results deck.
+Before run preparation, the operator chooses provider models through guided setup.
+Its usage-aware recommendations combine private account plans and reset windows
+with reconciled prior-run demand, while preserving each card's capability and effort
+requirements. See [model setup](../reference/model-usage-setup.md) for the startup
+command, metadata fields and private recommendation receipt.
 
-A bare development-style prompt ("follow docs/workflow/README.md on analysis X / model Y") still works —
-the agent must STILL send CHECK-IN 1 before generation, scan for the deliverable, and pass the
-panel; those gates are the workflow, not the prompt form.
+The controller owns run orchestration, confined launches, independent review and
+delivery through its single sink. A model session performs the worker duty of its
+assigned node. Escalations return to the controller with evidence and a concrete
+next action. Retain failed attempts and alternative hypotheses as research evidence.
 
-## Files the agent uses
-| Path | Role |
-|---|---|
-| `docs/workflow/start.md` → `docs/workflow/README.md` + `docs/workflow/steps/` + `docs/workflow/checklists/` | the operational instructions (9 steps; check-in system) |
-| `docs/workflow/reference/` | filled-in worked examples + the native-backend reference |
-| `src/ravel/` + `native/` | the harness: intake and scan orchestration under `workflow/`, physics engines under `physics/`, figures under `plotting/`, gates under `validation/`, and compiled shower/RJR helpers under `native/` |
-| `trial-runs/<run>/` | one isolated folder per run (RESULT.md + DEVIATIONS.md + RESUME.md) |
-| `docs/workflow/analysis-simpleanalysis/` | SimpleAnalysis step 4B — **the native VM-free backend is the default** (`docs/workflow/reference/native-pipeline.md`); this container path is the legacy/general fallback |
+## Instruction custody
 
-## Swapping inputs
-- **Different analysis:** pick another routine (`docs/workflow/checklists/choosing-routine.md`); the
-  generation √s must match its beam energy.
-- **Different model:** new process/parameter cards (`docs/workflow/checklists/model-cards.md`).
-- **Different point / plane:** edit the masses in the parameter card, or give step 8 a grid spec.
+An executing step receives its registered operation's exact signature, curated
+applicability, linked documentation, handbooks and check source bodies. The
+maintenance-built `operation:<id>` selector joins these sources to the effective
+role card and the route's declared instructions. Apply each source to the step's
+contracted inputs, outputs and execution scope. Review terms retain their declared
+status alongside the signature; source-backed check implementations carry their
+own complete bodies. The catalogue binds the source preimage and the published
+instruction bytes through the existing export view.
 
-## Success criteria
-CHECK-IN 1 preceded all heavy compute; the deliverable (contour for a
-reproduction/reinterpretation; labeled partial otherwise) exists under `trial-runs/<run>/plots/`
-with stated coverage; the step-9 panel verdict is attached to the results deck; `RESULT.md` +
-`DEVIATIONS.md` are filled. Run the `directory-keeper` skill at the end to keep `DIRECTORY.md`
-current.
+Every worker packet carries `AGENTS.md`, the judgment-site rules of
+`docs/workflow/README.md`, this guide, the whole effective card and its must-read
+knowledge, the step specification, instruction units, input digests and the closed
+output schema. Each unit arrives with its id and digest. Duty units stay inline;
+context units beyond the packet budget are served by id on request.
+
+Every unreviewed unit is a duty, including obligations within explanations, lists,
+examples, headings and card fields. Context classification requires an explicit
+review pinned to that unit's digest. Text edits require renewed classification.
+Must-read knowledge carries the complete source record and nested obligations;
+source resolution precedes packet construction.
+
+Return the final record in the packet's Output contract. Echo its manifest digest
+in `instruction_ack` and answer every duty unit once in `checklist[]`: `done` with
+an evidence pointer into this attempt's output, `not_applicable` with a reason,
+or `blocked` with the reason for holding the step. Output evidence uses
+`<output path>#<pointer>`; final-record evidence uses `final_record#<json pointer>`
+into a substantive field. The controller resolves these pointers against observed
+completion and retained bytes, including file digests and JSON Pointer fragments.
+Each attempt supplies its own evidence and receipt custody.
+
+A domain response follows the route's schema at its declared output artifact.
+The final completion follows the packet's closed response schema, with acknowledgement
+and evidence pointers to those artifacts. When a dedicated stage graph declares its
+domain schema as the final response schema, return that stage response directly.
+Use the record's `escalation` entries for a step hold, check-in flag, decision case
+or proposed experiment.
+
+## Completion
+
+Deliver the contracted quantities and artifacts with source pins, numerical status,
+coverage, assumptions and uncertainty. Perform the reviews and checks required by
+the selected route, then retain their evidence with the delivered result.
+Software checks establish their executed scope; scientific claims carry the
+corresponding scientific evidence. Fill the run's `RESULT.md`, `DEVIATIONS.md` and
+resume record as work proceeds. Apply the directory-keeper skill when the task
+changes the repository layout.

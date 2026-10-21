@@ -67,8 +67,9 @@ def test_ordinary_unexhausted_review_cannot_use_qualified_ending(run):
 def test_limitation_claims_are_withdrawn_through_existing_disposition_contract(run):
     root, _ = run; original_contract(root); opened(run)
     finding = journal_classified(root, 'limitation', effect='invalidates', bound='claim fails')
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                         summary='Unsupported claim', findings=[finding])
+    # The recorded send-back is the bound response of the dispatched critic; a declared name is advice.
+    from bound_review import bound_review
+    bound_review(root, role='physics_critic', verdict='send_back', summary='Unsupported claim', findings=[finding])
     review.escalate(root, reason='The claim is unsupported.', needed='Review its withdrawal.')
     result = completion.qualified_delivery(root)
     assert result['claim_dispositions'][0]['disposition'] == 'withdrawn'

@@ -10,6 +10,7 @@ from ravel.workflow import execution, physics_review as review, review_context a
 from ravel.workflow import diagnostic_plan, decision_case
 from ravel.workflow.state_io import atomic_json, read_json
 from test_physics_review import run, opened, make_attempt, check_packet, finding
+from bound_review import bound_review
 
 
 def packet(root, tmp_path, role="critic", **kwargs):
@@ -54,7 +55,7 @@ def test_critic_withholds_duplicated_producer_verdict_and_check_labels(run, tmp_
 
 def test_verifier_receives_critic_obligations_and_admitted_setting_bytes_without_verdict(run, tmp_path):
     root, _ = run; opened(run)
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="send_back",
+    bound_review(root, role="physics_critic", verdict="send_back",
         summary="OTHER-REVIEWER-VERDICT-SEND-BACK", findings=[finding()])
     (root / "inputs/settings.cfg").write_text("efficiency=0.85\n")
     admission = review.authorize_correction(root, actor_id="physicist", changed_paths=["inputs/settings.cfg"],
@@ -77,7 +78,7 @@ def test_verifier_receives_critic_obligations_and_admitted_setting_bytes_without
 
 def test_successor_verifier_has_prior_settings_fresh_receipt_and_inherited_obligation(run, tmp_path):
     root, _ = run; opened(run)
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="send_back", summary="PRIOR-ROLE-VERDICT-SEND-BACK", findings=[finding()])
+    bound_review(root, role="physics_critic", verdict="send_back", summary="PRIOR-ROLE-VERDICT-SEND-BACK", findings=[finding()])
     (root / "inputs/settings.cfg").write_text("efficiency=0.85\n")
     admission = review.authorize_correction(root, actor_id="physicist", changed_paths=["inputs/settings.cfg"],
         stages=["detector"], recheck_checks=["agreement"])
@@ -102,7 +103,7 @@ def test_successor_verifier_has_prior_settings_fresh_receipt_and_inherited_oblig
 
 def test_only_synthesizer_sees_other_review_summaries(run, tmp_path):
     root, _ = run; opened(run)
-    review.submit_review(root, role="physics_critic", actor_id="critic", verdict="accept",
+    bound_review(root, role="physics_critic", verdict="accept",
         summary="CRITIC-RECORDED-VERDICT", claim_scope="diagnostic")
     _, critic = packet(root, tmp_path, "critic")
     _, verifier = packet(root, tmp_path, "verifier")

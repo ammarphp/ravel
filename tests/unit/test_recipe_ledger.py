@@ -122,7 +122,9 @@ def test_raw_rdj_receipt_is_not_authorization(tmp_path):
 
 
 def accepted_receipt(tuning='implementation_correction', human=True, kind='tuning_change'):
-    return {'receipt': {'receipt_id': 'synthetic-receipt', 'attestation_summary': {'human_approver': human}},
+    # The historical receipt summary claims a human; only the current recomputed credit counts.
+    return {'receipt': {'receipt_id': 'synthetic-receipt', 'attestation_summary': {'human_approver': True}},
+            'review_independence': {'human_approver': human},
             'receipt_sha256': 'a' * 64, 'case_sha256': 'b' * 64,
             'case': {'decision_point': {'action_kind': kind, 'tuning': {'class': tuning}}}}
 

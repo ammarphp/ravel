@@ -389,12 +389,19 @@ def catalogue(source_root=None):
                      'plotting/figure_target.py', 'plotting/figure_manifest.py',
                      'plotting/science_figures.py', 'analysis_catalog.py'):
         pin, _ = _file(package / relative); source_pins[pin['path']] = pin
-    return {'schema_version': 1, 'kind': 'capability-source-catalogue', 'source_root': str(root),
+    document = {'schema_version': 1, 'kind': 'capability-source-catalogue', 'source_root': str(root),
             'operations': operations, 'planning_tools': planning_tools, 'declared_chains': chains,
             'native_compatibility_registry': native,
             'source_pins': sorted(source_pins.values(), key=lambda p: p['path']),
             'scope': 'Current source contracts only. Registration, file presence and catalogue counts do not establish runtime or scientific qualification.',
             'compute_authorized': False, 'physics_validated': False}
+    # The statistics-situation catalogue (generated from ravel.physics.inference.situations): the
+    # statistics problems RAVEL detects, the installed methods for each, their validity checks and fallbacks.
+    statistics = package / 'data/inference/statistics_situations.json'
+    if statistics.is_file():
+        pin, raw = _file(statistics)
+        document['statistics_situations'] = {'source': pin, 'catalogue': json.loads(raw)}
+    return document
 
 
 def _span(value, prompt):

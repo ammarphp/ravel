@@ -4,6 +4,19 @@ Read with `docs/workflow/steps/08-scan.md`. A scan repeats one admitted per-poin
 the axes the request names and assembles the results. This checklist keeps a scan honest whatever
 its dimensionality or per-point quantity.
 
+**On the controller.** The analysis scan route enforces the population rules below: the grid is pinned in the
+plan before CHECK-IN 1, every approved point is its own governed step, and the assembled population must equal
+the approved grid with every hole explicit ([step 8](../steps/08-scan.md#on-the-controller)).
+
+Before dispatch, engagement records `seat_plan.scan_review` in the applied plan. Its seed is the
+scientific plan digest. The declared review population is a deterministic square-root sample
+(twice that size at full tier), plus every point listed in `parameters.scan_anomalies`. The
+ledger authenticates both plan digests and checks review seats against that declared population;
+producer obligations and rows requiring every point still cover the complete grid. A newly
+identified anomaly requires a new pinned plan before further dispatch. The final receipt shows
+both the review sample and total population. A legacy multi-point step can declare its anomalies
+in `scan_anomalies`; its full `points` list remains the producer population.
+
 If the result disagrees with a supplied reference, follow [reproduction
 diagnosis](reproduction-closure.md). Check numerical roots, normalization algebra,
 sampling and matched intermediate quantities before attributing the residual.
@@ -67,7 +80,7 @@ sampling and matched intermediate quantities before attributing the residual.
       production, response, branching and unit conventions before plotting.
 - [ ] **Reference support.** Compare only exact matches within the supplied coordinate
       tolerance. Keep unmatched references, bounds, failed points and missing scan
-      points distinct; the planned population is the coverage denominator.
+      points distinct; the declared population is the coverage denominator.
 
 
 ## The result over the axes

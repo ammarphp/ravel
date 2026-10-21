@@ -1,0 +1,17 @@
+{
+  "title": "P3 trap-sweep: the record that ravel.workflow.trap_sweep builds",
+  "type": "object",
+  "required": ["schema_version", "generated_by", "traps_checked", "none_hit", "verdicts", "traps_hit", "escalations",
+               "obligations"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "generated_by": {"type": "string", "const": "ravel.workflow.trap_sweep"},
+    "traps_checked": {"type": "array", "items": {"type": "string"}},
+    "none_hit": {"type": "boolean"},
+    "verdicts": {"type": "array", "items": {"type": "object"}},
+    "traps_hit": {"type": "array", "items": {"type": "object"}},
+    "escalations": {"type": "array", "items": {"type": "object"}},
+    "obligations": {"type": "array", "items": {"type": "object"}}
+  }
+}

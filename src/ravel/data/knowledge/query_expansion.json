@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "kind": "literature-query-vocabulary",
+  "note": "Generic collider-physics notation, abbreviations and synonyms for literature query expansion. An entry groups surface forms that name one concept; a form in a query adds the entry's other forms as search terms. Forms marked case exact match only in that case because the folded spelling is an ordinary word. Forms with trigger false are added but never start an expansion. Expansion terms are search hints, never evidence or a physics claim.",
+  "entries": [
+    {"id": "missing-transverse-momentum", "class": "observable", "forms": [
+      {"text": "missing transverse momentum"}, {"text": "missing transverse energy"},
+      {"text": "MET", "case": "exact"}, {"text": "E_T^miss"}, {"text": "ETmiss"}, {"text": "p_T^miss"},
+      {"text": "pTmiss"}, {"text": "missing momentum"}]},
+    {"id": "missing-transverse-momentum-significance", "class": "observable", "forms": [
+      {"text": "missing transverse momentum significance"}, {"text": "MET significance", "case": "exact"},
+      {"text": "E_T^miss significance"}, {"text": "ETmiss significance"}]},
+    {"id": "transverse-momentum", "class": "observable", "forms": [
+      {"text": "transverse momentum"}, {"text": "pT"}, {"text": "p_T"}]},
+    {"id": "transverse-energy", "class": "observable", "forms": [
+      {"text": "transverse energy"}, {"text": "E_T"}, {"text": "ET", "case": "exact"}]},
+    {"id": "pseudorapidity", "class": "observable", "forms": [
+      {"text": "pseudorapidity"}, {"text": "eta"}]},
+    {"id": "azimuthal-separation", "class": "observable", "forms": [
+      {"text": "azimuthal separation"}, {"text": "azimuthal angle difference"}, {"text": "delta phi"},
+      {"text": "dphi"}]},
+    {"id": "angular-distance", "class": "observable", "forms": [
+      {"text": "angular distance"}, {"text": "angular separation"}, {"text": "delta R"}, {"text": "DeltaR"}]},
+    {"id": "invariant-mass", "class": "observable", "forms": [
+      {"text": "invariant mass"}, {"text": "m_inv"}, {"text": "minv"}]},
+    {"id": "dijet-invariant-mass", "class": "observable", "forms": [
+      {"text": "dijet invariant mass"}, {"text": "dijet mass"}, {"text": "m_jj"}, {"text": "mjj"}]},
+    {"id": "dilepton-invariant-mass", "class": "observable", "forms": [
+      {"text": "dilepton invariant mass"}, {"text": "dilepton mass"}, {"text": "m_ll"}, {"text": "mll"}]},
+    {"id": "transverse-mass", "class": "observable", "forms": [
+      {"text": "transverse mass"}, {"text": "mT", "case": "exact"}, {"text": "m_T", "case": "exact"}]},
+    {"id": "stransverse-mass", "class": "observable", "forms": [
+      {"text": "stransverse mass"}, {"text": "mT2"}, {"text": "m_T2"}]},
+    {"id": "effective-mass", "class": "observable", "forms": [
+      {"text": "effective mass"}, {"text": "m_eff"}, {"text": "meff"}]},
+    {"id": "scalar-sum-jet-momenta", "class": "observable", "forms": [
+      {"text": "scalar sum of jet transverse momenta"}, {"text": "H_T", "case": "exact"},
+      {"text": "HT", "case": "exact"}]},
+    {"id": "jet-multiplicity", "class": "observable", "forms": [
+      {"text": "jet multiplicity"}, {"text": "number of jets"}, {"text": "N_jets"}, {"text": "njets"}]},
+    {"id": "b-jet-multiplicity", "class": "observable", "forms": [
+      {"text": "b-jet multiplicity"}, {"text": "number of b-jets"}, {"text": "number of b-tagged jets"},
+      {"text": "nbjets"}]},
+    {"id": "mass-splitting", "class": "observable", "forms": [
+      {"text": "mass splitting"}, {"text": "mass difference"}, {"text": "delta m"}]},
+    {"id": "centre-of-mass-energy", "class": "condition", "forms": [
+      {"text": "centre-of-mass energy"}, {"text": "center-of-mass energy"}, {"text": "sqrt(s)"},
+      {"text": "collision energy"}]},
+    {"id": "integrated-luminosity", "class": "condition", "forms": [
+      {"text": "integrated luminosity"}, {"text": "fb-1"}, {"text": "inverse femtobarn"}]},
+    {"id": "cross-section", "class": "quantity", "forms": [
+      {"text": "cross section"}, {"text": "xsec"}, {"text": "production rate"}]},
+    {"id": "visible-cross-section", "class": "quantity", "forms": [
+      {"text": "visible cross section"}, {"text": "sigma_vis"}, {"text": "visible cross-section limit"}]},
+    {"id": "branching-fraction", "class": "quantity", "forms": [
+      {"text": "branching fraction"}, {"text": "branching ratio"}, {"text": "BR", "case": "exact"}]},
+    {"id": "acceptance-times-efficiency", "class": "quantity", "forms": [
+      {"text": "acceptance times efficiency"}, {"text": "acceptance x efficiency"}, {"text": "A×ε"},
+      {"text": "Axeff"}]},
+    {"id": "k-factor", "class": "quantity", "forms": [
+      {"text": "k-factor"}, {"text": "kfactor"}, {"text": "higher-order correction factor"}]},
+    {"id": "exclusion-limit", "class": "statistics", "forms": [
+      {"text": "exclusion limit"}, {"text": "upper limit"}, {"text": "95% CL"}, {"text": "excluded at 95% confidence level"}]},
+    {"id": "cls-method", "class": "statistics", "forms": [
+      {"text": "CLs"}, {"text": "CLs method"}, {"text": "CL_s"}, {"text": "modified frequentist"}]},
+    {"id": "confidence-level", "class": "statistics", "forms": [
+      {"text": "confidence level"}, {"text": "CL", "case": "exact"}]},
+    {"id": "published-likelihood", "class": "statistics", "forms": [
+      {"text": "published likelihood"}, {"text": "public likelihood"}, {"text": "full likelihood"},
+      {"text": "full statistical model"}, {"text": "pyhf workspace"}, {"text": "HistFactory workspace"}]},
+    {"id": "systematic-uncertainty", "class": "statistics", "forms": [
+      {"text": "systematic uncertainty"}, {"text": "systematics"}, {"text": "syst"}]},
+    {"id": "signal-strength", "class": "statistics", "forms": [
+      {"text": "signal strength"}, {"text": "signal strength modifier"}, {"text": "signal-strength parameter"}]},
+    {"id": "parameter-of-interest", "class": "statistics", "forms": [
+      {"text": "parameter of interest"}, {"text": "POI", "case": "exact"}]},
+    {"id": "background-only-fit", "class": "statistics", "forms": [
+      {"text": "background-only fit"}, {"text": "B-only fit"}, {"text": "control-region-only fit"}]},
+    {"id": "signal-region", "class": "region", "forms": [
+      {"text": "signal region"}, {"text": "SR", "case": "exact"}]},
+    {"id": "control-region", "class": "region", "forms": [
+      {"text": "control region"}, {"text": "CR", "case": "exact"}]},
+    {"id": "validation-region", "class": "region", "forms": [
+      {"text": "validation region"}, {"text": "VR", "case": "exact"}]},
+    {"id": "transfer-factor", "class": "method", "forms": [
+      {"text": "transfer factor"}, {"text": "extrapolation factor"}]},
+    {"id": "data-driven-background", "class": "method", "forms": [
+      {"text": "data-driven background estimate"}, {"text": "data-driven background"}, {"text": "ABCD method"}]},
+    {"id": "cutflow", "class": "method", "forms": [
+      {"text": "cutflow"}, {"text": "cut flow"}, {"text": "cutflow table"}, {"text": "event selection table"}]},
+    {"id": "simplified-model", "class": "model", "forms": [
+      {"text": "simplified model"}, {"text": "simplified model spectra"}, {"text": "SMS", "case": "exact"}]},
+    {"id": "reinterpretation", "class": "method", "forms": [
+      {"text": "reinterpretation"}, {"text": "recasting"}, {"text": "recast"}, {"text": "reinterpret"}]},
+    {"id": "efficiency-map", "class": "method", "forms": [
+      {"text": "efficiency map"}, {"text": "efficiency table"}, {"text": "signal efficiency grid"}]},
+    {"id": "particle-level", "class": "method", "forms": [
+      {"text": "particle level"}, {"text": "truth level"}, {"text": "generator level"}]},
+    {"id": "detector-level", "class": "method", "forms": [
+      {"text": "detector level"}, {"text": "reconstruction level"}, {"text": "reco level"}]},
+    {"id": "monte-carlo-simulation", "class": "method", "forms": [
+      {"text": "Monte Carlo simulation"}, {"text": "Monte Carlo"}, {"text": "MC simulation"},
+      {"text": "MC", "case": "exact"}]},
+    {"id": "fast-detector-simulation", "class": "method", "forms": [
+      {"text": "fast detector simulation"}, {"text": "fast simulation"}, {"text": "parametrised detector simulation"},
+      {"text": "parameterized detector simulation"}]},
+    {"id": "parton-shower", "class": "method", "forms": [
+      {"text": "parton shower"}, {"text": "showering"}, {"text": "parton showering"}]},
+    {"id": "jet-merging", "class": "method", "forms": [
+      {"text": "jet merging"}, {"text": "multijet merging"}, {"text": "matrix-element parton-shower merging"},
+      {"text": "ME+PS merging"}]},
+    {"id": "leading-order", "class": "theory", "forms": [
+      {"text": "leading order"}, {"text": "LO", "case": "exact"}]},
+    {"id": "next-to-leading-order", "class": "theory", "forms": [
+      {"text": "next-to-leading order"}, {"text": "NLO", "case": "exact"}]},
+    {"id": "next-to-next-to-leading-order", "class": "theory", "forms": [
+      {"text": "next-to-next-to-leading order"}, {"text": "NNLO", "case": "exact"}]},
+    {"id": "next-to-leading-logarithm", "class": "theory", "forms": [
+      {"text": "next-to-leading logarithmic"}, {"text": "next-to-leading logarithm"}, {"text": "NLL", "case": "exact"}]},
+    {"id": "next-to-next-to-leading-logarithm", "class": "theory", "forms": [
+      {"text": "next-to-next-to-leading logarithmic"}, {"text": "next-to-next-to-leading logarithm"},
+      {"text": "NNLL", "case": "exact"}]},
+    {"id": "parton-distribution-function", "class": "theory", "forms": [
+      {"text": "parton distribution function"}, {"text": "parton distribution"}, {"text": "PDF", "case": "exact", "trigger": false}]},
+    {"id": "factorisation-scale", "class": "theory", "forms": [
+      {"text": "factorisation scale"}, {"text": "factorization scale"}, {"text": "mu_F"}]},
+    {"id": "renormalisation-scale", "class": "theory", "forms": [
+      {"text": "renormalisation scale"}, {"text": "renormalization scale"}, {"text": "mu_R"}]},
+    {"id": "effective-field-theory", "class": "theory", "forms": [
+      {"text": "effective field theory"}, {"text": "EFT", "case": "exact"}]},
+    {"id": "standard-model-effective-field-theory", "class": "theory", "forms": [
+      {"text": "Standard Model effective field theory"}, {"text": "SMEFT"}]},
+    {"id": "standard-model", "class": "theory", "forms": [
+      {"text": "Standard Model"}, {"text": "SM", "case": "exact"}]},
+    {"id": "beyond-standard-model", "class": "theory", "forms": [
+      {"text": "beyond the Standard Model"}, {"text": "BSM", "case": "exact"}, {"text": "new physics"}]},
+    {"id": "b-jet", "class": "object", "forms": [
+      {"text": "b-jet"}, {"text": "b-tagged jet"}, {"text": "bottom-quark jet"}, {"text": "bjet"}, {"text": "b-tag"}]},
+    {"id": "large-radius-jet", "class": "object", "forms": [
+      {"text": "large-radius jet"}, {"text": "large-R jet"}, {"text": "fat jet"}, {"text": "fatjet"}]},
+    {"id": "anti-kt-jet", "class": "object", "forms": [
+      {"text": "anti-kt"}, {"text": "anti-k_t"}, {"text": "antikt"}]},
+    {"id": "top-tagging", "class": "object", "forms": [
+      {"text": "top tagging"}, {"text": "top-tagged jet"}, {"text": "top tagger"}]},
+    {"id": "boson-tagging", "class": "object", "forms": [
+      {"text": "boson tagging"}, {"text": "W/Z tagging"}, {"text": "boson-tagged jet"}]},
+    {"id": "hadronic-tau", "class": "object", "forms": [
+      {"text": "hadronically decaying tau"}, {"text": "hadronic tau"}, {"text": "tau_had"}, {"text": "tau_h"}]},
+    {"id": "light-lepton", "class": "object", "forms": [
+      {"text": "light lepton"}, {"text": "electron or muon"}]},
+    {"id": "nonprompt-lepton", "class": "object", "forms": [
+      {"text": "non-prompt lepton"}, {"text": "nonprompt lepton"}, {"text": "fake lepton"}, {"text": "misidentified lepton"}]},
+    {"id": "initial-state-radiation", "class": "object", "forms": [
+      {"text": "initial-state radiation"}, {"text": "ISR", "case": "exact"}, {"text": "ISR jet", "case": "exact"}]},
+    {"id": "pileup", "class": "condition", "forms": [
+      {"text": "pileup"}, {"text": "pile-up"}, {"text": "PU", "case": "exact"}]},
+    {"id": "jet-energy-scale", "class": "condition", "forms": [
+      {"text": "jet energy scale"}, {"text": "JES", "case": "exact"}]},
+    {"id": "jet-energy-resolution", "class": "condition", "forms": [
+      {"text": "jet energy resolution"}, {"text": "JER", "case": "exact"}]},
+    {"id": "displaced-vertex", "class": "object", "forms": [
+      {"text": "displaced vertex"}, {"text": "displaced vertices"}, {"text": "DV", "case": "exact"}]},
+    {"id": "disappearing-track", "class": "object", "forms": [
+      {"text": "disappearing track"}, {"text": "tracklet"}]},
+    {"id": "long-lived-particle", "class": "particle", "forms": [
+      {"text": "long-lived particle"}, {"text": "LLP", "case": "exact"}, {"text": "metastable particle"}]},
+    {"id": "heavy-stable-charged-particle", "class": "particle", "forms": [
+      {"text": "heavy stable charged particle"}, {"text": "HSCP", "case": "exact"}]},
+    {"id": "proper-decay-length", "class": "observable", "forms": [
+      {"text": "proper decay length"}, {"text": "c tau"}, {"text": "ctau"}]},
+    {"id": "same-sign-dilepton", "class": "final-state", "forms": [
+      {"text": "same-sign dilepton"}, {"text": "same-charge dilepton"}, {"text": "same-sign lepton pair"},
+      {"text": "SS dilepton", "case": "exact"}]},
+    {"id": "same-flavour-opposite-sign", "class": "final-state", "forms": [
+      {"text": "same-flavour opposite-sign"}, {"text": "same-flavor opposite-sign"}, {"text": "SFOS", "case": "exact"},
+      {"text": "OSSF", "case": "exact"}]},
+    {"id": "dijet", "class": "final-state", "forms": [
+      {"text": "dijet"}, {"text": "di-jet"}, {"text": "two-jet"}]},
+    {"id": "dilepton", "class": "final-state", "forms": [
+      {"text": "dilepton"}, {"text": "di-lepton"}, {"text": "lepton pair"}]},
+    {"id": "trilepton", "class": "final-state", "forms": [
+      {"text": "trilepton"}, {"text": "three-lepton"}, {"text": "three-lepton final state"}]},
+    {"id": "multilepton", "class": "final-state", "forms": [
+      {"text": "multilepton"}, {"text": "multi-lepton"}]},
+    {"id": "diphoton", "class": "final-state", "forms": [
+      {"text": "diphoton"}, {"text": "di-photon"}, {"text": "two photons"}]},
+    {"id": "diboson", "class": "final-state", "forms": [
+      {"text": "diboson"}, {"text": "di-boson"}, {"text": "vector-boson pair"}]},
+    {"id": "monojet", "class": "final-state", "forms": [
+      {"text": "monojet"}, {"text": "mono-jet"}, {"text": "jet plus missing transverse momentum"}]},
+    {"id": "monophoton", "class": "final-state", "forms": [
+      {"text": "monophoton"}, {"text": "mono-photon"}, {"text": "photon plus missing transverse momentum"}]},
+    {"id": "top-quark-pair", "class": "process", "forms": [
+      {"text": "top-quark pair"}, {"text": "ttbar"}, {"text": "top pair"}, {"text": "t tbar"}, {"text": "t\\bar{t}"}]},
+    {"id": "multijet-background", "class": "process", "forms": [
+      {"text": "multijet background"}, {"text": "QCD multijet background"}, {"text": "QCD background"}]},
+    {"id": "vector-boson-fusion", "class": "process", "forms": [
+      {"text": "vector-boson fusion"}, {"text": "VBF", "case": "exact"}]},
+    {"id": "gluon-fusion", "class": "process", "forms": [
+      {"text": "gluon-gluon fusion"}, {"text": "gluon fusion"}, {"text": "ggF", "case": "exact"}]},
+    {"id": "resonance-search", "class": "method", "forms": [
+      {"text": "resonance search"}, {"text": "bump hunt"}, {"text": "bump search"}]},
+    {"id": "lepton-flavour-violation", "class": "process", "forms": [
+      {"text": "lepton flavour violation"}, {"text": "lepton flavor violation"}, {"text": "LFV", "case": "exact"}]},
+    {"id": "flavour-changing-neutral-current", "class": "process", "forms": [
+      {"text": "flavour-changing neutral current"}, {"text": "flavor-changing neutral current"},
+      {"text": "FCNC", "case": "exact"}]},
+    {"id": "supersymmetry", "class": "model", "forms": [
+      {"text": "supersymmetry"}, {"text": "SUSY"}, {"text": "supersymmetric"}]},
+    {"id": "minimal-supersymmetric-standard-model", "class": "model", "forms": [
+      {"text": "minimal supersymmetric standard model"}, {"text": "MSSM", "case": "exact"}]},
+    {"id": "phenomenological-mssm", "class": "model", "forms": [
+      {"text": "phenomenological MSSM"}, {"text": "pMSSM"}]},
+    {"id": "r-parity-violation", "class": "model", "forms": [
+      {"text": "R-parity violation"}, {"text": "R-parity violating"}, {"text": "RPV", "case": "exact"}]},
+    {"id": "lightest-supersymmetric-particle", "class": "particle", "forms": [
+      {"text": "lightest supersymmetric particle"}, {"text": "LSP", "case": "exact"}]},
+    {"id": "neutralino", "class": "particle", "forms": [
+      {"text": "neutralino"}, {"text": "\\tilde{\\chi}^0_1"}, {"text": "chi_1^0"}, {"text": "chi10"}]},
+    {"id": "chargino", "class": "particle", "forms": [
+      {"text": "chargino"}, {"text": "\\tilde{\\chi}^\\pm_1"}, {"text": "chi_1^pm"}]},
+    {"id": "electroweakino", "class": "particle", "forms": [
+      {"text": "electroweakino"}, {"text": "electroweak gaugino"}, {"text": "EWKino"}]},
+    {"id": "gluino", "class": "particle", "forms": [
+      {"text": "gluino"}, {"text": "\\tilde{g}"}]},
+    {"id": "squark", "class": "particle", "forms": [
+      {"text": "squark"}, {"text": "\\tilde{q}"}, {"text": "scalar quark"}]},
+    {"id": "top-squark", "class": "particle", "forms": [
+      {"text": "top squark"}, {"text": "stop squark"}, {"text": "scalar top"}, {"text": "\\tilde{t}"},
+      {"text": "stop", "trigger": false}]},
+    {"id": "bottom-squark", "class": "particle", "forms": [
+      {"text": "bottom squark"}, {"text": "sbottom"}, {"text": "scalar bottom"}, {"text": "\\tilde{b}"}]},
+    {"id": "slepton", "class": "particle", "forms": [
+      {"text": "slepton"}, {"text": "scalar lepton"}, {"text": "\\tilde{\\ell}"}]},
+    {"id": "tau-slepton", "class": "particle", "forms": [
+      {"text": "tau slepton"}, {"text": "stau"}, {"text": "\\tilde{\\tau}"}]},
+    {"id": "compressed-spectrum", "class": "model", "forms": [
+      {"text": "compressed spectrum"}, {"text": "compressed mass spectrum"}, {"text": "small mass splitting"},
+      {"text": "compressed scenario"}]},
+    {"id": "dark-matter", "class": "model", "forms": [
+      {"text": "dark matter"}, {"text": "DM", "case": "exact"}]},
+    {"id": "weakly-interacting-massive-particle", "class": "particle", "forms": [
+      {"text": "weakly interacting massive particle"}, {"text": "WIMP", "case": "exact"}]},
+    {"id": "leptoquark", "class": "particle", "forms": [
+      {"text": "leptoquark"}, {"text": "LQ", "case": "exact"}]},
+    {"id": "vector-like-quark", "class": "particle", "forms": [
+      {"text": "vector-like quark"}, {"text": "vectorlike quark"}, {"text": "VLQ", "case": "exact"}]},
+    {"id": "vector-like-lepton", "class": "particle", "forms": [
+      {"text": "vector-like lepton"}, {"text": "vectorlike lepton"}, {"text": "VLL", "case": "exact"}]},
+    {"id": "heavy-neutral-lepton", "class": "particle", "forms": [
+      {"text": "heavy neutral lepton"}, {"text": "HNL", "case": "exact"}, {"text": "heavy neutrino"},
+      {"text": "sterile neutrino"}]},
+    {"id": "heavy-neutral-gauge-boson", "class": "particle", "forms": [
+      {"text": "Z'"}, {"text": "Zprime"}, {"text": "heavy neutral gauge boson"}]},
+    {"id": "heavy-charged-gauge-boson", "class": "particle", "forms": [
+      {"text": "W'"}, {"text": "Wprime"}, {"text": "heavy charged gauge boson"}]},
+    {"id": "charged-higgs-boson", "class": "particle", "forms": [
+      {"text": "charged Higgs boson"}, {"text": "charged Higgs"}, {"text": "H±"}]},
+    {"id": "two-higgs-doublet-model", "class": "model", "forms": [
+      {"text": "two-Higgs-doublet model"}, {"text": "2HDM"}]}
+  ]
+}

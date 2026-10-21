@@ -95,7 +95,7 @@ fail-loud placeholder scan after rendering — any remaining `{{` dies naming th
 (MadGraph events and procdir, Delphes ROOT, HepMC) fill the disk and points die with
 `NoSpaceLeftError`; separately, when the driving process exits, in-flight Delphes stages are killed
 mid-write, leaving a truncated `delphes.root` with no `Delphes` tree → `sumweights=0` →
-`ZeroDivisionError` in Delphes2SA. Caught: `df` at 100% + the analysis-log `Cannot find tree with name
+`ZeroDivisionError` in Delphes2SA. Caught: `df` at 100% + the analysis-log "missing named tree"
 Delphes`. Guard: `scan_babysitter.py` cleans the heavy regenerable subdirectories from every completed
 point (curated outputs preserved), heals failed and stale-running points back to pending (removing the
 truncated intermediates), and feeds pending points only while free disk ≥ `--min-free-gb`.
@@ -320,10 +320,10 @@ design depends on and hides the job from the physicist. Caught: a `bg_kind=detac
 harness-tracked `run_in_background`, or a durable `run_state.json` (pid/logfile/done-condition/next-action)
 + a harness-visible heartbeat for a genuinely detached job. verified-by: **`case_g27.py`**.
 
-**N7 — A source is asserted blocked/unavailable without a recorded attempt (assert-blocked-without-attempt).**
+**N7 — A source is asserted blocked/missing without a recorded attempt (assert-blocked-without-attempt).**
 A survey records a source as blocked (for example "HEPData is Cloudflare-blocked") without ever trying
 `hepdata_fetch.py --tables`, and the false belief drives over-conservatism. Caught: the mandatory step-2 resource
-census records REAL fetch attempts + results per rung, so an "unavailable" claim without a recorded
+census records REAL fetch attempts + results per rung, so an "missing" claim without a recorded
 attempt has no census row backing it. Guard: **D18** umbrella — `inv_resource_census_before_route`
 requires `inputs/resource_census.json` (the attempt ledger) before routing ships; source-ladder protocol
 P6 orders the retry. verified-by: the census invariant selftest + `test_resource_census_gates.py`.
@@ -365,6 +365,5 @@ provenance-checked, not backfilled (D19)? did the first `Skill` in a physics ses
 `physicist-intake` (N1), did all point/scan outputs land in-tree, not `/tmp` (N2), was every armed
 fire-command preflighted (N3), every LHE consumed only after its producer completed (N4), no number
 sourced from an open-defect helper (N5), and every long job harness-tracked rather than `nohup`-detached
-(N6)? An attack that lands becomes a panel finding in the standard format; an attack class that cannot
-apply is skipped silently. New failure classes that survive verification are added here (what goes
+(N6)? An attack that lands becomes a panel finding in the standard format; skip an inapplicable attack class. New failure classes that survive verification are added here (what goes
 wrong → how it is caught → where the guard lives).

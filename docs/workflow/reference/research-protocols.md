@@ -3,7 +3,7 @@
 Research parents now bind the [default nine-stage methodology](research-orchestration.md#required-research-stages).
 That binding governs the campaign even when no detailed candidate/cell protocol has been
 authored. The candidate/cell protocol below adds experiment-specific baselines, comparisons,
-ablations and source dependencies. It cannot remove the default stage obligations.
+ablations and source dependencies. It must not remove the default stage obligations.
 
 The default definition and stage-role contracts live in `src/ravel/data/research/protocol-default.json`;
 coordinator and meta-review text lives in `src/ravel/data/research/instructions.json`.
@@ -15,11 +15,11 @@ scientific-review requirements remain in force.
 
 A protocol connects candidate sources, reproduced baselines, screening, full evaluations, isolated component ablations, objection tests and fresh meta-review to the existing research cycle. Its stages carry explicit physics scope and uncertainty. No additional scheduler, call ledger or scientific review journal is created.
 
-These APIs have connected source controls. They have not established agent effectiveness or native scientific accuracy. The complete implementation control uses the real Graph, Host, role-packet reader, supplied arithmetic comparator and ordinary unapproved planning. Returned scientific outcomes and acceptance are explicit synthetic seams. An actual study still needs ordinary CHECK-IN 1, supervised execution and the independent scientific review required by its policy.
+These APIs have connected source controls. The complete implementation control uses the real Graph, Host, role-packet reader, supplied arithmetic comparator and ordinary unapproved planning. Returned scientific outcomes and acceptance are explicit synthetic seams. An actual study still needs ordinary CHECK-IN 1, supervised execution and the independent scientific review required by its policy.
 
 ## Declare the whole evaluation before affected planning
 
-Create a normal `research_cycle` with the original question, parent goal, requested quantities, premises, cumulative budget and experiment ceiling. Ideas may be supplied or generated through the existing source-bound Graph path. Speculative generation is optional. A fixed correctness task need not invent a novelty competition or run every stage below.
+Create a normal `research_cycle` with the original question, parent goal, requested quantities, premises, cumulative budget and experiment ceiling. Ideas can be supplied or generated through the existing source-bound Graph path. Speculative generation is optional. A fixed correctness task need not invent a novelty competition or run every stage below.
 
 Freeze a protocol JSON and bind its exact `{path, sha256, size}` pin using `research_protocol.bind(cycle, pin)`. Its closed top-level fields are:
 
@@ -34,14 +34,14 @@ Freeze a protocol JSON and bind its exact `{path, sha256, size}` pin using `rese
 | `claims` | Literal statement, acceptance-criteria pin, stage/comparison/premise dependencies and report slot |
 | `required_stage_ids`, `required_comparison_ids` | Original evaluation denominator, retained when rows are appended |
 | `round_limits` | Finite candidate-generation, ablation and meta-review bounds within the original cycle budget |
-| `not_applicable` | Explicit reasons for phases absent from this task; cannot remove declared rows |
+| `not_applicable` | Explicit reasons for phases absent from this task; must not remove declared rows |
 | `meta_actors` | Distinct declared critic and verifier identities |
 
 Every row has a stable ID. Cell, stage, comparison and claim rows also have a nullable `replaces` field. Candidate rows use a nullable `requalifies` field when explicitly requalifying an older source generation. The source-complete schema and a validated working construction are in `tests/unit/test_research_protocol.py`; no public example embeds fabricated scientific acceptance.
 
-Cell exposure is `adaptive_screen`, `adaptive_full` or `withheld_confirmation`. It is a supplied scientific declaration, not an inferred proof of blindness or independence. Evaluation engineered against a full benchmark is adaptive. A renamed file, fresh reviewer or repeated retained output does not create a new independent confirmation. Cohort, repeats, weights, pairing and scientific validity belong in the pinned population/normalization and ordinary study/review contracts.
+Cell exposure is `adaptive_screen`, `adaptive_full` or `withheld_confirmation`. It is a supplied scientific declaration, not an inferred proof of blindness or independence. Evaluation engineered against a full benchmark is adaptive. A new independent confirmation requires a genuinely unexposed scientific population and its documented data-use history. Cohort, repeats, weights, pairing and scientific validity belong in the pinned population/normalization and ordinary study/review contracts.
 
-Bind before affected planning. Amendments append rows while preserving every old row, scope, policy, threshold, original evaluation obligation and cost. A new threshold cannot retroactively make an old result pass. Candidate source changes become new generations. A component ablation must change exactly one declared component and preserve held scientific inputs; removal, replacement and addition are explicit. Source equality alone does not establish causal isolation, and component effects are not summed into a mechanism explanation.
+Bind before affected planning. Amendments append rows while preserving every old row, scope, policy, threshold, original evaluation obligation and cost. A new threshold must not retroactively make an old result pass. Candidate source changes become new generations. A component ablation must change exactly one declared component and preserve held scientific inputs; removal, replacement and addition are explicit. Source equality alone does not establish causal isolation, and component effects are not summed into a mechanism explanation.
 
 Optional objectives express regional or uniform improvement, supplied cost and
 accuracy trade-offs, or complementary candidate coverage. Claims can name exact
@@ -55,9 +55,9 @@ obligations remain required. Objectives do not change selection ranking.
 
 Materialize candidate studies with the existing `research_blueprint.materialize` or supply complete ordinary study files. Candidate source, invariant inputs, population and normalization must be real `science.task_inputs`, not decorative proposal citations. `research_cycle.design` validates protocol membership and this input closure. The original parent goal remains unchanged.
 
-`research_cycle.select` filters stage eligibility before its existing experiment ranking. `prepare_experiment` uses that same current selection and calls `science.plan`; `run_experiment` rechecks protocol eligibility at the final dispatch boundary before the ordinary approved runner. Changed premises, missing baselines, unresolved screen comparisons or material objections therefore block dispatch even after a plan exists. Planning does not approve an experiment. Several declared cells may share one ordinary experiment; its attempt is charged once in the existing cycle ledger.
+`research_cycle.select` filters stage eligibility before its existing experiment ranking. `prepare_experiment` uses that same current selection and calls `science.plan`; `run_experiment` rechecks protocol eligibility at the final dispatch boundary before the ordinary approved runner. Changed premises, missing baselines, unresolved screen comparisons or material objections therefore block dispatch even after a plan exists. Planning does not approve an experiment. Several declared cells can share one ordinary experiment; its attempt is charged once in the existing cycle ledger.
 
-After ordinary results return, use `observe`, the normal scientific judgment/review flow and `adjudicate`. Merely reading a number, a supplied `good` boolean or two accepted operand studies does not establish the comparison. `research_protocol.prepare_comparison` creates a fresh normal `research-comparison` study and a cycle experiment. Its inputs contain both complete currently scoped operand results plus the actual candidate/cohort/normalization/rule dependencies. The comparison preparation inherits the cycle's exact original `goal_binding` and refuses a conflicting supplied binding. Original parent dependencies remain protected inputs to ordinary planning. Design, plan, approve, execute and review this comparison normally.
+After ordinary results return, use `observe`, the normal scientific judgment/review flow and `adjudicate`. Merely reading a number, a supplied `good` boolean or two accepted operand studies does not establish the comparison. `research_protocol.prepare_comparison` creates a fresh normal `research-comparison` study and a cycle experiment. Its inputs contain both complete  scoped operand results plus the actual candidate/cohort/normalization/rule dependencies. The comparison preparation inherits the cycle's exact original `goal_binding` and refuses a conflicting supplied binding. Original parent dependencies remain protected inputs to ordinary planning. Design, plan, approve, execute and review this comparison normally.
 
 The ordinary comparison task is `{schema_version: 1, request: pin}`. The pinned request contains `schema_version`, `protocol_sha256`, `comparison_id`, `rule`, `cells` and `dependencies`. Here `protocol_sha256` is the digest of the exact comparison-basis projection: comparator, both stages, their candidate manifests and their cells. It is not the SHA256 of the complete append-only protocol file. This permits unrelated new rows without laundering an altered comparison.
 
@@ -69,7 +69,7 @@ For a lower-is-better rule the gain interval is `[right.low-left.high, right.hig
 
 The ordinary `scientific_judgment` remains responsible for Check-In 2, grounded criticism, nonvoting improvements, skeptical verification, correction and result closure. Its attached Graphs use the cycle's existing prepared-Graph charge route; role failures and redos retain cost. `research_followup` supplies complete actual role feedback and source-bound revised designs. Neither module is replaced by the protocol.
 
-For a methodological meta-review, `prepare_meta_review` freezes the complete protocol/status, original goal, hypotheses, premises, retained failures, actual feedback prose and complete ordinary experimental input inventory. It copies authenticated content for every captured ordinary input, in addition to protocol/result/review dependencies, into a fresh normal role packet. Duplicate canonical paths are merged only when their exact hash/size commitments agree. Fresh critic/verifier Graphs receive that packet through the existing blind-role reader, without extra raw Graph inputs or the other current meta-response. Execute through `research_cycle.execute_graph`, retaining the same cumulative charge and campaign clock. `apply_meta_review` requires the exact current subject, all required source-content hashes actually presented in the role receipt, and a separately observed role receipt. An already consumed exact Graph/node result refuses without a second event, charge or round; a new round needs a fresh charged result. Control-only receipts are refused by the public CLI; the library's explicit test-only option is retained as `control_only` and carries no scientific authority.
+For a methodological meta-review, `prepare_meta_review` freezes the complete protocol/status, original goal, hypotheses, premises, retained failures, actual feedback prose and complete ordinary study input inventory. It copies authenticated content for every captured ordinary input, in addition to protocol/result/review dependencies, into a fresh normal role packet. Duplicate canonical paths are merged only when their exact hash/size commitments agree. Fresh critic/verifier Graphs receive that packet through the existing blind-role reader, without extra raw Graph inputs or the other current meta-response. Execute through `research_cycle.execute_graph`, retaining the same cumulative charge and campaign clock. `apply_meta_review` requires the exact current subject, all required source-content hashes actually presented in the role receipt, and a separately observed role receipt. An already consumed exact Graph/node result refuses without a second event, charge or round; a new round needs a fresh charged result. Control-only receipts are refused by the public CLI; the library's explicit test-only option is retained as `control_only` and carries no scientific authority.
 
 The typed actions are:
 
@@ -77,9 +77,9 @@ The typed actions are:
 - `additional_evidence`: hold the affected claim while preserving independently supported raw incumbent facts; name explicit fresh ordinary test obligations.
 - `candidate_revision`: invalidate the located affected stage and dependent comparison/promotion evidence, then require a fresh source generation and re-evaluation.
 - `premise_revision`: request a located revision through `research_cycle.revise_premise`; explicit cross-candidate cell/source/claim dependencies also reopen.
-- `resolve_objections`: bind fresh current evidence for every open objection and exact replacement rows. The same prior output/review commitments cannot close a fresh evidence request.
+- `resolve_objections`: bind fresh current evidence for every open objection and exact replacement rows. The same prior output/review commitments must not close a fresh evidence request.
 
-A nonwinning refinement may leave an unaffected valid incumbent available. A scientifically invalid incumbent cannot regain validity because its repair failed. Replacement rows must retain exact original claim statement, criteria, population, units, scope and complete stage/comparison obligations. A shared report slot is presentation linkage, not semantic discharge. Criteria changes need the existing explicit parent-goal amendment route. A successful replacement can fulfill the old reporting obligation; the old invalid evidence itself remains stale forever.
+A nonwinning refinement can leave an unaffected valid incumbent available. A scientifically invalid incumbent must not regain validity because its repair failed. Replacement rows must retain exact original claim statement, criteria, population, units, scope and complete stage/comparison obligations. A shared report slot is presentation linkage, not semantic discharge. Criteria changes need the existing explicit parent-goal amendment route. A successful replacement can fulfill the old reporting obligation; the old invalid evidence itself remains stale forever.
 
 ## Ordinary APIs and CLI
 
@@ -97,13 +97,13 @@ Examples of closed command documents:
 {"output_dir": "fresh-meta", "role": "verifier", "model": "<admitted model>", "reasoning_effort": "high", "max_output_tokens": 4096, "max_wall_seconds": 120}
 ```
 
-`host-prepare` takes `{operation, parameters, graph_root, output_dir}`. Supported deterministic Host operations are `status`, `context` and `comparison`. The return includes the exact request/subject/current source pins for a normal designer tool node with action `research-protocol` and parameter `{request_input: <input ID>}`. The exact pre-reservation subject must still match; only that Graph's own reservation may have been added to the ledger. One ordinary tool call is charged. It cannot impersonate a blind review, bind state, cast votes or approve execution.
+`host-prepare` takes `{operation, parameters, graph_root, output_dir}`. Supported deterministic Host operations are `status`, `context` and `comparison`. The return includes the exact request/subject/current source pins for a normal designer tool node with action `research-protocol` and parameter `{request_input: <input ID>}`. The exact pre-reservation subject must still match; only that Graph's own reservation can have been added to the ledger. One ordinary tool call is charged. It must not impersonate a blind review, bind state, cast votes or approve execution.
 
 `meta` takes `{graph_root, node_id, context_pin}` and consumes an already charged fresh role result. It does not accept a public control-only override. The entire active schema, including a typed meta-response, is exercised in the portable test module.
 
 ## Reporting and finite limits
 
-`research_cycle.status`, `feedback_packet` and `synthesize` carry the complete staged status. Every declared cell remains visible as unplanned, declared, planned, stale, operationally unresolved, scientifically unresolved, unreviewed or accepted-current. The view records every candidate generation, actual exposure, unresolved comparison, original requirement and exact replacement. `reviewed_local_contrasts` retains each full-stage comparison with its actual cells, rule and scope. Candidate-level `reviewed_dominance` requires current comparisons covering every full-stage/cell obligation of both candidates, under one exact compatible prospective rule and acceptance scope. Equivalent cells may complete coverage, but at least one contrast must favor the same candidate and none may oppose it or remain unknown. Missing regimes, mixed results, incompatible policies or unreviewed comparisons leave both choices unresolved; no favorable contrast is silently selected. Current undominated full candidates are options, not a new optimization algorithm. Protocol evidence completeness is a necessary additional condition for cycle completion. It does not accept the original parent goal or bypass its complete requested-quantity census and scientific review.
+`research_cycle.status`, `feedback_packet` and `synthesize` carry the complete staged status. Every declared cell remains visible as unplanned, declared, declared, stale, operationally unresolved, scientifically unresolved, unreviewed or accepted-current. The view records every candidate generation, actual exposure, unresolved comparison, original requirement and exact replacement. `reviewed_local_contrasts` retains each full-stage comparison with its actual cells, rule and scope. Candidate-level `reviewed_dominance` requires current comparisons covering every full-stage/cell obligation of both candidates, under one exact compatible prospective rule and acceptance scope. Equivalent cells can complete coverage, but at least one contrast must favor the same candidate and none can oppose it or remain unknown. Missing regimes, mixed results, incompatible policies or unreviewed comparisons leave both choices unresolved; no favorable contrast is silently selected. Current undominated full candidates are options, not a new optimization algorithm. Protocol evidence completeness is a necessary additional condition for cycle completion. It does not accept the original parent goal or bypass its complete requested-quantity census and scientific review.
 
 The implementation admits at most 8 candidates, 32 cells, 32 stages, 16 comparisons, 32 claims, 8 generations, 16 ablations and 8 meta-reviews. The unchanged cycle budget/experiment ceiling can be smaller. Source payload pins are at most 8 MiB each; the unique declared population is admitted before opening payloads and limited to 64 MiB per source-consumption call. A protocol presentation admits at most 8,192 input references and 128 unique canonical file commitments, applying the unique limit after deduplication; conflicting aliases refuse. The ordinary comparison operation retains its prior 256-reference/256-unique profile. Protocol JSON and complete meta content are limited to 2,000,000 bytes. Meta content must be UTF-8; oversized/binary contexts refuse rather than truncating. Normal Graph/Host limits still apply and can be smaller. This is a finite supported profile, not arbitrary native-run corpus support. Repeated proof-path reads, original runtime/approval validation, operation time and total I/O are not bounded or metered by these source-population limits.
 
@@ -142,17 +142,17 @@ producers are visible through `check:protocol_producers_present` and refuse clai
 acceptance as `producer_pending:<protocol>`. These are record contracts; source
 registration does not establish that a protocol ran.
 
-`full` uses only `adaptive_full` cells. `confirm` uses withheld cells with data
+`full` uses only `adaptive_full` cells. `confirm` uses blinded cells with data
 `seeds` and `generation` distinct from every earlier input. These fields identify
 the data generation, independently of candidate ancestry. Declare all cells and
-source pins before planning. The same population digest cannot be renamed into
+source pins before planning. The same population digest must not be renamed into
 confirmation. Record the exact R1 screen action and receipt with
 `research_protocol.authorize_screen` before preparing a screen experiment.
 
 Freeze the metric, direction, k and alpha in preregistration `selection_rule`.
 `commit_selection` derives N and the selected k from the complete observed
 evaluation census. Failed and screen-only evaluations remain in N. Screen
-measurements cannot compete as full-fidelity results. Repeated full measurements
+measurements must not compete as full-fidelity results. Repeated full measurements
 use the fixed arithmetic mean, with candidates considered reported separately.
 The ordinary dispatch seam records one confirmation read per selected candidate
 per disjoint cell before execution; an interrupted attempt consumes the read. It returns
@@ -187,12 +187,13 @@ retains a structured residual. Mismatch alone weakens a hypothesis; refutation
 requires matching comparator and sensitivity receipts within the declared scope.
 Failed execution is not exclusion. Budget parking has `scope_of_negative:
 "budget_only"`. Reopening cites a satisfying receipt and a `what_is_new` that
-differs from the retained signature. The hypothesis board consumes the register events; it cannot
+differs from the retained signature. The hypothesis board consumes the register events; it must not
 write status. Shared input shapes are in `src/ravel/data/research/followup.schema.json`.
 
-`check:seed_to_test` verifies both streams' dispatch receipts, exact prediction
+`check:seed_to_test` verifies both streams' dispatch receipts, each derived from its stream's
+actual charged model call by `idea_dispatch_receipt`, exact prediction
 commitments before exposure, operator tags, and result-derived screen/full yield.
-The evaluator alone may call the `feedback_arm` transform hook. Family/operator
+The evaluator alone can call the `feedback_arm` transform hook. Family/operator
 evaluations require the factorial census, an independent best-of-N arm and
 a shared positive evaluation budget;
 unqualified cells remain advisory.
@@ -231,7 +232,7 @@ membership never clears claim, promotion or confirmation gates.
 `search_pending_candidate_ids` identifies incomplete full evaluations retained
 for search; those candidates gain no incumbent-selection authority.
 
-A comparison cell may name `paired_evaluation: {source: PIN, pointer: POINTER}`.
+A comparison cell can name `paired_evaluation: {source: PIN, pointer: POINTER}`.
 The pointed evaluation records `construction: same_events`, a `population` PIN,
 `left` and `right` operand `{source: PIN, value_pointer: POINTER}` bindings,
 `covariance_source`, `covariance_pointer`, `values_pointer`, two `indices`,
@@ -241,8 +242,8 @@ coordinates, with central values equal to the operands; retained event-group
 `output_covariance` matrices can be used directly. The symmetric difference
 interval uses the supplied multiplier times the square root of
 `Var(L) + Var(R) - 2 Cov(L,R)`. No coverage level is inferred.
-The covariance fields may all be omitted when no covariance was retained.
-An embedded joint evaluation may use `source: self` and `covariance_source: self`.
+The covariance fields can all be omitted when no covariance was retained.
+An embedded joint evaluation can use `source: self` and `covariance_source: self`.
 Ordinary staged preparation reads such records from the left result's
 `paired_evaluations` object keyed by cell ID. Null or missing covariance falls
 back to marginal intervals; absent pairing also keeps the marginal construction.
@@ -283,7 +284,7 @@ and supplied variance bound remain explicit; sizing grants no compute approval.
 Ordinary reproduce/reinterpret intake (CLI intake writer and `workflow_state init`), plan approval and
 science planning use `research_admission.admission`. Launch, review adoption,
 delivery and reuse recheck the same bound record. Removing a binding refuses.
-A reason string cannot exempt a mandatory stage. The applicability predicate
+A reason string must not exempt a mandatory stage. The applicability predicate
 allows search stages to be absent only for a plain ordinary reproduction or
 reinterpretation without a declared or observed search. Plain agreement claims
 use `agreement_ledger` and `noise_model` pins and N; they do not invent selection
@@ -328,7 +329,7 @@ approval of a changed plan supersedes the record and names the record it replace
 with `superseded_after_execution` set when execution records or a CHECK-IN 2 record
 already exist. The new record is written before the protocol pin moves to it, and the
 history entry and the new pin are one atomic write. Earlier attempts keep the record
-they ran with. Once a research stage has completed under a record, it cannot be
+they ran with. Once a research stage has completed under a record, it must not be
 replaced.
 
 A first record written when execution records already exist is `post_hoc` and pins
@@ -362,7 +363,7 @@ science packets, never a traceback.
 reproduction or reinterpretation without declared or observed search, calibration
 or selection marks `ideas`, `screen`, `validate` and `critique_to_experiments`
 `not_applicable` with a route-derived reason at preregistration. P01, P02, P07,
-P08, P09 and P16 do not apply to it. Limitation census, baseline, acceptance,
+P08, P09 and P16 do not apply to it. Qualification census, baseline, acceptance,
 meta-review, integrity and every other protocol apply. `producer_pending:<protocol>`
 blocks delivery only for applicable protocols. `check:protocol_producers_present`
 lists each missing producer with its `component` and the sorted
@@ -400,7 +401,7 @@ library caller (`research_cycle.create(..., evaluation_harness=True)`) creates
 an unbound synthetic campaign, labelled `protocol_exemption`. A campaign's
 preregistration is code-derived by `research_launch.produce_campaign` from its
 journal contract and a pinned design record (selection and stop rules,
-approximations, optional withheld cells and sizing). The `preregister` CLI operation
+approximations, optional blinded cells and sizing). The `preregister` CLI operation
 takes only `{"design": <pin>}`. Design admission re-derives the record. A supplied
 preregistration is accepted only with `evaluation_harness=True`, is labelled so, and
 never supports a delivered research claim.
@@ -412,7 +413,7 @@ apply.
 `decision_errors` calls the real decision-gate aggregator through its
 `research_choice` seam. A missing `ravel.workflow.decision_gate` module produces
 `decision_gate_unavailable`, including at stage preparation and selection commit;
-it cannot approve an action or crash via an unhandled import. The optional real
+it must not approve an action or crash via an unhandled import. The optional real
 module integration test remains skipped until that package is installed.
 
 For the default path, each prospective experiment carries `evaluation` with
@@ -430,7 +431,7 @@ pins (attempt pins for failures without a result). It writes
 `<rundir>/research/selection.json`. N counts evaluated attempts; `candidates_considered`
 counts distinct candidates. Repeated full evaluations use their arithmetic mean;
 a failed full attempt leaves the candidate unresolved. Hand-written scores or
-omitted evaluations cannot be adopted. `produce_selection_report(root)` writes
+omitted evaluations must not be adopted. `produce_selection_report(root)` writes
 fresh confirmation values and p-values from observed outputs, checks their shared
 ledger reservations and preserves null funnels. The arithmetic-only helper APIs
 are useful for fixtures; their output alone grants no adoption authority.
@@ -442,7 +443,7 @@ same `ml-exposure` namespace and under the same lock used by ML `Study`. It chec
 baseline, screening and diagnostic reads as well as selection. Canonical NPZ
 identities reuse the ML decoder (events, groups and normalized values); JSON
 cohorts use decoded IDs/content. File renaming, seed string/integer aliases,
-a different campaign directory and concurrent reservations cannot reset a read.
+a different campaign directory and concurrent reservations must not reset a read.
 `RAVEL_STATE_DIR` migration requires the existing ML namespace policy; the
 explicit `RAVEL_ML_TEST_NAMESPACE` is for isolated software fixtures only.
 A supplied exposure declaration does not establish physical independence of
@@ -489,7 +490,7 @@ exclusion also needs a passed `sensitivity-check`. `budget_exhausted` needs an
 exhausted budget receipt, `reopening` a receipt that satisfies the declared
 predicate, and the RDJ rules an RDJ authorization of exactly that transition. Code
 reads the evidence; the entry retains its snapshots and the observation, and a
-custody replay re-reads them. A hypothesis may carry a `register` declaration
+custody replay re-reads them. A hypothesis can carry a `register` declaration
 (identity signature, kill condition, reopening trigger, operator, `what_is_new`).
 `research_board.cycle_events` emits the declared hypotheses and each comparator or
 budget transition as research-cycle `hypothesis`, `test` and `transition` events;

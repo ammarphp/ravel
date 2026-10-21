@@ -16,7 +16,7 @@ to this service; bare process names and bare numerical grids receive
 
 A version-1 individual request contains `basis`, `sqrt_s_GeV`, `masses`,
 `convention` (`order`, `pdf`, `scale`), `charge` and `state_count`. The last two
-are explicit and may be null when the basis has no such multiplicity. Its
+are explicit and can be null when the basis has no such multiplicity. Its
 `table` selects:
 
 - `path` and `sha256`: exact JSON bytes with a `data` object of nested numerical
@@ -94,7 +94,7 @@ supplies `parameters`, `source` and `target` cross-section requests,
 `justification`. Source yield fractions must sum to one, state populations must
 be disjoint and match the declared counts, and an omitted target contribution
 must have zero response ratio. A zero source contribution cannot establish a
-nonzero target response. Unknown contamination or acceptance cannot be replaced
+nonzero target response. Unknown contamination or acceptance must not be replaced
 by zero without a supplied, justified assumption. This transformation assumes
 unchanged accepted shapes; otherwise the signal template and inference need
 recomputation through the admitted workflow.
@@ -106,7 +106,7 @@ section. Then `R = sum(f_i * r_i)`, `mu_target = mu_source * S / (T * R)`, and
 `sigma_ref_fb = 1000 * T`. An inclusive-versus-filtered transformation can supply
 its acceptance ratio through `r_i`; no factor, state population or contamination
 assumption is implicit. The source cross section must agree with the actual row
-normalization, and collision energy cannot change. Every point coordinate must
+normalization, and collision energy must not change. Every point coordinate must
 match the source row, either in its `parameters` mapping or its named fields.
 A supplied `coordinate_bindings` mapping can name a different source field;
 missing source coordinates are refused rather than inferred from the table.

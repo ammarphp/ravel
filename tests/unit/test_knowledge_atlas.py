@@ -238,3 +238,21 @@ def test_unresolved_review_terms_are_declared_not_registered(atlas):
         assert row['status'] == 'declared_term', row['id']
         assert row['summary'] == 'no implementing check linked', row['id']
     assert len(placeholders) <= UNRESOLVED_TERM_CEILING
+
+
+def test_generated_indexes_are_registered_but_never_operation_knowledge(atlas):
+    """A generated index mentions every declaration it maps. Linking it as operation knowledge would
+    present the whole index at every operation and exceed the bounded instruction read, so the atlas
+    registers it as a document and links operations only to documents that reader admits."""
+    from ravel.controller.instructions import compiler
+    rows = {r['id']: r for r in atlas['entries']}
+    indexes = {r['id'] for r in atlas['entries'] if r['kind'] == 'doc'
+               and ka.GENERATED_INDEX_MARKER in (ROOT / r['source']['path']).read_text()}
+    assert indexes
+    for row in atlas['entries']:
+        if row['kind'] != 'op':
+            continue
+        for identity in row['links']['docs']:
+            assert identity not in indexes, (row['id'], identity)
+            size = (ROOT / rows[identity]['source']['path']).stat().st_size
+            assert size <= compiler.MAX_SOURCE_BYTES, (row['id'], identity, size)

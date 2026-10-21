@@ -167,14 +167,21 @@ def baseline_screen_full(base,monkeypatch,*,new_full=(3,4),confirmation=False):
     return root,p
 
 
-def meta(base,root,monkeypatch,action,*,stages=(),required=(),resolves=(),replacement_stages=(),replacement_comparisons=(),replacement_claims=()):
+def meta_host(transport='local'):
+    """The inert meta host: an observed local model on loopback, or the loopback control transport."""
+    local={'privacy':'local_only','local_models':['inert']} if transport=='local' else {}
+    return agent_host.AgentHost(endpoint='http://127.0.0.1:9/v1/responses',**local)
+
+
+def meta(base,root,monkeypatch,action,*,stages=(),required=(),resolves=(),replacement_stages=(),replacement_comparisons=(),replacement_claims=(),transport='local'):
+    """One meta response through an inert host: an observed local model transport, or the loopback control."""
     count=sum(e['kind']=='protocol_meta_review_applied' for e in cycle._load(root)[1]['events'])
     prepared=proto.prepare_meta_review(root,base/('meta-'+str(count)),role='verifier',model='inert',reasoning_effort='high',max_output_tokens=128,max_wall_seconds=10)
     value={'kind':'research_meta_review','subject_sha256':prepared['context']['sha256'],'actor_id':prepared['actor_id'],'action':action,
         'affected_claim_ids':['complete-method'],'affected_stage_ids':list(stages),'objections':[{'location':'new-full / algorithm','statement':'Explicit synthetic located objection or resolution.'}],
         'required_experiment_ids':list(required),'premise_revision':None,'resolves_meta_revisions':list(resolves),'replacement_stage_ids':list(replacement_stages),
         'replacement_comparison_ids':list(replacement_comparisons),'replacement_claim_ids':list(replacement_claims)}
-    host=agent_host.AgentHost(endpoint='http://127.0.0.1:9/v1/responses')
+    host=meta_host(transport)
     def response(data,params,request,control):
         presented=json.loads(data)['input'];assert 'complete-method' in json.dumps(presented)
         return host._result(value,params,request,response_id='inert-meta-transport',observed_model='inert',usage={'input_tokens':8,'output_tokens':16})
@@ -283,11 +290,13 @@ def test_source_rule_or_operand_mutation_holds_cross_candidate_comparison(tmp_pa
 
 def test_model_control_receipt_is_not_fresh_scientific_authority(tmp_path,monkeypatch):
     root,p=baseline_screen_full(tmp_path,monkeypatch)
-    state=meta(tmp_path,root,monkeypatch,'report_only')
-    e=state['events'][-1]
-    assert e['control_only'] and e['old_votes_carried'] is False
+    # A loopback control response is retained advice: it applies no action, even in control mode.
+    advice=meta(tmp_path,root,monkeypatch,'report_only',transport='control')
+    assert advice['kind']=='review_advice' and advice['independent'] is False
+    state=cycle._load(root)[1]
+    assert not any(e['kind']=='protocol_meta_review_applied' for e in state['events'])
     with pytest.raises(ValueError,match='fresh separately'):
-        proto.apply_meta_review(root,graph_root=state['graphs'][-1]['root'],node_id='meta',context_pin=e['context'])
+        proto.apply_meta_review(root,graph_root=state['graphs'][-1]['root'],node_id='meta',context_pin=advice['value']['context'])
 
 
 def replacements(base,root,p):

@@ -15,6 +15,7 @@ from ravel.physics import routine_build as build
 from ravel.workflow import execution, physics_review, science
 from ravel.workflow.state_io import atomic_json, read_json
 from method_decision_fixture import admit_method
+from bound_review import bound_review
 
 
 def fixture(tmp_path, compiler=None):
@@ -592,10 +593,10 @@ def test_public_plan_approve_run_source_build_custody_review_and_reuse(tmp_path)
             'location': '/custody; explicit synthetic control, no scientific review claim'}]}]})
     physics_review.open_cycle(rd, effective_settings=science.review_effective_settings(rd),
         stage_receipts=[record['attempt_record']], check_results=str(checks))
-    for role, actor in [('physics_critic', 'synthetic-critic'),
-                         ('skeptical_verifier', 'synthetic-skeptic'),
-                         ('physics_decider', 'synthetic-decider')]:
-        physics_review.submit_review(rd, role=role, actor_id=actor, verdict='accept',
+    # Recorded votes are bound responses of dispatched roles (the run policy names their actors);
+    # a declared reviewer name is advice only.
+    for role in ['physics_critic', 'skeptical_verifier', 'physics_decider']:
+        bound_review(rd, role=role, verdict='accept',
             summary='Synthetic test vote, not a real scientific review', claim_scope='engineering')
     assert science.packet(rd)['lifecycle_verdict'] == 'PASS'
     assert cli.main(['run', '--rundir', str(rd), '--resume']) == 0

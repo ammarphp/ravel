@@ -18,6 +18,7 @@ from ravel.workflow import decision_case as dc
 from ravel.workflow import evidence_queue, rdj_anchor, rdj_custody
 from ravel.workflow import rdj_loop as rdj
 
+from inert_dispatch import inert_dispatch  # noqa: F401
 from rdj_fixtures import (PROPOSER, PROMPT, Roles, Run, add, challenge, critic, critic_once, node, reviewer, said,
                           two_level_r2, verifier)
 
@@ -436,7 +437,7 @@ def test_s20_the_snapshot_file_limit_comes_from_policy(tmp_path, monkeypatch):
 
 # ---------------------------------------------------------------- C4 receipts bind the case they authorized
 
-def test_c4_a_receipt_binds_the_case_state_it_authorized(tmp_path):
+def test_c4_a_receipt_binds_the_case_state_it_authorized(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id = full_r2(run)
     assert rdj.authorize(run.root, case_id)["outcome"] == "authorize"
@@ -447,7 +448,7 @@ def test_c4_a_receipt_binds_the_case_state_it_authorized(tmp_path):
     assert "rdj_case_changed" in {e.code for e in rdj.gate_errors(run.root, "launch", run.action())}
 
 
-def test_c4_exhausted_budget_and_a_non_authorize_verifier_are_open_items(tmp_path):
+def test_c4_exhausted_budget_and_a_non_authorize_verifier_are_open_items(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id = full_r2(run)
     case, state, _ = rdj._load(run.root, case_id)
@@ -585,7 +586,7 @@ TEST_REQUEST = {"kind": "experiment", "description": "Run a coarser grid and com
                 "max_broker_calls": 2}
 
 
-def test_l04_s7_an_opinion_only_finding_against_a_correct_plan_does_not_block(tmp_path):
+def test_l04_s7_an_opinion_only_finding_against_a_correct_plan_does_not_block(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     case_id = full_r2(run, roles=Roles(critic=critic([finding(**OPINION)])))
     receipt = rdj.authorize(run.root, case_id)
@@ -593,7 +594,7 @@ def test_l04_s7_an_opinion_only_finding_against_a_correct_plan_does_not_block(tm
     assert rdj.decision_detail(run.root, receipt["receipt_id"])["advisory_findings"] == ["F1"]
 
 
-def test_l04_s7_the_same_finding_with_a_failing_requested_test_blocks(tmp_path):
+def test_l04_s7_the_same_finding_with_a_failing_requested_test_blocks(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     roles = Roles(critic=critic_once([finding(**OPINION, request=TEST_REQUEST)]), verifier=verifier(resolved="no"))
     case_id = full_r2(run, roles=roles)
@@ -608,7 +609,7 @@ def test_l04_s7_the_same_finding_with_a_failing_requested_test_blocks(tmp_path):
     assert "finding_open" in refused(run, case_id)
 
 
-def test_l04_s7_a_requested_test_that_refutes_the_finding_releases_it(tmp_path):
+def test_l04_s7_a_requested_test_that_refutes_the_finding_releases_it(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     roles = Roles(critic=critic_once([finding(**OPINION, request=TEST_REQUEST)]), verifier=verifier(resolved="no"))
     case_id = full_r2(run, roles=roles)
@@ -647,7 +648,7 @@ def test_l04_a_review_or_integrity_verdict_cited_as_an_anchor_is_generated(tmp_p
 
 # ---------------------------------------------------------------- P17 critic basis (RDJ half)
 
-def test_p17_a_blocking_class_whose_basis_does_not_verify_is_advisory(tmp_path):
+def test_p17_a_blocking_class_whose_basis_does_not_verify_is_advisory(tmp_path, inert_dispatch):
     run = Run(tmp_path / "run")
     unbacked = [finding("F1", locators=("outputs/absent.json",)),
                 finding("F2", evidence_class="new_receipt", locators=("stage:ghost:1",))]

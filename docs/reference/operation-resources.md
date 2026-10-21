@@ -11,7 +11,7 @@ the generation-specific `events_per_point` field.
 
 The existing CHECK-IN 1 and applicable CHECK-IN 2/review gates remain in force.
 The resource class comes from the approved task, so omitting it from a launch
-context cannot turn solver work into legacy admission. The resource field enters
+context must not turn solver work into legacy admission. The resource field enters
 the stage fingerprint. The exact task/endpoint bytes are committed separately to
 avoid a contract/plan hash cycle, and are checked freshly at launch, finish and
 reuse. Frozen launch validation also checks the retained class, command, IO and

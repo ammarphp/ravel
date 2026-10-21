@@ -20,6 +20,10 @@ gave it. Missing evidence is ``inconclusive``, never a pass.
 - ``manuscript_audit``: the manuscript against the stored record (protocol, history,
   exposure ledger). Without the record the result is ``inconclusive`` with no finding,
   which is what a manuscript-only reviewer can establish.
+- ``ufo_check``, ``charge_census``, ``adjudicate_gauge_checks`` (model critic),
+  ``assumption_audit``, ``certify_acceptance`` and ``plot_lint``: the existing validators over the
+  data a reviewer is given, never over the run tree. A defect they report fails; evidence they
+  cannot read, or a diagnostic or still-unresolved report, is ``inconclusive``.
 
 ``register(broker, card)`` installs the ``check run`` action: one allowlisted check by id,
 permitted for the card, writing its result as a pinned output. Document checks read
@@ -31,6 +35,8 @@ from copy import deepcopy
 import json
 import math
 from pathlib import Path
+import re
+import tempfile
 
 from . import broker as broker_module
 from .state_io import read_json
@@ -298,6 +304,393 @@ def _rubric(doc, *, check_id='review.rubric'):
 CHECKS['review.rubric'] = _rubric
 
 
+# ---- ML study verdicts and reviewer items -------------------------------------------------------
+
+ML_RESULT_CHECKS = ('check:ml-estimand-declared', 'check:ml-statistics-sizing', 'check:ml-benchmark-localization',
+                    'check:ml-ablation-arms', 'check:ml-crossfit-audit', 'check:ml-selection-flatness',
+                    'check:ml-spurious-signal', 'check:ml-reference-fidelity', 'check:ml-injection-closure',
+                    'check:ml-null-calibration', 'check:ml-trials-accounting', 'check:ml-claim-scope',
+                    'check:ml-label-leakage', 'check:ml-equal-budget', 'check:ml-test-once')
+# Planning items with no computation anywhere: a reviewer judges each one; no check can pass it.
+ML_REVIEWER_ITEMS = ('check:ml-baseline-set', 'check:ml-oracle-labelled', 'check:ml-cost-preflight',
+                     'check:ml-hypothesis-family', 'check:ml-stopping-rule')
+_ML_PASS = frozenset({'pass', 'passed', 'asserted_by_construction'})
+_ML_FAIL = frozenset({'fail', 'failed'})
+ML_OBSERVATION_KIND = 'ml-check-observation'
+_ML_GRAPH_STAGES = {'check:ml-estimand-declared': {'S1'}, 'check:ml-equal-budget': {'S6'},
+                    'check:ml-test-once': {'S8', 'S12'}, 'check:ml-ablation-arms': {'S13'}}
+
+
+def record_ml_stage(store, *, spec, stage, result):
+    """Controller observer for the operation owner's completed, recomputed stage.
+
+    Called by the graph after its validators have run, never exposed as a broker action.
+    Store custody authenticates the observation; a public result file cannot issue one.
+    Both the frozen specification and complete result are bound into every reference.
+    Missing, unresolved and failed checks are retained with their original scope.
+    """
+    if type(spec) is not dict or type(result) is not dict or type(result.get('checks')) is not dict:
+        raise ValueError('a computed stage and its specification are required')
+    if 'controller_checks' in result:
+        raise ValueError('a stage observation cannot include its own references')
+    references = {}
+    for check_id, check in result['checks'].items():
+        if check_id not in ML_RESULT_CHECKS:
+            continue
+        row = {'schema_version': 1, 'kind': ML_OBSERVATION_KIND, 'check_id': check_id,
+               'stage': stage, 'spec_sha256': broker_module.digest(spec),
+               'subject_sha256': broker_module.digest(result), 'check': deepcopy(check)}
+        record_id = store.append(ML_OBSERVATION_KIND, row)
+        references[check_id] = {key: row[key] for key in ('spec_sha256', 'subject_sha256')}
+        references[check_id]['record_id'] = record_id
+    return references
+
+
+def observed_ml_result(store, binding, *, check_id):
+    """Read only the controller observation selected by the dispatcher's bound order.
+
+    Graph-owned checks must originate at their implementing stage. Other passes require
+    an executed validator identity and its exact artifact pin. An unresolved scientific
+    result stays unresolved even when the executor completed successfully.
+    """
+    missing = lambda reason: result(check_id, [], status='inconclusive', outcome='computation_unverified',
+                                    diagnostics={'reason': reason})
+    if (store is None or type(binding) is not dict
+            or set(binding) != {'record_id', 'spec_sha256', 'subject_sha256'}
+            or type(binding.get('record_id')) is not str or not binding['record_id']
+            or any(type(binding.get(k)) is not str or not re.fullmatch('[0-9a-f]{64}', binding[k])
+                   for k in ('spec_sha256', 'subject_sha256'))):
+        return missing('the sealed work order must bind a controller computation observation')
+    try:
+        row = store.read(ML_OBSERVATION_KIND, binding['record_id'])
+        if type(row) is dict and 'record' in row:
+            row = row['record']
+    except (OSError, KeyError, IndexError, TypeError, ValueError):
+        return missing('the controller computation observation is unavailable')
+    if (type(row) is not dict or row.get('kind') != ML_OBSERVATION_KIND or row.get('schema_version') != 1
+            or row.get('check_id') != check_id
+            or any(row.get(k) != binding[k] for k in ('spec_sha256', 'subject_sha256'))):
+        return missing('the computation observation differs from the sealed work order')
+    check = row.get('check')
+    if type(check) is not dict:
+        return missing('the observation has no typed check outcome')
+    source, verdict = check.get('source'), check.get('verdict')
+    artifact = check.get('artifact')
+    authenticated = ((source == 'graph' and row.get('stage') in _ML_GRAPH_STAGES.get(check_id, set()))
+                     or (source == 'validator' and type(check.get('validator')) is dict and bool(check['validator'])
+                         and type(artifact) is dict and type(artifact.get('path')) is str and bool(artifact['path'])
+                         and type(artifact.get('sha256')) is str
+                         and re.fullmatch('[0-9a-f]{64}', artifact['sha256']) is not None))
+    diagnostics = {'record_id': binding['record_id'], 'spec_sha256': row['spec_sha256'],
+                   'subject_sha256': row['subject_sha256'], 'stage': row.get('stage'), 'check': check}
+    if not authenticated:
+        return missing('no executed graph check or registered validator authenticated this outcome')
+    if verdict == 'pass':
+        return result(check_id, [], status='passed', diagnostics=diagnostics)
+    if verdict == 'fail':
+        return result(check_id, [_finding(check_id, 'ml_check_failed', 'The registered computation found a defect.')],
+                      status='failed', diagnostics=diagnostics)
+    return result(check_id, [], status='inconclusive', outcome='verdict_unresolved', diagnostics=diagnostics)
+
+
+def ml_result(doc, *, check_id):
+    """Inspect a supplied ML result without promoting its declared verdict to computation.
+
+    A document alone cannot authenticate a graph check or establish that cross-fitting ran.
+    Report an explicit failure, but hold every success claim. The broker obtains actual
+    computation evidence separately via ``observed_ml_result`` and its bound work order.
+    """
+    rows = doc.get('checks') if type(doc) is dict else None
+    if type(rows) is not dict or check_id not in rows:
+        return result(check_id, [], status='inconclusive', outcome='verdict_missing',
+                      diagnostics={'reason': 'the result document records no verdict for this check'})
+    row = rows[check_id]
+    verdict = row.get('verdict') if type(row) is dict else row
+    if type(verdict) is str and verdict in _ML_PASS:
+        return result(check_id, [], status='inconclusive', outcome='computation_unverified',
+                      diagnostics={'verdict': verdict, 'row': row,
+                                   'reason': 'a supplied verdict is not authenticated computation evidence'})
+    if type(verdict) is str and verdict in _ML_FAIL:
+        return result(check_id, [_finding(check_id, 'ml_check_failed', f'The study computed {check_id} as failed.')],
+                      status='failed', diagnostics={'verdict': verdict, 'row': row})
+    return result(check_id, [], status='inconclusive', outcome='verdict_unresolved',
+                  diagnostics={'verdict': verdict, 'row': row})
+
+
+def reviewer_item(doc, *, check_id):
+    """A must_check item no code computes: always inconclusive; credit needs the reviewer's per-item verdict."""
+    return result(check_id, [], status='inconclusive', outcome='reviewer_item',
+                  diagnostics={'reason': 'no computation exists; a reviewer verdict with evidence decides this item'})
+
+
+for _check in ML_RESULT_CHECKS:
+    CHECKS[_check] = ml_result
+for _check in ML_REVIEWER_ITEMS:
+    CHECKS[_check] = reviewer_item
+
+
+# ---- model, assumption, acceptance and figure-specification verdicts ------------------------------
+
+UFO_SOURCE = re.compile(r'[A-Za-z0-9_]+\.py')
+ACCEPTANCE_ROLES = ('driving', 'contributing', 'tail')
+
+
+def _unresolved(check_id, outcome, reason, **diagnostics):
+    """Evidence the check cannot read: inconclusive, never a pass and no finding against the subject."""
+    return result(check_id, [], status='inconclusive', outcome=outcome, diagnostics={'reason': reason, **diagnostics})
+
+
+def _refused(check_id, code, errors, *, location=None, **diagnostics):
+    """A defect the validator reported: a finding per error (the first 50); every error stays in the diagnostics."""
+    errors = [str(e) for e in errors]
+    return result(check_id, [_finding(check_id, code, e, location=location) for e in errors[:50]],
+                  status='failed', diagnostics={'errors': errors, **diagnostics})
+
+
+def ufo_check(doc, *, check_id='check:physics.ufo_check.check'):
+    """``doc``: {'files': {<name>.py: source text}, 'spec': ModelSpec | null}.
+
+    The static checker parses the carried text with ``ast.parse``; the model is never imported or run.
+    A defect it reports fails. Sources or a spec it cannot read leave the check inconclusive."""
+    from ravel.physics import ufo_check as checker
+    doc = doc if type(doc) is dict else {}
+    files, spec = doc.get('files'), doc.get('spec')
+    if (type(files) is not dict or not files or not (spec is None or type(spec) is dict)
+            or any(type(k) is not str or not UFO_SOURCE.fullmatch(k) or type(v) is not str for k, v in files.items())):
+        return _unresolved(check_id, 'inputs_missing',
+                           'the document must carry the UFO sources as {file name: text} and a ModelSpec or null')
+    try:
+        with tempfile.TemporaryDirectory(prefix='ufo-check-') as folder:
+            for name, text in files.items():
+                (Path(folder) / name).write_text(text, encoding='utf-8')
+            report = checker.check(folder, spec=spec)
+    except (KeyError, TypeError, AttributeError, ValueError) as exc:
+        return _unresolved(check_id, 'inputs_invalid', f'the sources or spec cannot be read: {type(exc).__name__}: {exc}')
+    if not report['passed']:
+        return _refused(check_id, 'ufo_defect', report['errors'], warnings=report['warnings'])
+    return result(check_id, [], status='passed', diagnostics={
+        'counts': report['counts'], 'required_coupling_survival': report['required_coupling_survival'],
+        'warnings': report['warnings'], 'spec_compared': spec is not None})
+
+
+def charge_census(doc, *, check_id='check:physics.model_authoring.charge_census'):
+    """``doc``: a ModelSpec, or {'spec': ModelSpec}.
+
+    Exact charge, hypercharge and colour-triality neutrality of every Lagrangian term. The census takes
+    exact rationals: a decimal charge is refused, never rounded. A spec it cannot read is inconclusive."""
+    from ravel.physics import model_authoring
+    spec = doc['spec'] if type(doc) is dict and type(doc.get('spec')) is dict else doc
+    if (type(spec) is not dict or type(spec.get('fields')) is not list
+            or type(spec.get('lagrangian_terms')) is not list or not spec['lagrangian_terms']):
+        return _unresolved(check_id, 'inputs_missing',
+                           'a ModelSpec with fields and at least one Lagrangian term is required')
+    try:
+        report = model_authoring.charge_census(spec)
+    except ValueError as exc:
+        return _refused(check_id, 'charge_not_exact', [exc])
+    except (KeyError, TypeError, AttributeError) as exc:
+        return _unresolved(check_id, 'inputs_invalid', f'the census cannot read the spec: {type(exc).__name__}: {exc}')
+    if report['passed']:
+        return result(check_id, [], status='passed', diagnostics={'terms': report['terms']})
+    return result(check_id, [_finding(check_id, 'charge_neutrality', f"term {row['term']}: " + '; '.join(row['problems']),
+                                      location=row['term']) for row in report['terms'] if not row['passed']],
+                  status='failed', diagnostics={'terms': report['terms']})
+
+
+def adjudicate_gauge_checks(doc, *, check_id='check:physics.model_authoring.adjudicate_gauge_checks'):
+    """``doc``: the two-gauge record {feynman, unitary, goldstones}, a native receipt carrying it as
+    ``gauge_checks``, or {'native': record, 'extra_goldstones': [field names]}.
+
+    Unitary gauge decides; a Feynman-gauge Goldstone mixing is waived only when FeynRules reported it.
+    A record without a verdict for every check cannot be adjudicated: inconclusive."""
+    from ravel.physics import model_authoring
+    doc = doc if type(doc) is dict else {}
+    native = doc['native'] if type(doc.get('native')) is dict else doc.get('gauge_checks', doc)
+    extra = doc.get('extra_goldstones', [])
+    if type(extra) is not list or any(type(g) is not str for g in extra):
+        return _unresolved(check_id, 'inputs_invalid', 'extra_goldstones must be a list of field names')
+    try:
+        report = model_authoring.adjudicate_gauge_checks(native, extra_goldstones=tuple(extra))
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        return _unresolved(check_id, 'inputs_invalid', f'the gauge record cannot be adjudicated: {exc}')
+    if report['passed']:
+        return result(check_id, [], status='passed', diagnostics={
+            'verdicts': report['verdicts'], 'waived': report['waived'], 'rule': report['rule']})
+    return _refused(check_id, 'gauge_check_failed', report['failures'], verdicts=report['verdicts'],
+                    waived=report['waived'])
+
+
+def assumption_audit(doc, *, check_id='check:validation.assumption_audit.check'):
+    """``doc``: {'audit': assumption-audit record, 'result': the delivered result with ``assumptions_reported``}.
+
+    Every uncontrolled item at or above the K8 severity floor must be named in the delivered result. The check
+    grades no physics: the severities are the auditor's. An audit record that is not valid is inconclusive."""
+    from ravel.validation import assumption_audit as coverage
+    doc = doc if type(doc) is dict else {}
+    audit, delivered = doc.get('audit'), doc.get('result')
+    reported = delivered.get('assumptions_reported', []) if type(delivered) is dict else None
+    if type(audit) is not dict or type(reported) is not list or any(type(name) is not str for name in reported):
+        return _unresolved(check_id, 'inputs_missing',
+                           'the document needs the audit record and the delivered result (assumptions_reported a list of ids)')
+    try:
+        errors = coverage.check(audit, delivered)
+    except (ValueError, KeyError, TypeError) as exc:
+        return _unresolved(check_id, 'inputs_invalid', f'the audit record is not valid: {exc}')
+    if errors:
+        return _refused(check_id, 'assumption_unreported', errors)
+    items = audit['items']
+    return result(check_id, [], status='passed', diagnostics={
+        'items': len(items), 'uncontrolled': sum(not i['controlled'] for i in items), 'reported': sorted(map(str, reported))})
+
+
+def _acceptance_ladder(rows, eff):
+    """The per-region residuals and the PASS/WARN/FAIL ladder of ``certify_acceptance``, recomputed from report rows.
+
+    Roles are taken as recorded: an override can promote a region to driving and leaves no trace, so only a
+    role the rule cannot produce is a defect. Returns (verdict, table, worst driving residual, defects, reasons)."""
+    from ravel.validation.validate_cutflow import comparison_ratio, finite_nonnegative
+    table = []
+    for row in rows:
+        if (type(row) is not dict or type(row.get('sr')) is not str or row.get('role') not in ACCEPTANCE_ROLES
+                or type(row.get('node')) is not str or type(row.get('off_grid')) is not bool):
+            raise ValueError('every row needs sr, role, node and off_grid')
+        events = None if row.get('events') is None else finite_nonnegative(row['events'], 'events')
+        table.append({'row': row, 'events': events, 'ratio': comparison_ratio(row.get('mine'), row.get('pub'))})
+    best = max((t['events'] for t in table if t['events'] is not None), default=None)
+    defects, reasons = [], []
+    for t in table:
+        row, role, events, ratio = t['row'], t['row']['role'], t['events'], t['ratio']
+        derived = ('tail' if events is not None and events < eff['tail_events'] else
+                   'driving' if best and events is not None and events >= best / eff['driving_factor'] else 'contributing')
+        if role != derived and role != 'driving':
+            defects.append(('role_inconsistent', f"{row['sr']}: recorded role {role} contradicts its {events} selected "
+                                                 f"events (the rule gives {derived})"))
+        tol = {'driving': eff['driving_tol'], 'contributing': eff['contributing_tol']}.get(role)
+        residual = None if ratio is None else abs(1 - ratio)
+        t.update(role=role, residual=residual, impact=residual if role == 'driving' else None,
+                 ok=(tol is None or role != 'driving') if residual is None else (tol is None or residual <= tol))
+        stored = row.get('ratio', ratio)
+        if (stored is None) != (ratio is None) or (ratio is not None and not (
+                type(stored) in (int, float) and math.isclose(stored, ratio, rel_tol=1e-9, abs_tol=1e-12))):
+            defects.append(('ratio_inconsistent', f"{row['sr']}: stored ratio {stored!r} differs from {ratio!r} "
+                                                  'recomputed from the recorded yields'))
+    driving = [t for t in table if t['role'] == 'driving']
+    worst = max((t['impact'] for t in driving if t['impact'] is not None), default=None)
+    driving_ok = all(t['ok'] for t in driving) if driving else None
+    off_grid = any(t['row']['off_grid'] for t in driving)
+    unmatched = any(t['row']['node'].startswith('NEAREST') for t in driving)
+    bound = eff['mu95_bound']
+    if not driving or driving_ok is False or worst is None or unmatched:
+        verdict = 'FAIL'
+    elif driving_ok and worst <= bound and not off_grid:
+        verdict = 'PASS'
+    elif worst <= 1.5 * bound and not off_grid:
+        verdict = 'WARN'
+    else:
+        verdict = 'FAIL'
+    if not driving:
+        reasons.append(('no_driving_region', 'no driving region: every region is below the tail threshold or lacks an event count'))
+    for t in driving:
+        if t['ratio'] is None:
+            reasons.append(('driving_unevaluated', f"{t['row']['sr']}: no computable ratio (routine yield or published value absent)"))
+        elif not t['ok']:
+            reasons.append(('driving_over_tolerance', f"{t['row']['sr']}: residual {t['residual']:.3g} exceeds the driving "
+                                                      f"tolerance {eff['driving_tol']:g}"))
+    if unmatched:
+        reasons.append(('driving_reference_unmatched', 'a driving region is compared with a different published mass point'))
+    if off_grid:
+        reasons.append(('driving_off_grid', 'a driving region is compared off the published grid'))
+    if worst is not None and worst > bound:
+        reasons.append(('residual_above_bound', f'the worst driving residual {worst:.3g} exceeds the bound {bound:g}'))
+    return verdict, table, worst, defects, reasons
+
+
+def certify_acceptance(doc, *, check_id='check:validation.certify_acceptance'):
+    """``doc``: the acceptance certification report: rows [{sr, role, mine, pub, events, node, off_grid, ratio}],
+    certification_tolerances {approved, effective}, verdict, driving_tol, mu95_bound, worst_driving_residual.
+
+    The ladder is recomputed from the rows under the effective tolerances; a stored verdict never grants the
+    pass. A recomputed WARN is a bounded but unresolved residual: inconclusive. A diagnostic report, or one
+    without its tolerance binding, decides nothing. The approval behind the tolerances is verified against the
+    run by the certificate validator, not here."""
+    from ravel.validation import certification_tolerances as controls
+    doc = doc if type(doc) is dict else {}
+    rows, binding = doc.get('rows'), doc.get('certification_tolerances')
+    if type(rows) is not list or not rows or type(binding) is not dict:
+        return _unresolved(check_id, 'inputs_missing', 'the report needs its rows and a certification_tolerances binding')
+    if binding.get('governance') == 'diagnostic':
+        return _unresolved(check_id, 'diagnostic_report',
+                           'a diagnostic report is not bound to an approved CHECK-IN 1 and decides nothing')
+    try:
+        effective = controls.tolerances(binding.get('effective'), complete=True)
+        approved = controls.tolerances(binding.get('approved'), complete=True)
+        verdict, table, worst, defects, reasons = _acceptance_ladder(rows, effective)
+    except (ValueError, KeyError, TypeError) as exc:
+        return _unresolved(check_id, 'inputs_invalid', f'the report cannot be recomputed: {exc}')
+    defects += [('tolerance_looser_than_approved', f'{n} {effective[n]} is looser than the approved {approved[n]}')
+                for n in controls.DEFAULTS if (effective[n] - approved[n]) * controls.LOOSER[n] > 0]
+    defects += [('headline_mismatch', f'{n} {doc.get(n)!r} disagrees with the effective {effective[n]}')
+                for n in ('driving_tol', 'mu95_bound') if type(doc.get(n)) not in (int, float) or doc[n] != effective[n]]
+    if 'verdict' in doc and doc['verdict'] != verdict:
+        defects.append(('verdict_inconsistent', f"the stored verdict {doc['verdict']!r} differs from the recomputed {verdict}"))
+    if 'worst_driving_residual' in doc:
+        stored = doc['worst_driving_residual']
+        if (stored is None) != (worst is None) or (worst is not None and not (
+                type(stored) in (int, float) and math.isclose(stored, worst, rel_tol=1e-9, abs_tol=1e-12))):
+            defects.append(('residual_inconsistent', f'the stored worst driving residual {stored!r} differs from the '
+                                                     f'recomputed {worst!r}'))
+    diagnostics = {'verdict': verdict, 'worst_driving_residual': worst, 'effective_tolerances': effective,
+                   'regions': [{'sr': t['row']['sr'], 'role': t['role'], 'ratio': t['ratio'], 'residual': t['residual'],
+                                'ok': t['ok']} for t in table],
+                   'reasons': [text for _, text in reasons],
+                   'authority': 'recomputed from the report rows; the approval binding is verified by the certificate validator'}
+    if defects or verdict == 'FAIL':
+        return result(check_id, [_finding(check_id, code, text) for code, text in [*defects, *reasons]],
+                      status='failed', diagnostics=diagnostics)
+    if verdict == 'WARN':
+        return result(check_id, [], status='inconclusive', outcome='residual_unresolved', diagnostics=diagnostics)
+    return result(check_id, [], status='passed', diagnostics=diagnostics)
+
+
+def plot_lint(doc, *, check_id='check:validation.plot_lint'):
+    """``doc``: {'figure_spec': {...}}, the typed figure constraints (ranges, scales, aspect, binning, labels).
+
+    Checks the specification itself with ``plot_lint.figure_spec_errors``. The layout gate (legend, annotation and
+    tick collisions) needs the live figure and runs inside the renderer at save time: a pass here never claims it."""
+    from ravel.validation import plot_lint as linter
+    spec = doc.get('figure_spec') if type(doc) is dict else None
+    if type(spec) is not dict or not spec:
+        return _unresolved(check_id, 'inputs_missing', 'a non-empty figure_spec is required')
+    errors = linter.figure_spec_errors(spec)
+    if errors:
+        return _refused(check_id, 'figure_spec_invalid', errors)
+    return result(check_id, [], status='passed', diagnostics={
+        'figure_spec': spec, 'scope': 'the specification is well formed; the live-figure layout gate is not re-run'})
+
+
+CHECKS.update({'check:physics.ufo_check.check': ufo_check, 'check:physics.model_authoring.charge_census': charge_census,
+               'check:physics.model_authoring.adjudicate_gauge_checks': adjudicate_gauge_checks,
+               'check:validation.assumption_audit.check': assumption_audit,
+               'check:validation.certify_acceptance': certify_acceptance, 'check:validation.plot_lint': plot_lint})
+
+
+def reviewer_items():
+    """The must_check ids no code computes: a reviewer's per-item verdict with evidence decides each one."""
+    from ravel.validation.higgs_checks import REVIEWER_ITEMS as HIGGS_ITEMS
+    return frozenset(ML_REVIEWER_ITEMS) | frozenset(HIGGS_ITEMS)
+
+
+def computes(check_id):
+    """Whether a registered check computes a verdict for ``check_id``.
+
+    A validate step runs only the checks that compute. A reviewer item (``reviewer_items``) is owed
+    as a reviewer verdict (``review_points.must_check_missing``), never run as a producer validation:
+    its check answers ``inconclusive`` whatever the document, so running it could never pass.
+    """
+    from .run_validator_checks import ADAPTERS
+    return check_id not in reviewer_items() and (check_id in CHECKS or check_id in ADAPTERS)
+
+
 def permitted(card, check_id):
     """A card may run a supported allowlisted check named on it or listing its role."""
     rows = {row['id']: row for row in allowlist()['validators']}
@@ -364,7 +757,14 @@ def register(target, card):
             raise Refusal('not_allowlisted', f'check {check_id!r} is not allowlisted for {card["id"]}')
         if set(args) - {'check_id', 'paths'}:
             raise Refusal('invalid_call', 'check arguments are outside the declared shape')
-        if check_id in ADAPTERS:
+        if check_id in ML_RESULT_CHECKS and not paths:
+            from .review_independence import controller_store
+            if not sealed:
+                raise Refusal('invalid_call', 'ML computation observations require the sealed work order')
+            binding = (order.get('check_inputs') or {}).get(check_id)
+            value = observed_ml_result(controller_store(target.rundir), binding, check_id=check_id)
+            executed = value['status'] in {'passed', 'failed'}
+        elif check_id in ADAPTERS:
             if paths:
                 raise Refusal('invalid_call', 'run checks take their inputs from the sealed work order')
             value = run(check_id, RunCheckInput(target.rundir, order, target.workspace))
@@ -382,7 +782,7 @@ def register(target, card):
         target._write({'path': out, 'content': json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + '\n'})
         return {'stdout': json.dumps({'check_id': check_id, 'status': value['status'], 'outcome': value['outcome'],
                                       'findings': len(value['findings']), 'result': out}, sort_keys=True),
-                'input_paths': paths if check_id in CHECKS else (['inputs/work-order.json'] if order else []),
+                'input_paths': paths if paths else (['inputs/work-order.json'] if order else []),
                 'output_paths': [out], 'validator_executed': executed,
                 'exit_status': 0 if value['status'] == 'passed' else 1}
     target.register('check run', handler, derivation='registered_validator', validator_ids=ids)

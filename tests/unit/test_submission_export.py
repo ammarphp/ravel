@@ -68,8 +68,13 @@ def test_export_writes_a_relative_self_contained_package(tmp_path, monkeypatch):
     out = se.export(request, repo)
     package = Path(out['package'])
     manifest = json.loads((package / se.MANIFEST).read_text())
-    assert manifest['kind'] == 'ravel-submission' and manifest['acceptance']['accepted'] is True
-    assert manifest['acceptance']['claim_scope'] == 'diagnostic'
+    acceptance = manifest['acceptance']
+    assert manifest['kind'] == 'ravel-submission' and acceptance['review_accepted'] is True
+    # A diagnostic scope never carries the scientific acceptance label.
+    assert acceptance['claim_scope'] == 'diagnostic' and acceptance['delivery_label'] == 'diagnostic'
+    assert acceptance['accepted'] is False and acceptance['notices']
+    # The package records the decision, never the local receipt with its machine paths.
+    assert 'architecture_receipt' not in acceptance and len(acceptance['architecture_receipt_sha256']) == 64
     for row in manifest['files']:
         assert not Path(row['path']).is_absolute() and '..' not in Path(row['path']).parts
         assert sha(package / row['path']) == row['sha256']
@@ -94,6 +99,31 @@ def test_export_writes_a_relative_self_contained_package(tmp_path, monkeypatch):
     assert (package / 'REPRODUCE.md').read_text().count('ravel export-submission verify') == 1
     report = se.verify(package)
     assert report['passed'], report['errors']
+
+
+@pytest.mark.parametrize('change, error', [
+    ('no_review', 'the package does not record an accepted review'),
+    ('promoted', 'the package delivery label differs from its accepted claim scope'),
+    ('scope', 'the package delivery label differs from its accepted claim scope'),
+    ('unknown', 'the package delivery label differs from its accepted claim scope'),
+])
+def test_package_label_must_match_its_accepted_review_and_scope(tmp_path, monkeypatch, change, error):
+    request, _ = accepted_analysis(tmp_path, monkeypatch)
+    package = Path(se.export(request, tmp_path / 'repo')['package'])
+    path = package / se.MANIFEST
+    manifest = json.loads(path.read_text())
+    acceptance = manifest['acceptance']
+    if change == 'no_review':
+        acceptance.pop('review_accepted')
+    elif change == 'promoted':
+        acceptance['accepted'] = True
+    elif change == 'scope':
+        acceptance['claim_scope'] = 'computed'
+    else:
+        acceptance['delivery_label'] = 'governed'
+    path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+    report = se._check(package)
+    assert not report['passed'] and error in report['errors']
 
 
 def test_submission_exports_stage_runtime_instead_of_exporter(tmp_path, monkeypatch):

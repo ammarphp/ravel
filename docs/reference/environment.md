@@ -4,11 +4,11 @@ The installed toolchain is defined by `native/setup/toolchain-manifest.json` (pi
 versions) and `native/setup/pdf-sets.json`, and by the Python requirement files in `environment/python/`.
 This page summarizes them; when it disagrees with a manifest, the manifest is right. Run `ravel doctor --json`
 to see what is installed on your machine: every group carries a `label` (ready, not-ready with its fix,
-owner-action, remote or unsupported) and a recorded `qualification` (qualified, built-unqualified, failed or
+owner-action, remote or `unsupported`) and a recorded `qualification` (qualified, built-unqualified, failed or
 not-built). Installed is not qualified; a qualification names an executed study, and the group's
 `qualification_basis` says which.
 
-For toolchain development, groups may also live in `native/setup/groups/<group-id>.json`.
+For toolchain development, groups can also live in `native/setup/groups/<group-id>.json`.
 Read `ravel.setup.manifest.view(root)` for the merged tree document or `load(root)`
 for catalogue validation. The [fragment contract](../../native/setup/groups/README.md)
 describes default membership, dependency order, release holds, the schema, the split
@@ -26,6 +26,27 @@ The statistics-layer environment is separately version- and hash-locked in `requ
 [command-line reference](../cli.md). Site analysis libraries (coffea, cabinetry, vector, boost-histogram,
 pyarrow) are provided by the analysis site's LCG view and are not pinned by RAVEL.
 
+The local literature models run on ONNX Runtime with the Tokenizers library. `tokenizers==0.22.1`
+is a direct runtime dependency. Its closure `huggingface-hub==1.33.0` and `hf-xet==1.7.0` is also
+pinned in all three declarations (`pyproject.toml`, `requirements-full.txt` and
+`environment/python/installation.json`), so the installer retains the exact pin; RAVEL code keeps
+either package. All three are Apache-2.0. The hub needs `httpx` and `click>=8.4.2`, which the full
+environment already provides. The design draft named `huggingface-hub==0.35.3`; this lock replaces
+it. The digests below are the public package index's on 2026-10-19, read from its JSON metadata.
+Rebuild the cluster test environment after this change before claiming an installation smoke test;
+until then the Tokenizers-backed tests skip there.
+
+| Artifact | sha256 |
+|---|---|
+| `tokenizers-0.22.1.tar.gz` | `61de6522785310a309b3407bac22d99c4db5dba349935e99e4d15ea2226af2d9` |
+| `tokenizers-0.22.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl` | `e2ef6063d7a84994129732b47e7915e8710f27f99f3a3260b8a38fc7ccd083f4` |
+| `tokenizers-0.22.1-cp39-abi3-macosx_11_0_arm64.whl` | `8d4e484f7b0827021ac5f9f71d4794aaef62b979ab7608593da22b1d2e3c4edc` |
+| `huggingface_hub-1.33.0.tar.gz` | `367be21a201db9523eddf8aeac7048f2602c1b308691c97640d5e72ed188007e` |
+| `huggingface_hub-1.33.0-py3-none-any.whl` | `04e434b06e100eddbce9a6e817d72693a7884b10a79bd67ab48080d5c07eb899` |
+| `hf_xet-1.7.0.tar.gz` | `d406ec79053c0871817f700c2ac8c36ba0d87f9c34b7458b0f0063bb218b0466` |
+| `hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl` | `2814a6e999d13464c4d679b788cc5d784eb5a4edfc638a31f10e9a11ab531ef8` |
+| `hf_xet-1.7.0-cp38-abi3-macosx_11_0_arm64.whl` | `59fba37039233c7fcbe196817d6cdcf1b40dfb17b410f229d85b0cf0a1848da4` |
+
 ## Native toolchain (`bash scripts/setup/install.sh`, conda environments under the prefix)
 
 | Group | Environment or source | Pins |
@@ -33,7 +54,7 @@ pyarrow) are provided by the analysis site's LCG view and are not pinned by RAVE
 | `madgraph` | `mg5`, `mg5-3` | MadGraph5_aMC@NLO 2.9.27 (`eb76cab7`) and 3.7.0 (`adf3d62d`), LHAPDF 6.5.6 |
 | `rivet-shower` | `rivet` | Rivet 4.1.3, YODA 2.1.3, Pythia 8.312, HepMC3 3.3.1 |
 | `recast-base`, `ma5`, `checkmate` | `recast`, `pythia82`, `checkmate` | ROOT 6.40.00, FastJet 3.5.2, Delphes 3.5.1, MadAnalysis 5 1.11.1, CheckMATE 2 (`bacf9d17`) with Pythia 8.244 |
-| `container-runtime`, `simpleanalysis`, `root-combine` | Podman 5.8.2 client, vfkit, gvproxy | SimpleAnalysis and CMS Combine images by digest |
+| `container-runtime`, `simpleanalysis`, `root-combine` | Podman 5.8.2 client, vfkit, gvproxy | SimpleAnalysis and Combine images by digest |
 | `smodels` | `.venv-smodels`, `smodels311` | database `official321.pcl` (Zenodo 10.5281/zenodo.23067688) with 3.1.1 and `official311.pcl` still installed; coverage statements cite the database version in `config/smodels.json` |
 | `contur` | `herwig` | Contur 3.1.5 with `[spey]`, Herwig 7.3.0, ThePEG 2.3.0 |
 | `wolfram` | your Wolfram kernel | FeynRules 2.3.49, SARAH 4.15.4, FeynCalc (`fe664511`), FeynArts 3.12, HEPTAPOD (`cb771f8c`, one checkout for NDA and EDA) |
@@ -43,8 +64,6 @@ pyarrow) are provided by the analysis site's LCG view and are not pinned by RAVE
 
 The other groups (`spectrum`, `finite-integrals`, `sfitter`, `easyscan`, `nyx`, `feyngraph`, `diagram-consumers`,
 `publication`, `site-*`, `mcfm-amplitudes`, `agent-sources`) are pinned in the manifest in the same way.
-`ravel doctor --json` also lists the refusal classes (loop decays of generated spectra, and the EasyScan cells that need
-micrOMEGAs, SUSY-HIT, FeynHiggs, HiggsBounds or MultiNest) with what would make each possible.
 
 ## External data
 
@@ -54,7 +73,7 @@ micrOMEGAs, SUSY-HIT, FeynHiggs, HiggsBounds or MultiNest) with what would make 
 | Cross sections | Pinned LHC SUSY working-group tables via `ravel xsec lookup --request request.json`, with explicit order, PDF and scale |
 | HEPData | the JSON API, `hepdata-cli` for full tables and the resource view for likelihoods |
 
-The native HEP stack is ARM64-specific and does not yet have a verified cross-platform lock or OCI reproduction.
+The native HEP stack uses the declared platform-specific source, compiler and library pins.
 
 The September RS1 closure work uses an additional isolated statistics virtual environment
 under ignored `local-runs/rs1-closure/numerics/venv-jax-guarded/`. It inherits the installed

@@ -14,6 +14,8 @@ import re
 import sys
 
 ATLAS = 'src/ravel/data/knowledge/atlas.json'
+# First-line marker a documentation generator writes into an index of source declarations.
+GENERATED_INDEX_MARKER = '<!-- ravel:generated-index -->'
 QUALIFICATION = 'src/ravel/data/knowledge/qualification.json'
 KINDS = ('op', 'cmd', 'tool', 'check', 'hb', 'trap', 'proto', 'doc', 'rule',
          'checklist', 'skill', 'role', 'ana', 'impl', 'art', 'model', 'xs',
@@ -328,7 +330,11 @@ def generate(root=None):
     scanned = sorted(set(modes) | signature_only)
     mode_pattern = re.compile(r'(?<![\w-])(?:' + '|'.join(re.escape(m) for m in scanned) + r')(?![\w-])')
     texts = {p.relative_to(root).as_posix(): p.read_text() for p in shipped((root / 'docs').rglob('*.md'))}
-    mentions = {p: set(mode_pattern.findall(text)) for p, text in texts.items()}
+    # A generated index enumerates every declaration it maps, so its mentions are not operation
+    # knowledge: presenting the whole index at each operation exceeds the bounded instruction read.
+    # Such a document is registered as a doc; only an explicit registration reference binds it.
+    mentions = {p: (set() if GENERATED_INDEX_MARKER in text else set(mode_pattern.findall(text)))
+                for p, text in texts.items()}
     # An explicit contract may bind a shared procedure by its exact heading.
     # Validate the shipped bytes instead of inventing a doc link from its name.
     for mode, registration in registrations.items():
@@ -345,7 +351,9 @@ def generate(root=None):
                 fail(f'operations.{mode}.registration.documentation.section', section,
                      'exact heading in ' + relative, repair='repair the contract documentation reference')
             mentions.setdefault(relative, set()).add(mode)
-    doc_paths = sorted(set(doc_paths) | {p for p, names in mentions.items() if names})
+    # Marked indexes are registered documents without mention-derived operation links.
+    indexes = {p for p, text in texts.items() if GENERATED_INDEX_MARKER in text}
+    doc_paths = sorted(set(doc_paths) | indexes | {p for p, names in mentions.items() if names})
     for relative in doc_paths:
         path = root / relative
         text = texts.get(relative) or path.read_text()

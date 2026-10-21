@@ -141,16 +141,22 @@ def write(rundir, document, *, replace=False):
     return path
 
 
-def validate(rundir, *, require_discharged=False):
-    """Check the sweep with the lifecycle validator and report open obligations."""
+def validate(rundir, *, require_discharged=False, relative=RELATIVE_PATH):
+    """Check the sweep with the lifecycle validator and report open obligations.
+
+    ``relative`` locates the record inside ``rundir``; a controller run reads it where the governed
+    step adopted it (``steps/<step>/...``).
+    """
     from ravel.validation.validate_run_state import check_trap_sweep
     rundir = Path(rundir)
-    path = rundir / RELATIVE_PATH
-    if not path.is_file():
+    if Path(relative).is_absolute() or ".." in Path(relative).parts:
+        raise ValueError("the trap sweep path is relative to the run directory")
+    path = rundir / relative
+    if path.is_symlink() or not path.is_file():
         return {"status": "FAIL", "path": str(path), "checks": [
-            {"name": "presence", "level": "FAIL", "msg": f"{RELATIVE_PATH} not found"}],
+            {"name": "presence", "level": "FAIL", "msg": f"{relative} not found"}],
             "traps_hit": [], "undischarged": []}
-    status, _, checks = check_trap_sweep(str(rundir), {}, {"trap_sweep_path": RELATIVE_PATH}, "R", False)
+    status, _, checks = check_trap_sweep(str(rundir), {}, {"trap_sweep_path": str(relative)}, "R", False)
     try:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except ValueError:

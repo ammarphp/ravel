@@ -359,6 +359,7 @@ def accept_review(root):
     Synthetic control votes over a trivial retained attempt; not a scientific review.
     """
     from ravel.workflow import physics_review as review
+    from bound_review import bound_review
     from test_physics_review import make_attempt, check_packet
     (root/'inputs/settings.cfg').write_text('efficiency=0.8\n')
     (root/'inputs/held-fixed.txt').write_text('fixed recipe\n')
@@ -366,10 +367,10 @@ def accept_review(root):
     check_packet(root, record)
     review.open_cycle(root, effective_settings=['inputs/settings.cfg'],
                       stage_receipts=[record['attempt_record']], check_results='inputs/checks.json')
-    actors = review._read(review._root(root))[0]['policy']['actors']
+    # Recorded votes are bound responses of dispatched roles; a declared reviewer name is advice only.
     for role in ('physics_critic', 'skeptical_verifier', 'physics_decider'):
-        review.submit_review(root, role=role, actor_id=actors[role], verdict='accept',
-                             summary='Synthetic control vote, not a scientific review', claim_scope='reproduction')
+        bound_review(root, role=role, verdict='accept',
+                     summary='Synthetic control vote, not a scientific review', claim_scope='reproduction')
     assert review.status(root)['state'] == 'accepted' and review.gate_errors(root, 'delivery') == []
 
 

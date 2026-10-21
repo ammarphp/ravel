@@ -40,6 +40,12 @@ def graph_inputs(request, base):
     pins += [bridge._pin(c['runtime']['python_manifest'],config.parent)]
     pins += [bridge._pin(x,config.parent) for x in c['cards'].values() if x is not None]
     pins += [bridge._pin(x['source'],config.parent) for x in c['weights']['variation_points']]
+    texts={name:model_events.authenticated_text(bridge._pin(pin,config.parent),pin['sha256']) for name,pin in c['cards'].items() if pin is not None}
+    model_events.validation_evidence(c, config.parent,
+        bridge._regular(c['model_tree']['root'], config.parent, directory=True), texts)
+    evidence = [c['model_validation'], *[point['model_validation'] for point in c['weights']['variation_points']
+                                      if point['kind'] == 'parameter']]
+    pins += [bridge._pin(pin, config.parent) for records in evidence for pin in records.values()]
     if 'pre_shower_lhe_transform' in c:
         from ravel.physics import svj_preshower
         texts={name:model_events.authenticated_text(bridge._pin(pin,config.parent),pin['sha256']) for name,pin in c['cards'].items() if pin is not None}

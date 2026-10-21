@@ -1,5 +1,26 @@
 # Durable open-question research
 
+A `research.loop` step on an approved component plan can carry no adopted campaign
+request. The controller then pins a deterministic bounded sub-question from that
+step's description and declared outputs, with the parent's frozen contract and
+reading as provenance. The ordinary request schema validates it. Its lean loop
+budget permits one coordinator progress decision and zero experiments, within the
+step's wall, token and cost ceilings. The registered graph structure is preserved.
+
+This form binds the complete research protocol and retains unfinished stages as
+pending. It makes no scientific declaration, independence claim or acceptance
+vote. Its typed bounded synthesis becomes each declared output through ordinary
+custody, carrying `BOUNDED SUB-QUESTION` and the pending-stage qualification into
+delivery. Dependent work can proceed; the parent run continues. Adopted whole-goal
+campaigns retain their existing preparation, protocol, independence and sink
+ending requirements. Changed request, provenance, campaign and budget pins refuse.
+
+Derived review and consult seats inherit their parent step's declared resource
+ceilings. Each seat reserves the smaller of its card ceiling and that share;
+worker wall seconds remain cumulative across seats. A declared minimum that
+exceeds the inherited share or effective card limit holds with
+`seat_budget_infeasible` and the dimension, minimum and ceiling as evidence.
+
 Outcome metrics expose `resource_use.resource_vector` with wall hours, CPU hours,
 peak RAM, disk footprint, events, model calls, model tokens and queue hours.
 Whole-campaign values remain unknown without a complete measurement instrument.
@@ -39,7 +60,7 @@ coupling polynomial, units, representation and bins. Supply the same
 `coupling_scaling` in both documents so every signed term reaches Rivet as a
 named weight. The fitted reference, terms and their complete joint block
 covariance come from the Rivet-selected RAW output, including when the event
-document declares a shower. Selection or shower migrations may differ from
+document declares a shower. Selection or shower migrations can differ from
 the stored-point selection. The measurement supplies its
 statistic, covariance, scan and domain; its input kind is
 `interference-measurement-input`. The comparison has kind `interference-comparator`
@@ -86,17 +107,50 @@ completion establishes operation connectivity and algebraic consistency only.
 
 ### Required research stages
 
+The controller route declaration is `src/ravel/data/controller/routes/research.json`.
+It places `research.loop` in a `subgraph` step, ordinary children in `route` steps
+with their own CHECK-IN 1, and final meta-review, integrity and parent completion
+after the joins. Preparation binds the adopted source-pinned research request before
+CI1. The owned adapter invokes the loop with checkpoints under the protected run
+store. Each embedded role/tool call and ordinary child enters `controller.step.run`;
+the existing campaign gates, exact packets and ordinary child approvals still apply.
+The adapter authenticates adopted bytes and the protected dispatch observation,
+including the actual actor, session, observed model and isolation. Missing custody
+stays pending. A completed loop reports qualified progress and keeps every original
+unresolved deliverable visible to the controller's sole sink.
+
+Each stage role needs a distinct observed actor, session and packet. The stage
+checks requested models only as planning metadata; completion checks the actual
+receipts. Same-family reviewers receive the label `separate session, same model
+family`. An unknown observed family stays unknown and does not veto an otherwise
+separate session. RDJ critic and verifier actors and sessions must also differ.
+
+New campaign history records are authenticated deltas. Use
+`research_cycle.historical_state(root, revision)` to read a prior state and
+`research_cycle._load_history(root)` to authenticate the current history. A raw
+history record is no longer necessarily a complete campaign state. The structural
+journal ceiling derives from declared calls, stages, seats, rounds and experiments,
+is never below the former fixed bound of 128 revisions, and is checked at every commit
+and again for every revision on replay. It does not grant more resources. A real resource or coordinator-turn exhaustion
+produces `research_bounded_synthesis`, retaining the complete obligation census.
+That synthesis carries no delivery receipt; controller delivery still requires
+the sole sink.
+
+Current-state replay can reuse a previously verified state only after rehashing
+every immutable record and matching the exact head. File metadata grants no reuse.
+Historical selections still authenticate the complete chain through its current head.
+
 `prepare` binds `src/ravel/data/research/protocol-default.json`. The campaign retains the binding in
 `<campaign>/research/protocol.json` and its immutable state history. Typed research, method-study,
 anomaly-search and method-performance parents also acquire the protocol through direct
 cycle creation. An absent protocol, changed evaluator or missing stage artifact blocks the
 governed operation. Legacy cycles without a research parent retain their original contract.
 
-The stages run in this order: limitation census, ideas, baseline, screen, validation,
+The stages run in this order: `limitation_census`, ideas, baseline, screen, validation,
 critique experiments, acceptance, meta-review and integrity. Each stage declares its roles,
 required inputs, outputs and review-round limit in data. Every stage needs its complete
 report and actual role receipts. A stage marked `not_applicable` needs a reason and the
-same role review. The two initial idea streams run in one Graph with two workers and
+same role review. The two initial idea streams run as separate charged model calls with
 separate source contexts. Neither receives the other's proposal before both finish.
 
 Before experiments, use `research-protocol preregister` to bind a
@@ -104,18 +158,18 @@ Before experiments, use `research-protocol preregister` to bind a
 limit-setting, likelihood-building and cutflow-comparison evaluators; record a reason for
 each inapplicable evaluator in `evaluator_not_applicable`. The baseline report retains
 three columns: our result, our reproduction and the published result. Each available
-column carries its quantity, unit, uncertainty and source. An unavailable column says why.
+column carries its quantity, unit, uncertainty and source. An missing column says why.
 
 Screens name their subset and omitted regimes. Promote, discard and engineer decisions
 carry RDJ receipts; promotion and selection require R2, other screen decisions R1.
-Engineering names its mutable paths. Validation retains withheld cells, ordered evolution
+Engineering names its mutable paths. Validation retains blinded cells, ordered evolution
 rounds and its success/round stopping rule. Selection uses reviewed dominance. Register
 critique findings with `research-protocol register-concerns`: each finding points to a
 complete ordinary experiment declaration. Its result closes the concern only after the
 ordinary experiment and scientific review complete.
 
 An accepted mechanism claim requires an ablation arm without the mechanism, fixed generic
-controls and explicit attribution by the ablation critic. Novelty orders ideas; it cannot
+controls and explicit attribution by the ablation critic. Novelty orders ideas; it must not
 accept a result. Open findings remain exploratory until an R3 decision and independent
 review. Meta-review and integrity retain source-bound receipts for re-execution, reference
 checks and paper-versus-code alignment. The shared world digest carries current reviewed
@@ -137,13 +191,21 @@ and `deliver-external` route. Deliver each role from its fresh context, then rep
 Programmatic hosts use `run_protocol_stage`; preparation and adoption are also exposed as
 `stage-prepare` and `stage-complete`. Calls retain the campaign's cumulative ledger and clock.
 
-Named stage roles currently run as critic/verifier Graph packets. A dedicated role worker
+`prepare_stage(..., role_models={role_id: {"model": ..., "reasoning_effort": ..., "adapter": ...}})` and the `stage-prepare` request's `role_models` field accept only declared roles and those three settings. Omitted roles retain the common settings. Authorize the exact action returned by `research_protocol.stage_action(stage_id, artifact)` through the ordinary RDJ path before preparing the stage.
+
+Before a prospective study dispatch, call `research_evaluation.prepare_dispatch_action(campaign, experiment_id)` and submit its returned pinned action to the existing RDJ workflow. This only prepares decision bytes. `run_experiment` still requires the current ordinary study approval, current RDJ authorization and the original exposure checks. A spent confirmation remains spent. Before responding to a research-loop outside-work interrupt, prepare `research_orchestrator.delivery_action(campaign, failure_id, response)` and obtain its decision in the original parent; responding never grants execution approval.
+
+**Idea streams.** The `ideas` stage accepts only stream receipts derived from actual charged model calls. Run each stream as an ordinary Graph (one model node presented the original task and the `limitation_census` sources, no peer ideas), then call `research_protocol.idea_dispatch_receipt(campaign, stream, ideas, origin, out)` with the unchanged Graph result as `origin`. Stage preparation, completion and `check:seed_to_test` refuse author-shaped, stale, foreign-campaign or missing stream receipts.
+
+**Graph-engine stage resume.** On the graph engine a protocol stage pauses for outside role delivery with a `research-stage-delivery-required` interrupt. Before responding, prepare `research_orchestrator.stage_delivery_action(campaign, payload, response)` and decide it through the ordinary RDJ workflow in the run that owns the loop's decisions (the original parent of a goal-bound campaign; an unbound campaign itself). Responding grants no approval: the stage still completes only through `complete_stage` and its role, session and decision checks.
+
+Named stage roles  run as critic/verifier Graph packets. A dedicated role worker
 can take the same stage role IDs and input/output requirements. `research_protocol.gate_errors`
 answers the `research_choice` decision gate; it reads the protocol and never dispatches.
 These software controls do not qualify native tools, scientific results or research
 effectiveness.
 
-`intake.execution_handoff(contract_pin, base_dir=...)` names the default `research_orchestrator.prepare_open` and `open_research` APIs for research, method-study and anomaly-search parents. Reproduction, reinterpretation, scan, survey, summary-plot, projection and missing-routine parents take the analysis intake and CHECK-IN 1; the [route table](../start.md#which-route-a-request-takes) sets the order. A host may still open this coordinator for them, and each retains its original scientific mode, complete original obligations, figures, statistical requirements and check-in gates. Calculations and named operations keep their intake-planner route, including the validated literal short path. Scoped generation-only and likelihood-only operations do not acquire this whole-goal coordinator. Preparation is an intermediate result; it grants no compute or original-task acceptance. The route table for calculations, research and challenges is in [intake and challenges](../../reference/intake-and-challenges.md).
+`intake.execution_handoff(contract_pin, base_dir=...)` names the default `research_orchestrator.prepare_open` and `open_research` APIs for research, method-study and anomaly-search parents. Reproduction, reinterpretation, scan, survey, summary-plot, projection and missing-routine parents take the analysis intake and CHECK-IN 1; the [route table](../start.md#which-route-a-request-takes) sets the order. A host can still open this coordinator for them, and each retains its original scientific mode, complete original obligations, figures, statistical requirements and check-in gates. Calculations and named operations keep their intake-planner route, including the validated literal short path. Scoped generation-only and likelihood-only operations do not acquire this whole-goal coordinator. Preparation is an intermediate result; it grants no compute or original-task acceptance. The route table for calculations, research and challenges is in [intake and challenges](../../reference/intake-and-challenges.md).
 
 ```python
 from ravel.workflow import research_orchestrator
@@ -157,7 +219,7 @@ result = research_orchestrator.open_research(
 )
 ```
 
-`campaign` has `id`, `budget` (`calls`, `output_tokens`, `wall_seconds`, `native_attempts`), `max_experiments`, `exploration_every`, `required_experiments` and `premises`. `runtime` has the exact `model`, `reasoning_effort`, configured `adapter`, `max_output_tokens` and `max_wall_seconds`. `review` has `arguments` for the existing scientific judgment API and `allow_control`; control-only transport is never a scientific reviewer. Each evidence row is `{pin, purpose}` with a complete absolute `path/sha256/size` pin and purpose `model_context`, `execution_dependency` or `withheld_evaluation`. Withheld evaluators do not enter designer inputs. `candidate_modes=None` selects all actual source-present ordinary operations; source presence establishes neither installed readiness nor physics validity.
+`campaign` has `id`, `budget` (`calls`, `output_tokens`, `wall_seconds`, `native_attempts`), `max_experiments`, `exploration_every`, `required_experiments` and `premises`. `runtime` has the exact `model`, `reasoning_effort`, configured `adapter`, `max_output_tokens` and `max_wall_seconds`. `review` has `arguments` for the existing scientific judgment API and `allow_control`; control-only transport is never a scientific reviewer. Each evidence row is `{pin, purpose}` with a complete absolute `path/sha256/size` pin and purpose `model_context`, `execution_dependency` or `withheld_evaluation`. Blinded evaluators do not enter designer inputs. `candidate_modes=None` selects all actual source-present ordinary operations; source presence establishes neither installed readiness nor physics validity.
 
 The CLI exposes the same preparation and continuation:
 
@@ -222,37 +284,82 @@ On the graph engine:
 Each stage role takes its model from a `runtime.roles` row, then the first model of its card
 tier's `runtime.tiers` entry, then the single runtime. A `runtime.tiers` entry is one row or a
 list of rows. The tier a role needs comes from its card. The tier a model serves is the best tier
-whose `runtime.tiers` entry lists it; the single runtime model serves judgment. A role row cannot
+whose `runtime.tiers` entry lists it; the single runtime model serves judgment. A role row must not
 declare a tier. A judgment-tier card on a model listed only under a lower tier, or not listed, is
 refused before dispatch.
 
-At R2 and above (screen, validate, acceptance), each critic is checked against its proposer with
-`transport_registry.check_distinct_families` before dispatch, on every adapter including
-host-delivered ones. A shared family is refused, and so is a family RAVEL cannot read from the
-model identifier. Before `complete_stage`, both engines repeat the check on the models the
-stage's roles were observed on. Distinct-family critics need per-role stage models, so an R2 stage
-whose roles need different models holds with `awaits_prepare_stage_role_models` until
-`research_protocol.prepare_stage` accepts `role_models`.
+Independence rests on observed sessions, never on model families. Every stage role,
+including at R2 and above a critic and each proposer it judges, must have a distinct observed
+actor, session and packet. Preparation records requested models as pending observations.
+Before `complete_stage`, both engines run
+`research_coordinator_decisions.receipt_family_check` on the campaign's own current role
+receipts, including earlier producers through their current bound receipts; `complete_stage`
+repeats the check. Every session identity a receipt observed (reported CLI session, session,
+invocation, recomputed CLI session and launcher-reported session) is compared. Model-family
+relationships are descriptive labels: `same`, `different` or `unknown`; families are never
+compared to grant or refuse credit. A same-family critic with separate observed custody can
+proceed; reused sessions, actors, packets, a role lacking a located delivery receipt, or stale
+authority refuse. A caller must not supply receipts to either completion check.
+Each stage role receives its own model, effort, isolated transport and complete packet.
+
+Ordinary child contracts retain original parent custody and epoch, bind their
+actual operation before approval, and leave parent obligations unresolved. Current architecture
+receipts join actual stage, RDJ, execution and final-review records; completeness does not
+certify scientific efficacy, whole-parent acceptance or whole-host enforcement.
 
 ## Decisions, effects and scientific meaning
 
-Before experiments, a real designer produces the complete typed scientific context and maps every original obligation to quantities, method, source and unresolved criteria. Methods, figures, software, comparisons and notes remain in that map. The initial planning-status census cannot substitute for measurable scientific evidence. Fresh critic and verifier contexts inspect the method with actual Host presentation receipts; missing mandatory material or an unsupported method sends it back. Separate citation-led and speculative idea requests receive no peer idea response. Later turns receive the complete current evidence, negative outcomes, unresolved criticism, parent obligations and cumulative resource ledger.
+### Loop budget and capability catalogue
+
+Under the controller the research route's binding declares a loop budget before CHECK-IN 1
+(`ravel.controller.routes.research.loop_budget`). It records the maximum coordinator cycles and child
+experiments, the campaign resource ceilings and a cost ceiling. It also records the projected cost of one
+cycle, which is one next-action decision plus one protocol-stage round, and of each declared child. A child
+is projected at the engagement tier the policy computes from its own code-checked facts, and unknown facts
+mean the full tier. The plan and its campaign step carry the same sealed budget. CHECK-IN 1 shows it to the
+approver and its plan critic, and the approval binds its digest. The research controller admits every cycle
+and every child against the approved budget before dispatch. Each admission commits the item's projected
+high cost. A cycle or child that no longer fits ends the campaign through its ordinary qualified bounded
+synthesis. Every governed action also requires a typed `information_gain` judgment: `decision` is
+`continue` or `stop`, `expected_gain` and `cost_justification` explain the qualitative comparison against
+the projected cycle cost, and `evidence_input_ids` names distinct inputs actually presented to that seat.
+The controller verifies their bytes and records the judgment with the observed output, receipt, approved
+budget and cost projection. `stop` permits only `synthesize` or `progress`; a continuing action paired
+with `stop` is refused before its effect and ends qualified with boundary kind `research_information_gain`.
+Further cycles and children must not spend after a recorded stop, even with unused budget. A subsequent
+cycle also requires the prior cycle's admitted judgment. The chosen effect rechecks the protected
+decision on checkpoint reuse. Missing evidence or a contradictory `continue`/terminal action refuses.
+This is a reasoned qualitative assessment, without a universal numerical utility threshold. Projections are
+planning bounds; every governed step still reserves its actual spending against the operator's envelope.
+
+Every deciding seat's decision core carries `capabilities`, the generated catalogue
+(`ravel.controller.capabilities`) of every registered route, operation and tool with its applicability facts
+and costs. It also carries what the campaign's own intake facts call for. Capabilities compose: every
+applicable route, operation and tool is listed. Under the controller, a coordinator cycle whose presented
+core lacks the current catalogue or the loop budget is refused.
+
+Name a tool by its declared title, catalogue name or canonical ID. Exact identity matching accepts case
+variations and offers every operation linked to that tool or naming it in its signature. The resulting
+applicability view guides the method decision; the controller checks installation, qualification and effect
+authority at their execution boundaries.
+
+Before experiments, a real designer produces the complete typed scientific context and maps every original obligation to quantities, method, source and unresolved criteria. Methods, figures, software, comparisons and notes remain in that map. The initial planning-status census must not substitute for measurable scientific evidence. Fresh critic and verifier contexts inspect the method with actual Host presentation receipts; missing mandatory material or an unverified method sends it back. Separate citation-led and speculative idea requests receive no peer idea response. Later turns receive the complete current evidence, negative outcomes, unresolved criticism, parent obligations and cumulative resource ledger.
 
 Source preparation invokes the existing allowlisted Host tools through ordinary campaign-charged Graphs. A model can emit prospectively authored JSON configurations only with actual presented source attribution. Those bytes retain configuration provenance; they are not retrieved efficiencies, calibration, covariance, cross sections or observations. Exact prepared output identities and the complete tool result enter a later design turn. Missing inputs are retained actual preparation failures rather than successful empty assets.
 
 The next action can prepare an ordinary experiment, run the actual affordable selection, review it, diagnose an actual failed attempt, revise a premise or hypothesis, prepare source material, invoke a composed routine/manuscript/knowledge service, or deliver progress. Ordinary scientific execution uses the existing plan, CHECK-IN 1 approval, admission, worker, native process custody and observation. Delegated machine approval remains distinct from independent physicist judgment. An unresolved approval, lease, external role delivery or native effect interrupts the coordinator; a resume payload does not approve it.
 
-An ordinary repeat uses `invoke(None)` to re-enter the paused node without supplying an interrupt response. The node checks the actual original approval, worker state or role receipt again. It remains paused while that predicate is unmet. Current review state is checked before and after a review pause; a framework checkpoint or supplied routing response never replaces the ordinary receipt. The retained first installed-runtime batch exposed the earlier automatic-None response defect; its failure remains separate from this unexecuted source repair.
+An ordinary repeat uses `invoke(None)` to re-enter the paused node without supplying an interrupt response. The node checks the actual original approval, worker state or role receipt again. It remains paused while that predicate is unmet. Current review state is checked before and after a review pause; a framework checkpoint or supplied routing response never replaces the ordinary receipt. The retained first installed-runtime batch records the earlier automatic-None response defect; that failure record stays separate from this source repair.
 
-LangGraph owns routing and SQLite checkpoint history. Canonical Graph calls, campaign resource reservations, immutable action commitments, review journals, study receipts and task-completion records own effect truth and authority. Effects run after the selecting Graph releases its campaign lock. On reentry, known effects are reconstructed from those services; an unknown started effect is held rather than repeated. A terminal checkpoint cannot skip the public return's current-source/effect checks. Original `research_cycle.synthesize`, scientific report final gates and `task_completion.require_final` are unchanged. Progress retains every failed/open/inconclusive experiment and the complete parent denominator; checkpoint completion cannot discharge an original question.
+LangGraph owns routing and SQLite checkpoint history. Canonical Graph calls, campaign resource reservations, immutable action commitments, review journals, study receipts and task-completion records own effect truth and authority. Effects run after the selecting Graph releases its campaign lock. On reentry, known effects are reconstructed from those services; an unknown started effect is held rather than repeated. A terminal checkpoint must not skip the public return's current-source/effect checks. Original `research_cycle.synthesize`, scientific report final gates and `task_completion.require_final` are unchanged. Progress retains every failed/open/inconclusive experiment and the complete parent denominator; checkpoint completion must not discharge an original question.
 
 ## Domain services and scientific job DAGs
 
-The finite service catalogue resolves only located public source functions. Paper-first routine construction and explicit source reuse use `research_tools.routine_workflow`/`routine_step`; manuscript authoring/review/build/finalization uses `manuscript_production`; structural proposals use `research_tools.prepare_model_proposals`. These neighboring packages must be included as exact reviewed additive joins before their actions are available. Their source packages, current controls and native/scientific prerequisites remain separate. No moving donor is imported to make an unavailable action look supported.
+The finite service catalogue resolves only located public source functions. Paper-first routine construction and explicit source reuse use `research_tools.routine_workflow`/`routine_step`; manuscript authoring/review/build/finalization uses `manuscript_production`; structural proposals use `research_tools.prepare_model_proposals`. These neighboring packages must be included as exact reviewed additive joins before their actions are available. Their source packages, current controls and native/scientific prerequisites remain separate. No moving donor is imported to make a missing action look supported.
 
-The finite catalogue includes source-defined argument and return contracts. Manuscript author returns the writer binding; collect returns the complete package and its package pin. Build returns an ordinary plan, not a completed build receipt. Review retains the complete preparation envelope but executes its nested ordinary role binding. Consume and finalization use those ordinary role bindings, with a real observed campaign experiment/rundir association. Finalization still requires actual independent roles, current PDF build, CI3 and whole-parent acceptance; preparation cannot substitute for any gate.
+The finite catalogue includes source-defined argument and return contracts. Manuscript author returns the writer binding; collect returns the complete package and its package pin. Build returns an ordinary plan, not a completed build receipt. Review retains the complete preparation envelope but executes its nested ordinary role binding. Consume and finalization use those ordinary role bindings, with a real observed campaign experiment/rundir association. Finalization still requires actual independent roles, current PDF build, CI3 and whole-parent acceptance; preparation must not substitute for any gate.
 
-Original execution-only and withheld inputs stay in complete authenticated custody. If a proposed experiment needs them, its first action materializes the exact study and the existing adapter's full exposure inventory without admitting an experiment. The inventory, configuration and prepared-experiment commitment enter a new charged designer turn; private bodies do not. That turn selects the committed prepared experiment, and the unchanged exposure/model-input admission rules check the full population. A guessed future-study hash, missing inventory, changed private bytes or private content in the model packet refuses.
+Original execution-only and blinded inputs stay in complete authenticated custody. If a proposed experiment needs them, its first action materializes the exact study and the existing adapter's full exposure inventory without admitting an experiment. The inventory, configuration and prepared-experiment commitment enter a new charged designer turn; private bodies do not. That turn selects the committed prepared experiment, and the unchanged exposure/model-input admission rules check the full population. A guessed future-study hash, missing inventory, changed private bytes or private content in the model packet refuses.
 
 Method reviews use supported model parameters and actual input/packet subject identities. Both indexed and wholly inline role contexts receive explicit presentation observations from actual Host request content; the observation states presentation rather than asserting model reading. Premise revisions bind their authenticated selecting decision and before-state to the existing immutable campaign event. If an effect checkpoint is interrupted after that commit, reentry reconstructs that exact event instead of revising twice; a different decision or unresolved effect is held.
 
@@ -260,16 +367,22 @@ Ntuple inventory preparation, root-stream and site-workflow remain ordinary oper
 
 ## Required runtime and honest limits
 
-The full host dependency projection requires LangGraph 1.2.14, SQLite checkpoint saver 3.1.1, checkpoint 4.2.0 and LangChain Core 1.6.7. Pydantic 2.14.0 is the shared direct schema dependency. There is no in-memory persistence fallback. Local SQLite uses synchronous checkpoints and one directory-scoped invocation owner. Exact released wheel metadata/source was inspected independently; the older cached Git source is not asserted identical to the pinned release. Root installation and actual fresh-process controls are still required for this source packet.
+The full host dependency projection requires LangGraph 1.2.14, SQLite checkpoint saver 3.1.1, checkpoint 4.2.0 and LangChain Core 1.6.7. Pydantic 2.14.0 is the shared direct schema dependency. Checkpoint persistence uses SQLite exclusively. Local SQLite uses synchronous checkpoints and one directory-scoped invocation owner. Exact released wheel metadata/source was inspected independently; the older cached Git source is not asserted identical to the pinned release. Check the selected installed runtime with fresh-process controls.
 
-Existing caps remain prospective admission rules: ordinary Graph 128 inputs, 256 nodes, 10,000 calls and 86,400-second declared wall ceiling; campaign 128 immutable revisions, 32 experiments and 64 hypotheses; a new open request admits 1–64 decisions and at most 32 initial evidence pins. Complete decision material is limited to 1.5 MB and ordinary declaration JSON to 2 MB. Large/binary material uses existing explicitly prepared pages; inventory hashes provide custody, never content-reading credit. If a complete context cannot fit, the operation refuses; it does not truncate obligations or negative evidence. `continue_campaign` currently caps a newly admitted continuation at 3,600 seconds, an existing long-science integration limitation recorded separately for repair. None of these limits licenses renewal of an expired original deadline.
+Existing caps remain prospective admission rules: ordinary Graph 128 inputs, 256 nodes, 10,000 calls and 86,400-second declared wall ceiling; campaign structural journal capacity derived from declared stage seats, rounds, calls and experiments (never below 128 revisions), at most 32 experiments and 64 hypotheses; a new open request admits 1–64 decisions and at most 32 initial evidence pins. Complete decision material is limited to 1.5 MB and ordinary declaration JSON to 2 MB. Large/binary material uses existing explicitly prepared pages; inventory hashes provide custody, never content-reading credit. If a complete context exceeds those bounds, the operation refuses and keeps every obligation and negative outcome whole. `continue_campaign` caps a newly admitted continuation at 3,600 seconds; this long-science integration bound has its own repair record. None of these limits licenses renewal of an expired original deadline.
+
+The coordinator retains complete task/feedback material and its original 1.5 MB decision cap. Extension catalogues retain current source custody without presenting every unrelated body. Use a `source-context` action with `{"modes": [], "extensions": ["replication-prepare"]}` (and optional original `artifacts`) to present explicitly selected complete source bodies in the next ordinary call. Selection must match the original committed catalogue; inventory presence alone grants no reading credit.
+
+`prior_operation_effects` is a chronological list of `{"effect": {"path": ..., "sha256": ..., "size": ...}}` references. Every complete original effect is supplied once as a normal input; follow its digest to the actual presented body, including all failures and feedback. These references confer no reading or scientific authority. The coordinator verifies the original campaign commitment before and after the call. Historical complete inline contexts remain readable. When repeated context bodies exceed the original cap, `context_aliases` records exact local JSON pointers and subtree hashes; every complete unique body stays displayed. `expand_decision_context` reconstructs and checks the full original document before authority checks, with finite byte, node and depth bounds. No task, failure or feedback is truncated.
+
+**Decision material bound.** When the complete decision material still exceeds 1.5 MB after lossless aliasing, the coordinator presents operational metrics by their established summary (`progress.outcome_metrics_summary`) and retains the complete metrics record at the pinned `progress.outcome_metrics_record`; scientific obligations, evidence, failures and feedback stay complete. If it still exceeds the bound, it refuses before any call and names the largest core sections and normal inputs to page.
 
 No author test, framework import, model/provider call, native execution, installation, benchmark run or scientific qualification was performed for this packet. The included controls are executable software proposals for root-supervised runs.
 
 
-A prepared experiment enters a fresh charged designer turn as its actual complete source pin. Admission authenticates the pin's bytes and size, then matches canonical path and hash against the ordinary Graph input records, which carry an input ID rather than size. A copied or replaced preparation cannot substitute for the one original campaign-committed preparation.
+A prepared experiment enters a fresh charged designer turn as its actual complete source pin. Admission authenticates the pin's bytes and size, then matches canonical path and hash against the ordinary Graph input records, which carry an input ID rather than size. A copied or replaced preparation must not substitute for the one original campaign-committed preparation.
 
-Input exposure uses the same complete ordinary scientific and research-tool context dependency closure as the canonical campaign admission. It includes the original tool bundle, API request/context, blueprint and their source files. A worker-only or withheld input stays custody-bound and classified in the complete exposure inventory; its bytes do not enter the model packet. Public source dependencies must actually be ordinary model inputs. The exposure inventory, task/input preparation, model response and software checkpoint confer no scientific acceptance, compute approval or original-task completion.
+Input exposure uses the same complete ordinary scientific and research-tool context dependency closure as the canonical campaign admission. It includes the original tool bundle, API request/context, blueprint and their source files. A worker-only or blinded input stays custody-bound and classified in the complete exposure inventory; its bytes do not enter the model packet. Public source dependencies must actually be ordinary model inputs. The exposure inventory, task/input preparation, model response and software checkpoint confer no scientific acceptance, compute approval or original-task completion.
 
 
 ### Complete typed progress and human rendering
@@ -310,13 +423,13 @@ and validate and publish the returned final record through worker finish.
 
 The chat adapter requires an explicit nonsecret sender identity and request
 binding. Its sender receives the complete provider body, a socket timeout and an
-optional per-call cost cap, and returns `{body, http_status}`. It implements no
-credential discovery or provider SDK. `provider_tools` renders and parses
+optional per-call cost cap, and returns `{body, http_status}`. The caller supplies credentials and its provider sender. `provider_tools` renders and parses
 `anthropic`, `gemini`, `chat_completions` and `responses` turns, preserving function
 call IDs and matched tool results. A declared streaming sender must assemble the
 complete delivery or raise; a lost sent stream leaves an ambiguous ledger effect
-and cannot silently retry. Streaming is opt-in through `streaming_declared` and
-`stream_enabled`; current transport declarations do not supply that qualification.
+and must not silently retry. Streaming is opt-in through `streaming_declared` and
+`stream_enabled`, and each transport declaration carries its own streaming
+qualification; the shipped transport declarations leave streaming off.
 
 For text-only producers and judgment roles, set `text_protocol=True`. Each turn
 must contain exactly one JSON object `{"action":"tool_name","args":{}}`.
@@ -324,7 +437,7 @@ Malformed JSON, duplicate keys, multiple actions, unknown tools and invalid
 arguments receive typed action receipts and consume a turn. `submit_final` is a
 local schema-validated return action. It executes no broker tool and has no
 scientific acceptance authority. Supply the actual producer or judgment schema.
-When typed toolbelt schemas are unavailable, `tools=None` projects the trusted
+When typed toolbelt schemas are missing, `tools=None` projects the trusted
 broker action list. Provider-safe names map back to the exact registered action;
 collisions refuse construction. The generic argument object retains the broker
 handler's validation obligation. Explicit schemas and `tool_actions` mappings
@@ -339,7 +452,8 @@ action. The turn or wall ceiling ends the loop with a stop receipt. A cost-cappe
 sender requires an explicit `max_cost_per_turn_usd` reservation; an unpriced sender
 refuses before dispatch. Reservations must fit the remaining cost ceiling. Unknown
 reported cost or a reservation overrun stops further work. The sender must enforce
-its per-call cap; software cannot reconstruct missing provider billing evidence.
+its per-call cap; missing provider billing evidence stays recorded as missing
+and software never reconstructs it.
 
 Model effects live at `.../turn:<n>/model` and broker effects at
 `.../turn:<n>/tool`. The merged effect ledger commits each outcome before the
@@ -347,7 +461,7 @@ framework checkpoint. A checkpoint gap reuses the committed outcome; a started
 effect without an outcome requires reconciliation. Turn receipts keep wire request
 and response digests, raw provider usage, HTTP status and parsed public messages.
 Action and stop receipts have immutable outcome pins because ledger reuse metadata
-may change. Resume revalidates ledger outcomes and checkpoint references, including
+can change. Resume revalidates ledger outcomes and checkpoint references, including
 completed checkpoints. Shared `langchain_guard` checks tracing, callback classes,
 debug, verbose, host and request identities around calls in a fresh Context.
 Framework retries, fallbacks, batches and stream-as-retry are refused.
@@ -402,11 +516,11 @@ interpolation or normalization require a separately stated source-supported test
 
 An original population location descends the actual original study/result
 custody. Its complete entry IDs fix the comparison denominator. Failed reruns,
-missing results, unaccepted roles, unavailable references and unknown error laws
+missing results, unaccepted roles, missing references and unknown error laws
 remain explicit unknown operands. The worker reconstructs fresh values from the
 exact current run, attempt, result and scoped review; an old receipt or a caller
-repinning edited outcome JSON cannot become fresh verification. Duplicate point
-payloads and labels do not supply statistical independence. Supplied deterministic
+repinning edited outcome JSON must not become fresh verification. Duplicate point
+payloads and labels require independent evidence for statistical independence. Supplied deterministic
 or interval laws retain their stated applicability; no coverage or physics proof
 is inferred.
 
@@ -421,7 +535,7 @@ The optional `replication_request` field binds that producer and actual executio
 lineage; it grants no authority by itself. Original failures, full parent task and
 unknown source/oracle quality survive every preparation and comparison.
 
-The check contract may declare `custody_limits` with `max_files`, `max_bytes`
+The check contract can declare `custody_limits` with `max_files`, `max_bytes`
 and `max_metadata_bytes`. These bound one complete original/fresh operational
 union, including ending checks. The existing default is 4,096 files, 16 GiB
 and 2,000,000 bytes per metadata document; the supported explicit ceilings are
@@ -430,7 +544,7 @@ compatible policy and remains held if it exceeds that policy. These limits
 change neither scientific text/presentation allowances nor approval. Failed
 execution inputs and partial outputs stay in the complete retained census.
 
-A classified original or fresh study gives the new comparison its own complete input-exposure manifest. The producer retains the inherited authenticated tool context, rechecks all original/fresh classifications, and keeps the strictest non-model purpose for identical payloads. New outcome/request/operational bytes are execution-only. The existing binder and exact-study/complete-input/model-presentation guards verify the new manifest; an original-study manifest cannot substitute for it. Intended emitted bytes are committed before binding and rechecked at ending. No source classification, OS blinding, scientific review or execution authority is inferred from comparison preparation.
+A classified original or fresh study gives the new comparison its own complete input-exposure manifest. The producer retains the inherited authenticated tool context, rechecks all original/fresh classifications, and keeps the strictest non-model purpose for identical payloads. New outcome/request/operational bytes are execution-only. The existing binder and exact-study/complete-input/model-presentation guards verify the new manifest; an original-study manifest must not substitute for it. Intended emitted bytes are committed before binding and rechecked at ending. No source classification, OS blinding, scientific review or execution authority is inferred from comparison preparation.
 
 
 ## Complete quantitative predictive checks
@@ -447,9 +561,9 @@ A cheap prospective calculation can use the existing charged Host tool:
 
 The binding JSON and **all** prediction, law, numerical, objective and allocation sources must be normal authenticated Graph inputs. This route has the declared default resource limits, at most256MiB checking allocation, and a wall allocation within the configured Host timeout. It makes no model call. Larger complete correlated calculations use ordinary `ravel plan`, `ravel approve` and `ravel run` with `mode:"quantitative-predictive"` and `task={schema_version:1,binding:{contract:pin3,resources:pin3}}`; its normal review policy, goal and original execution budget still apply. The full Python installer already supplies the required NumPy1.26.4 and SciPy1.14.1. The numerical contract additionally binds the selected actual module/extension sources; an installed version string alone does not attest them.
 
-`research_cycle.bind_quantitative_selection(root, experiment_id, graph_root=..., node_id=...)` consumes an actual campaign-charged tool result. Alternatively `rundir=...` consumes an already charged, observed successful ordinary quantitative operation under the same goal and binding. The coordinator's `preparation-tool` and `predictive-selection` actions invoke these existing paths. `select` performs no calculation: it uses committed current selection evidence only after ordinary eligibility. A supplied objective may request directed Poisson KL, common-covariance Gaussian distance, or the achieved power of an admitted scalar threshold. Missing objectives, incompatible law/population/objective scopes and unknown metrics retain the categorical/cost ordering. KL, distance, zero cost and a model's preference supply no universal utility or calibrated information gain.
+`research_cycle.bind_quantitative_selection(root, experiment_id, graph_root=..., node_id=...)` consumes an actual campaign-charged tool result. Alternatively `rundir=...` consumes an already charged, observed successful ordinary quantitative operation under the same goal and binding. The coordinator's `preparation-tool` and `predictive-selection` actions invoke these existing paths. `select` performs no calculation: it uses committed current selection evidence only after ordinary eligibility. A supplied objective can request directed Poisson KL, common-covariance Gaussian distance, or the achieved power of an admitted scalar threshold. Missing objectives, incompatible law/population/objective scopes and unknown metrics retain the categorical/cost ordering. KL, distance, zero cost and a model's preference supply no universal utility or calibrated information gain.
 
-The resource JSON is `quantitative_resource_allocation/v1`, with `limits`, `wall_seconds` and `max_rss_mib`. `default_resources()` declares defaults of64 coordinates,256 sources,8MiB per source,64MiB unique source bytes,4×64² matrix elements,64³×16 work units,16 hypothesis pairs and16 finite states; these are configurable resource defaults, not physics-schema ceilings. A raised contract limit cannot raise its effective allocation. Ordinary prospective approval may admit a larger full population within the original campaign and process budget. Oversized populations remain intact with a `pending_resources` obligation; cells and correlated blocks are never truncated or split as independent.
+The resource JSON is `quantitative_resource_allocation/v1`, with `limits`, `wall_seconds` and `max_rss_mib`. `default_resources()` declares defaults of64 coordinates,256 sources,8MiB per source,64MiB unique source bytes,4×64² matrix elements,64³×16 work units,16 hypothesis pairs and16 finite states; these are configurable resource defaults, not physics-schema ceilings. A raised contract limit must not raise its effective allocation. Ordinary prospective approval can admit a larger full population within the original campaign and process budget. Oversized populations remain intact with a `pending_resources` obligation; cells and correlated blocks are never truncated or split as independent.
 
 The worker emits complete `quantitative-check.json`/`.md` companions for an attached check; a prospective ordinary operation emits its complete `result.json` and `<output>/quantitative-report.md`. Original result/source/intended-output commitments are checked again at common publication. `observe`, feedback, protocol status and progress preserve these diagnostics and every failure or unissued member. Quantitative delivery is evidence for critique, additional evidence requests and premise/candidate revision. Independent judgment, applicability, whole-goal completion and publication gates remain unchanged. No new native simulation or statistical fit is implied by this source implementation.
 
@@ -469,7 +583,7 @@ The [research protocol contract](research-protocols.md#confirmation-register-and
 defines mandatory P01–P17 binding, prospective selection and confirmation,
 receipt-computed stops, the hypothesis register, operator yields and allocation.
 Use `research_protocol.commit_selection` before confirmation and the evaluator's
-`reserve_confirmation` seam before opening withheld results. Claims retain N,
+`reserve_confirmation` seam before opening blinded results. Claims retain N,
 selection receipts and selected confirmation results, including a null funnel.
 Screen launch requires the exact R1 receipt recorded by `authorize_screen`.
 `bind_allocation` binds current queue recommendations after protecting validation
@@ -498,7 +612,7 @@ because terminal child custody can precede supervisor shutdown. An ambiguous wor
 `ravel work reconcile --rundir RUN --node NODE --attempt N --evidence PIN.json
 --reason REASON`; the evidence file contains a run-relative path and its SHA256.
 
-The worker refuses execution if the OS confinement probe cannot confirm denied
+The worker refuses execution if the OS confinement probe fails to confirm denied
 run/custody reads, denied writes outside outputs and scratch, and denied IP
 networking. The transport adapter must provide `prepare_launch(rundir, spec,
 workspace)` before live CLI dispatch is available. Model-loop and MCP consumers
@@ -514,7 +628,7 @@ The role's existing allowlist must grant the action. The supervisor constructs
 `knowledge_broker.create(rundir, workspace, role=role_id, **broker_options)`;
 it retains broker dispatch, budgets, replay and receipt custody. The result is
 a pinned JSON output with a run ID, node, attempt, role and source-policy hash.
-The receipt's derivation is `retrieval`. Worker arguments cannot choose an
+The receipt's derivation is `retrieval`. Worker arguments must not choose an
 atlas file, a different run, an external plan file or a lower retrieval floor.
 Use inline `plan_check` objects. Unbound terminal queries retain their existing
 behavior; this provider does not install an MCP server.
@@ -533,20 +647,20 @@ The whole canonical row, including paths, scope, origin and evidence, enters
 Before copying supplied files, worker materialization calls
 `knowledge_broker.filter_inputs(rundir, workspace, spec)`. It tests both the
 original source pin and the destination alias and retains the alias metadata
-in supervisor custody. A later copy under that alias cannot grant broker read
+in supervisor custody. A later copy under that alias must not grant broker read
 access. Path globs also match case-folded names, and a pin whose content digest
-equals a glob-withheld run file is withheld under any other name, including a
+equals a glob-blinded run file is blinded under any other name, including a
 copy, a hard link or a live-workspace path. Bundle providers call `SourceBoundBroker.filter_sources(items,
 surface="bundle")` before opening members; inventories use
 `surface="inventory"`. The returned first list is the permitted membership,
 and the second contains content-free omission records with refusal receipts.
-This filtering seam is available to bundle builders; it does not create a
-bundle builder. Filtering must run in the trusted dispatcher before worker
+Bundle builders call this filtering seam; each bundle builder is constructed
+separately. Filtering must run in the trusted dispatcher before worker
 execution, since its source-check action is temporarily granted for receipting.
 
-Direct requests for withheld knowledge and blocked reads return
+Direct requests for blinded knowledge and blocked reads return
 `forbidden_source`, naming the policy and violated-row hashes. Broader retrieval
-answers omit withheld content and carry a content-free `withheld` census in
+answers omit blinded content and carry a content-free `withheld` census in
 their pinned receipt output. Filtering precedes ranking and limits. Reviewer,
 critic and verifier roles receive no lessons. Bound queries append IDs,
 digests and refusals to `<rundir>/knowledge/served.jsonl` and a supervisor custody ledger;
@@ -569,7 +683,7 @@ The broker opens every path from the workspace descriptor without following
 symlinks and matches forbidden sources against the normalized path. Its repeat
 detector digests `outputs/` only, walked by descriptor; scratch writes are not a
 state change. A broker call whose custody receipt landed before its state pin
-adopts that receipt on replay. Declared sandbox read roots may only narrow the
+adopts that receipt on replay. Declared sandbox read roots can only narrow the
 tool runtime paths. The macOS profile grants metadata reads only on ancestor
 directory entries and the readable roots. The denial probe reads, and must be
 refused, the worker's custody record and ledgers, the state store, the run tree,
@@ -593,7 +707,7 @@ stays ambiguous and needs explicit reconciliation. Only an exception with
 `not_dispatched` (`effect_ledger.NotDispatched`) or an
 `agent_graph.ReceiptedFailure` carrying a durable failure receipt closes the call
 as failed, and the graph then retries under a new attempt. A failed
-reconciliation cannot close an effect the ledger records as completed. A worker
+reconciliation must not close an effect the ledger records as completed. A worker
 reservation that was never dispatched refunds its node attempt and call.
 
 Agent-node worker receipts carry the ledger effect's `identity_sha256` and
@@ -629,10 +743,20 @@ supply actual prompt-turn audit evidence before transcript completeness can be
 claimed; the core records the dispatch request and discloses unreported usage.
 
 The hypothesis board binds the initial phase with `agent_worker.bind_season` before launch.
-Sealed peer reads are denied even when participant attestation is unavailable;
+Sealed peer reads are denied even when participant attestation is missing;
 independence labels require distinct sessions from custody-registered transport
 receipts with confirmed isolation. Board actors come from the trusted binding.
 Artifact and post bytes remain data. Run the bounded software control with
 `python -m ravel.validation.check_authority_boundary`; it covers broker admission
 and receipt projection. Downstream gates and work-order producers must separately
 verify their typed inputs. These software controls grant no scientific approval.
+
+## Child engagement planning
+
+Preparation retains each child's own original `contract` and `reading` in the
+child-request output. Include `engagement_planning` with the complete controller
+`plan`, validated `method` and bound `cost` forecast using the
+[reviewed engagement planning contract](scientific-studies.md#reviewed-engagement-planning-inputs).
+The controller derives each child's facts from adopted preparation, presents its
+complete proposal to the plan critic and prices its own tier in the loop budget.
+Child dispatch checks the reviewed proposal, exact execution plan and reservation.

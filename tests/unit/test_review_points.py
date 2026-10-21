@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from inert_dispatch import inert_dispatch  # noqa: F401
+
 
 def module():
     return importlib.import_module('ravel.workflow.review_points')
@@ -109,7 +111,7 @@ def test_unsafe_parallel_work_refused(mutation):
     with pytest.raises(ValueError): rp.derive(facts(nodes=[{'id': 'N1', 'fan_out': fan}]))
 
 
-def test_resume_only_missing_roles_stable_parallel_groups(tmp_path):
+def test_resume_only_missing_roles_stable_parallel_groups(tmp_path, inert_dispatch):
     rp = module()
     run(tmp_path, claims=[{'id': 'C1', 'kind': 'agreement'}])
     points = rp.pending(tmp_path)
@@ -172,11 +174,12 @@ def test_human_manual_review_is_distinct_from_transport_review(tmp_path):
     with pytest.raises(ValueError): rp.deliver(tmp_path, {'verdict': 'accept'})
 
 
-def test_same_session_cannot_fill_three_votes(tmp_path):
+def test_same_session_cannot_fill_three_votes(tmp_path, inert_dispatch):
     rp = module(); run(tmp_path, claims=[{'id': 'C1', 'kind': 'prediction'}])
     points = [p for p in rp.pending(tmp_path) if p['row'] == 4]
     for p in points: receipt(tmp_path, p['id'], p['roles'][0]['role'], session_id='same')
-    assert len([p for p in rp.pending(tmp_path) if p['row'] == 4]) == 2
+    # A context that served more than one review seat is independent for none of them.
+    assert len([p for p in rp.pending(tmp_path) if p['row'] == 4]) == 3
 
 
 def test_unknown_host_or_missing_role_capability_is_named(tmp_path):
@@ -204,7 +207,7 @@ def test_unregistered_epoch_two_judgment_uses_plan_points(tmp_path):
     assert result['execution_authorized'] is False
 
 
-def test_verifier_waits_for_entire_first_pass(tmp_path):
+def test_verifier_waits_for_entire_first_pass(tmp_path, inert_dispatch):
     rp = module(); run(tmp_path, claims=[{'id': 'C1', 'kind': 'agreement'}])
     points = rp.pending(tmp_path)
     verifier = next(p for p in points if p['row'] == 4 and p['roles'][0]['role'] == 'skeptical-verifier')

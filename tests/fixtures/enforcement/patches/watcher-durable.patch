@@ -1,0 +1,42 @@
+--- a/src/ravel/workflow/preflight_watcher.py
++++ b/src/ravel/workflow/preflight_watcher.py
+@@ -113,8 +113,39 @@
+     return ("pass" if ok else "fail"), checks
+ 
+ 
++def durable_target_errors(rundir, target):
++    """A durable watcher target is a regular, nonlinked run member outside transient scratch."""
++    from pathlib import Path
++    if not target:
++        return ['watcher_target_not_durable']
++    root, path = Path(rundir).resolve(), Path(target).absolute()
++    try:
++        relative = path.relative_to(root)
++    except ValueError:
++        return ['watcher_target_not_durable']
++    if (not path.is_file() or any(parent.is_symlink() for parent in (path, *path.parents))
++            or any(part in ('scratch', '.work', 'tmp') for part in relative.parts)):
++        return ['watcher_target_not_durable']
++    return []
++
++
++def _controller_watcher(rundir):
++    try:
++        from ravel.controller.store import controller_owned
++    except ModuleNotFoundError as exc:
++        if exc.name in {'ravel', 'ravel.controller'}:
++            return False
++        raise
++    return controller_owned(__import__('pathlib').Path(rundir)) is not None
++
++
+ def arm_watcher(rundir, name, fire, target):
+     verdict, checks = probe_fire_command(fire, target)
++    if _controller_watcher(rundir):
++        durable = durable_target_errors(rundir, target)
++        if durable:
++            verdict = 'fail'
++            checks.append({'name': 'durable-target', 'level': 'FAIL', 'msg': '; '.join(durable)})
+     rec = {"schema_version": 1, "generated_utc": _resolve_timestamp(),
+            "generator": "preflight_watcher.py", "generated_by": "preflight_watcher.py --arm",
+            "input_fingerprint": _fingerprint(name, fire, target or ""),

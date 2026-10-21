@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render README Appendix B from src/ravel/data/citations/upstream.json.
+"""Render upstream citation links from src/ravel/data/citations/upstream.json.
 
 The data file is the single source for the upstream reference list; edit it, then re-run this.
 The list sits between the appendix's <summary> line and its closing </details> tag. References are
@@ -14,6 +14,7 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA = os.path.join(REPO, "src", "ravel", "data", "citations", "upstream.json")
 README = os.path.join(REPO, "README.md")
+APPENDIX = os.path.join(REPO, "docs", "architecture", "upstream-tools.md")
 HEADING = "## Appendix B: Citing upstream tools"
 SUMMARY = "<summary>References for each upstream tool</summary>"
 END = "</details>"
@@ -54,21 +55,26 @@ def venue(ref):
 
 
 def render_reference(ref):
-    """One reference: authors, title, venue, then its identifier links."""
-    parts = [ref["authors"]]
-    if ref.get("title"):
-        parts.append(f"“{ref['title']}”")
-    where = venue(ref)
-    if where.startswith("("):
-        parts[-1] += " " + where  # a bare year follows the title, or the authors
-    elif where:
-        parts.append(where)
-    return ", ".join(parts + links(ref)) + "."
+    """Keep exact source identifiers; the data record retains full bibliographic metadata."""
+    return ", ".join(links(ref)) + "."
+
+
+def tool_label(row):
+    """Use the software name without an organizational prefix."""
+    for name in ("SimpleAnalysis", "Combine"):
+        if row["tool"].endswith(" " + name):
+            return name
+    return row["tool"]
+
+
+def tool_purpose(row):
+    return "Public event selections" if tool_label(row) == "SimpleAnalysis" else row["used_for"]
 
 
 def render_row(row, start=1):
     """The tool's entry and the next reference number. A tool without a reference cites its home page."""
-    lines = [f"**[{row['tool']}]({row['link']})**: {row['used_for'][0].lower() + row['used_for'][1:]}."]
+    purpose = tool_purpose(row)
+    lines = [f"**[{tool_label(row)}]({row['link']})**: {purpose[0].lower() + purpose[1:]}."]
     if not row["cite"]:
         lines[0] += f" Home page: <{row['home_page']}>."
         return lines, start
@@ -96,20 +102,52 @@ def render_readme(text, rows):
     return text[:first] + "\n\n" + render_block(rows) + "\n\n" + text[last:]
 
 
+def render_appendix(rows):
+    """A concise tool-to-citation-request index, without names of people or studies."""
+    lines = [
+        "# Upstream tools and citations", "",
+        "Cite the tools used by your study. Each row links the tool and its",
+        "citation source. The [reference list](../../README.md#appendix-b-citing-upstream-tools)",
+        "retains exact identifiers; [citation data](../../src/ravel/data/citations/upstream.json)",
+        "retains the bibliographic metadata and source of each request.", "",
+        "| Tool | Used for | Citation source |", "|---|---|---|",
+    ]
+    for row in rows:
+        tool = tool_label(row)
+        purpose = tool_purpose(row)
+        source = appendix_source(row)
+        lines.append(f"| [{tool}]({row['link']}) | {purpose} | "
+                     f"[{row['basis']}]({source}) |")
+    lines += ["", "Return to the [architecture index](README.md).", ""]
+    return "\n".join(lines)
+
+
+def appendix_source(row):
+    """Keep exact publication identifiers in the existing bibliographic appendix."""
+    if "arxiv.org/" in row["source_url"]:
+        return "../../README.md#appendix-b-citing-upstream-tools"
+    return row["source_url"]
+
+
 def main(argv):
     with open(DATA, encoding="utf-8") as fh:
         rows = json.load(fh)["tools"]
     with open(README, encoding="utf-8") as fh:
         text = fh.read()
     new = render_readme(text, rows)
+    appendix = render_appendix(rows)
+    old_appendix = open(APPENDIX, encoding="utf-8").read() if os.path.isfile(APPENDIX) else None
     if "--check" in argv:
-        if new != text:
-            print("README Appendix B differs from upstream.json; run render_citations.py")
+        if new != text or appendix != old_appendix:
+            print("Upstream citation documentation differs; run scripts/maintenance/render_citations.py")
             return 1
         return 0
     if new != text:
         with open(README, "w", encoding="utf-8") as fh:
             fh.write(new)
+    if appendix != old_appendix:
+        with open(APPENDIX, "w", encoding="utf-8") as fh:
+            fh.write(appendix)
     return 0
 
 

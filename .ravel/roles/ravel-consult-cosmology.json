@@ -33,7 +33,8 @@
         "coverage"
       ],
       "must_read": [
-        "check:validation.validate_task_contract.validate"
+        "check:validation.validate_task_contract.validate",
+        "doc:docs/workflow/steps/cosmology-solvers.md"
       ]
     },
     "model": {
@@ -59,7 +60,9 @@
       "owns": []
     },
     "protocol": [
-      "Advise on source-backed cosmology tool inputs and outputs."
+      "Advise on source-backed cosmology tool inputs and outputs.",
+      "Inspect the requested observables, parameter convention, units, solver inputs and source validity domain. Bind the solver version and required input evidence to the contracted question.",
+      "Return an advisory handoff with the applicable source locators, checked assumptions, required runtime evidence and a bounded next action for the producing seat."
     ],
     "purpose": "Advise on source-backed cosmology tool inputs and outputs.",
     "requires": {
@@ -96,5 +99,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
+  "registry_sha256": "2889e12595a211cf69a07c491b52f4f523c911f0f19a1b2759ef648c5bde704d"
 }

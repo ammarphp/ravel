@@ -105,15 +105,17 @@ def test_complete_failed_feedback_two_streams_real_graph_host_portfolio_selectio
     selected = cycle.select(root)
     assert selected["selected"] in {"paired", "repeat"}
     assert cycle.status(root)["connected_task_complete"] is False
-    # Actual operation preparation goes through the EXISTING cycle API. A
-    # sentinel documents this test's no-worker/source-only boundary honestly.
+    # Actual plan/child-custody preparation has no worker or launch authority.
     calls = []
-    def source_only_plan(rd, source):
-        calls.append((rd, source)); write(Path(rd) / science.PLAN, {"explicit_source_control": True})
+    actual_plan = science.plan
+    def source_only_plan(rd, source, **kwargs):
+        calls.append((rd, source))
+        return actual_plan(rd, source, **kwargs)
     monkeypatch.setattr(science, "plan", source_only_plan)
     cycle.prepare_experiment(root, selected["selected"], tmp_path / "planned")
     assert len(calls) == 1 and cycle._usage(cycle._load(root)[1])["native_attempts"] == 2
-    assert not (tmp_path / "planned" / "outputs").exists()
+    assert not list((tmp_path / "planned" / "outputs").rglob("result.json"))
+    assert not (tmp_path / "planned" / "execution_attempt.json").exists()
 
 
 @pytest.mark.parametrize("change", ["premise", "report", "whole_task"])

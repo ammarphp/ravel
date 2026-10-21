@@ -51,7 +51,7 @@ selection, physics calculation, preprocessing or training is inferred.
 
 `layout` is either the inline object above or the identifier of a packaged layout template
 (`ravel.physics.tree_array_export.layout_names()`); the request then carries the resolved
-layout. Two templates ship, both over the public ATLAS Open Data 13 TeV ntuple branches:
+layout. Two templates ship, both over a published open-data ntuple format:
 
 | Template | Columns |
 |---|---|
@@ -71,7 +71,7 @@ binds every requested array, association file, delivery file and directory.
 Finalization reopens the pinned request to derive the expected full roster and
 rechecks authenticated completion bytes, source descriptors, ancestors, member
 census, returned result and ordinary report. Reduced inventories and external
-completion copies cannot replace that roster.
+completion copies must not replace that roster.
 
 `max_ram_mib` bounds the complete output allocation before branch reading.
 Reader buffers, padded fields and serialization require additional peak memory;

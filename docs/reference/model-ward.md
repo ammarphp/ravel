@@ -4,7 +4,7 @@ The proposed `model-ward` scientific-study mode connects the installed MG5 Pytho
 gauge-check implementation to observed source, card, phase-space and external-leg
 records. It admits only tree `g g > t t~` with QCD order two, QED order zero, no
 forbidden particles and the supplied complete, unrestricted UFO. The first
-planned case uses the retained official SM UFO from installed MG5 2.9.27.
+declared case uses the retained official SM UFO from installed MG5 2.9.27.
 Source readiness and synthetic controls establish no native Ward result.
 
 The original finite-width parameter card remains unchanged. A separate diagnostic

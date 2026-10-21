@@ -15,6 +15,7 @@ from html.parser import HTMLParser
 import hashlib
 import http.client
 import ipaddress
+import itertools
 import json
 import os
 from pathlib import Path
@@ -30,7 +31,17 @@ from . import physics_knowledge as knowledge
 MAX_INPUT_BYTES = 64 * 1024 * 1024  # Existing ordinary research artifact bound.
 MAX_JSON_BYTES = knowledge.MAX_DOCUMENT_BYTES
 MAX_UNITS = 4096
+MAX_SCOPE_DEPTH = 128  # Knowledge-reference recursion, independent of journal length.
 SOURCE_VERSION = "literature-original-custody/v1"
+# The complete located derivation is recorded in its custody manifest. Law /3
+# adds native TeX table/figure children to /2's kernel line boundaries (LF, CR,
+# CRLF). Law /2 can still verify products without TeX members. The no-derivation
+# legacy law retains its original forest and mixed LF/str.splitlines behaviour.
+LINE_LAW = "literature-forest-law/3"
+LINE_LAW_V2 = "literature-line-law/2"
+LEGACY_LINE_LAW = "literature-line-law/1"
+LINE_LAWS = (LEGACY_LINE_LAW, LINE_LAW_V2, LINE_LAW)
+CUSTODY_FIELDS = ("schema_version", "kind", "request", "documents", "input_pins", "helper")
 FLAGS = {"physics_verified": False, "execution_authorized": False,
          "source_reading_claimed": False, "visual_completeness_claimed": False}
 
@@ -175,21 +186,16 @@ def _scope_journal(root, authority, cycle):
     """
     head_pin, head = authority.document(cycle._pin(root / "head.json"))
     current_pin, raw = authority.read(head, cycle.ce.MAX_BYTES)
-    current = knowledge._json(raw)
-    revision = _integer(current["revision"], cycle.MAX_REVISIONS - 1, 0)
-    previous = None
+    record_head = knowledge._json(raw)
+    revision = record_head["revision"]
+    if type(revision) is not int or revision < 0:
+        raise ValueError("ordinary research revision required")
     for index in range(revision + 1):
         path = root / "history" / f"{index:04d}.json"
-        _, raw = authority.read(cycle._pin(path), cycle.ce.MAX_BYTES)
-        record = knowledge._json(raw)
-        content = deepcopy(record)
-        checksum = content.pop("sha256")
-        if checksum != cycle.ce.digest(content) or record["revision"] != index:
-            raise ValueError("research history content differs")
-        if index and record["parent_sha256"] != previous["sha256"]:
-            raise ValueError("research ancestry differs")
-        previous = record
-    if previous != current:
+        authority.read(cycle._pin(path), cycle.ce.MAX_BYTES)
+    # Preserve observations of every original record while replaying its deltas.
+    current = cycle.historical_state(root, revision)
+    if knowledge._json(authority.read(current_pin, cycle.ce.MAX_BYTES)[1]) != record_head:
         raise ValueError("research head differs from immutable history")
     return head_pin, current_pin, current
 
@@ -231,13 +237,14 @@ def _scope(value, reader):
         authority = prior["authority"]
         _, raw_head = authority.document(prior["head_pin"])
         _, raw_current = authority.read(prior["current_pin"], cycle.ce.MAX_BYTES)
-        if raw_head != prior["current_pin"] or knowledge._json(raw_current) != prior["state"]:
+        if (raw_head != prior["current_pin"] or knowledge._json(raw_current)["revision"] != prior["state"]["revision"]
+                or cycle.historical_state(root, prior["state"]["revision"]) != prior["state"]):
             raise ValueError("literature campaign authority changed during verification")
         projection = _scope_projection(root, value, prior["state"], cycle, authority)
         if projection != prior["projection"]:
             raise ValueError("literature current parent assignment changed")
         return deepcopy(projection)
-    if len(stack) >= cycle.MAX_REVISIONS:
+    if len(stack) >= MAX_SCOPE_DEPTH:
         raise ValueError("finite literature campaign reference depth exceeded")
     authority = _Reader(root)
     head_pin, current_pin, snapshot = _scope_journal(root, authority, cycle)
@@ -379,14 +386,277 @@ class _HTML(HTMLParser):
         return self.rows, self.errors
 
 
-def _forest(identity, text, format):
+def kernel_lines(text):
+    """The knowledge kernel's lines of a UTF-8 text: only LF, CR and CRLF end a line.
+
+    Form feed, group separators, NEL and Unicode line/paragraph separators stay
+    inside their line, as they do when the kernel splits the encoded bytes.
+    """
+    return [line.decode("utf-8") for line in text.encode("utf-8").splitlines(keepends=True)]
+
+
+def _tex_structure(text):
+    """Lexical TeX environments; comments keep their original coordinate width."""
+    syntax = re.sub(r"\\.|%[^\r\n]*", lambda m: " " * len(m[0]) if m[0].startswith("%") else m[0], text)
+    environments, stack, failures = [], [], []
+    environment_argument = re.compile(r"\s*\{([^{}]+)\}")
+    for token in re.finditer(r"\\(?:[A-Za-z]+\*?|[^\r\n])", syntax):
+        if token[0] not in {r"\begin", r"\end"}:
+            continue
+        argument = environment_argument.match(syntax, token.end())
+        if argument is None:
+            continue
+        name, end = argument[1], argument.end()
+        if token[0] == r"\begin":
+            env = dict(name=name, start=token.start(), body=end, close=len(text), end=len(text),
+                       parent=stack[-1] if stack else None, balanced=False, broken=False)
+            environments.append(env); stack.append(env)
+        elif stack and stack[-1]["name"] == name:
+            env = stack.pop()
+            env.update(close=token.start(), end=end, balanced=not env["broken"])
+        else:
+            failures.append(dict(offset=token.start(), reason="unmatched TeX environment end", tag=name))
+            for env in stack:
+                env["broken"] = True
+    for env in stack:
+        failures.append(dict(offset=env["start"], reason="unclosed TeX environment", tag=env["name"]))
+    selected = {"table", "table*", "figure", "figure*", "equation", "equation*", "align", "align*",
+                "tabular", "tabular*", "tabularx", "longtable"}
+    outer = []
+    for env in environments:
+        parent = env["parent"]
+        while parent is not None and parent["name"] not in selected:
+            parent = parent["parent"]
+        if env["name"] in selected and parent is None:
+            outer.append(env)
+    return syntax, environments, outer, failures
+
+
+def _tex_children(text, syntax, env, environments, parent, child_start):
+    """Return exact native table/figure slices, without expanding TeX macros."""
+    rows, failures = [], []
+    tables = {"tabular", "tabular*", "tabularx", "longtable"}
+
+    def failure(offset, code, reason, **fields):
+        failures.append(dict(offset=offset, code=code, reason=reason, status="unresolved", **fields))
+
+    def argument(pos, limit, opener="{"):
+        while pos < limit and syntax[pos].isspace():
+            pos += 1
+        closer = "}" if opener == "{" else "]"
+        if pos >= limit or syntax[pos] != opener:
+            return None
+        depth, braces = 1, 0
+        for token in re.finditer(r"\\.|[{}\[\]]", syntax[pos + 1:limit]):
+            char, at = token[0], pos + 1 + token.start()
+            if char.startswith("\\"):
+                continue
+            if opener == "[":
+                braces += (char == "{") - (char == "}")
+                if braces:
+                    continue
+            if char == opener:
+                depth += 1
+            elif char == closer:
+                depth -= 1
+                if not depth:
+                    return pos + 1, at, at + 1
+        return None
+
+    def trim(start, end):
+        while start < end and text[start].isspace():
+            start += 1
+        while end > start and text[end - 1].isspace():
+            end -= 1
+        return start, end
+
+    def units(piece):
+        # A lexical token, retaining TeX spelling (including escaped percent).
+        match = re.search(r"\\(?:mathrm|textrm)\s*\{([^{}]+)\}|\[\s*([^\[\]\r\n]+)\s*\]|\(\s*([^()\r\n]+)\s*\)", piece)
+        return next((value.strip() for value in match.groups() if value is not None), None) if match else None
+
+    def add(kind, start, end, parent_index, **fields):
+        rows.append(dict(tag=kind, start=start, end=end, parent_index=parent_index, **fields))
+
+    if not env["balanced"]:
+        return rows, failures
+    if env["name"].startswith("figure"):
+        # One pass skips over complete arguments, so caption text cannot create
+        # an overlapping fake option or command child.
+        pos = env["body"]
+        pattern = re.compile(r"\\(?:[A-Za-z]+\*?|[^\r\n])|\b(?:xlabel|ylabel)\s*=")
+        while match := pattern.search(syntax, pos, env["close"]):
+            pos = match.end()
+            if match[0] in {r"\caption", r"\caption*", r"\includegraphics", r"\includegraphics*"}:
+                optional = argument(pos, env["close"], "[")
+                if optional:
+                    pos = optional[2]
+                arg = argument(pos, env["close"])
+                kind = "figure-caption" if match[0].startswith(r"\caption") else "figure-file"
+            elif not match[0].startswith("\\"):
+                arg, kind = argument(pos, env["close"]), "axis-label"
+            else:
+                continue
+            if arg is None:
+                failure(match.start(), "unbalanced_argument", "unbalanced or unsupported TeX figure argument")
+                continue
+            first, last, pos = arg
+            add(kind, first, last, parent, **({"units": units(text[first:last])} if kind == "axis-label" else {}))
+        return rows, failures
+
+    tabulars = [t for t in environments if t["name"] in tables and env["start"] <= t["start"] < env["end"]]
+    # Preserve existing table captions outside the tabular body. Their commands
+    # cannot overlap independently located rows/cells.
+    for match in re.finditer(r"\\(?:[A-Za-z]+\*?|[^\r\n])", syntax[env["body"]:env["close"]]):
+        first, pos = env["body"] + match.start(), env["body"] + match.end()
+        if match[0] not in {r"\caption", r"\caption*"} or any(t["start"] <= first < t["end"] for t in tabulars):
+            continue
+        optional = argument(pos, env["close"], "[")
+        arg = argument(optional[2] if optional else pos, env["close"])
+        if arg is None:
+            failure(first, "unbalanced_argument", "unbalanced TeX table caption argument")
+        else:
+            add("caption", first, arg[2], parent)
+    command_pattern = re.compile(r"\\(?:[A-Za-z]+\*?|[^\r\n])")
+    separator_pattern = re.compile(r"\\(hline|midrule|toprule|bottomrule)\b")
+    multicolumn_pattern = re.compile(r"\\multicolumn\b")
+    nested_starts = {t["start"]: t for t in tabulars}
+    for tabular in tabulars:
+        ancestor = tabular["parent"]
+        if any(t is ancestor for t in tabulars):
+            continue
+        while ancestor is not None and ancestor is not env and ancestor["name"] not in tables:
+            ancestor = ancestor["parent"]
+        if ancestor is not None and ancestor is not env and ancestor["name"] in tables:
+            continue
+        if not tabular["balanced"]:
+            continue
+        pos, limit = tabular["body"], tabular["close"]
+        optional = argument(pos, limit, "[")
+        if optional:
+            pos = optional[2]
+        for _ in range(2 if tabular["name"] in {"tabular*", "tabularx"} else 1):
+            arg = argument(pos, limit)
+            if arg is None:
+                failure(pos, "unbalanced_argument", "missing or unbalanced TeX tabular preamble")
+                break
+            pos = arg[2]
+        else:
+            parsed, rule, population = [], False, 0
+            while pos < limit:
+                # Structural separators belong to the table's source fragments.
+                while pos < limit:
+                    if syntax[pos].isspace():
+                        pos += 1
+                        continue
+                    separator = separator_pattern.match(syntax, pos, limit)
+                    if separator:
+                        rule |= separator[1] in {"hline", "midrule"}
+                        pos = separator.end()
+                        continue
+                    break
+                start, cell_start, depth, nested = pos, pos, 0, False
+                cells, completed = [], False
+                while pos < limit:
+                    nested_env = nested_starts.get(pos)
+                    if nested_env is not None and nested_env is not tabular:
+                        nested = True; pos = nested_env["end"]
+                        continue
+                    command = command_pattern.match(syntax, pos, limit)
+                    token = command[0] if command else syntax[pos]
+                    end = pos + len(token)
+                    if token == r"\\" and depth == 0:
+                        cells.append(trim(cell_start, pos))
+                        parsed.append(dict(start=start, end=end, cells=cells, nested=nested, rule_before=rule))
+                        rule = False; pos = end; completed = True
+                        if pos < limit and syntax[pos] == "*":
+                            pos += 1
+                        optional = argument(pos, limit, "[")
+                        if optional:
+                            pos = optional[2]
+                        break
+                    if token == "&" and depth == 0:
+                        cells.append(trim(cell_start, pos)); cell_start = end
+                    elif token == "{":
+                        depth += 1
+                    elif token == "}":
+                        depth -= 1
+                    pos = end
+                if not completed:
+                    if syntax[start:limit].strip():
+                        failure(start, "unterminated_row", "TeX table content has no balanced row terminator")
+                    break
+                population += len(cells) + 1
+                if population > MAX_UNITS:
+                    failure(tabular["start"], "too_many_cells", "complete table children exceed remaining unit allowance")
+                    return [], failures
+            header, width = None, None
+            header_rule = parsed[1]["rule_before"] if len(parsed) > 1 else rule
+            for number, row in enumerate(parsed):
+                spans, invalid = [], False
+                for first, last in row["cells"]:
+                    multicolumn = multicolumn_pattern.match(syntax, first, last)
+                    span = 1
+                    if multicolumn:
+                        at, arguments = multicolumn.end(), []
+                        for _ in range(3):
+                            arg = argument(at, last)
+                            if arg is None:
+                                break
+                            arguments.append(arg); at = arg[2]
+                        if len(arguments) != 3 or not text[arguments[0][0]:arguments[0][1]].strip().isdigit():
+                            invalid = True
+                            failure(first, "unsupported_multicolumn", "unresolved TeX multicolumn span", row=number)
+                        else:
+                            span = int(text[arguments[0][0]:arguments[0][1]].strip())
+                            if not 1 <= span <= MAX_UNITS:
+                                invalid = True
+                                failure(first, "unsupported_multicolumn", "unresolved TeX multicolumn span", row=number)
+                    spans.append(span)
+                count = sum(spans)
+                if number == 0 and header_rule and not row["nested"] and not invalid:
+                    header = [text[first:last] for (first, last), span in zip(row["cells"], spans) for _ in range(span)]
+                    width = count
+                row_parent = child_start + len(rows)
+                add("table-row", row["start"], row["end"], parent, row=number)
+                if row["nested"]:
+                    failure(row["start"], "nested_tabular", "table row contains a nested or unresolved tabular cell", row=number)
+                    continue
+                if invalid:
+                    continue
+                if width is not None and count != width:
+                    failure(row["start"], "ragged_row", "table row column count differs from the explicit header", row=number,
+                            expected_columns=width, actual_columns=count)
+                    continue
+                column = 0
+                for (first, last), span in zip(row["cells"], spans):
+                    label = header[column] if header is not None else None
+                    add("table-cell", first, last, row_parent, row=number, column=column, column_span=span,
+                        header=label, units=units(text[first:last]) or (units(label) if label is not None else None))
+                    column += span
+    return rows, failures
+
+
+def _forest(identity, text, format, law=LINE_LAW):
     """All original characters survive in located intervals; no layout claim."""
     rows, unknowns = [], []
+    if law not in LINE_LAWS:
+        raise ValueError("unknown located literature line law")
+    tex_pending = []
+    structured_tex = format == "tex" and law not in {LEGACY_LINE_LAW, LINE_LAW_V2}
+    if structured_tex:
+        syntax, environments, containers, unknowns = _tex_structure(text)
     if format == "html":
         rows, unknowns = _HTML(text).forest()
-    else:
+    elif law == LEGACY_LINE_LAW:
         starts = [0] + [m.end() for m in re.finditer("\n", text)]
         lines = text.splitlines(keepends=True)
+    else:
+        # One law for segmentation and coordinates: line starts are the cumulative
+        # lengths of the very lines the kernel counts.
+        lines = kernel_lines(text)
+        starts = [0, *itertools.accumulate(len(line) for line in lines)]
+    if format != "html":
         sections = []
         i = 0
         while i < len(lines):
@@ -405,7 +675,30 @@ def _forest(identity, text, format):
                 i += 1
                 continue
             end = i + 1
-            env = re.search(r"\\begin\{(equation\*?|align\*?|table\*?|figure\*?)\}", line) if format == "tex" else None
+            if structured_tex:
+                # A line may contain multiple complete environments. Each keeps
+                # its own exact boundaries; surrounding text survives as gaps.
+                batch = [e for e in containers if starts[i] <= e["start"] < starts[end]]
+                if batch:
+                    while True:
+                        while end < len(lines) and starts[end] < max(e["end"] for e in batch):
+                            end += 1
+                        expanded = [e for e in containers if starts[i] <= e["start"] < starts[end]]
+                        if len(expanded) == len(batch):
+                            break
+                        batch = expanded
+                    for env in batch:
+                        kind = "equation" if env["name"].startswith(("equation", "align")) else (
+                            "figure" if env["name"].startswith("figure") else "table")
+                        rows.append(dict(tag=kind, start=env["start"], end=env["end"],
+                                         parent_index=sections[-1][1] if sections else None))
+                        if kind in {"figure", "table"}:
+                            tex_pending.append((len(rows) - 1, env))
+                    i = end
+                    continue
+            # Replay pre-/3 TeX segmentation exactly for legacy products. A /2
+            # custody with any TeX member is refused by _custody_law instead.
+            env = re.search(r"\\begin\{(equation\*?|align\*?|table\*?|figure\*?)\}", line) if format == "tex" and not structured_tex else None
             kind = "paragraph"
             if env:
                 kind = "equation" if env[1].startswith(("equation", "align")) else ("table" if env[1].startswith("table") else "figure")
@@ -429,16 +722,44 @@ def _forest(identity, text, format):
                 kind = "source-fragment"
             else:
                 while end < len(lines) and lines[end].strip() and not re.match(r"^(#|\\(?:sub)*section|\\begin|\$\$|Figure\s|Table\s)", lines[end]):
+                    if structured_tex and any(starts[end] <= e["start"] < starts[end + 1] for e in containers):
+                        break
                     end += 1
             rows.append({"tag": kind, "start": starts[i], "end": starts[end] if end < len(starts) else len(text),
                          "parent_index": sections[-1][1] if sections else None})
-            # Caption children of source-native TeX table/figure containers.
             if env:
                 parent = len(rows) - 1
                 for j in range(i, end):
                     if "\\caption" in lines[j]:
                         rows.append({"tag": "caption", "start": starts[j], "end": starts[j] + len(lines[j]), "parent_index": parent})
             i = end
+    if structured_tex:
+        def population(candidate):
+            # Count the same source-fragment gaps the common forest adds below.
+            children = {}
+            for row in candidate:
+                children.setdefault(row["parent_index"], []).append((row["start"], row["end"]))
+            count = 1 + len(candidate)
+            for index, start, end in [(None, 0, len(text)), *((i, r["start"], r["end"]) for i, r in enumerate(candidate))]:
+                spans = sorted(children.get(index, []))
+                if not spans:
+                    continue
+                cursor = start
+                for first, last in spans + [(end, end)]:
+                    count += first > cursor
+                    cursor = max(cursor, last)
+            return count
+
+        # Reserve the complete non-table forest before admitting atomic table
+        # expansions, including all row/cell gaps needed for leaf coverage.
+        for parent, env in sorted(tex_pending, key=lambda p: not p[1]["name"].startswith("figure")):
+            children, failures = _tex_children(text, syntax, env, environments, parent, len(rows))
+            unknowns.extend(failures)
+            if rows[parent]["tag"] == "table" and population(rows + children) > MAX_UNITS:
+                unknowns.append(dict(offset=env["start"], code="too_many_cells", status="unresolved",
+                                     reason="complete table children exceed remaining unit allowance", tag=env["name"]))
+            else:
+                rows.extend(children)
     root = {"id": identity + ".root", "parent": None, "kind": "document", "start": 0, "end": len(text)}
     units = [root]
     for i, row in enumerate(rows):
@@ -446,7 +767,8 @@ def _forest(identity, text, format):
         kind = "section" if kind in {"article", "section", "h1", "h2", "h3", "h4", "h5", "h6"} else (
             "caption" if kind in {"caption", "figcaption"} else "equation" if kind == "math" else "figure" if kind == "img" else kind)
         units.append({"id": identity + ".u" + str(i), "parent": identity + ".u" + str(row["parent_index"]) if row["parent_index"] is not None else root["id"],
-                      "kind": kind, "start": row["start"], "end": row["end"]})
+                      "kind": kind, "start": row["start"], "end": row["end"],
+                      **{key: row[key] for key in ("row", "column", "column_span", "header", "units") if key in row}})
     # Root-level gaps preserve front matter, unsupported markup and whitespace.
     covered = sorted((u["start"], u["end"]) for u in units[1:] if u["parent"] == root["id"])
     cursor = 0
@@ -466,19 +788,26 @@ def _forest(identity, text, format):
             cursor = max(cursor, last)
     for unit in units:
         piece = text[unit["start"]:unit["end"]]
+        # Unit line coordinates are retrieval evidence locations: under every law they
+        # count LF exactly as literature_provider.verify_excerpt checks them. The kernel
+        # law governs segmentation here and the assertion ranges below.
+        first = text.count("\n", 0, unit["start"]) + 1
+        last = text.count("\n", 0, max(unit["start"], unit["end"] - 1)) + 1
         unit.update(document=identity, byte_start=len(text[:unit["start"]].encode()), byte_end=len(text[:unit["end"]].encode()),
                     excerpt_sha256=hashlib.sha256(piece.encode()).hexdigest(),
-                    line_start=text.count("\n", 0, unit["start"]) + 1,
-                    line_end=text.count("\n", 0, max(unit["start"], unit["end"] - 1)) + 1,
-                    text=piece)
+                    line_start=first, line_end=last, text=piece)
     if len(units) > MAX_UNITS:
         raise ValueError("complete source unit forest exceeds declared finite population")
     return units, unknowns
 
 
-def _assertions(units, doc, source, texts, annotations):
+def _assertions(units, doc, source, texts, annotations, law=LINE_LAW):
     parents = {u["parent"] for u in units}
     nodes = []
+    if law not in LINE_LAWS:
+        raise ValueError("unknown located literature line law")
+    # The kernel reads this text as bytes; its line count is the evidence coordinate.
+    counted = len(texts.encode().splitlines())
     for unit in units:
         if unit["id"] in parents or not unit["text"].strip():
             continue
@@ -491,10 +820,17 @@ def _assertions(units, doc, source, texts, annotations):
                 offset += count; number += 1
                 continue
             node_id = unit["id"] + ".n" + str(number)
-            first = len(texts.splitlines()) + 1
             excerpt = fragment.encode() + (b"" if fragment.endswith("\n") else b"\n")
-            texts += excerpt.decode()
-            last = len(texts.splitlines())
+            if law == LEGACY_LINE_LAW:
+                first = len(texts.splitlines()) + 1
+                texts += excerpt.decode()
+                last = len(texts.splitlines())
+            else:
+                # Every excerpt ends with LF, so the next one starts on a fresh kernel line.
+                first = counted + 1
+                texts += excerpt.decode()
+                counted += len(excerpt.splitlines())
+                last = counted
             annotation = annotations.pop(node_id, None)
             extras = {"kind": "fact", "tags": doc["tags"], "domain": doc["domain"], "conventions": doc["conventions"],
                       "applicability": "Located source assertion only; source wording is not verified physics or model reading.", "equations": [], "obligations": []}
@@ -515,7 +851,7 @@ def _assertions(units, doc, source, texts, annotations):
     return nodes, texts
 
 
-def _compile(request_pin, reader, out):
+def _compile(request_pin, reader, out, *, law=LINE_LAW):
     original_pin, value = reader.document(request_pin)
     request = _request(value)
     assignment = _scope(request["cycle_binding"], reader)
@@ -571,7 +907,7 @@ def _compile(request_pin, reader, out):
                        "line_start": None, "line_end": None, "text": "", "original_location": "Complete original PDF; page children locate extracted text separately"}]
             for page in extracted["pages"]:
                 identity = doc["id"] + ".page" + str(page["page_index"])
-                page_units, unknown = _forest(identity, page["text"], "text")
+                page_units, unknown = _forest(identity, page["text"], "text", law)
                 for unit in page_units:
                     unit["document"] = doc["id"]; unit["page_index"] = page["page_index"]
                     if unit["parent"] is None:
@@ -586,14 +922,14 @@ def _compile(request_pin, reader, out):
                     failures.append({"document": doc["id"], "page_index": page["page_index"], "kind": "text", "status": page["status"], "reason": page["reason"], "next_action": "source-bound OCR/visual inspection; do not invent text"})
         else:
             raw.decode("utf-8")  # No lossy decode, silently discarded bytes or guessed encoding.
-            forest, unknown = _forest(doc["id"], raw.decode("utf-8"), doc["format"])
+            forest, unknown = _forest(doc["id"], raw.decode("utf-8"), doc["format"], law)
             failures.extend({"document": doc["id"], "kind": "parse", "status": "unresolved", **u} for u in unknown)
             failures.extend({'document':doc['id'],'unit':u['id'],'kind':u['kind'],'status':'unresolved',
                              'reason':'located lexical interval only; visual or structured semantic extraction is unverified',
                              'next_action':'source-bound native visual or structured extraction; do not infer a measured quantity'}
                             for u in forest if u['kind'] in {'figure','table','equation'})
         source_id = doc["id"] + ".located"
-        assertions, text = _assertions(forest, doc, source_id, "", annotations)
+        assertions, text = _assertions(forest, doc, source_id, "", annotations, law)
         if text:
             data = text.encode(); knowledge._text(text, MAX_JSON_BYTES)
             files[doc["id"] + ".txt"] = data
@@ -617,6 +953,8 @@ def _compile(request_pin, reader, out):
     helper = _producer_sources(reader)
     custody = {"schema_version": 1, "kind": SOURCE_VERSION, "request": original_pin,
                "documents": documents, "input_pins": reader.pins(), "helper": helper}
+    if law != LEGACY_LINE_LAW:
+        custody["derivation"] = law
     files["original-custody.json"] = _raw(custody)
     sources.insert(0, {"id": "literature.originals", "pin": _pin(out / "original-custody.json", files["original-custody.json"]),
                        "citation": "Complete original literature acquisition/extraction/source custody", "version": SOURCE_VERSION, "format": "binary", "parents": []})
@@ -651,7 +989,8 @@ def _compile(request_pin, reader, out):
 def prepare(request_pin, out, *, base_dir):
     """Pure source preparation, permitting known evidence plus explicit missingness."""
     reader = _Reader(base_dir); out = _path(out, reader.base)
-    product, files = _compile(request_pin, reader, out)
+    # New products always use the current complete forest derivation.
+    product, files = _compile(request_pin, reader, out, law=LINE_LAW)
     if out.exists():
         raise ValueError("fresh literature output directory required")
     out.mkdir(parents=True)
@@ -675,7 +1014,7 @@ def consume(product_pin, *, base_dir, _reader=None):
         raise ValueError("current located literature product required")
     out = Path(pin["path"]).parent
     inputs = _Reader(base_dir)
-    expected, files = _compile(actual["context"]["request"], inputs, out)
+    expected, files = _compile(actual["context"]["request"], inputs, out, law=_product_law(actual, reader))
     if actual != expected or pin != _pin(out / "product.json", files["product.json"]):
         raise ValueError("literature product differs from its complete current source derivation")
     emitted = [_pin(out / name, raw) for name, raw in files.items()]
@@ -690,6 +1029,31 @@ def consume(product_pin, *, base_dir, _reader=None):
             "context": deepcopy(expected["context"])}
 
 
+def _custody_law(value):
+    """Select the pinned derivation; a manifest without one keeps the legacy law."""
+    if type(value) is not dict or "derivation" not in value:
+        _keys(value, CUSTODY_FIELDS)
+        return LEGACY_LINE_LAW
+    _keys(value, (*CUSTODY_FIELDS, "derivation"))
+    if value["derivation"] == LEGACY_LINE_LAW or value["derivation"] not in LINE_LAWS:
+        raise ValueError("located literature was derived under an unknown line law; "
+                         "migrate it by preparing a fresh product from its original request")
+    if value["derivation"] == LINE_LAW_V2 and any(doc.get("format") == "tex" for doc in value["documents"]):
+        raise ValueError("located literature was derived under literature-line-law/2 with a TeX member; "
+                         "migrate it by preparing a fresh product from its original request")
+    return value["derivation"]
+
+
+def _product_law(product, reader):
+    """Select the product's pinned custody derivation without rewriting its bytes."""
+    generated = product["generated"]
+    custody = [p for p in generated if type(p) is dict and Path(str(p.get("path"))).name == "original-custody.json"]
+    if type(generated) is not list or len(custody) != 1:
+        raise ValueError("located literature product requires exactly one original custody manifest")
+    _, value = reader.document(custody[0])
+    return _custody_law(value)
+
+
 def source_manifest(pin, *, base_dir):
     """Only the closed producer-owned custody kind extends source authentication.
 
@@ -699,7 +1063,7 @@ def source_manifest(pin, *, base_dir):
     """
     reader = _Reader(base_dir)
     _, value = reader.document(pin)
-    _keys(value, ("schema_version", "kind", "request", "documents", "input_pins", "helper"))
+    law = _custody_law(value)
     if value["kind"] != SOURCE_VERSION or value["schema_version"] != 1:
         raise ValueError("closed literature original custody/v1 required")
     helper, _ = reader.read(value["helper"], MAX_JSON_BYTES)
@@ -707,7 +1071,7 @@ def source_manifest(pin, *, base_dir):
         raise ValueError("foreign literature custody producer")
     # Recompute the exact original dependency census, not a caller replacement.
     proof_reader = _Reader(base_dir)
-    expected, files = _compile(value["request"], proof_reader, Path(pin["path"]).parent)
+    expected, files = _compile(value["request"], proof_reader, Path(pin["path"]).parent, law=law)
     if value != knowledge._json(files["original-custody.json"]):
         raise ValueError("original literature custody/parents/extraction population differs")
     emitted = [_pin(Path(pin["path"]).parent / name, raw) for name, raw in files.items()]

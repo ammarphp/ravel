@@ -156,6 +156,8 @@ def planned(tmp_path,monkeypatch,f,*,opt=True):
         _,decision=f.capture();(root/'decision.json').write_text(json.dumps(decision))
         config.write_text(config.read_text().replace('[ravel.native.inputs]','lhapdf_linker = "preserve-activated-v1"\n[ravel.native.inputs]\nlhapdf_link_decision = "decision.json"'))
         card=root/'cards/run.dat';card.write_text(card.read_text().replace("'cteq6l1'","'lhapdf'")+'260000 = lhaid\n')
+    from model_validation_fixture import native_evidence
+    native_evidence(config, f.build)
     return p.build_execution_plan(root,config),root,config
 
 

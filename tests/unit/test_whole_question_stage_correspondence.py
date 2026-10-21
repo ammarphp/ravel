@@ -576,7 +576,10 @@ def test_literal_coupling_binding_compares_source_component_without_invented_con
     study=json.loads(Path(stage['study']['path']).read_text());cp=Path(study['task']['config'])
     source=json.loads(cp.read_text());parameter=Path(source['cards']['parameter']['path'])
     parameter.write_text(parameter.read_text()+'BLOCK YUKAWA\n 6 '+str(value)+'\n')
-    source['cards']['parameter']=pin(parameter);write(cp,source)
+    source['cards']['parameter']=pin(parameter)
+    from model_validation_fixture import record_model_events_validation
+    record_model_events_validation(source, cp.parent / 'point-validation')
+    write(cp,source)
     stage['documents'][0]['source']=pin(cp)
     projection=correspondence.project(study,Path(stage['study']['path']).parent,InputCapture())
     bindings=[{'field':f,'address':a} for f,a in [('energy_tev',None),('model_sha256',None),

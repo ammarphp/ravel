@@ -74,7 +74,7 @@ the routine: `SmearedJets`, `SmearedParticles`, `SmearedMET`, and efficiency fun
        --routine <RIVET_ID> [--source <path/to/ID.cc>]   # else resolves the installed share/Rivet/<ID>.cc
    ```
    It reports, per routine: whether smearing/efficiency projections are **declared**, which
-   **detector era** the efficiency functions target (e.g. a Run-2 vs Run-1 ATLAS smearing set), and
+   **detector era** the efficiency functions target (for example, smearing sets from different data-taking periods), and
    whether that era **matches** the analysis's data-taking period and √s. The verdict is the same
    three-state shape as the other gates (`PASS` / `WARN` / `FAIL`).
 
@@ -115,7 +115,7 @@ detector. The matching procedure replaces the relevant efficiency plateaus with 
 **published** performance, so the simulated objects are reconstructed with the same probability the
 analysis had.
 
-> **A bundled card may already encode the tuning.** If a bundled detector card states that it
+> **A bundled card can already encode the tuning.** If a bundled detector card states that it
 > encodes the analysis's published object-efficiency curves, verify that claim against the
 > publication (compare the curves) and confirm the run uses that card; then B(a) is satisfied and
 > you go to B(b). Otherwise follow the procedure below.
@@ -124,7 +124,7 @@ analysis had.
    performance paper) publishes object **efficiency vs pT (and η)** for the working points it used —
    trigger, reconstruction, identification, isolation. For a soft-object search these are the
    **low-pT lepton** (and/or soft-jet, b-tag) efficiency curves. Sources, in order: the paper's
-   performance figures, the HEPData auxiliary tables/figures, the relevant ATLAS/CMS public
+   performance figures, the HEPData auxiliary tables/figures, the relevant public detector
    performance note for that working point. Use `fetch_figures.py` (step 5 helper) to pull the
    paper figures and digitise the curve.
 
@@ -222,7 +222,7 @@ coefficients. It executes no simulator. Pin the frozen generated/showered sample
 nominal yields, knob coefficients and intermediate per-bin observables in
 `inputs/calibration/calibration-spec.json`. Each node declares a distinct node, a seed, a sample identity and byte pins for both
 generated and showered samples (at most 64 MiB per supplied sample). Seeds must differ between the
-calibration and held-out partitions; nodes within one partition may share a seed. The specification
+calibration and held-out partitions; nodes within one partition can share a seed. The specification
 declares calibration and held-out nodes, nominal knob values, candidate values, affected bins, bounds,
 a pinned source with JSON pointers to the band endpoints, squared-error loss, stopping threshold and
 trial budget. This adapter does not infer a missing response.
@@ -241,7 +241,7 @@ registered `signal_model_complete_before_calibration` check result from `claim_c
 The agreement target uses the current target registry's `reference.pins` shape.
 The approval verifier resolves valid current targets and refuses substituted pins.
 `ravel.validation.calibration_checks.calibration_target_disjoint` refuses any claim-reference
-or held-out pin among adaptive inputs, and a held-out pin as a band anchor. A band anchor may
+or held-out pin among adaptive inputs, and a held-out pin as a band anchor. A band anchor can
 come from the claim's reference record. A calibration observable whose values repeat a numeric
 vector of the reference pins is refused. Only signal yields, efficiency maps and cutflows
 are admitted as calibration observables. A global signal scalar is refused, whether it is an
@@ -258,13 +258,13 @@ loose approval flag. Run:
 python -m ravel.physics.detector_calibration --rundir RUN fit --spec RUN/inputs/calibration/calibration-spec.json --out RUN/outputs/calibration/epoch-1
 ```
 
-The producer may read only calibration artifacts. The evaluator wrapper writes every
+The producer can read only calibration artifacts. The evaluator wrapper writes every
 read and trial to a hash-chained journal under the existing machine exposure authority,
 with the `adaptive_full` and `withheld_confirmation` exposure labels and a per-study run copy
 at `<run>/research/calibration/<study_id>.jsonl`, so a second study in the same run has its own
 journal. Failed reads remain spent. The preregistration digest binds the node population; trial
 counts persist across run directories. Refitting creates a new immutable response and freeze,
-invalidates the previous epoch and retains the trials. A spent held-out population cannot be
+invalidates the previous epoch and retains the trials. A spent held-out population must not be
 reused for a new calibration.
 
 Exposure is also kept per agreement target, keyed by the sha256 of its reference pins rather
@@ -287,7 +287,7 @@ both journal heads with `detector_calibration.verify_delivery`. It reads no held
 artifacts. It refuses a receipt written under the test exposure namespace unless the caller
 passes `allow_test_namespace=True`. Imported responses carry
 `imported_calibration {source, fitted_on, response}`. The source and response need custody
-records, and `fitted_on` may not name a held-out node. An import fitted on this study's
+records, and `fitted_on` must not name a held-out node. An import fitted on this study's
 calibration nodes is in-sample for this target (`imported_in_sample`), and
 `delivery_check(..., evidence_status="validated")` refuses it. The adapter emits `checked`, which establishes no detector or physics
 validation. The detector-calibrator production card forbids held-out artifacts and the

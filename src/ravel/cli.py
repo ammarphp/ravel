@@ -15,8 +15,11 @@ from .paths import repository_root
 # execution remains in plan/approve/run; these commands inspect evidence or
 # preserve explicitly requested advisory artifacts.
 FOCUSED_COMMANDS = {
+    'models': ('workflow.model_catalogue', 'list, show, detect, adopt and price the models of the catalogue; presets, checks and a cost estimate'),
+    'setup-models': ('setup.models_setup', 'choose reachable models and spending level'),
     'study-grid': ('workflow.study_grid', 'submit, observe, resume and harvest finite prepared-study grids'),
     'doctor': ('setup.doctor', 'check that every required tool is installed and give the exact fix for each problem'),
+    'governed-runtime': ('setup.governed_runtime', 'seal the installed RAVEL into the read-only runtime controller mode admits (seal), or show it with the admission decision (status)'),
     'research-orchestrate': ('workflow.research_orchestrator', 'durable default design/review/evidence/ordinary-execution research coordination'),
     'agentrivet-construction': ('workflow.agentrivet_construction', 'connect original source-bound paper roles, ordinary build/event feedback and independent whole-task closure'),
     'rivet-hepdata-map': ('physics.hepdata_table_map', 'build a HEPData table map and reference YODA from a record, or check a routine source\'s bookings against it'),
@@ -24,7 +27,7 @@ FOCUSED_COMMANDS = {
     'site-workflow': ('workflow.site_workflow', 'source-bound site reproducibility export; existing ordinary approvals and research-cycle authority remain required'),
     'backend': ('workflow.execution_backend', 'execution backends (native, container, HTCondor/SLURM): doctor, plans, handles, recovery, images'),
     'partitions': ('workflow.partitioned_execution', 'split an input population into partitions, run them through a backend and merge additive outputs'),
-    'site': ('workflow.site_doctor', 'Linux analysis-site readiness checks and no-root install plan'),
+    'site': ('workflow.site_doctor', 'Linux analysis-site readiness checks, the saved site profile and no-root install plan'),
     'ntuples': ('physics.dataset_resolution', 'expand container datasets, resolve file members and normalize MC from declared inputs'),
     'root-stream': ('physics.root_stream', 'inspect explicit complete ROOT member/DSID/weight/blinding contracts; execution uses ordinary science'),
     'tree-array-export': ('physics.tree_array_export', 'inspect the source-bound mini-tree array export with its fixed inputs and handoff (not a general exporter); execution uses ordinary science'),
@@ -54,6 +57,7 @@ FOCUSED_COMMANDS = {
     'backend-provider': ('physics.backend_provider', 'discover backend source catalogues and prepare native input contracts'),
     'checkmate-events': ('physics.checkmate_events', 'prepare a source-bound supplied-HepMC2 ordinary study'),
     'task-completion': ('workflow.task_completion', 'inspect original-task coverage or require bound whole-parent acceptance'),
+    'output-contract': ('workflow.output_contract', "read the output paths a request declares, or check a run's declared deliverables now"),
     'fill-template': ('workflow.result_templates', 'fill a supplied numeric result template from an accepted result without changing its bins'),
     'contur-yoda': ('physics.contur_yoda', 'prepare a source-bound fresh Contur single-YODA ordinary study'),
     'contur-companion': ('physics.contur_companion', 'prepare released SM tests, Herwig extraction and native Contur plots'),
@@ -133,6 +137,20 @@ FOCUSED_COMMANDS['work'] = ('workflow.agent_worker', 'dispatch sandboxed workers
 # G8 agent call-site conformance.
 FOCUSED_COMMANDS['release'] = ('validation.check_agent_paths', 'release gate records (release check --gate G8)')
 
+# The controller (RAVEL 1.3.0). These entries own their arguments and dispatch before the focused
+# commands: ``ask``, ``operator`` and the controller forms of ``drive`` (``--request-file``,
+# ``--resume``; a legacy run keeps the lifecycle graph, labelled NOT GOVERNED). ``status --run``
+# reads a controller run from its store. (command: (module, entry function, description))
+CONTROLLER_COMMANDS = {
+    'share': ('controller.sharing', 'main', 'export delivery to an explicitly declared group or public audience'),
+    'ask': ('controller.entry', 'ask_main', 'ask a question; the controller drives it from intake to delivery'),
+    'operator': ('controller.authority.cli', 'main',
+                 'operator configuration and control of controller runs: init, set, show, stop, pause, resume, revoke'),
+    'drive': ('controller.entry', 'drive_main',
+              'drive a request through the controller (--request-file, --resume); a legacy run keeps the lifecycle graph'),
+}
+
+
 def released_commands():
     """Keep development dispatch intact while showing the released commands."""
     for name, entry in FOCUSED_COMMANDS.items():
@@ -152,6 +170,9 @@ def parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="ravel", description=__doc__)
     ap.add_argument("--version", action="version", version=f"ravel-hep {__version__}")
     sub = ap.add_subparsers(dest="command", required=True)
+    sub.add_parser('mode', help='show or set the operator operating mode')
+    sub.add_parser('ask', help=CONTROLLER_COMMANDS['ask'][2])
+    sub.add_parser('operator', help=CONTROLLER_COMMANDS['operator'][2])
     for command, (_, description) in released_commands().items():
         sub.add_parser(command, help=description)
     correction = sub.add_parser('science-correct', help='materialize and admit a prospectively bounded scientific correction')
@@ -324,10 +345,17 @@ def _split_interpretation(document):
     return document, None
 
 
-def _draft_route(prompt, interpretation, additions=None):
-    """(contract, reading, label) for a request; the reading is the floor plus any host additions."""
-    from .workflow import route_prompt
-    return route_prompt.route_records(prompt, interpretation=interpretation, additions=additions)
+def _draft_route(prompt, interpretation, additions=None, *, output_workspace=None, output_retained=None):
+    """(contract, reading, label) for a request; the reading is the floor plus any host additions.
+
+    Relative output paths the request declares resolve against `output_workspace`, the
+    directory in which the request was received.
+    """
+    from .workflow import output_contract, route_prompt
+    # A request that declares no output path keeps the unchanged routing call.
+    binding = ({'output_workspace': output_workspace, 'output_retained': output_retained}
+               if output_contract.read(prompt)['items'] else {})
+    return route_prompt.route_records(prompt, interpretation=interpretation, additions=additions, **binding)
 
 
 def _draft_plan(reading, contract):
@@ -345,8 +373,9 @@ def _draft_plan(reading, contract):
 
 
 def _write_json_file(path, value):
+    from .workflow import private_files
     data = (json.dumps(value, indent=2, allow_nan=False) + "\n").encode("utf-8")
-    path.write_bytes(data)
+    private_files.write(path, data)
     if path.read_bytes() != data:
         raise ValueError(f"{path.name} changed while it was written")
     return data
@@ -355,11 +384,11 @@ def _write_json_file(path, value):
 def _write_intake(output, prompt, contract, recovery, *, replace_state=False, interpretation_bytes=None,
                   reading=None, plan=None, session_id=""):
     """Write the intake-owned files of a run and return the written contract bytes."""
-    from .workflow import intake, workflow_state
+    from .workflow import intake, workflow_state, private_files
     if reading is None or plan is None:
         raise ValueError("epoch-two intake requires a reading and request plan")
     inputs = output / "inputs"
-    inputs.mkdir(exist_ok=True)
+    private_files.mkdir(inputs)
     contract = dict(contract)
     if reading is not None:
         raw = _write_json_file(inputs / "reading.json", reading)
@@ -372,12 +401,12 @@ def _write_intake(output, prompt, contract, recovery, *, replace_state=False, in
     contract["agent_layer_epoch"] = 2
     contract_path = inputs / "task_contract.json"
     intended_contract = (json.dumps(contract, indent=2, allow_nan=False) + "\n").encode("utf-8")
-    contract_path.write_bytes(intended_contract)
+    private_files.write(contract_path, intended_contract)
     if not (output / "request.txt").exists():
-        (output / "request.txt").write_text(prompt, encoding="utf-8")
+        private_files.write(output / "request.txt", prompt.encode("utf-8"))
     if interpretation_bytes is not None:
-        (inputs / "interpretation.json").write_bytes(interpretation_bytes)
-    (inputs / "capability_recovery.json").write_text(json.dumps(recovery, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+        private_files.write(inputs / "interpretation.json", interpretation_bytes)
+    private_files.write(inputs / "capability_recovery.json", (json.dumps(recovery, indent=2, allow_nan=False) + "\n").encode())
     # Read the persisted bytes through the same strict reader used by validate.
     if contract_path.read_bytes() != intended_contract:
         raise ValueError("written intake contract differs from intended request")
@@ -515,7 +544,9 @@ def _resolve(args) -> int:
         retained = read_json(output / "inputs/reading.json")
         if retained.get("authors", [{}])[1:]:
             additions = retained
-    contract, reading, label = _draft_route(prompt, interpretation, additions)
+    from .workflow import output_contract
+    contract, reading, label = _draft_route(prompt, interpretation, additions, output_workspace=Path.cwd(),
+                                            output_retained=output_contract.rows(previous))
     errors = validate_task_contract(contract)
     if errors:
         print("ravel: invalid resolved route; compute_authorized=false:\n" +
@@ -606,11 +637,17 @@ def _initiate(args) -> int:
         from .workflow.state_io import read_json
         interpretation_bytes = args.interpretation.expanduser().read_bytes()
         interpretation, additions = _split_interpretation(read_json(args.interpretation.expanduser()))
-    contract, reading, label = _draft_route(prompt, interpretation, additions)
+    contract, reading, label = _draft_route(prompt, interpretation, additions, output_workspace=Path.cwd())
     errors = validate_task_contract(contract)
     if errors:
         print("ravel: invalid draft route; compute_authorized=false:\n" +
               "\n".join(f"  - {error}" for error in errors), file=sys.stderr)
+        return 1
+    from .workflow import output_contract
+    conflicts = output_contract.placement_conflicts(output_contract.rows(contract), args.out.expanduser().absolute())
+    if conflicts:
+        print("ravel: the run directory conflicts with the output contract the request declares; nothing was "
+              "created; compute_authorized=false:\n" + "\n".join(f"  - {c}" for c in conflicts), file=sys.stderr)
         return 1
     from .workflow.capability_routing import plan as recovery_plan
     recovery = recovery_plan(prompt, contract=contract, reading=reading)
@@ -713,6 +750,10 @@ def _plan(args) -> int:
     else:
         from .workflow.scoped import plan
     result = plan(args.rundir, args.spec)
+    from .workflow.architecture_receipt import checkin_section
+    architecture = checkin_section({'rundir': args.rundir})
+    print(architecture['text'])
+    print(json.dumps({'architecture_receipt': architecture.get('architecture_receipt')}, indent=2))
     from .workflow import active_run
     _register(args.rundir, active_run.session_from_env(), "plan")
     if result.get("status") == "held":
@@ -915,9 +956,83 @@ def _register_prepared(arguments):
         _register(Path(out), active_run.session_from_env(), "research-orchestrate prepare")
 
 
+def _policy_refusal(arguments):
+    """The controller command policy, checked before any dispatch (SW01-SW05, SW11, SW13)."""
+    from .controller import command_policy
+    try:
+        return command_policy.check(arguments)
+    except (OSError, ValueError) as exc:
+        return f"the controller command policy could not be evaluated: {exc}"
+
+
+def _controller_command(arguments):
+    """Dispatch a controller entry; None when ``arguments`` name none."""
+    from importlib import import_module
+    command = arguments[0] if arguments else None
+    if command == 'status' and any(a == '--run' or a.startswith('--run=') for a in arguments[1:]):
+        return import_module('ravel.controller.entry').status_main(arguments[1:])
+    if command not in CONTROLLER_COMMANDS:
+        return None
+    name, function, _ = CONTROLLER_COMMANDS[command]
+    try:
+        module = import_module('ravel.' + name)
+    except ModuleNotFoundError as exc:
+        if exc.name is None or not ('ravel.' + name).startswith(exc.name):
+            raise
+        print(f"ravel {command}: the {name.rsplit('.', 1)[0]} module is not installed", file=sys.stderr)
+        return 2
+    return getattr(module, function)(arguments[1:])
+
+
+# `ravel literature <operation>` reaches the governed serving action; `ravel literature models`
+# reaches the local model installation. Every other literature call keeps workflow.literature.
+LITERATURE_SERVING_COMMANDS = ('search', 'get-paper', 'locate', 'list-papers', 'compare-measurements', 'replay', 'audit')
+
+
+def _literature_command(arguments):
+    """Dispatch the governed literature subcommands; None for every other command line."""
+    if arguments[:1] != ['literature'] or not arguments[1:2]:
+        return None
+    if arguments[1] == 'models':
+        from .workflow import literature_models
+        return literature_models.main(arguments[2:])
+    if arguments[1] not in LITERATURE_SERVING_COMMANDS:
+        return None
+    from .workflow import literature_cli
+    serving = None
+    # The trusted configuration comes only from installation settings, never from the command line.
+    # Help and the custody audit need no configuration, so they never load an index or a model.
+    if arguments[1] != 'audit' and not {'-h', '--help'} & set(arguments[2:]):
+        from .workflow import literature_settings
+        serving = literature_settings.from_settings()
+    return literature_cli.main(arguments[1:], serving=serving)
+
+
+def _observe_host():
+    """Host integrity at every RAVEL call (SW14): hooks switched off are noticed at the next call; never blocks."""
+    from .workflow import host_governance
+    try:
+        host_governance.observe_host(None, source="cli")
+    except Exception:  # detection never blocks the command that runs it
+        pass
+
+
 def _ordinary_main(argv=None) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments[:2] == ['setup', 'models']:
+        arguments = ['setup-models', *arguments[2:]]
+    _observe_host()
+    refusal = _policy_refusal(arguments)
+    if refusal:
+        print(f"ravel: refused: {refusal}", file=sys.stderr)
+        return 2
     try:
+        dispatched = _controller_command(arguments)
+        if dispatched is not None:
+            return dispatched
+        literature = _literature_command(arguments)
+        if literature is not None:
+            return literature
         # These focused modules own their subcommands. Early dispatch preserves
         # their complete --help and error messages in installed distributions.
         if arguments and arguments[0] in FOCUSED_COMMANDS:
@@ -959,6 +1074,10 @@ FOCUSED_COMMANDS['work'] = ('workflow.work_cli', 'dispatch sandboxed workers, in
 
 # Broker-bound literal literature cards and citation/code following.
 FOCUSED_COMMANDS['literature'] = ('workflow.literature', 'check evidence cards, follow located citations and code commits, and resolve publication titles')
+# Deterministic literature query expansion from the curated notation and synonym vocabulary; no model call.
+FOCUSED_COMMANDS['literature-query'] = ('workflow.literature_query', 'expand a literature search query with the curated notation and synonym vocabulary (deterministic; no model call)')
+# Governed deep evidence scoring of served literature candidates: prepare inputs and the Graph, then assemble the record; no model call here.
+FOCUSED_COMMANDS['literature-score'] = ('workflow.literature_evidence_scoring', 'prepare governed relevance scoring of served literature passages and assemble its record (originals always returned; no model call here)')
 
 # `ravel review run|dispatch` executes the review.points graph; other review subcommands delegate unchanged.
 FOCUSED_COMMANDS['review'] = ('workflow.graphs.review', 'run review points on the review.points graph; inspect mandatory review points and receipt-backed deliveries')
@@ -1014,8 +1133,16 @@ FOCUSED_COMMANDS['project-instructions'] = ('workflow.project_instructions', 'pi
 # `ravel replay prepare|approval-gate|run|compare|template` is the governed replay of a completed
 # run (workflow.replay). Any other replay call reaches the ordinary parser and is refused.
 REPLAY_OPERATIONS = ('prepare', 'approval-gate', 'run', 'compare', 'template')
-def main(argv=None) -> int:
+def _dispatch_main(argv=None) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments[:1] == ['mode'] or arguments[:2] == ['audit', 'prompt-log'] or arguments[:1] == ['replay']:
+        refusal = _policy_refusal(arguments)
+        if refusal:
+            print(f"ravel: refused: {refusal}", file=sys.stderr)
+            return 2
+    if arguments[:1] == ['mode']:
+        from .workflow import operating_mode
+        return operating_mode.main(arguments[1:])
     if arguments[:2] == ['audit', 'prompt-log']:
         from .workflow import prompt_log
         return prompt_log.main(arguments[2:])
@@ -1027,6 +1154,11 @@ def main(argv=None) -> int:
             print(f"ravel: {exc}", file=sys.stderr)
             return 2
     return _ordinary_main(arguments)
+
+
+def main(argv=None) -> int:
+    from .controller.outcomes import dispatch
+    return dispatch(list(sys.argv[1:] if argv is None else argv), _dispatch_main)
 
 
 if __name__ == "__main__":

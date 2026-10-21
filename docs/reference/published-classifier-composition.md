@@ -53,7 +53,7 @@ Each model has exactly `id`, `contract`, `feature_units`, `score_unit`, `score_r
 complete static tensor census and literal source excerpts. Features retain their
 source order, expression, `identity|log10|normalize|jet_log10_or_default` operation,
 `float32|float64` cast and `binary32_each|binary64_then_cast` arithmetic. An explicit
-source default may occur only through the existing declared jet operation; an
+source default can occur only through the existing declared jet operation; an
 absent feature does not become a zero. `feature_units` maps every feature ID to its
 supplied original scalar unit. No conversion is inferred. `score_unit` and the
 finite ordered `score_range` are supplied declarations.
@@ -82,7 +82,7 @@ The event document has exactly `kind=published-classifier-events/v1`, `event_ids
 
 `event_ids` is the whole original ordered supplied population, with no missing or
 duplicate rows. Each row retains every named weight, including zero and negative
-weights. A correlated group cannot cross independent shards. Every model must
+weights. A correlated group must not cross independent shards. Every model must
 appear in `source_selected`, `eligible`, and `features`. Ineligible features are
 explicit `null`; an event remains in the exposure with empty fills.
 
@@ -158,7 +158,7 @@ helper API at the actual delegated path. No new TMVA Python provider is implemen
 
 The exact native result is embedded unchanged. This wrapper does not invent
 per-event scores or convert marginal YODA errors into a full bin covariance.
-Actual native inference-call counts remain unavailable unless the original source
+Actual native inference-call counts remain missing unless the original source
 observes them; a completed native event route is not automatic inference parity,
 calibration, detector validation or physics acceptance. Where full joint moments
 are required, supply the existing source-qualified group/fill observer contracts
@@ -178,7 +178,7 @@ Successful source/API controls do not complete the parent analysis task.
 Later native qualification must bind the exact original paper/source/assets,
 object/feature and eligibility census, source casts/libm/ORT versions, every model
 component and category boundary, original named weights/groups, source fill and
-finalization law, and complete output population. Use withheld reference events
+finalization law, and complete output population. Use protected reference events
 and independently checked expected tensors/scores/quantities. Preserve all failed
 attempts. No training, real provider execution or physics validation accompanies
 this source package.

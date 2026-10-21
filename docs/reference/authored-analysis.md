@@ -1,8 +1,7 @@
 # Authored analysis step
 
-Some analysis steps cannot be written as a `columnar-analysis` recipe or computed by a quantity
-tool. For those, an agent may write Python, and RAVEL runs it as a governed step: the study is
-planned and approved, each attempt is pinned and runs in a sandbox, and failures are typed so a
+An authored analysis step uses supplied Python under a governed study contract: the study is
+declared and approved, each attempt is pinned and runs in a sandbox, and failures are typed so a
 repair loop stays bounded and honest. Use it only as a fallback.
 
 ## The study
@@ -10,7 +9,7 @@ repair loop stays bounded and honest. Use it only as a fallback.
 Science mode `authored-analysis` takes:
 
 ```json
-{"purpose": "The selection needs an event-level combinatoric choice that the recipe cannot state.",
+{"purpose": "Select the event-level combinatoric candidate using the declared Python algorithm.",
  "specification": "spec.md",
  "code": "attempt.py",
  "io_contract": {"inputs": [{"name": "events", "path": "events.root"}],
@@ -33,11 +32,10 @@ available.
 
 The code runs as `python -B -s code.py` in a new working directory. It reads
 `step-inputs.json` (input names mapped to absolute paths, the parameters and the declared output
-paths) and writes its outputs there. It may import `ravel.toolkit`.
+paths) and writes its outputs there. It can import `ravel.toolkit`.
 
 The process runs under `sandbox-exec` on macOS or `bwrap` on Linux. It has no network, can
-write only inside its working directory and cannot read the reference paths. Without a sandbox
-the step does not run.
+write only inside its working directory and must not read the reference paths. Execution requires the sandbox.
 
 After the run, every output is checked against its postconditions (`exists`, `finite`,
 `all_finite`, `positive`, `nonzero`, `not_all_zero`, `range`). The attempt gets a failure class:
@@ -48,7 +46,7 @@ After the run, every output is checked against its postconditions (`exists`, `fi
 - `scientific_unresolved`: a postcondition declared with that class failed, or the code wrote
   `unresolved.json` stating a question the specification does not settle.
 
-Coding and infrastructure failures may be repaired while the budget lasts. A scientific failure
+Coding and infrastructure failures can be repaired while the budget lasts. A scientific failure
 or a spent budget sets the step to `failed_stage_review` (`docs/workflow/reference/failed-stage-review.md`).
 
 ## The repair loop

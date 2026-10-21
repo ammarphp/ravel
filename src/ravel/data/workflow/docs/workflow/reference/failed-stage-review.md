@@ -6,16 +6,14 @@ delivery and reuse. `failed-review` records a separate diagnostic premise so an
 independent critic can propose mechanisms, an improver can construct a useful
 intervention, and a skeptical verifier can assess that experiment design.
 
-This path does not create a `physics_review` cycle. It does not cast acceptance
-votes, admit a correction, grant a retry, create an approval, lift a hold, change
-an old result or run a process. Keep the original failed run and all old evidence.
+This path records diagnostic review and experiment-design evidence. Keep the original failed run and all old evidence.
 A successor requires its own actual scientific plan, source/input contract,
 resource bounds, approval, execution records and fresh result review.
 
 ## Failure distinctions
 
 `infrastructure_failure` retains missing or empty outputs, malformed raw output,
-tool/runtime failures and unavailable result evidence as operational information.
+tool/runtime failures and missing result evidence as operational information.
 An absent scientific result must not be described as a rejected hypothesis.
 
 `scientific_unresolved` requires a nonempty actual returned result with a retained
@@ -44,9 +42,9 @@ Supply a strict request with these exact fields:
 ```
 
 The SHA placeholders in this example must be replaced by actual lowercase
-SHA-256 digests. `result` may be `null` only for infrastructure diagnosis. Required
+SHA-256 digests. `result` can be `null` only for infrastructure diagnosis. Required
 outputs are canonical run-relative individual file paths under the actual stage
-output declaration. Evidence paths may also bind source or independently retained
+output declaration. Evidence paths can also bind source or independently retained
 diagnostic files. Locations are declarations for the reviewer to inspect.
 
 ```bash
@@ -63,7 +61,7 @@ original input/source snapshot, parent receipts, and a fresh complete returned
 output census. An actual scientific run also needs its retained observed launch.
 Its selected historical recipe must match every recorded immutable member,
 including optional helper/resource/output declarations. A self-rehashed removed
-or changed declaration cannot replace the launch's original binding.
+or changed declaration must not replace the launch's original binding.
 
 Historical helper metadata is compared as retained data. It is not admitted by
 the current helper launcher or imported/executed from its historical source.
@@ -71,9 +69,9 @@ The original runtime and source identities remain visible. This allows diagnosis
 across source epochs without qualifying a new execution or reusing an old result.
 
 Successful execution commits its output receipt at completion. A failed attempt
-may have no such commitment. This diagnostic path explicitly labels its output
+can have no such commitment. This diagnostic path explicitly labels its output
 custody as a fresh capture of retained bytes, not a successful execution receipt.
-It cannot establish that arbitrary returned bytes were unchanged before capture.
+It must not establish that arbitrary returned bytes were unchanged before capture.
 Retain external source/collector commitments when that distinction matters.
 
 Every observation uses a fresh existing `ValidationSession`, consumes ending
@@ -106,7 +104,7 @@ class. It grants no scientific acceptance or action authority.
 The canonical premise digest is its document identity. Its serialized JSON file
 has a separate byte digest. Graph receipt checks bind the former as a packet
 source identity, then verify the actually presented premise bytes equal the
-complete document. A digest for an unrelated projection cannot substitute for it.
+complete document. A digest for an unrelated projection must not substitute for it.
 
 Reconciled/manual attestation, incomplete graphs and unestablished transports do
 not count as actual diagnostic feedback. `allow_control=True` is only for explicitly
@@ -120,11 +118,11 @@ Graph-bound `improver` revision operation. The proposal must bind the exact fail
 parent experiment and feedback, retain rival predictions, identify one concrete
 intervention, and supply all new scientific source/input/resource obligations.
 The improver is a proposer, not an additional result-acceptance vote. A verifier
-at this stage assesses diagnosis and experiment design; it cannot close numerical
+at this stage assesses diagnosis and experiment design; it must not close numerical
 repair objections before the successor executes. New actual outputs need their
 own ordinary critic/verifier/decider review.
 
-Existing independent diagnostic reports may predate the Graph. Do not invent a
+Existing independent diagnostic reports can predate the Graph. Do not invent a
 past Graph call, fresh context or transport receipt for them.
 `historical_feedback(document, index_pin, critic_binding, verifier_binding,
 base_dir=run)` binds their original bytes with explicit provenance. Each binding
@@ -168,7 +166,7 @@ No model call, refit, new evaluator call, acceptance vote or retry occurred. The
 private controls establish custody/routing guards, not diagnostic efficacy.
 
 The source-only continuation also bound the actual historical diagnostic index
-and its existing CMS critic/RS1 skeptic reports to the retained principal-face
+and its existing critic and skeptic reports to the retained principal-face
 proposal, design, adapter and solver inputs. It explicitly preserves that these
 reports were not observed as Graph model calls. No source binding established a
 new scientific result or launched the prospective intervention.
@@ -181,9 +179,9 @@ of all returned starts. Neither this intake nor source-control success establish
 that the intervention repairs DS280 or validates a physics result.
 # Bounded presentation of complete failed intakes
 
-`create_context` and ordinary `scientific-judgment prepare-failed-role` retain the small-intake packet unchanged. When the complete canonical intake exceeds the existing 2,000,000-byte initial artifact bound, the `premise` artifact becomes a deterministic material presentation. It keeps FAILED status, launch/record/fingerprint pins, failure kind, unresolved or absent numerical outcome, every missing output obligation, actor declarations, limitations and false authority flags. The source/returned census is represented by complete counts, byte totals and canonical digests; these are not numerical acceptance or a claim that every file was read by the model. A bounded source-authenticated `science.json` projection supplies the actual task, source and assumptions initially.
+`create_context` and ordinary `scientific-judgment prepare-failed-role` retain the small-intake packet unchanged. When the complete canonical intake exceeds the existing 2,000,000-byte initial artifact bound, the `premise` artifact becomes a deterministic material presentation. It keeps FAILED status, launch/record/fingerprint pins, failure kind, unresolved or absent numerical outcome, every missing output obligation, actor declarations, qualifications and false authority flags. The source/returned census is represented by complete counts, byte totals and canonical digests; these are not numerical acceptance or a claim that every file was read by the model. A bounded source-authenticated `science.json` projection supplies the actual task, source and assumptions initially.
 
-The unchanged complete intake is retained as `full_premise`, an authenticated allowlisted artifact marked `on_demand`. Graph checks authenticate it; Host initially presents its hash, size and access metadata, rather than its contents. Model receipts distinguish bound source bytes from bytes actually presented. Diagnostic feedback revalidates the complete live failed premise and recomputes its initial summary; a deferred/hidden summary cannot supply feedback.
+The unchanged complete intake is retained as `full_premise`, an authenticated allowlisted artifact marked `on_demand`. Graph checks authenticate it; Host initially presents its hash, size and access metadata, rather than its contents. Model receipts distinguish bound source bytes from bytes actually presented. Diagnostic feedback revalidates the complete live failed premise and recomputes its initial summary; an on-demand summary must not supply feedback.
 
 Use the existing reader for an authenticated byte page:
 

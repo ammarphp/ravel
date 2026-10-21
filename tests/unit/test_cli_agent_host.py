@@ -425,7 +425,7 @@ def test_extra_arguments_that_reload_user_settings_are_refused(stub_path):
     assert not (stub_path / 'calls.jsonl').exists()
 
 
-def test_codex_runs_in_a_fresh_home_with_copied_login_only(stub_path, tmp_path, monkeypatch):
+def test_codex_generates_configuration_and_preserves_owner_login_files(stub_path, tmp_path, monkeypatch):
     install_stub(stub_path, 'codex', CODEX_STUB, {'text': '{"status": "supported"}', 'rollout_model': 'gpt-stub-served'})
     user_home = tmp_path / 'user-codex'
     user_home.mkdir()
@@ -435,8 +435,9 @@ def test_codex_runs_in_a_fresh_home_with_copied_login_only(stub_path, tmp_path, 
     monkeypatch.setenv('CODEX_HOME', str(user_home))
     answer = cah.invoke('codex', PARAMETERS, {}, timeout=30)
     call = calls(stub_path)[-1]
-    assert call['codex_home'] != str(user_home) and call['home_entries'] == ['auth.json', 'config.toml']
-    assert call['auth'] == '{"synthetic": "login"}'
+    assert call['codex_home'] != str(user_home) and call['home_entries'] == ['config.toml']
+    assert call['auth'] is None
+    assert (user_home / 'auth.json').read_text() == '{"synthetic": "login"}'
     assert answer['isolation']['config'] == 'fresh-home' and answer['isolation']['user_configuration_loaded'] is False
     assert answer['observed_model'] == 'gpt-stub-served' and not Path(call['codex_home']).exists()
     assert (user_home / 'config.toml').read_text() == 'model_provider = "user-provider"'

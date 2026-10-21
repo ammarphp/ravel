@@ -3,6 +3,10 @@
 Resolution order: explicit argument, RAVEL_SNAKEMAKE, RAVEL_TEST_SNAKEMAKE (under
 pytest only), the site-wms record (seam), then PATH. Nothing is looked up next to
 sys.executable. An empty list means no Snakemake was found.
+
+``declared_entry`` is separate: the console entry of the workflow manager this
+installation declares as a runtime dependency. A controller that prepares a
+governed launch names that entry explicitly; the resolution above never uses it.
 """
 import os
 from pathlib import Path
@@ -51,6 +55,34 @@ def snakemake_argv(explicit=None):
         return list(argv)
     found = shutil.which('snakemake')
     return [found] if found else []
+
+
+def declared_entry():
+    """The console entry of the installation's declared workflow manager, or an empty list.
+
+    The entry lies in the prefix that holds the installed package (an environment whose
+    site-packages this interpreter inherits counts), else in this interpreter's prefixes.
+    Only a controller preparing a governed launch uses it, and it passes the entry explicitly.
+    """
+    import importlib.util
+    prefixes = []
+    try:
+        spec = importlib.util.find_spec('snakemake')
+    except (ImportError, ValueError):
+        spec = None
+    origin = Path(spec.origin) if spec is not None and spec.origin else None
+    if origin is not None:
+        parents = origin.resolve().parents
+        for index, parent in enumerate(parents):
+            if parent.name in ('site-packages', 'dist-packages') and index + 3 < len(parents):
+                prefixes.append(parents[index + 3])  # <prefix>/lib/pythonX.Y/site-packages
+                break
+    prefixes += [Path(sys.prefix), Path(sys.base_prefix)]
+    for prefix in dict.fromkeys(prefixes):
+        argv = _usable(str(prefix / 'bin' / 'snakemake'))
+        if argv:
+            return argv
+    return []
 
 
 def snakemake_version(argv):

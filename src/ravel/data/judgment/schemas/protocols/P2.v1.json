@@ -1,0 +1,49 @@
+{
+  "title": "P2 basis-manifest: two manifests, the transformation and the identity check",
+  "type": "object",
+  "required": ["manifests", "transformation", "identity_check"],
+  "additionalProperties": false,
+  "properties": {
+    "manifests": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["side", "states_summed", "order", "pdf", "sample", "column", "channel", "normalization"],
+        "additionalProperties": false,
+        "properties": {
+          "side": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "states_summed": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "order": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "pdf": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "sample": {"type": "string", "enum": ["inclusive", "tagged", "not_applicable"]},
+          "column": {"type": "string", "enum": ["expected", "observed", "not_applicable"]},
+          "channel": {"type": "string", "enum": ["per_channel", "combined", "not_applicable"]},
+          "normalization": {"type": "string", "minLength": 1, "pattern": "\\S"}
+        }
+      }
+    },
+    "transformation": {
+      "type": "object",
+      "required": ["applied_to", "description", "result"],
+      "additionalProperties": false,
+      "properties": {
+        "applied_to": {"anyOf": [{"type": "integer", "minimum": 0, "maximum": 1}, {"type": "null"}]},
+        "description": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "result": {"anyOf": [{"type": "object"}, {"type": "null"}]}
+      }
+    },
+    "identity_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "expected": {"type": "number"},
+        "measured": {"type": "number"},
+        "tolerance": {"type": "number", "minimum": 0},
+        "unavailable_reason": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      }
+    }
+  }
+}

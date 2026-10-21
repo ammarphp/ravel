@@ -52,8 +52,11 @@ MASS_RE = re.compile(r"(?<![\w^\-−⁻.])(\d+(?:\.\d+)?)\s*(keV|MeV|GeV|TeV)\b"
 MASS_LIST_RE = re.compile(r"(?<![\w^\-−⁻.])\d+(?:\.\d+)?(?:\s*(?:,|and)\s*\d+(?:\.\d+)?)+\s*"
                           r"(keV|MeV|GeV|TeV)\b", re.I)
 LUMI_RE = re.compile(r"\b(\d+(?:\.\d+)?)\s*fb(?:\^?-1|⁻¹|-1)?\b", re.I)
-# A collision energy written as one: "at 13 TeV", "√s = 13.6 TeV", "13 TeV data/searches".
+# A collision energy written as one: "at 13 TeV", "√s = 13.6 TeV", "13 TeV data/searches", and an
+# energy coordinated with the luminosity of the same "at" phrase ("at 139 fb^-1 and 13 TeV").
 SQRT_S_LEFT_RE = re.compile(r"(?:\bat|@|\bpp|\bp\s*p|√\s*s|sqrt\s*\(?\s*s\s*\)?|\bE_?\s*cm|"
+                            r"(?:\bat|@)\s*\d+(?:\.\d+)?\s*[afp]b\s*(?:\^?\s*[-−]\s*1|⁻¹)\s*(?:,\s*(?:and\s+)?|and\s+)|"
+                            r"\b(?:beam|collision|collider)\s+energy(?:\s+(?:of|is))?|"
                             r"\bcent(?:er|re)[- ]of[- ]mass(?:\s+energy)?(?:\s+of)?)\s*[=:~≈]?\s*$", re.I)
 SQRT_S_RIGHT_RE = re.compile(r"^\s*(?:[\w-]+\s+){0,2}?(?:data|dataset|collisions?|measurements?|searches|"
                              r"search|analys[ie]s|events|LHC|pp|run|centre|center|c\.o\.m|collider|"
@@ -83,11 +86,16 @@ GLOSSARY_LINE_RE = re.compile(r"^\s*[-*•]\s*\$[^$\n]+\$\s*(?:is|are|denotes|st
 MATH_SPAN_RE = re.compile(r"\$\$.*?\$\$|\$[^$\n]*\$", re.S)
 TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
 BINNING_CUE_RE = re.compile(r"\bbins?\b|bin.?edges?|\bbinned\b|histogram", re.I)
+# Standard hadron-collider energies. A bare "at" can attach a mass to the preceding noun ("a slepton at
+# 300 GeV", "a mass scan at 750, 1000 GeV"); it states a collision energy for one of these values, or
+# when the "at" phrase opens its own clause ("..., at 42.75 TeV"). Explicit syntax admits any value.
+COLLIDER_SQRT_S_GEV = {900.0, 2760.0, 5020.0, 6500.0, 6800.0, 7000.0, 8000.0,
+                       13000.0, 13600.0, 14000.0}
+BARE_AT_RE = re.compile(r"(?:\bat|@)\s*$", re.I)
+CLAUSE_AT_RE = re.compile(r"(?:^|[,;:(]|\band|\bor)\s*(?:\bat|@)\s*$", re.I)
 COLLIDER_CUE_RE = re.compile(r"collider|\bLHC\b|sqrt\s*\(?\s*s\b|√s|\bbeam\b|"
                              r"cent(?:er|re).of.mass|\bc\.o\.m\b|\bfb\s*(?:\^?-1|⁻¹)|"
                              r"integrated\s+luminosity", re.I)
-COLLIDER_SQRT_S_GEV = {900.0, 2760.0, 5020.0, 6500.0, 6800.0, 7000.0, 8000.0,
-                       13000.0, 13600.0, 14000.0}
 
 
 def classification_view(text):
@@ -119,15 +127,16 @@ def _mass_plausible(text, start, end, value_gev):
 
 
 def _collision_energy(text, start, end, value_gev, window):
-    """A standard collider energy written in a collision-energy context."""
-    if round(value_gev, 3) not in COLLIDER_SQRT_S_GEV:
-        return False
+    """A quantity with its own adjacent collision-energy syntax."""
     line_start = text.rfind("\n", 0, start) + 1
     line_end = text.find("\n", end)
     line_end = len(text) if line_end < 0 else line_end
-    return bool(COLLIDER_CUE_RE.search(window)
-                or SQRT_S_LEFT_RE.search(text[max(line_start, start - 40):start])
-                or SQRT_S_RIGHT_RE.search(text[end:line_end]))
+    left = text[max(line_start, start - 80):start]
+    stated = bool(SQRT_S_LEFT_RE.search(left))
+    if stated and BARE_AT_RE.search(left) and not (round(value_gev, 3) in COLLIDER_SQRT_S_GEV
+                                                   or CLAUSE_AT_RE.search(left)):
+        stated = False
+    return stated or bool(SQRT_S_RIGHT_RE.search(text[end:line_end]))
 
 
 def _quantities(text):
@@ -884,7 +893,8 @@ def route(prompt, interpretation=None):
     return route_records(prompt, interpretation)[0]
 
 
-def route_records(prompt, interpretation=None, additions=None):
+def route_records(prompt, interpretation=None, additions=None, *, output_workspace=None, output_retained=None,
+                  output_census=True):
     """(contract, reading, label): the v1 contract, its reading sidecar and the derived label.
 
     The reading is the deterministic floor, extended componently by `additions` when given. The
@@ -895,7 +905,9 @@ def route_records(prompt, interpretation=None, additions=None):
     reading = document(prompt, additions)
     records = {}
     contract = _route(prompt, interpretation=interpretation, reading=reading, records=records)
-    contract['task_requirements'] = census_from_reading(prompt, reading)
+    contract['task_requirements'] = census_from_reading(prompt, reading, output_workspace=output_workspace,
+                                                        output_retained=output_retained,
+                                                        output_census=output_census)
     # The contract carries the reading's source restrictions; validate_pins requires equality.
     from .source_policy import from_reading
     restrictions = from_reading(reading)

@@ -27,7 +27,7 @@ read `scan.json` through its typed status and cite coverage and the normalizatio
 ravel cost --mode scan --points <N> --parallel <k>
 ```
 Per-point wall time and transient disk come from same-process pilots (`cost-preflight` skill). The
-scan states its disk plan before launch. For runs with durable receipts, keep declared inputs and outputs through validation and delivery; deleting or modifying them invalidates reuse and serving. Never compress an artifact in place after its receipt. Use separate stages for transformed products and reduce the grid/concurrency if the evidence cannot fit. Archival curation is a separate operation that must explicitly relinquish live replay certification. See `docs/workflow/reference/durable-execution.md`.
+scan states its disk plan before launch. For runs with durable receipts, keep declared inputs and outputs through validation and delivery; deleting or modifying them invalidates reuse and serving. Never compress an artifact in place after its receipt. Use separate stages for transformed products and reduce the grid/concurrency when evidence exceeds the available storage. Archival curation is a separate operation that must explicitly relinquish live replay certification. See `docs/workflow/reference/durable-execution.md`.
 
 ## 1b. Validate the varied params BEFORE launch (D10/G12 — `param-validated-before-scan`)
 A scan must not SHIP its varied physics until every varied-param/trap obligation is recorded PASS.

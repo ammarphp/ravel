@@ -38,9 +38,9 @@ def check_packet(root, record, *, agreement="pass", integrity="pass"):
          "attempt_ids": [record["attempt_id"]]} for cid, status in (("integrity", integrity), ("agreement", agreement))]})
 
 def accept(root, *, scope="reproduction", closes=()):
-    for role, actor in (("physics_critic", "critic"), ("skeptical_verifier", "skeptic"), ("physics_decider", "physicist")):
-        review.submit_review(root, role=role, actor_id=actor, verdict="accept", summary="Evidence supports the stated scope",
-            claim_scope=scope, closes=list(closes))
+    """Critic, skeptic and decider accept through bound responses; declared names are advice."""
+    from bound_review import bound_accept
+    return bound_accept(root, scope=scope, closes=list(closes))
 
 def finding(name="F1", paths=None):
     return {"id": name, "summary": "The setting needs the declared correction",
@@ -49,7 +49,9 @@ def finding(name="F1", paths=None):
         "required_stages": ["detector"]}
 
 def reject(root, name="F1", paths=None):
-    return review.submit_review(root, role="physics_decider", actor_id="physicist", verdict="send_back",
+    """A bound critic send-back with one located finding; the cycle then awaits a decider correction."""
+    from bound_review import bound_review
+    return bound_review(root, role="physics_critic", verdict="send_back",
         summary="Send back for a controlled correction", findings=[finding(name, paths)])
 
 def correct(root):

@@ -3,7 +3,7 @@
 `ravel.workflow.scientific_phase_allocation.allocate(request)` reserves declared
 check costs before construction or polishing. The ordinary AgentHost action
 `scientific-phase` takes an explicitly pinned `request_input`; blinded review
-roles cannot receive this planning action.
+roles must not receive this planning action.
 
 The closed schema-1 request contains `budget`, `usage`, `checks`, `designs`,
 `completed_check_ids`, `retained_design_ids` and `mandatory_check_ids`. Resource

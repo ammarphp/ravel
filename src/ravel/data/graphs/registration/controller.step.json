@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "graph-registration",
+  "graphs": [
+    {
+      "id": "controller.step",
+      "version": 2,
+      "kernel_version": 1,
+      "module": "ravel.controller.step.graph",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": [
+        "run_id"
+      ],
+      "roles": [],
+      "gates": {
+        "cost_authority": {
+          "required_providers": []
+        },
+        "native_authority": {
+          "required_providers": []
+        }
+      },
+      "subgraphs": [
+        {
+          "id": "controller.seat",
+          "version": 2
+        }
+      ],
+      "interrupts": [
+        "reconcile_evidence",
+        "controller_authority"
+      ],
+      "structure_sha256": "473dae455d8e9f547a7ba225d7b5a95d77c1d0b01cb09a70651c4ad99fd90e3a",
+      "owner": "controller-step"
+    },
+    {
+      "id": "controller.seat",
+      "version": 2,
+      "kernel_version": 1,
+      "module": "ravel.controller.step.graph",
+      "builder": "build_seat",
+      "scope": "run",
+      "instance_keys": [
+        "run_id"
+      ],
+      "roles": [],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": [
+        "reconcile_evidence"
+      ],
+      "structure_sha256": "213e7b5a40c02ddb8d79f3681da7c35efb094d1aaf22ea648eab8673e43ffd3c",
+      "owner": "controller-step"
+    }
+  ]
+}

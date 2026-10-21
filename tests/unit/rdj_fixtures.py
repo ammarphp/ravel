@@ -95,14 +95,23 @@ class Run:
         """User steering recorded through RAVEL's user-message path."""
         return rdj_custody.record_user_steering(self.root, text)
 
-    def approve(self, case_id, text=None):
-        """A human approval recorded through the CHECK-IN response path, naming the case."""
+    def approve(self, case_id, text=None, *, confirmed=True):
+        """A human approval recorded through the CHECK-IN response path, naming the case.
+
+        ``confirmed`` records the operator's confirmation at the controller terminal (the
+        inert ``operator_capture`` stand-in), which is what lets the approval be recorded;
+        without it ``record_human_approval`` refuses and records nothing."""
+        from ravel.workflow import approval_capture
+        from operator_capture import confirm
         text = text or f"I approve {case_id}."
         pin = self.steering(text)
         start = text.index(case_id)
+        digest = rdj_custody._commit_line(self.root, case_id)["record"]["data"]["digest"]
+        attestation = (confirm("case_approval", approval_capture.case_binding(self.root, case_id, digest, pin["sha256"]))
+                       if confirmed else None)
         return rdj_custody.record_human_approval(self.root, case_id=case_id, source="user_steering",
                                                  path=pin["path"], start=start, end=start + len(case_id),
-                                                 text=case_id)
+                                                 text=case_id, attestation=attestation)
 
     def reopen(self, digest, text=None):
         """A user decision, recorded through the steering path, that reopens one action."""

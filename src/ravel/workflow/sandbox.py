@@ -32,7 +32,12 @@ class ReadRootRefused(ValueError):
 
 
 def quote(value):
-    return json.dumps(value, ensure_ascii=True)
+    """An SBPL string literal. The profile language reads UTF-8 and escapes only ``\\`` and ``"``;
+    a JSON ``\\u`` escape is not decoded (measured), so a rule on a non-ASCII path would miss it."""
+    text = str(value)
+    if '\0' in text or '\n' in text:
+        raise ValueError('a sandbox path may not contain NUL or a newline')
+    return '"' + text.replace('\\', '\\\\').replace('"', '\\"') + '"'
 
 
 def available():
@@ -74,6 +79,28 @@ def _paths(workspace, read_paths, protected=()):
     return workspace, paths
 
 
+WORKER_WRITE_ROOTS = ('outputs', 'scratch')
+
+
+def _write_roots(workspace, writable, protected=()):
+    """The worker's writable directories: ``outputs`` and ``scratch`` by default, or explicit ones.
+
+    Explicit roots are ordinary directories inside the workspace (never the workspace itself, its
+    ``inputs`` or a protected root), so a caller can narrow the layout but never widen it.
+    """
+    workspace = ordinary(workspace)
+    if writable is None:
+        return [workspace / name for name in WORKER_WRITE_ROOTS]
+    roots = []
+    for value in writable:
+        path = ordinary(value)
+        if (not any(path.is_relative_to(workspace / name) for name in WORKER_WRITE_ROOTS)
+                or any(path.is_relative_to(ordinary(g)) or ordinary(g).is_relative_to(path) for g in protected)):
+            raise ReadRootRefused('a worker write root must lie inside outputs or scratch, outside protected roots')
+        roots.append(path)
+    return list(dict.fromkeys(roots))
+
+
 def cli_home_for(workspace):
     """The per-worker CLI home a transport adapter creates beside the workspace (never inside it)."""
     workspace = ordinary(workspace)
@@ -101,34 +128,13 @@ def _home(workspace, home, protected=()):
 
 
 def user_home_for(workspace):
-    """The adapter-owned ``HOME`` of a Claude-family worker on macOS, beside the workspace.
-
-    It holds exactly one entry, ``Library/Keychains``: a symbolic link the adapter makes to
-    the invoking account's login keychain directory, because Claude Code finds its stored
-    login through ``$HOME/Library/Keychains``. This one link is the documented exception to
-    the no-symlink path rule; nothing else from the account home is linked or copied.
-    """
+    """The deterministic path reserved for a worker's optional private HOME."""
     workspace = ordinary(workspace)
     return workspace.parent / (workspace.name + '.home')
 
 
-def login_keychains():
-    """The invoking account's real keychain directory, from the password database (never ``$HOME``)."""
-    import pwd
-    return Path(pwd.getpwuid(os.getuid()).pw_dir) / 'Library' / 'Keychains'
-
-
-def _keychain(workspace, keychain_home):
-    """(adapter home, real keychain directory) or None; only the workspace's own ``<attempt>.home``."""
-    if keychain_home is None:
-        return None
-    if ordinary(keychain_home) != user_home_for(workspace):
-        raise ReadRootRefused('a keychain home must be the workspace\'s own <attempt>.home')
-    return ordinary(keychain_home), ordinary(login_keychains())
-
-
 # Provider egress for a model CLI: outbound TCP to port 443 only and name resolution, plus the
-# system services a CLI uses for TLS trust and its stored login (Keychain). Every other port and
+# system services a CLI uses for TLS trust. Every other port and
 # listening sockets stay denied. Hosts are not filtered: that needs a RAVEL-owned proxy.
 PROVIDER_PORT = 443
 MACOS_PROVIDER_NETWORK = (
@@ -136,34 +142,34 @@ MACOS_PROVIDER_NETWORK = (
     '(allow network-outbound (remote unix-socket (path "/private/var/run/mDNSResponder")))',
     '(allow system-socket)',
     '(allow mach-lookup (global-name "com.apple.dnssd.service") (global-name "com.apple.trustd")'
-    ' (global-name "com.apple.trustd.agent") (global-name "com.apple.SecurityServer")'
-    ' (global-name "com.apple.securityd.xpc") (global-name "com.apple.system.opendirectoryd.libinfo")'
+    ' (global-name "com.apple.trustd.agent")'
+    ' (global-name "com.apple.system.opendirectoryd.libinfo")'
     ' (global-name "com.apple.system.notification_center") (global-name "com.apple.cfprefsd.daemon")'
     ' (global-name "com.apple.cfprefsd.agent"))',
     '(allow file-read* (literal "/etc") (literal "/var") (literal "/tmp") (subpath "/private/etc")'
     ' (subpath "/private/var/db/timezone"))',
 )
 NETWORKS = (None, 'provider')
-# Claude-family workers only: the login keychain's directory is readable (never writable) and the
-# Security framework's remaining services are reachable. Keychain items stay under macOS ACLs.
-# Measured with `security show-keychain-info` in the profile: without group-membership lookup and
-# the system Module Directory Service database the framework fails before it opens any keychain.
-MACOS_KEYCHAIN_SERVICES = ('com.apple.securityd', 'com.apple.security.agent', 'com.apple.ocspd',
-                           'com.apple.system.opendirectoryd.membership')
-MACOS_KEYCHAIN_SYSTEM_READS = ('/private/var/db/mds',)
-# Claude Code reads its stored login by running this tool (`security find-generic-password -a $USER`).
-# The base profile's exec rule covers it; naming it keeps the keychain grant independent of the read
-# roots. Measured with `show-keychain-info` and a lookup of an absent item: it needs nothing else.
-MACOS_KEYCHAIN_TOOL = '/usr/bin/security'
+
+def network_port(network):
+    """Named HTTPS provider egress or a code-bound local endpoint port; no arbitrary host grants."""
+    if network is None:
+        return None
+    if network == 'provider':
+        return PROVIDER_PORT
+    if (type(network) is dict and set(network) == {'kind', 'host', 'port'}
+            and network['kind'] == 'loopback' and network['host'] in ('127.0.0.1', '::1', 'localhost')
+            and type(network['port']) is int and 1 <= network['port'] <= 65535):
+        return network['port']
+    raise ValueError(f'unknown sandbox network {network!r}')
 
 
 def macos_profile(workspace, *, read_paths=(), broker_socket=None, protected=(), home=None, network=None,
-                  keychain_home=None):
+                  writable=None):
     ws, paths = _paths(workspace, read_paths, protected)
     home = _home(ws, home, protected)
-    keychain = _keychain(ws, keychain_home)
-    if network not in NETWORKS:
-        raise ValueError(f'unknown sandbox network {network!r}')
+    writes = _write_roots(ws, writable, protected)
+    port = network_port(network)
     # Local unix IPC only; no IP sockets. Calls/receipt/spec/control are absent.
     lines = ['(version 1)', '(deny default)', '(allow process-exec)', '(allow process-fork)',
              '(allow signal (target self))', '(allow sysctl-read)',
@@ -173,9 +179,9 @@ def macos_profile(workspace, *, read_paths=(), broker_socket=None, protected=(),
              '(allow file-write* (literal "/dev/null"))']
     # The child's cwd entry must be listable; calls/, receipts and control files stay unreadable.
     lines.append('(allow file-read* (literal '+quote(str(ws))+'))')
-    for path in [*paths, ws/'inputs', ws/'outputs', ws/'scratch']:
+    for path in [*paths, ws/'inputs', *writes]:
         lines.append('(allow file-read* (subpath '+quote(str(path))+'))')
-    for path in (ws/'outputs', ws/'scratch', *([home] if home else [])):
+    for path in (*writes, *([home] if home else [])):
         lines.append('(allow file-write* (subpath '+quote(str(path))+'))')
     if home:
         lines.append('(allow file-read* (subpath '+quote(str(home))+'))')
@@ -185,23 +191,15 @@ def macos_profile(workspace, *, read_paths=(), broker_socket=None, protected=(),
     ancestors = sorted({str(a) for p in [*paths, ws, *([home] if home else [])] for a in p.parents})
     lines.append('(allow file-read-metadata '+' '.join('(literal '+quote(a)+')' for a in ancestors)+')')
     lines.append('(allow file-read-metadata (literal '+quote(str(ws))+')'
-                 +''.join(' (subpath '+quote(str(p))+')' for p in [*paths, ws/'inputs', ws/'outputs', ws/'scratch',
+                 +''.join(' (subpath '+quote(str(p))+')' for p in [*paths, ws/'inputs', *writes,
                                                                 *([home] if home else [])])
                  +' (literal "/dev/null") (literal "/dev/urandom") (literal "/dev"))')
     lines.append('(allow network-outbound (remote unix-socket (path '+quote(str(broker_socket or ws/'.broker.sock'))+')))')
-    if network == 'provider':
-        lines.extend(MACOS_PROVIDER_NETWORK)
-    if keychain:
-        own, real = keychain
-        # The adapter home is the child's HOME; the real keychain directory is read-only.
-        lines.append('(allow file-read* file-write* (subpath '+quote(str(own))+'))')
-        lines.append('(allow file-read* (subpath '+quote(str(real))+')'
-                     +''.join(' (subpath '+quote(p)+')' for p in MACOS_KEYCHAIN_SYSTEM_READS)+')')
-        lines.append('(allow file-read-metadata '+' '.join('(literal '+quote(str(a))+')'
-                     for a in sorted({*own.parents, *real.parents}, key=str))+')')
-        lines.append('(allow mach-lookup '+' '.join('(global-name '+quote(n)+')' for n in MACOS_KEYCHAIN_SERVICES)+')')
-        lines.append('(allow file-read* (literal '+quote(MACOS_KEYCHAIN_TOOL)+'))')
-        lines.append('(allow process-exec (literal '+quote(MACOS_KEYCHAIN_TOOL)+'))')
+    if port is not None:
+        if type(network) is dict:
+            lines.append(f'(allow network-outbound (remote tcp "{network["host"]}:{port}"))')
+        else:
+            lines.extend(MACOS_PROVIDER_NETWORK)
     return '\n'.join(lines)+'\n'
 
 
@@ -216,12 +214,14 @@ LINUX_X32_SYSCALL_BIT = 0x40000000  # the second system-call table of an x86_64 
 SECCOMP_ALLOW, SECCOMP_KILL_PROCESS = 0x7FFF0000, 0x80000000
 SECCOMP_REFUSE = 0x00050000 | errno.EPERM
 # Landlock (kernel 6.7 and later, access-control version 4) can restrict TCP by port. With it
-# the provider profile admits outbound TCP to the provider port only, as on macOS; without
-# it the namespace shares the host network unfiltered and the evidence says "unrestricted".
+# the provider profile restricts TCP to port 443. This does not restrict destinations
+# or UDP: direct DNS remains available. Without Landlock the shared namespace does
+# not filter TCP ports either; provider evidence must state this fallback.
 LANDLOCK_PORT_RULES_VERSION = 4
 LANDLOCK_CREATE_RULESET, LANDLOCK_ADD_RULE, LANDLOCK_RESTRICT_SELF = 444, 445, 446
 LINUX_FILTER_SHIM = (
     'import ctypes,json,os,struct,sys\n'
+    'os.umask(0o077)\n'
     'rows=json.loads(sys.argv[1]);port=sys.argv[2];argv=sys.argv[3:]\n'
     'libc=ctypes.CDLL(None,use_errno=True);word=ctypes.c_ulong;call=libc.syscall;call.restype=ctypes.c_long\n'
     'def refused(what):raise OSError(ctypes.get_errno(),"the worker "+what+" was refused")\n'
@@ -274,8 +274,7 @@ def linux_filter(network=None, machine=None):
     machine = {'arm64': 'aarch64', 'amd64': 'x86_64'}.get(machine, machine)
     if machine not in LINUX_SYSCALLS:
         raise SandboxUnavailable('sandbox_unavailable')
-    if network not in NETWORKS:
-        raise ValueError(f'unknown sandbox network {network!r}')
+    port = network_port(network)
     architecture, numbers = LINUX_SYSCALLS[machine]
     load, equal, at_least, result = 0x20, 0x15, 0x35, 0x06
     rows = [(load, 'arch'), (equal, architecture, None, 'kill'), (load, 'nr'),
@@ -296,17 +295,17 @@ def linux_filter(network=None, machine=None):
 
 
 def linux_command(workspace, argv, *, read_paths=(), broker_socket=None, protected=(), home=None, network=None,
-                  keychain_home=None):
-    if keychain_home is not None:
-        raise ValueError('a keychain home is a macOS profile property')
+                  writable=None):
     ws, paths = _paths(workspace, read_paths, protected)
     home = _home(ws, home, protected)
-    if network not in NETWORKS:
-        raise ValueError(f'unknown sandbox network {network!r}')
+    writes = _write_roots(ws, writable, protected)
+    port = network_port(network)
+    if type(network) is dict and not linux_port_rules():
+        raise SandboxUnavailable('sandbox_loopback_port_filter_unavailable')
     command = [shutil.which('bwrap') or 'bwrap', '--die-with-parent', '--new-session', '--unshare-all',
-               *(['--share-net'] if network == 'provider' else ['--unshare-net']),
+               *(['--share-net'] if port is not None else ['--unshare-net']),
                '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp']
-    if network == 'provider':
+    if port is not None:
         for p in ('/etc/resolv.conf', '/etc/hosts', '/etc/ssl', '/etc/ca-certificates', '/etc/pki'):
             if Path(p).exists():
                 command.extend(['--ro-bind', p, p])
@@ -326,12 +325,12 @@ def linux_command(workspace, argv, *, read_paths=(), broker_socket=None, protect
         command.extend(['--ro-bind', str(p), str(p)])
     if broker_socket is not None:
         command.extend(['--ro-bind', str(broker_socket), '/tmp/ravel-broker.sock'])
-    for p in (ws/'outputs', ws/'scratch', *([home] if home else [])):
+    for p in (*writes, *([home] if home else [])):
         command.extend(['--bind', str(p), str(p)])
     # The namespace hides whatever is not bound. The protected roots and the workspace's
     # other folders are present as directories nobody may search, so reaching for the run
     # tree, custody or the call records is refused by permission, as under the macOS profile.
-    bound = [*paths, ws/'inputs', ws/'outputs', ws/'scratch', *([home] if home else []), Path('/proc'), Path('/dev')]
+    bound = [*paths, ws/'inputs', *writes, *([home] if home else []), Path('/proc'), Path('/dev')]
     hidden = [ordinary(p) for p in protected]
     hidden += sorted(p for p in ws.iterdir() if p.is_dir() and not p.is_symlink()) if ws.is_dir() else []
     for p in dict.fromkeys(hidden):
@@ -346,7 +345,7 @@ def linux_command(workspace, argv, *, read_paths=(), broker_socket=None, protect
     # omits the interpreter leaves nothing to run, and the launch fails closed.
     shim = [sys.executable, '-I', '-S', '-B', '-c', LINUX_FILTER_SHIM,
             json.dumps(linux_filter(network), separators=(',', ':')),
-            str(PROVIDER_PORT) if network == 'provider' and linux_port_rules() else '']
+            str(port) if port is not None and linux_port_rules() else '']
     return command+['--chdir',str(ws), '--', *shim, *argv]
 
 
@@ -392,7 +391,7 @@ def user_configuration_exposed(read_paths, pass_env_names=()):
 
 
 def command(workspace, argv, *, read_paths=(), backend=None, broker_socket=None, protected=(), home=None, network=None,
-            keychain_home=None):
+            writable=None):
     backend = backend or available()
     if not backend:
         raise SandboxUnavailable('sandbox_unavailable')
@@ -401,27 +400,52 @@ def command(workspace, argv, *, read_paths=(), backend=None, broker_socket=None,
     if backend == 'macos':
         return ['/usr/bin/sandbox-exec','-p',macos_profile(workspace,read_paths=read_paths,broker_socket=broker_socket,
                                                            protected=protected,home=home,network=network,
-                                                           keychain_home=keychain_home),*argv]
+                                                           writable=writable),*argv]
     if backend == 'linux':
         return linux_command(workspace,argv,read_paths=read_paths,broker_socket=broker_socket,protected=protected,
-                             home=home,network=network,keychain_home=keychain_home)
+                             home=home,network=network,writable=writable)
     raise SandboxUnavailable('sandbox_unavailable')
 
 
 def egress(network, backend=None):
     """What the profile permits outward, as recorded in the probe evidence."""
-    if network is None:
+    port = network_port(network)
+    if port is None:
         return 'none'
     if (backend or available()) == 'linux' and not linux_port_rules():
         return 'unrestricted'  # a shared network namespace alone cannot filter ports
-    return f'tcp-{PROVIDER_PORT}'
+    return f'tcp-{port}'
 
 
-def probe(workspace, *, forbidden, executable=sys.executable, read_paths=(), protected=(), home=None, network=None,
-          keychain_home=None):
+def egress_details(network, backend=None):
+    """Expose destination and datagram gaps separately from port filtering."""
+    kind = backend or available()
+    outward = 'sandbox-unavailable' if network is not None and kind is None else egress(network, kind)
+    return {'class': outward, 'destination_scope': 'none' if network is None else 'any',
+            'endpoint_confinement': network is None,
+            'udp': 'unfiltered' if network is not None and kind == 'linux' else 'none',
+            'qualified_provider_endpoints': []}
+
+
+class EndpointConfinementRefused(ValueError):
+    reason = 'provider_endpoint_confinement_unavailable'
+
+
+def require_provider_egress(admission):
+    """Port rules cannot authorize exposing restricted bytes to a worker CLI."""
+    details = egress_details('provider')
+    if admission['data_classification']['level'] != 'public' and not details['endpoint_confinement']:
+        raise EndpointConfinementRefused(
+            'provider_endpoint_confinement_unavailable: restricted/internal CLI workers require '
+            'a qualified endpoint-confined gateway; use a cleared trusted HTTP transport or '
+            'qualify an endpoint-confined worker backend before dispatch')
+    return details
+
+
+def probe(workspace, *, forbidden, executable=sys.executable, read_paths=(), protected=(), home=None, network=None):
     """Run inert read/write/network denial probes in the actual profile.
 
-    ``home``, ``network`` and ``keychain_home`` must be the child's own, so the evidence describes the profile
+    ``home`` and ``network`` match the child so the evidence describes its actual profile
     the child runs under. ``forbidden`` is one file or a list of files (custody, run tree,
     peer workspace); every read must be denied. A listening socket is always denied; an
     outbound connection to a port other than 443 (on the loopback address, so nothing
@@ -468,8 +492,7 @@ print(json.dumps(checks))
     argv=[executable,'-B','-c',program,str(marker),json.dumps(targets),str(ws/'forbidden-write')]
     outward=egress(network)
     try:
-        done=subprocess.run(command(ws,argv,read_paths=read_paths,protected=protected,home=home,network=network,
-                                    keychain_home=keychain_home),cwd=ws,
+        done=subprocess.run(command(ws,argv,read_paths=read_paths,protected=protected,home=home,network=network),cwd=ws,
                             env={'PATH':'/usr/bin:/bin','HOME':str(ws/'scratch')},
                             capture_output=True,text=True,timeout=10)
         if done.returncode!=0:
@@ -495,8 +518,7 @@ print(json.dumps(checks))
             raise failure
         computed={**checks,'read_denied':True,'egress':outward,'network_denied':outward=='none'}
         return {'backend':available(),'confirmed':True,'computed_checks':computed,'denied_reads':len(targets),
-                'network':outward,'cli_home':home is not None,
-                'login_keychain':keychain_home is not None}
+                'network':outward,'egress_details':egress_details(network),'cli_home':home is not None}
     except (OSError,subprocess.SubprocessError) as exc:
         raise SandboxUnavailable('sandbox_probe_unconfirmed') from exc
     finally:

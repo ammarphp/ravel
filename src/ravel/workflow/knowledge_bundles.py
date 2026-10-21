@@ -284,6 +284,9 @@ def materialize(card, node_facts, binding):
              'atlas_sha256': digest(encode(atlas)), 'premises_sha256': digest(encode(premise_doc)),
              'role_bindings_sha256': digest(encode(bindings)),
              'source_restriction_sha256': digest(encode({'withheld_ids': sorted(withheld), 'forbidden': sorted(forbidden)}))}
+    from . import literature_roles
+    index, literature_payloads = literature_roles.supplement(index, card, node_facts, binding)
+    payloads.update(literature_payloads)
     index['bundle_sha256'] = digest(encode(index))
     payloads['inputs/knowledge/index.json'] = encode(index)
     workspace_path = Path(binding['workspace']).absolute()
@@ -304,7 +307,7 @@ def materialize(card, node_facts, binding):
     return index
 
 
-def validate_cited_ids(record, bundle, *, atlas_path=None):
+def validate_cited_ids(record, bundle, *, atlas_path=None, literature_broker=None):
     """Refuse invented or unserved knowledge_used IDs in the final record."""
     if digest(encode({k: v for k, v in bundle.items() if k != 'bundle_sha256'})) != bundle.get('bundle_sha256'):
         raise ValueError('knowledge bundle digest differs')
@@ -320,6 +323,13 @@ def validate_cited_ids(record, bundle, *, atlas_path=None):
     served = {r['id'] for r in bundle['items']}
     if set(cited) - served:
         raise ValueError('unserved knowledge ID: ' + ', '.join(sorted(set(cited) - served)))
+    if record.get('literature_used'):
+        if literature_broker is None:
+            raise ValueError('literature citations require the receiving attempt broker')
+        from . import literature_roles
+        literature_roles.validate_citations(record, bundle, literature_broker)
+    elif 'literature_used' in record and record['literature_used'] != []:
+        raise ValueError('literature_used must be an ID list')
     return list(dict.fromkeys(cited))
 
 

@@ -16,6 +16,8 @@ from . import agent_graph, capability_routing, intake, science
 from .task_completion import _Inputs
 
 MAX_PRESENTED_BYTES = 1_500_000
+RESOURCE_BOUNDS = {'max_child_seconds': (1, 86400), 'max_calls': (2, 2),
+                   'max_output_tokens': (16, 32000), 'max_wall_seconds': (1, 3600)}
 
 
 def _keys(value, keys):
@@ -50,9 +52,8 @@ def _write(path, value, observed):
 
 
 def _resources(value):
-    _keys(value, {'max_child_seconds', 'max_calls', 'max_output_tokens', 'max_wall_seconds'})
-    for key, lo, hi in [('max_child_seconds', 1, 86400), ('max_calls', 2, 2),
-                        ('max_output_tokens', 16, 32000), ('max_wall_seconds', 1, 3600)]:
+    _keys(value, RESOURCE_BOUNDS)
+    for key, (lo, hi) in RESOURCE_BOUNDS.items():
         if type(value[key]) is not int or not lo <= value[key] <= hi:
             raise ValueError('finite caller-declared planner resource outside bound: ' + key)
     return value
@@ -321,6 +322,85 @@ def materialize(request_pin, graph_root, output_dir, *, base_dir, presented_pins
         observed.finish()
         return {'delivery': deepcopy(pin), 'value': deepcopy(record), 'execution_authorized': False, 'parent_task_accepted': False}
     finally: observed.close()
+
+
+def controller_child(store, request_pin, graph_root, output_dir, *, base_dir, presented_pins):
+    """Consume an ordinary charged planning delivery without granting child authority.
+
+    Physical children and source continuations retain every original parent duty
+    for judgment. Only an authenticated complete literal parent may take the
+    literal operation path; its prepared child still needs ordinary approval.
+    """
+    output = Path(output_dir).absolute()
+    if output.exists() or output.is_symlink():
+        raise ValueError('controller planning requires a fresh unprepared output directory')
+    observed = _Inputs(base_dir)
+    try:
+        request = observed.document(request_pin)
+        parent_pin = request['parent_contract']
+        observed.file(parent_pin)
+        handoff = request['handoff']
+        original = {'parent_contract': deepcopy(parent_pin),
+                    'goal_binding': deepcopy(handoff['goal_binding']),
+                    'original_request': handoff['original_request'],
+                    'original_obligations': deepcopy(handoff['obligations'])}
+        supplied = materialize(request_pin, graph_root, output, base_dir=base_dir,
+                               presented_pins=presented_pins)
+        if (type(supplied) is not dict or supplied.get('execution_authorized') is not False
+                or supplied.get('parent_task_accepted') is not False):
+            raise ValueError('the actual planning delivery grants no execution or parent acceptance')
+        delivery = observed.document(supplied['delivery'])
+        if delivery != supplied.get('value') or delivery.get('kind') != 'intake-planning-delivery':
+            raise ValueError('actual delivery bytes differ from materialized planning result')
+        if (delivery.get('request') != request_pin or
+                any(delivery.get(key) != value for key, value in original.items()) or
+                delivery.get('remaining_parent_obligations') != original['original_obligations']):
+            raise ValueError('planning delivery changed the original parent obligations or goal')
+        if any(delivery.get(key) is not False for key in
+               ('execution_authorized', 'parent_task_accepted', 'physics_validated')):
+            raise ValueError('a planner cannot authorize or accept its ordinary child')
+        continuation = 'judgment'
+        child_root = None
+        literal_parent = None
+        if delivery.get('disposition') == 'scientific_study':
+            child = Path(delivery['child_root'])
+            if (not child.is_absolute() or not child.is_relative_to(output) or child == output
+                    or any(p.is_symlink() for p in (child, *child.parents))):
+                raise ValueError('fresh planned child must stay within the actual planner output')
+            spec = observed.document(delivery['science_specification'])
+            copied = observed.document(observed.capture(child / science.SPEC))
+            if copied != spec:
+                raise ValueError('ordinary child specification changed from delivered bytes')
+            science.verify_plan(child)
+            view = science.packet(child)
+            if view['execution']['status'] != 'planned' or (child / science.APPROVAL).exists():
+                raise ValueError('only a fresh planned unapproved ordinary child may continue')
+            if spec.get('mode') == 'literal-calculation':
+                from ravel.physics.literal_calculation import validate_parent
+                if (handoff.get('task_kind') != 'calculation' or spec.get('schema_version') != 1
+                        or spec.get('task', {}).get('parent_contract') != parent_pin):
+                    raise ValueError('literal exemption requires the exact original calculation parent')
+                literal_parent = validate_parent(spec['task'], Path(base_dir))
+                continuation = 'controller.step'
+            elif spec.get('schema_version') != 2 or spec.get('goal_binding') != original['goal_binding']:
+                raise ValueError('physical child must preserve the original scientific goal and review policy')
+            # Observe plan bytes after the ordinary verifier, then recheck at return.
+            observed.capture(child / science.PLAN)
+            child_root = str(child)
+        elif delivery.get('disposition') != 'source_development':
+            raise ValueError('unknown ordinary planning continuation')
+        body = {'kind': 'controller-intake-child', 'delivery': deepcopy(supplied['delivery']),
+                **original, 'child_root': child_root, 'continuation': continuation,
+                'remaining_parent_obligations': deepcopy(original['original_obligations']),
+                'literal_parent': literal_parent, 'execution_authorized': False,
+                'parent_task_accepted': False, 'physics_validated': False}
+        # JSON-only controller evidence; the store remains outside worker outputs.
+        body = _json(_bytes(body))
+        observed.finish()
+        body['record_id'] = store.append('controller-intake-child', deepcopy(body))
+        return body
+    finally:
+        observed.close()
 
 
 def record_checkin1_response(delivery_pin, *, user_text, quote, delegate_actor, actions,

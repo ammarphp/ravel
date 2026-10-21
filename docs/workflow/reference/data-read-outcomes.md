@@ -22,7 +22,7 @@ provenance, detector truth, actor identity or server immutability.
 Missing acquisitions return a prepared original unresolved context and an
 `acquisition_missing` plan blocker, without making observations or consuming a
 run. A separate generated-simulation acquisition has its own source role and
-ordinary experiment. It cannot complete a missing observed-data obligation.
+ordinary experiment. It must not complete a missing observed-data obligation.
 The preparation directory must have an existing ordinary parent. Source pins in
 the relocated ordinary specification must resolve identically; inherited relative
 pins requiring another base are refused instead of guessed.
@@ -50,15 +50,15 @@ with the original contract pin, `quantity_id`, allowed original `roles`, and
 `purpose: original_quantity`. Ingestion verifies the selected original ordinary
 attempt, launch, source/runtime and publication closure before numerical checks
 can complete the quantity. An arbitrary same-shaped array or caller success flag
-cannot supply a ROOT read outcome. Legacy directly authored tasks and context
-schemas remain usable; a typed result cannot bypass its original read requirement.
+must not supply a ROOT read outcome. Legacy directly authored tasks and context
+schemas remain usable; a typed result must not bypass its original read requirement.
 
 An explicitly separate requirement with `purpose: partial_diagnostic` can use
 valid retained failed/partial diagnostics. Its read check reports
 `original_scientific_obligation_complete: false`; it does not complete the
-original acquisition. Existing failed ordinary attempts may lack a committed
+original acquisition. Existing failed ordinary attempts can lack a committed
 output snapshot. Their actual terminal token, original input/runtime, launch and
-reader Guard are checked, while that output-snapshot limitation remains explicit.
+reader Guard are checked, while that output-snapshot qualification remains explicit.
 No success/review vote or scientific acceptance is inferred.
 
 This first finite implementation targets original full schema-1 ROOT acquisitions.

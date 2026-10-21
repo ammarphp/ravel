@@ -1,0 +1,92 @@
+--- a/src/ravel/workflow/transports/cli_worker.py
++++ b/src/ravel/workflow/transports/cli_worker.py
+@@ -13,8 +13,8 @@
+   declaration's ``worker_surface.mcp`` row (``ravel work mcp`` over the card's toolbelt);
+ - the executable is the absolute path of a current probe whose sha256 still matches;
+ - the CLI's configuration home is either a fresh per-worker directory beside the workspace
+-  (``<attempt>.cli-home``, removed after the child) or, for the Claude login route, a
+-  dedicated login-only ``CLAUDE_CONFIG_DIR`` that is checked to hold no instructions,
++  (``<attempt>.cli-home``, removed after the child). The Claude login route copies a
++  dedicated login-only ``CLAUDE_CONFIG_DIR`` into this private home after checking it holds no instructions,
+   skills, agents, hooks or installed plugins, and settings with display keys only (the
+   account-synced ``skills/synced`` and ``plugins/synced`` folders every login creates are
+   admitted: the launch flags load neither);
+@@ -53,6 +53,7 @@
+ import os
+ from pathlib import Path
+ import shutil
++import stat
+ import sys
+ import time
+ import uuid
+@@ -327,12 +328,69 @@
+     return launch_env
+ 
+ 
++def _private_login_config(source, home):
++    """Copy validated login state into this attempt's private writable home.
++
++    Source handles are read-only and never followed through links. Every copied
++    directory is 0700 and every regular file is 0600, independently of source mode.
++    """
++    def copy_directory(source_fd, target):
++        for name in os.listdir(source_fd):
++            flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
++            child = os.open(name, flags, dir_fd=source_fd)
++            try:
++                info = os.fstat(child)
++                destination = target / name
++                if stat.S_ISDIR(info.st_mode):
++                    destination.mkdir(mode=0o700)
++                    destination.chmod(0o700)
++                    copy_directory(child, destination)
++                elif stat.S_ISREG(info.st_mode):
++                    output = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
++                    os.fchmod(output, 0o600)
++                    with os.fdopen(output, 'wb') as stream:
++                        while True:
++                            block = os.read(child, 1024 * 1024)
++                            if not block:
++                                break
++                            stream.write(block)
++                else:
++                    _refuse('claude_config_dir:unsafe-entry', name)
++            finally:
++                os.close(child)
++
++    config = home / 'claude'
++    if home.exists() or home.is_symlink():
++        if home.is_symlink() or not home.is_dir() or config.is_symlink() or not config.is_dir():
++            _refuse('claude_config_dir:private-home', 'invalid existing private home')
++        home.chmod(0o700)
++        config.chmod(0o700)
++        return config
++    home.mkdir(mode=0o700)
++    home.chmod(0o700)
++    config.mkdir(mode=0o700)
++    config.chmod(0o700)
++    try:
++        source_fd = os.open(source, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++        try:
++            copy_directory(source_fd, config)
++        finally:
++            os.close(source_fd)
++    except (OSError, LaunchRefused):
++        shutil.rmtree(home, ignore_errors=True)
++        _refuse('claude_config_dir:private-copy', 'login state could not be copied safely')
++    return config
++
++
+ def _cli_home(agent, document, ws):
+     """(home, owned, launch environment, verified names, MCP config dir) for this CLI."""
+     from .. import cli_agent_host as host
+     environment = dict(os.environ)
+     if agent == 'claude' and document['auth']['kind'] == 'login':
+-        return _login_config_dir(), False, {}, ['CLAUDE_CONFIG_DIR'], ws / 'inputs' / 'mcp'
++        source = _login_config_dir()
++        home = sandbox.cli_home_for(ws)
++        config = _private_login_config(source, home)
++        return home, True, {'CLAUDE_CONFIG_DIR': str(config)}, ['CLAUDE_CONFIG_DIR'], ws / 'inputs' / 'mcp'
+     home = sandbox.cli_home_for(ws)
+     fresh = not home.exists()
+     if fresh:

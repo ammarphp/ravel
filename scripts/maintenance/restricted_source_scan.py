@@ -23,6 +23,11 @@ import re
 import sys
 from pathlib import Path
 
+# Support direct invocation from an uninstalled source checkout.
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
+from ravel.validation.check_generality import archive_contents
+
 ENV = 'RAVEL_RESTRICTED_SOURCES'
 HEX64 = re.compile(r'(?<![0-9a-fA-F])[0-9a-fA-F]{64}(?![0-9a-fA-F])')
 URL = re.compile(r'https?://')
@@ -129,26 +134,36 @@ def scan(paths, deny_list, *, root=None):
                 findings.append({'path': str(rel), 'line': None, 'kind': 'unscanned-large-file',
                                  'detail': 'larger than the scan limit; review it by hand'})
                 continue
-            text = path.read_bytes().decode('latin-1')
+            data = path.read_bytes()
         except OSError as error:
             findings.append({'path': str(rel), 'line': None, 'kind': 'unreadable', 'detail': str(error)})
             continue
-        lower = text.lower()
-        for digest, label in hashes.items():
-            at = lower.find(digest)
-            if at >= 0:
-                findings.append({'path': str(rel), 'line': lower.count('\n', 0, at) + 1, 'kind': 'listed-hash',
-                                 'detail': f'cites the restricted document labelled {label!r}'})
-        for number, fingerprint in enumerate(fingerprints, 1):
-            at = lower.find(fingerprint)
-            if at >= 0:
-                findings.append({'path': str(rel), 'line': lower.count('\n', 0, at) + 1, 'kind': 'fingerprint',
-                                 'detail': f'contains deny-list fingerprint #{number}'})
-        if rel.parts[:1] == ('src',) and rel.suffix == '.py':
-            lines = text.splitlines()
-            for number in _uncited_document_hashes(lines):
-                findings.append({'path': str(rel), 'line': number, 'kind': 'uncited-document-hash',
-                                 'detail': 'a document is cited by sha256 without a public URL'})
+        for member, payload, rule in archive_contents(str(rel), data):
+            if rule:
+                findings.append({'path': member, 'line': None, 'kind': rule,
+                                 'detail': 'archive content could not be completely scanned'})
+            # Scan member names as well as their content, without exposing fingerprints.
+            if member == str(rel) and payload is None and rule is None:
+                # Retain the original raw-byte scan (including container comments).
+                text = data.decode('latin-1')
+            else:
+                text = member if payload is None else payload.decode('latin-1')
+            lower = text.lower()
+            for digest, label in hashes.items():
+                at = lower.find(digest)
+                if at >= 0:
+                    findings.append({'path': member, 'line': lower.count('\n', 0, at) + 1, 'kind': 'listed-hash',
+                                     'detail': f'cites the restricted document labelled {label!r}'})
+            for number, fingerprint in enumerate(fingerprints, 1):
+                at = lower.find(fingerprint)
+                if at >= 0:
+                    findings.append({'path': member, 'line': lower.count('\n', 0, at) + 1, 'kind': 'fingerprint',
+                                     'detail': f'contains deny-list fingerprint #{number}'})
+            if Path(member.split('!', 1)[0]).parts[:1] == ('src',) and member.endswith('.py'):
+                lines = text.splitlines()
+                for number in _uncited_document_hashes(lines):
+                    findings.append({'path': member, 'line': number, 'kind': 'uncited-document-hash',
+                                     'detail': 'a document is cited by sha256 without a public URL'})
     return findings
 
 

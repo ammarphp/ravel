@@ -1,6 +1,8 @@
 """Default research methodology synthetic controls; no native or scientific qualification."""
 from copy import deepcopy
 import json
+import hashlib
+from pathlib import Path
 
 import pytest
 
@@ -130,11 +132,11 @@ def synthetic_artifacts(root):
 
 
 
-def governed_cycle(root):
+def governed_cycle(root, *, extra_wall_seconds=0):
     from test_research_cycle import contract
     c = contract(root)
     c['research_protocol_required'] = True
-    c['budget'].update(calls=64, output_tokens=200000, wall_seconds=3600)
+    c['budget'].update(calls=64, output_tokens=200000, wall_seconds=3600+extra_wall_seconds)
     run = root / 'cycle'
     cycle.create(run, c, base_dir=root, evaluation_harness=True)
     return run
@@ -167,15 +169,31 @@ def test_synthetic_transport_reports_stop_without_evaluation_observations(tmp_pa
         receipt['action_digest'] = hashlib.sha256(json.dumps(payload, sort_keys=True,
             separators=(',', ':'), ensure_ascii=False).encode()).hexdigest()
         claim['rdj_receipt'] = write(root, 'rdj/claim.json', receipt)
-    monkeypatch.setattr(cycle, 'validate_graph_reservation', lambda *a: None)
+    actual_reservation = cycle.validate_graph_reservation
+    actual_receipt = agent_graph.role_receipt
+    actual_result = cycle._graph_result
+    monkeypatch.setattr(cycle, 'validate_graph_reservation', lambda state, root, spec:
+        actual_reservation(state, root, spec) if spec['graph_id'].startswith('actual-idea-stream-') else None)
+    from ravel.workflow import role_registry
+    def model(role):
+        return 'gpt-5' if role_registry.load(role)['independence']['kind'] == 'producer' else 'claude-x'
     def receipt(graph_root, node_id, **kwargs):
+        if node_id == 'ideas':
+            return actual_receipt(graph_root, node_id, **kwargs)
         path = root / ('review-'+stage) / node_id / 'packet/manifest.json'
         manifest = json.loads(path.read_text())
+        # Each synthetic seat is its own observed actor, session and packet.
+        seat = 'synthetic-' + Path(graph_root).name + '-' + node_id
         return {'context_transport_separated': True, 'execution_observation': 'host_attested_external',
+                'transport': {'observed_model': model(node_id), 'actor_id': seat, 'invocation_id': seat},
+                'context_manifest_sha256': manifest['sha256'],
                 'presented_subject_sha256s': [r['sha256'] for r in manifest['artifacts']],
                 'synthetic_stub': True}
     monkeypatch.setattr(agent_graph, 'role_receipt', receipt)
     for stage in STAGES:
+        if stage == 'ideas':
+            from test_research_full_cycle_ideas import actual_ideas
+            artifacts[stage] = actual_ideas(root, artifacts[stage], root/'actual-ideas')
         if stage == 'validate':
             selected = protocol._method_json(artifacts['validate']['selection']['receipt'], root)
             request = {'rule': selected['rule'], 'regime': selected['regime'],
@@ -185,11 +203,15 @@ def test_synthetic_transport_reports_stop_without_evaluation_observations(tmp_pa
             assert protocol.methodology_status(root)['next_stage'] == 'validate'
             return
         artifact = write(root, stage+'.json', artifacts[stage])
-        prepared = protocol.prepare_stage(root, stage, artifact, root / ('review-'+stage), model='stub')
+        roles = next(r['roles'] for r in protocol.default_protocol()['stages'] if r['id'] == stage)
+        prepared = protocol.prepare_stage(root, stage, artifact, root / ('review-'+stage), model='gpt-5',
+            role_models={role: {'model': model(role)} for role in roles})
         spec = json.loads(open(prepared['specification']['path']).read())
         assert all(node['action'] == 'external' for node in spec['nodes'])
         assert prepared['roles'] == next(r for r in protocol.default_protocol()['stages'] if r['id'] == stage)['roles']
         def result(graph_root, node_id):
+            if node_id == 'ideas':
+                return actual_result(graph_root, node_id)
             return {'value': {'value': {'stage': stage, 'role_id': node_id,
                 'subject_sha256': prepared['subject']['sha256'], 'verdict': 'accept', 'findings': [],
                 'attributed_claim_ids': []}}}
@@ -210,6 +232,103 @@ def test_campaign_cannot_delete_or_disable_its_required_protocol(tmp_path):
     (root / 'research/protocol.json').unlink()
     with pytest.raises(ValueError, match='protocol'):
         cycle.select(root)
+
+
+def oversized_stage_artifact(root):
+    from ravel.workflow import agent_host
+    artifacts = synthetic_artifacts(root)
+    oversized = write(root, 'oversized-source.json', {
+        'rows': ['x' * 1000] * (agent_host.INLINE_TEXT_BUDGET // 1000 + 150)})
+    assert Path(oversized['path']).stat().st_size > agent_host.INLINE_TEXT_BUDGET
+    return write(root, 'census.json', {**artifacts['limitation_census'], 'evidence_pin': oversized})
+
+
+def test_stage_packet_defers_oversized_sources_without_omitting_any_source(tmp_path, monkeypatch):
+    from ravel.workflow import agent_host, review_context
+    from test_agent_host import request
+    monkeypatch.setattr(protocol, 'decision_errors', lambda *a, **k: [])
+    root = governed_cycle(tmp_path)
+    register(root)
+    artifact = oversized_stage_artifact(root)
+    prepared = protocol.prepare_stage(root, 'limitation_census', artifact, root/'review',
+                                      model='stub', adapter='responses')
+    record = protocol.methodology_status(root)['record']
+    expected = set()
+    def collect(value):
+        if isinstance(value, dict):
+            if {'path', 'sha256'} <= value.keys():
+                expected.add(value['sha256'])
+            else:
+                for item in value.values():
+                    collect(item)
+        elif isinstance(value, list):
+            for item in value:
+                collect(item)
+    collect(protocol._method_json(artifact, root))
+    collect(record['preregistration'])
+    collect(record['evaluator_pins'])
+    spec = protocol._method_json(prepared['specification'], root)
+    for node in spec['nodes']:
+        packet = node['packet']
+        manifest = review_context.verify_packet(packet['path'],
+            expected_manifest_sha256=packet['manifest_sha256'])
+        assert expected <= {entry['source_sha256'] for entry in manifest['artifacts']}
+        for entry in manifest['artifacts']:
+            copied = (Path(packet['path']) / entry['path']).read_bytes()
+            assert copied == Path(entry['source_path']).read_bytes()
+            assert hashlib.sha256(copied).hexdigest() == entry['sha256']
+        context = agent_host.AgentHost().prepare_model_context(node, request(node))['context']
+        inline = {entry['id'] for entry in context['review_packet']['artifacts']}
+        oversized = [entry for entry in manifest['artifacts']
+                     if (Path(packet['path']) / entry['path']).stat().st_size > agent_host.INLINE_TEXT_BUDGET]
+        assert oversized and all(entry['id'] not in inline for entry in oversized)
+        assert context['review_packet']['presentation']['deferred_count'] > 0
+
+
+def test_stage_packet_absolute_source_bound_is_refused_before_output(tmp_path, monkeypatch):
+    monkeypatch.setattr(protocol, 'decision_errors', lambda *a, **k: [])
+    root = governed_cycle(tmp_path)
+    artifact = oversized_stage_artifact(root)
+    monkeypatch.setattr(protocol.ce, 'MAX_BYTES', 32768)
+    with pytest.raises(ValueError, match='exceeds bound; no truncation'):
+        protocol.prepare_stage(root, 'limitation_census', artifact, root/'review', model='stub')
+    assert not (root/'review').exists()
+    assert protocol.methodology_status(root)['next_stage'] == 'limitation_census'
+
+
+@pytest.mark.parametrize('mode', ['complete', 'missing', 'partial', 'digest', 'foreign'])
+def test_stage_completion_requires_actual_complete_deferred_reads(tmp_path, monkeypatch, mode):
+    from test_agent_host import ScriptedReviewHost, corrupt_review_pages
+    monkeypatch.setattr(protocol, 'decision_errors', lambda *a, **k: [])
+    root = governed_cycle(tmp_path)
+    artifact = oversized_stage_artifact(root)
+    prepared = protocol.prepare_stage(root, 'limitation_census', artifact, root/'review',
+                                      model='stub', adapter='responses')
+    if mode == 'digest':
+        corrupt_review_pages(monkeypatch)
+    spec = protocol._method_json(prepared['specification'], root)
+    graph_root = root/'graph'
+    agent_graph.create(graph_root, spec)
+    adapter = ScriptedReviewHost(read_mode=mode)
+    cycle.execute_graph(root, graph_root, spec, adapter, prepared=True)
+    state = agent_graph.status(graph_root)
+    assert all(node['status'] == 'completed' for node in state['nodes'].values()), state['nodes']
+    for node in spec['nodes']:
+        receipt = agent_graph.role_receipt(graph_root, node['id'],
+            expected_subject_sha256=prepared['subject']['sha256'],
+            expected_packet_sha256=node['packet']['manifest_sha256'], require_exact_subject=True)
+        assert receipt['execution_observation'] == 'remote_transport_observed'
+        if mode == 'complete':
+            assert isinstance(receipt['deferred_content_read'], dict)
+        else:
+            assert receipt['deferred_content_read'] is False
+    if mode == 'complete':
+        completed = protocol.complete_stage(root, prepared, graph_root)
+        assert completed['next_stage'] == 'ideas'
+    else:
+        with pytest.raises(ValueError, match='complete stage evidence must actually be presented to every role'):
+            protocol.complete_stage(root, prepared, graph_root)
+        assert protocol.methodology_status(root)['next_stage'] == 'limitation_census'
 
 
 def test_missing_role_delivery_blocks_stage_completion(tmp_path, monkeypatch):
@@ -288,7 +407,8 @@ def test_keyless_stage_consumes_real_graph_receipts_from_synthetic_host_delivery
         public = {key: fields[key]['const'] for key in ('stage', 'role_id', 'subject_sha256')}
         public.update(verdict='accept', findings=['Synthetic transport control only.'], attributed_claim_ids=[])
         response = external_response(pending, root/(role+'-response.json'), value=public,
-                                     actor_id='synthetic-'+role, observed_model='host-agent')
+                                     actor_id='synthetic-'+role, invocation_id='synthetic-'+pending['request_id'],
+                                     observed_model='host-agent')
         agent_graph.deliver_external(graph_root, role, response)
     result = research_orchestrator.run_protocol_stage(root, artifact, root/'stage',
         host=agent_host.AgentHost(), settings=settings)
@@ -314,3 +434,16 @@ def test_prepare_open_binds_default_without_authored_protocol(tmp_path):
     assert status['next_stage'] == 'limitation_census'
     assert tuple(row['id'] for row in status['record']['stages']) == STAGES
     assert request['path'].endswith('request.json')
+
+
+@pytest.mark.parametrize('observation,separated,credited', [
+    ('remote_transport_observed', True, True), ('local_transport_observed', True, True),
+    ('host_attested_external', True, True), ('transport_attested_cli', True, True),
+    ('transport_attested_cli', False, False), ('unestablished', True, False), ('control_only', True, False)])
+def test_a_stage_role_delivery_is_credited_only_when_observed_and_transport_separated(observation, separated,
+                                                                                       credited):
+    """A controller-launched CLI seat whose session receipt verified counts like any observed delivery."""
+    receipt = {'execution_observation': observation, 'context_transport_separated': separated}
+    assert protocol.fresh_delivery(receipt) is credited
+    assert protocol.fresh_delivery(receipt, extra=('control_only',)) is (credited or (
+        observation == 'control_only' and separated))

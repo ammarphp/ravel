@@ -6,6 +6,7 @@ import pytest
 from ravel.workflow import physics_review as review
 from ravel.workflow.state_io import atomic_json, read_json
 from test_physics_review import run, opened, correct, make_attempt, check_packet, reject, accept
+from bound_review import bound_review
 
 
 def repeated_run(run, *, limit=3, values=(1, 1)):
@@ -177,10 +178,12 @@ def test_ordinary_and_stopped_reviews_do_not_invoke_new_terminal_reporting(run, 
     root, _ = run; opened(run)
     calls = []
     monkeypatch.setattr(task_completion, 'qualified_delivery', lambda *a, **kw: calls.append('report'))
-    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='accept',
-                         summary='Current scoped evidence.', claim_scope='diagnostic')
-    review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='stop',
-                         summary='Retain the existing stopping boundary.')
+    bound_review(root, role='physics_critic', verdict='accept',
+                 summary='Current scoped evidence.', claim_scope='diagnostic')
+    # A decider vote is dispatched only after both independent decisions; the stop (any role ends the
+    # cycle, and the ending does not depend on it) is the verifier's, which keeps two bound reviews.
+    bound_review(root, role='skeptical_verifier', verdict='stop',
+                 summary='Retain the existing stopping boundary.')
     assert calls == [] and review.status(root)['state'] == 'stopped'
 
 
@@ -194,7 +197,7 @@ def test_limitation_only_vote_with_zero_redos_is_not_an_exhausted_defect_route(r
     finding = journal_classified(root, 'limitation')
     calls = []
     monkeypatch.setattr(task_completion, 'qualified_delivery', lambda *a, **kw: calls.append('report'))
-    event = review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
-                                 summary='Retain the source limitation.', findings=[finding])
+    event = bound_review(root, role='physics_critic', verdict='send_back',
+                         summary='Retain the source limitation.', findings=[finding])
     assert calls == [] and 'qualified_ending' not in event
     assert review.status(root)['state'] == 'awaiting_review'

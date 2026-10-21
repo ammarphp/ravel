@@ -19,7 +19,14 @@ file in the directory you name and removes it.
 ``ravel site install-plan`` prints the no-root installation commands: a
 Miniforge Python 3.12 in your work space, then the RAVEL site profiles.
 
-``ravel site study-job`` runs one study per Slurm allocation (``allocation_study``).
+``ravel site init`` observes this host once (resources, filesystem roots, network
+egress, batch system, sandbox and container backends, installed tools) and saves a
+reusable site profile: the named built-in profile is only its seed, and the saved
+settings (scheduler, credential requirements, CVMFS repositories, network policy,
+local source mirror) are what ``ravel site doctor --site-profile`` checks and what a
+controller run pins at intake. ``ravel site show`` prints the saved profile.
+
+``ravel site study-job`` runs one study per Slurm allocation or HTCondor job (``allocation_study``).
 """
 from __future__ import annotations
 
@@ -327,12 +334,19 @@ def _lease_domain():
     return reader() if reader is not None else None
 
 
-def _agent_cli_readiness(host, prefix):
-    """Reuse setup's stored-probe helper; never launch a probe or qualification."""
+def _agent_cli_readiness(host, prefix, environ=None):
+    """Reuse setup's stored-probe helper; never launch a qualification.
+
+    The helper's version observation and its prompt-free worker-login status check both run
+    through the host; the login directory is read from the site environment.
+    """
     from ravel.setup.doctor import Doctor
     adapter = object.__new__(Doctor)
     adapter.which = host.which
+    adapter.environ = dict(os.environ if environ is None else environ)
+    adapter.env = dict(adapter.environ)
     adapter._probe = lambda argv, **kwargs: host.run(argv)
+    adapter.run_probe = lambda argv, **kwargs: host.run(argv)
     return adapter._agent_cli_check({'id':'site-worker-transport'})
 
 
@@ -459,7 +473,14 @@ def runtime_checks(prefix, *, host, environ=None):
     bwrap=host.which('bwrap')
     checks.append(_check('worker sandbox','ok' if bwrap else 'fail',bwrap or 'bwrap is missing',
                          None if bwrap else 'Install bubblewrap (bwrap) on the Linux worker host'))
-    agent=_agent_cli_readiness(host,prefix)
+    from . import sandbox
+    checks.append(_check('worker provider destinations', 'warn',
+                         json.dumps(sandbox.egress_details('provider'), sort_keys=True) + '; '
+                         'Provider CLI egress admits arbitrary destinations on allowed ports; '
+                         'Linux may also admit UDP or all ports. Endpoint confinement is unqualified.',
+                         'Use a cleared trusted HTTP transport for restricted/internal inputs; '
+                         'qualify an endpoint-confined worker gateway before CLI dispatch'))
+    agent=_agent_cli_readiness(host,prefix,environ)
     qualified=agent.get('transport_qualified') is True
     transport=agent.get('transport') or 'claude-cli-worker'
     checks.append(_check('worker transport','ok' if qualified else 'fail',agent.get('detail') or agent['status'],
@@ -470,11 +491,24 @@ def runtime_checks(prefix, *, host, environ=None):
 def doctor(*, profile='lxplus', eos_dir=None, min_proxy_hours=2.0, cvmfs=DEFAULT_CVMFS, host=None,
            site_record=None, run_hours=0, ticket_lifetime_hours=None, prefix=None, run_root=None, transcript=None,
            planned_install_bytes=0, min_home_free_bytes=10 * GIB, work_dir=None,
-           runs_dir=None, transcripts_dir=None, min_free_gb=MIN_FREE_GB):
+           runs_dir=None, transcripts_dir=None, min_free_gb=MIN_FREE_GB, site_profile=None):
+    """Site readiness under a built-in profile, or under a saved site profile (``site_profile``: a validated
+    ``ravel-site-profile.v1`` document) whose settings replace the built-in ones; ``site_record`` overrides
+    either."""
+    if site_profile is not None:
+        from ravel.setup.environment_profile import validate_site_profile
+        problems = validate_site_profile(site_profile)
+        if problems:
+            raise ValueError('site profile is invalid: ' + ' '.join(problems))
+        profile = site_profile['seed']
+        cvmfs = tuple(site_profile['settings']['cvmfs'])
     if profile not in PROFILES:
         raise ValueError(f'profile must be one of {PROFILES}')
     host = host or Host()
     settings = dict(PROFILE_SETTINGS[profile])
+    if site_profile is not None:
+        settings.update({key: site_profile['settings'][key] for key in
+                         ('scheduler', 'requires_proxy', 'requires_kerberos', 'requires_afs')})
     if site_record is not None:
         if not isinstance(site_record, dict):
             raise ValueError('site_record must be an object')
@@ -576,7 +610,7 @@ def doctor(*, profile='lxplus', eos_dir=None, min_proxy_hours=2.0, cvmfs=DEFAULT
     else:
         checks.append(_check('eos write', 'skip', 'pass --eos-dir to test write access'))
 
-    for repo in (cvmfs if profile != 'generic' else ()):
+    for repo in (cvmfs if profile != 'generic' or site_profile is not None else ()):
         present = host.exists(repo)
         checks.append(_check(f'cvmfs {repo}', 'ok' if present else required, 'mounted' if present else 'not mounted',
                              None if present else 'Run on a node with CVMFS mounted'))
@@ -614,8 +648,11 @@ def doctor(*, profile='lxplus', eos_dir=None, min_proxy_hours=2.0, cvmfs=DEFAULT
     checks.append(_check('tmux', 'ok' if tmux else optional, 'available' if tmux else 'tmux not found'))
 
     ready = not any(c['status'] == 'fail' for c in checks)
-    return {'profile': profile, 'platform': f'{platform.system()} {platform.machine()}', 'ready': ready,
-            'checks': checks, 'long_session': LONG_SESSION}
+    report = {'profile': profile, 'platform': f'{platform.system()} {platform.machine()}', 'ready': ready,
+              'checks': checks, 'long_session': LONG_SESSION}
+    if site_profile is not None:
+        report['site_profile'] = site_profile['name']
+    return report
 
 
 def _eos_probe(directory):
@@ -634,6 +671,66 @@ def _eos_probe(directory):
         except OSError:
             pass
         return _check('eos write', 'fail', str(exc), 'Check the EOS path, quota and Kerberos ticket')
+
+
+SCHEDULER_CHOICES = ('auto', 'htcondor', 'slurm', 'none')
+NETWORK_CHOICES = ('auto', 'offline', 'online')
+
+
+def site_init(*, name='default', seed='generic', scheduler='auto', network='auto', mirror=None, cvmfs=None,
+              requires=None, prefix=None, output=None, tools=True, probes=None):
+    """Observe this host once and save a reusable site profile; returns ``{'pin', 'profile'}``.
+
+    The built-in profile ``seed`` supplies the starting settings; ``requires`` (``requires_proxy``,
+    ``requires_kerberos``, ``requires_afs`` booleans) and ``cvmfs`` replace them. ``scheduler='auto'`` takes the
+    detected batch system (refused when more than one is present: name it); ``network`` is the site's policy
+    (``auto`` probes egress at every run, ``offline`` declares none, ``online`` declares it present). Nothing
+    here submits a job, opens a credential or installs anything.
+    """
+    from ravel.setup import environment_profile as ep
+    if seed not in PROFILES:
+        raise ValueError(f'seed must be one of {PROFILES}')
+    if scheduler not in SCHEDULER_CHOICES or network not in NETWORK_CHOICES:
+        raise ValueError(f'scheduler must be one of {SCHEDULER_CHOICES} and network one of {NETWORK_CHOICES}')
+    settings = dict(PROFILE_SETTINGS[seed])
+    for key, value in (requires or {}).items():
+        if key not in ('requires_proxy', 'requires_kerberos', 'requires_afs') or type(value) is not bool:
+            raise ValueError(f'unknown or non-boolean requirement {key}')
+        settings[key] = value
+    settings['cvmfs'] = [str(Path(p)) for p in (cvmfs if cvmfs is not None else
+                                                 (DEFAULT_CVMFS if seed != 'generic' else ()))]
+    table = {**ep.PROBES, **(probes or {})}
+    if scheduler == 'auto':
+        detected = table['batch'](scheduler=None)
+        if detected['system'] == 'multiple':
+            raise ValueError('both HTCondor and Slurm clients are present: name the site scheduler with --scheduler')
+        settings['scheduler'] = detected['system'] if detected['system'] in ('htcondor', 'slurm') else None
+    else:
+        settings['scheduler'] = None if scheduler == 'none' else scheduler
+    if mirror is not None:
+        mirror = str(Path(mirror).expanduser().absolute())
+    draft = ep.site_profile_document(name=name, seed=seed, settings=settings, network_policy=network,
+                                     mirror=mirror, observed=None)
+    observed = ep.observe(prefix=prefix, site=draft, probes=probes, tools=tools)
+    document = ep.site_profile_document(name=name, seed=seed, settings=settings, network_policy=network,
+                                        mirror=mirror, observed=observed)
+    pin = ep.save_site_profile(document, path=output)
+    return {'pin': pin, 'profile': document}
+
+
+def _site_summary(document, pin):
+    settings, observed = document['settings'], document.get('observed') or {}
+    tools = (observed.get('tools') or {}).get('rows') or {}
+    ready = sorted(k for k, v in tools.items() if (v or {}).get('readiness') == 'ready')
+    lines = [f"site profile {document['name']} (seed {document['seed']}) saved at {pin['path']}",
+             f"  sha256 {pin['sha256']}",
+             f"  scheduler: {settings['scheduler'] or 'none'}; network policy: {document['network']['policy']}"
+             f" (observed egress: {(observed.get('network') or {}).get('egress', 'unknown')})",
+             f"  mirror: {document['sources']['mirror'] or 'none'}; CVMFS: {', '.join(settings['cvmfs']) or 'none'}",
+             f"  credentials: proxy {settings['requires_proxy']}, kerberos {settings['requires_kerberos']},"
+             f" AFS {settings['requires_afs']}",
+             f"  sandbox: {(observed.get('sandbox') or {}).get('backend') or 'none'}; tools ready: {len(ready)}"]
+    return '\n'.join(lines)
 
 
 def install_plan(env_prefix, checkout, *, arch=None, host=None, planned_install_bytes=0,
@@ -691,7 +788,27 @@ def main(argv=None):
     d.add_argument('--min-home-free-gib', type=float, default=10)
     d.add_argument('--work-dir', type=Path, help='suggested alternative to home storage')
     d.add_argument('--cvmfs', action='append', help='CVMFS repository path to require (repeatable)')
+    d.add_argument('--site-profile', help='a saved site profile (path, or "active" for the one ravel site init saved)')
     d.add_argument('--json', action='store_true')
+    i = sub.add_parser('init', help='observe this host and save a reusable site profile')
+    i.add_argument('--name', default='default', help='site profile name (lower case)')
+    i.add_argument('--seed', choices=PROFILES, default='generic', help='built-in profile the settings start from')
+    i.add_argument('--scheduler', choices=SCHEDULER_CHOICES, default='auto',
+                   help='batch system (auto: the one detected on this host)')
+    i.add_argument('--network', choices=NETWORK_CHOICES, default='auto',
+                   help='network policy: auto probes egress at every run; offline declares none')
+    i.add_argument('--mirror', type=Path, help='local source mirror directory used when the network is unavailable')
+    i.add_argument('--cvmfs', action='append', help='CVMFS repository path the site requires (repeatable)')
+    for flag in ('proxy', 'kerberos', 'afs'):
+        i.add_argument(f'--requires-{flag}', dest=f'requires_{flag}', action=argparse.BooleanOptionalAction,
+                       default=None, help=f'whether the site requires a {flag} credential')
+    i.add_argument('--prefix', type=Path, help='toolchain prefix whose tools are observed')
+    i.add_argument('--output', type=Path, help='write here instead of the active site profile')
+    i.add_argument('--no-tools', action='store_true', help='skip the installed-tool observation')
+    i.add_argument('--json', action='store_true')
+    w = sub.add_parser('show', help='print a saved site profile')
+    w.add_argument('--path', type=Path, help='a saved site profile (default: the active one)')
+    w.add_argument('--json', action='store_true')
     p = sub.add_parser('install-plan', help='print no-root installation commands for a Linux site')
     p.add_argument('--env-prefix', '--prefix', dest='env_prefix', required=True, help='work-space directory for Miniforge and Python 3.12')
     p.add_argument('--checkout', required=True, help='RAVEL checkout on the site')
@@ -704,6 +821,24 @@ def main(argv=None):
     try:
         if args.command == 'study-job':
             return allocation_study.main_args(args)
+        if args.command == 'init':
+            requires = {f'requires_{k}': getattr(args, f'requires_{k}') for k in ('proxy', 'kerberos', 'afs')
+                        if getattr(args, f'requires_{k}') is not None}
+            found = site_init(name=args.name, seed=args.seed, scheduler=args.scheduler, network=args.network,
+                              mirror=args.mirror, cvmfs=args.cvmfs, requires=requires, prefix=args.prefix,
+                              output=args.output, tools=not args.no_tools)
+            print(json.dumps(found, indent=2, sort_keys=True) if args.json else _site_summary(found['profile'],
+                                                                                              found['pin']))
+            return 0
+        if args.command == 'show':
+            from ravel.setup.environment_profile import load_site_profile
+            document, pin = load_site_profile(args.path)
+            if document is None:
+                print('ravel site: no saved site profile; run ravel site init', file=sys.stderr)
+                return 1
+            print(json.dumps({'pin': pin, 'profile': document}, indent=2, sort_keys=True) if args.json
+                  else _site_summary(document, pin))
+            return 0
         storage_args = {'planned_install_bytes': int(_hours(args.planned_install_gib, 'planned_install_gib') * GIB),
                         'min_home_free_bytes': int(_hours(args.min_home_free_gib, 'min_home_free_gib') * GIB),
                         'work_dir': args.work_dir}
@@ -711,13 +846,19 @@ def main(argv=None):
             plan = install_plan(args.env_prefix, args.checkout, **storage_args)
             print('\n'.join(plan['commands']))
             return 0
+        site_profile = None
+        if getattr(args, 'site_profile', None):
+            from ravel.setup.environment_profile import load_site_profile
+            site_profile, _ = load_site_profile(None if args.site_profile == 'active' else Path(args.site_profile))
+            if site_profile is None:
+                raise ValueError('no saved site profile: run ravel site init first')
         report = doctor(profile=args.profile, eos_dir=args.eos_dir, min_proxy_hours=args.min_proxy_hours,
                         cvmfs=tuple(args.cvmfs) if args.cvmfs else DEFAULT_CVMFS, host=Host(),
                         site_record=json.loads(args.site_record.read_text()) if args.site_record else None,
                         run_hours=args.run_hours, ticket_lifetime_hours=args.ticket_lifetime_hours,
                         prefix=args.prefix, run_root=args.run_root, transcript=args.transcript,
                         runs_dir=args.runs_dir, transcripts_dir=args.transcripts_dir, min_free_gb=args.min_free_gb,
-                        **storage_args)
+                        site_profile=site_profile, **storage_args)
     except (OSError, ValueError, OverflowError) as exc:
         print(f'ravel site: {exc}', file=sys.stderr)
         return 2

@@ -47,15 +47,21 @@ def initial_requirements(prompt):
         'assignments': [], 'amendments': [], 'parent_acceptance_scope': PARENT_ACCEPTANCE_SCOPE}
 
 
-def census_from_reading(prompt, reading):
+def census_from_reading(prompt, reading, *, output_workspace=None, output_retained=None, output_census=True):
     """The obligation census of a request: the verbatim whole request first, then every finer item.
 
     Requested stages and tools, deliverables, a published-figure comparison (a `quality`
     obligation), templates, prescribed statistics, other constraints and stated parameter
     ranges each become an obligation bound to exact spans of the request. A request that
     asks for exactly one thing keeps the whole-request obligation as that deliverable.
+    Declared output paths and their allowed contents follow as `output-contract-*`
+    obligations, bound to `output_workspace` (where the request was received); a resolution
+    passes its `output_retained` rows so the original binding is kept. `output_census=False`
+    omits those rows; only a caller that binds no workspace and records no census (the prompt
+    hook's routing reminder) uses it.
     """
     from .request_reading import check, obligation_items
+    from . import output_contract
     census = initial_requirements(prompt)
     errors = check(reading, prompt)
     if errors:
@@ -63,6 +69,9 @@ def census_from_reading(prompt, reading):
     for row in obligation_items(reading):
         census['obligations'].append({'id': row['id'], 'kind': row['kind'], 'statement': row['statement'][:8000],
                                       'criteria': deepcopy(row['criteria']), 'evidence': deepcopy(row['evidence'])})
+    if output_census:
+        census['obligations'] += output_contract.census_rows(
+            prompt, room=64 - len(census['obligations']), workspace=output_workspace, retained=output_retained)
     return census
 
 
@@ -466,6 +475,9 @@ def _evaluate(request_pin, inputs, *, _finish=True, _document=None):
         accepted = True
     if _finish: inputs.finish()
     figure = {'published_figure_obligations': figure_ids} if figure_ids else {}
+    from . import output_contract
+    declared = output_contract.check(effective.values())
+    figure.update({'output_contract': declared} if declared['declared'] else {})
     return {**figure, **({'claim_records': claim_records} if claim_records is not None else {}), 'kind': 'original-task-completion', 'request': deepcopy(request_pin), 'original_request': contract['prompt'],
         'original_prompt_sha256': req['prompt_sha256'], 'scope_changes': changes, 'obligation_census': census,
         'report_recipe_sha256': None if report_recipe is None else ce.digest(report_recipe),
@@ -577,6 +589,8 @@ def _reviewed_finite_calculation(request, result, inputs):
 
 
 def require_final(request_pin, *, base_dir, _inputs=None):
+    from ravel.controller.sink import legacy as sink_legacy
+    sink_legacy.refuse_controller_owned(base_dir, 'whole-task final delivery')
     # Nested delivery consumers share one ending-custody observation. The public
     # default retains its own fresh session; this is never a cross-call cache.
     if _inputs is None:
@@ -603,6 +617,10 @@ def require_final(request_pin, *, base_dir, _inputs=None):
             final_recipe={**deepcopy(base_recipe),'task_completion':deepcopy(request_pin),'delivery':'final'}
             draft=scientific_report.prepare_final(final_recipe,base_dir=base_dir)
             result['final_results_review']=final_results_review.gate(rd,final['manifest'],report=draft['report_text'],recipe=final_recipe)
+    # Observe the declared deliverables last, immediately before delivery; every violation is named.
+    from . import output_contract
+    declared=output_contract.require([row['effective'] for row in result['obligation_census']])
+    if declared['declared']:result['output_contract']=declared
     final_inputs.finish()
     return result
 
@@ -614,6 +632,8 @@ def final_gate(root):
     existing scoped delivery retain their own gates without this final label.
     """
     root = Path(root).absolute()
+    from ravel.controller.sink import legacy as sink_legacy
+    sink_legacy.refuse_controller_owned(root, 'whole-task final delivery')
     inputs = _Inputs(root)
     pin = inputs.capture(root / 'inputs/task_completion.json')
     request = inputs.document(pin)
@@ -642,7 +662,11 @@ def compose(parent_rundir, *, write=True):
     evaluation outcome schema. Missing or refused children remain visible.
     """
     from . import completion_children as children, completion_choices, state_io, execution
-    parent = Path(parent_rundir).absolute(); inputs = _Inputs(parent)
+    parent = Path(parent_rundir).absolute()
+    if write:
+        from ravel.controller.sink import legacy as sink_legacy
+        sink_legacy.refuse_controller_owned(parent, 'task composition')
+    inputs = _Inputs(parent)
     try:
         cp = inputs.capture(parent / 'inputs/task_contract.json')
         contract, req, effective, _ = _contract(cp, inputs)
@@ -768,6 +792,9 @@ def qualified_delivery(rundir, *, completion_request=None, claim_package=None):
     """Serialize reporting before observing its sources, never grant authority."""
     from .state_io import file_lock
     root = Path(rundir).absolute()
+    from ravel.controller.sink import legacy as sink_legacy
+    # A controller-owned run ends qualified through the sole sink (its bounded ending), never here.
+    sink_legacy.refuse_controller_owned(root, 'ravel task-completion qualified')
     # Validate the ordinary root before creating any output or lock file.
     inputs = _Inputs(root)
     inputs.close()
@@ -869,7 +896,10 @@ def _qualified_delivery_locked(rundir, *, completion_request=None, claim_package
                 package['value'], package['evidence'], final=True, review_findings=findings)
             claim_prose = package['value']
         finding_routing.require_dispositions(findings, dispositions)
-        result = {'schema_version': 1, 'kind': 'qualified-task-delivery', 'rundir': str(root),
+        from . import output_contract
+        declared = output_contract.check(effective.values())
+        result = {**({'output_contract': declared} if declared['declared'] else {}),
+            'schema_version': 1, 'kind': 'qualified-task-delivery', 'rundir': str(root),
             'label': 'machine-produced under delegation' if delegation_status == 'recorded' else 'machine-produced status summary',
             'delegation_status': delegation_status,
             'contract': inputs.canonical(contract_pin), 'original_request': contract['prompt'],
@@ -879,6 +909,8 @@ def _qualified_delivery_locked(rundir, *, completion_request=None, claim_package
             'review_state': review['state'], 'waiting_for_human': review['waiting_for_human'],
             'parent_task_accepted': False, 'execution_authorized': False,
             'authority_origin_authenticated': False, 'semantic_entailment_verified': False}
+        from .architecture_receipt import label_delivery
+        result.update(label_delivery(root, [], label='diagnostic'))
         # Retain consumed pins; the one-shot custody sessions are finished only
         # immediately before publishing the final report, after intermediate writes.
         result['input_pins'] = list(inputs.pins.values())

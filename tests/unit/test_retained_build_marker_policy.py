@@ -12,6 +12,7 @@ from ravel.workflow import execution, science, physics_review as review, launch_
 from ravel.workflow.state_io import atomic_json, read_json
 from test_science_output_policy import spec as synthetic_spec, token
 from test_science_review_envelope import checks
+from bound_review import bound_review
 
 EMPTY = hashlib.sha256(b'').hexdigest()
 TARGET = 'outputs/attempt-1/container-input/dependency-checkpoint/work/build/src/RestFrames-stamp/RestFrames-done'
@@ -147,8 +148,9 @@ def test_large_raw_approved_documents_retained_without_reclassifying_old_generic
     reg, events = review._read(rd)
     detached = {'schema_version':1, 'registration':reg, 'events':events, 'checkpoint':read_json(rd/review.HEAD), 'action':'history', 'stage':None}
     assert review.validate_snapshot(detached, require_admission=False) == []
-    for role, actor in [('physics_critic','critic'), ('skeptical_verifier','skeptic'), ('physics_decider','physicist')]:
-        review.submit_review(rd, role=role, actor_id=actor, verdict='accept', summary='Synthetic administrative custody test; no native physics review', claim_scope='reproduction')
+    # Recorded votes are bound responses of dispatched roles; a declared reviewer name is advice only.
+    for role in ['physics_critic', 'skeptical_verifier', 'physics_decider']:
+        bound_review(rd, role=role, verdict='accept', summary='Synthetic administrative custody test; no native physics review', claim_scope='reproduction')
     assert review.gate_errors(rd, 'reuse') == []
     generic = rd/'generic-large.bin';generic.write_bytes(b'X'*(review.MAX_RETAINED_BYTES+1))
     pin = review._frozen_pin(rd, review._pin(rd, str(generic)))

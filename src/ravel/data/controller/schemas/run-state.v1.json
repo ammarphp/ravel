@@ -1,0 +1,135 @@
+{
+  "title": "run-state.v1: the controller.run graph state fields (CONTROLLER-SPEC 3.3); ids and digests only",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "run": {
+      "type": "object",
+      "required": [
+        "run_id",
+        "run_dir",
+        "store_root"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{2,63}$"
+        },
+        "run_dir": {
+          "type": "string"
+        },
+        "store_root": {
+          "type": "string"
+        },
+        "composition_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "controller_mode": {
+          "type": "string",
+          "enum": [
+            "interactive",
+            "unattended"
+          ]
+        },
+        "host_kind": {
+          "type": "string"
+        },
+        "workers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "required": [
+        "sha256",
+        "channel"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "terminal",
+            "operator-file",
+            "harness"
+          ]
+        },
+        "record_id": {
+          "type": "string"
+        },
+        "reading_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contract_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "intake_record_id": {
+          "type": "string"
+        }
+      }
+    },
+    "mode": {
+      "type": "object"
+    },
+    "route": {
+      "type": "object"
+    },
+    "plan": {
+      "type": "object"
+    },
+    "ledger": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "steps": {
+      "type": "object"
+    },
+    "budget": {
+      "type": "object"
+    },
+    "judgments": {
+      "type": "object"
+    },
+    "holds": {
+      "type": "object"
+    },
+    "delivery": {
+      "type": "object"
+    },
+    "engagement": {
+      "type": "object"
+    }
+  }
+}

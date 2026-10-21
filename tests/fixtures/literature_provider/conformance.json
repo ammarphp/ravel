@@ -1,0 +1,468 @@
+[
+  {
+    "request": {
+      "schema_version": 1,
+      "operation": "search",
+      "request_id": "request:search",
+      "budgets": {
+        "max_tokens": 65536,
+        "max_bytes": 65536,
+        "max_seconds": 2.0,
+        "max_expansions": 50
+      },
+      "args": {
+        "query": "amber rate",
+        "top_k": 3,
+        "mode": "hybrid",
+        "document_scope": [],
+        "filters": {}
+      }
+    },
+    "candidate": {
+      "schema_version": 1,
+      "operation": "search",
+      "request_id": "request:search",
+      "provider_id": "fixture",
+      "index": {
+        "id": "index:fixture",
+        "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_view_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "results": [
+        {
+          "id": "evidence:amber:1",
+          "document_id": "paper:amber",
+          "version": "v2",
+          "original": {
+            "path": "sources/amber.txt",
+            "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a",
+            "size": 57,
+            "receipt_id": null
+          },
+          "extraction": null,
+          "extraction_reason": "Source-native UTF-8 text.",
+          "identifiers": {
+            "document": [
+              "paper:amber"
+            ]
+          },
+          "quantities": [
+            "rate"
+          ],
+          "classes": [
+            "text"
+          ],
+          "lineage": [],
+          "acquisition_status": "available",
+          "extraction_issues": [],
+          "physics_verified": false,
+          "execution_authorized": false,
+          "unit_id": "paragraph:1",
+          "text": "The amber rate is 12.5 units under dry conditions.",
+          "excerpt_sha256": "c3f728580008ce9b93da40624606dfe00883077f2a6b3d7c74a647eb4f617fe5",
+          "location": {
+            "section_path": [
+              "Results"
+            ],
+            "section_status": "source",
+            "page_index": null,
+            "page_number": null,
+            "printed_page_label": null,
+            "line_start": 2,
+            "line_end": 2,
+            "byte_start": 6,
+            "byte_end": 56,
+            "space": "original-text",
+            "null_reasons": {
+              "page_index": "Source is text.",
+              "page_number": "Source is text.",
+              "printed_page_label": "Source is text."
+            }
+          },
+          "scores": {
+            "dense_raw": 0.4,
+            "dense_diffused": null,
+            "bm25": 1.2,
+            "fusion": 0.03,
+            "reranker": 0.7,
+            "rank": 1,
+            "graph_paths": []
+          },
+          "group_id": null,
+          "measurement": null
+        }
+      ],
+      "metadata": [],
+      "groups": [],
+      "next_cursor": null,
+      "omitted": [],
+      "failures": [],
+      "usage": {
+        "elapsed_seconds": 0.01,
+        "expansions": 1,
+        "token_accounting": "utf8-byte-upper-bound"
+      },
+      "receipt_id": "candidate:search"
+    }
+  },
+  {
+    "request": {
+      "schema_version": 1,
+      "operation": "get_paper",
+      "request_id": "request:get_paper",
+      "budgets": {
+        "max_tokens": 65536,
+        "max_bytes": 65536,
+        "max_seconds": 2.0,
+        "max_expansions": 50
+      },
+      "args": {
+        "document_id": "paper:amber",
+        "version": null,
+        "section": null,
+        "page_index": null,
+        "cursor": null,
+        "limit": 3
+      }
+    },
+    "candidate": {
+      "schema_version": 1,
+      "operation": "get_paper",
+      "request_id": "request:get_paper",
+      "provider_id": "fixture",
+      "index": {
+        "id": "index:fixture",
+        "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_view_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "results": [
+        {
+          "id": "evidence:amber:1",
+          "document_id": "paper:amber",
+          "version": "v2",
+          "original": {
+            "path": "sources/amber.txt",
+            "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a",
+            "size": 57,
+            "receipt_id": null
+          },
+          "extraction": null,
+          "extraction_reason": "Source-native UTF-8 text.",
+          "identifiers": {
+            "document": [
+              "paper:amber"
+            ]
+          },
+          "quantities": [
+            "rate"
+          ],
+          "classes": [
+            "text"
+          ],
+          "lineage": [],
+          "acquisition_status": "available",
+          "extraction_issues": [],
+          "physics_verified": false,
+          "execution_authorized": false,
+          "unit_id": "paragraph:1",
+          "text": "The amber rate is 12.5 units under dry conditions.",
+          "excerpt_sha256": "c3f728580008ce9b93da40624606dfe00883077f2a6b3d7c74a647eb4f617fe5",
+          "location": {
+            "section_path": [
+              "Results"
+            ],
+            "section_status": "source",
+            "page_index": null,
+            "page_number": null,
+            "printed_page_label": null,
+            "line_start": 2,
+            "line_end": 2,
+            "byte_start": 6,
+            "byte_end": 56,
+            "space": "original-text",
+            "null_reasons": {
+              "page_index": "Source is text.",
+              "page_number": "Source is text.",
+              "printed_page_label": "Source is text."
+            }
+          },
+          "scores": {
+            "dense_raw": 0.4,
+            "dense_diffused": null,
+            "bm25": 1.2,
+            "fusion": 0.03,
+            "reranker": 0.7,
+            "rank": 1,
+            "graph_paths": []
+          },
+          "group_id": null,
+          "measurement": null
+        }
+      ],
+      "metadata": [
+        {
+          "id": "metadata:amber:v2",
+          "document_id": "paper:amber",
+          "version": "v2",
+          "original": {
+            "path": "sources/amber.txt",
+            "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a",
+            "size": 57,
+            "receipt_id": null
+          },
+          "extraction": null,
+          "extraction_reason": "Source-native UTF-8 text.",
+          "identifiers": {
+            "document": [
+              "paper:amber"
+            ]
+          },
+          "quantities": [
+            "rate"
+          ],
+          "classes": [
+            "text"
+          ],
+          "lineage": [],
+          "acquisition_status": "available",
+          "extraction_issues": [],
+          "physics_verified": false,
+          "execution_authorized": false,
+          "title": "Fictional amber study",
+          "reason": "Pinned source metadata."
+        }
+      ],
+      "groups": [],
+      "next_cursor": null,
+      "omitted": [],
+      "failures": [],
+      "usage": {
+        "elapsed_seconds": 0.01,
+        "expansions": 1,
+        "token_accounting": "utf8-byte-upper-bound"
+      },
+      "receipt_id": "candidate:get_paper"
+    }
+  },
+  {
+    "request": {
+      "schema_version": 1,
+      "operation": "list_papers",
+      "request_id": "request:list_papers",
+      "budgets": {
+        "max_tokens": 65536,
+        "max_bytes": 65536,
+        "max_seconds": 2.0,
+        "max_expansions": 50
+      },
+      "args": {
+        "filters": {},
+        "limit": 3,
+        "cursor": null
+      }
+    },
+    "candidate": {
+      "schema_version": 1,
+      "operation": "list_papers",
+      "request_id": "request:list_papers",
+      "provider_id": "fixture",
+      "index": {
+        "id": "index:fixture",
+        "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_view_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "results": [],
+      "metadata": [
+        {
+          "id": "metadata:amber:v2",
+          "document_id": "paper:amber",
+          "version": "v2",
+          "original": {
+            "path": "sources/amber.txt",
+            "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a",
+            "size": 57,
+            "receipt_id": null
+          },
+          "extraction": null,
+          "extraction_reason": "Source-native UTF-8 text.",
+          "identifiers": {
+            "document": [
+              "paper:amber"
+            ]
+          },
+          "quantities": [
+            "rate"
+          ],
+          "classes": [
+            "text"
+          ],
+          "lineage": [],
+          "acquisition_status": "available",
+          "extraction_issues": [],
+          "physics_verified": false,
+          "execution_authorized": false,
+          "title": "Fictional amber study",
+          "reason": "Pinned source metadata."
+        }
+      ],
+      "groups": [],
+      "next_cursor": null,
+      "omitted": [],
+      "failures": [],
+      "usage": {
+        "elapsed_seconds": 0.01,
+        "expansions": 1,
+        "token_accounting": "utf8-byte-upper-bound"
+      },
+      "receipt_id": "candidate:list_papers"
+    }
+  },
+  {
+    "request": {
+      "schema_version": 1,
+      "operation": "compare_measurements",
+      "request_id": "request:compare_measurements",
+      "budgets": {
+        "max_tokens": 65536,
+        "max_bytes": 65536,
+        "max_seconds": 2.0,
+        "max_expansions": 50
+      },
+      "args": {
+        "topic": "rate",
+        "groups": [
+          "amber",
+          "violet",
+          "silver"
+        ],
+        "top_k_per_group": 2,
+        "filters": {}
+      }
+    },
+    "candidate": {
+      "schema_version": 1,
+      "operation": "compare_measurements",
+      "request_id": "request:compare_measurements",
+      "provider_id": "fixture",
+      "index": {
+        "id": "index:fixture",
+        "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_view_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "results": [
+        {
+          "id": "evidence:amber:1",
+          "document_id": "paper:amber",
+          "version": "v2",
+          "original": {
+            "path": "sources/amber.txt",
+            "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a",
+            "size": 57,
+            "receipt_id": null
+          },
+          "extraction": null,
+          "extraction_reason": "Source-native UTF-8 text.",
+          "identifiers": {
+            "document": [
+              "paper:amber"
+            ]
+          },
+          "quantities": [
+            "rate"
+          ],
+          "classes": [
+            "text"
+          ],
+          "lineage": [],
+          "acquisition_status": "available",
+          "extraction_issues": [],
+          "physics_verified": false,
+          "execution_authorized": false,
+          "unit_id": "paragraph:1",
+          "text": "The amber rate is 12.5 units under dry conditions.",
+          "excerpt_sha256": "c3f728580008ce9b93da40624606dfe00883077f2a6b3d7c74a647eb4f617fe5",
+          "location": {
+            "section_path": [
+              "Results"
+            ],
+            "section_status": "source",
+            "page_index": null,
+            "page_number": null,
+            "printed_page_label": null,
+            "line_start": 2,
+            "line_end": 2,
+            "byte_start": 6,
+            "byte_end": 56,
+            "space": "original-text",
+            "null_reasons": {
+              "page_index": "Source is text.",
+              "page_number": "Source is text.",
+              "printed_page_label": "Source is text."
+            }
+          },
+          "scores": {
+            "dense_raw": 0.4,
+            "dense_diffused": null,
+            "bm25": 1.2,
+            "fusion": 0.03,
+            "reranker": 0.7,
+            "rank": 1,
+            "graph_paths": []
+          },
+          "group_id": "amber",
+          "measurement": {
+            "value": {
+              "value": "12.5",
+              "byte_start": 24,
+              "byte_end": 28
+            },
+            "unit": {
+              "value": "units",
+              "byte_start": 29,
+              "byte_end": 34
+            },
+            "conditions": [
+              {
+                "value": "dry conditions",
+                "byte_start": 41,
+                "byte_end": 55
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": [],
+      "groups": [
+        {
+          "id": "amber",
+          "status": "available",
+          "result_ids": [
+            "evidence:amber:1"
+          ],
+          "reason": null
+        },
+        {
+          "id": "violet",
+          "status": "empty",
+          "result_ids": [],
+          "reason": "No matching located evidence in allowed snapshot."
+        },
+        {
+          "id": "silver",
+          "status": "missing",
+          "result_ids": [],
+          "reason": "No acquired source in allowed snapshot."
+        }
+      ],
+      "next_cursor": null,
+      "omitted": [],
+      "failures": [],
+      "usage": {
+        "elapsed_seconds": 0.01,
+        "expansions": 1,
+        "token_accounting": "utf8-byte-upper-bound"
+      },
+      "receipt_id": "candidate:compare_measurements"
+    }
+  }
+]

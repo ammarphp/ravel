@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "kind": "operation-registration",
+  "package": "literature-operations",
+  "description": "Governed literature query expansion, batched evidence scoring and the bounded discovery crawl as explicit controller operations above search. Each dispatches its registered role card through the role dispatcher and runs its Graph calls under the campaign reservation; search never calls a model.",
+  "operation_signatures": {
+    "literature-query-expansion": {
+      "summary": "Deterministic query expansion plus at most one dispatched, charged choice of curated entries and source-bound terms.",
+      "implementation": {
+        "kind": "command",
+        "module": "ravel.workflow.research_tools"
+      },
+      "consumes": [
+        {
+          "slot": "query",
+          "kind": "document",
+          "task_pointer": "/query"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "expansion",
+          "kind": "document"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "wall_seconds",
+        "forecast": null,
+        "ceiling_pointer": "/max_wall_seconds"
+      },
+      "critical_fields": [
+        "/query"
+      ],
+      "basis": {
+        "adds": [],
+        "passes": [
+          "query"
+        ]
+      },
+      "tools": [],
+      "stages": [],
+      "review": {
+        "checks": [
+          "io_contract"
+        ]
+      },
+      "fidelity_rank": 1
+    },
+    "literature-evidence-scoring": {
+      "summary": "Question-conditioned relevance scores and summaries for the passages of one served search, one charged call per batch.",
+      "implementation": {
+        "kind": "command",
+        "module": "ravel.workflow.research_tools"
+      },
+      "consumes": [
+        {
+          "slot": "served",
+          "kind": "document",
+          "task_pointer": "/serving_id"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "scores",
+          "kind": "document"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "wall_seconds",
+        "forecast": null,
+        "ceiling_pointer": "/max_wall_seconds"
+      },
+      "critical_fields": [
+        "/question",
+        "/serving_id"
+      ],
+      "basis": {
+        "adds": [],
+        "passes": [
+          "served"
+        ]
+      },
+      "tools": [],
+      "stages": [],
+      "review": {
+        "checks": [
+          "io_contract"
+        ]
+      },
+      "fidelity_rank": 1
+    },
+    "literature-discovery-crawl": {
+      "summary": "Bounded discovery crawl: query pages, seeds and a citation frontier with an admitted criterion selector and a dated lower-bound report.",
+      "implementation": {
+        "kind": "command",
+        "module": "ravel.workflow.research_tools"
+      },
+      "consumes": [
+        {
+          "slot": "scope",
+          "kind": "document",
+          "task_pointer": "/scope_pin"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "report",
+          "kind": "document"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "wall_seconds",
+        "forecast": null,
+        "ceiling_pointer": "/max_wall_seconds"
+      },
+      "critical_fields": [
+        "/scope_pin"
+      ],
+      "basis": {
+        "adds": [],
+        "passes": [
+          "scope"
+        ]
+      },
+      "tools": [],
+      "stages": [],
+      "review": {
+        "checks": [
+          "io_contract"
+        ]
+      },
+      "fidelity_rank": 1
+    }
+  },
+  "handoff": "The three operations are coordinator host operations (src/ravel/data/roles/executors.json host_operations); apply further changes with merge_registration."
+}

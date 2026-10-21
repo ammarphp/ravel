@@ -65,11 +65,17 @@ def _source_root(skills_from=None):
 
 
 def _python_command():
-    """Portable hook resolver; machine locations live in an ignored local file."""
+    """Portable hook resolver; machine locations live in an ignored local file.
+
+    Inherited package variables are cleared, so only the installer's runtime selects the
+    installed RAVEL, and the working directory is never searched for the package.
+    """
     return ('CLAUDE_PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"; '
+            'ravel_inherited="${RAVEL_PYTHON:-}"; unset RAVEL_PYTHON PYTHONPATH PYTHONHOME PYTHONSTARTUP; '
             'if [ -f "$CLAUDE_PROJECT_DIR/.ravel/hook-runtime.sh" ]; then '
             '. "$CLAUDE_PROJECT_DIR/.ravel/hook-runtime.sh"; fi; '
-            '"${RAVEL_PYTHON:-python3}"')
+            'RAVEL_PYTHON="${RAVEL_PYTHON:-${ravel_inherited:-python3}}"; export PYTHONSAFEPATH=1; '
+            '"$RAVEL_PYTHON"')
 
 
 def _wms_required(project):
@@ -541,11 +547,71 @@ def install(project, *, skills_from=None, manifest=None, include_software=True, 
     (project / MANIFEST).parent.mkdir(parents=True, exist_ok=True)
     (project / MANIFEST).write_text(json.dumps(record, indent=2, sort_keys=True) + '\n')
     from . import execution_guard
-    return {**report, 'manifest': str(project / MANIFEST), 'skills': installed, 'software_skills': sorted(software),
+    notices = []
+    if required and not guard_enabled:
+        # An approved opt-out is a same-user file, not governance: the host's results carry the label.
+        notices.append('NOT GOVERNED: the workflow policy requires the workflow manager and this install has no '
+                       'execution guard; results on this host are labelled until it is reinstalled with the guard')
+        from .host_governance import record_host_event
+        record_host_event('surface_installed', project=str(project), wms_guard=False, required=True,
+                          guard_approval_sha256=approval['sha256'] if approval else None)
+    return {**report, 'notices': notices, 'manifest': str(project / MANIFEST), 'skills': installed,
+            'software_skills': sorted(software),
             'provider_policy': provider,
             'enforcement': enforcement_levels(),
             'path_activation': str(project / '.ravel/activate.sh'),
             'wms_guard': {'hook': True, 'policy_mode': execution_guard.mode(project)} if guard_enabled else None}
+
+
+# Project instruction documents a render may write. A project's own text (anything but RAVEL's
+# generated instructions) is never replaced unless the caller passes replace_instructions.
+INSTRUCTION_DOCUMENTS = ('AGENTS.md', 'CLAUDE.md', 'GEMINI.md')
+_GENERATED_INSTRUCTIONS = re.compile(r'^<!-- Generated from the RAVEL role registry [0-9a-f]{64}\. Do not hand edit\. -->$')
+
+
+def _generated_instructions(raw):
+    """Whether an instruction document is RAVEL's rendered text (its mark within the first lines)."""
+    lines = raw.decode('utf-8', errors='replace').splitlines()[:3]
+    return any(_GENERATED_INSTRUCTIONS.match(line) for line in lines)
+
+
+def render_surfaces(project, *, replace_instructions=False):
+    """Regenerate the canonical role surfaces in ``project``; returns ``{written, preserved}``.
+
+    Project-authored ``AGENTS.md``/``CLAUDE.md``/``GEMINI.md`` stay byte-identical (``preserved``)
+    unless ``replace_instructions``; RAVEL's own generated instruction text is refreshed.
+    Protected ``.claude/hooks`` and active settings are not written.
+    """
+    from . import role_registry
+    errors = role_registry.validate_registry()
+    if errors:
+        raise ValueError('role registry invalid: ' + '; '.join(errors))
+    root = Path(project).absolute()
+    for relative in ('.claude/settings.ravel-gates.json', '.ravel/gate-surface.json'):
+        path = root / relative
+        if path.is_file() and 'registry_sha256' in json.loads(path.read_text()):
+            path.unlink()  # Retire only the renderer's generated pseudo tables.
+    document = role_registry.registry_document()
+    registered = set(document['roles']) | set(document['aliases'])
+    for path in (root / role_registry.PROFILE_DIRS['claude']).glob('*.md'):
+        if not path.name.startswith('ravel-') and path.stem in registered:
+            path.unlink()
+    written, preserved = [], []
+    for surface in role_registry.SURFACES:
+        for relative, text in role_registry.render(surface).items():
+            path = root / relative
+            raw = text.encode()
+            if path.is_file() and not path.is_symlink() and path.read_bytes() == raw:
+                continue
+            if (relative in INSTRUCTION_DOCUMENTS and not replace_instructions
+                    and (path.exists() or path.is_symlink())
+                    and (path.is_symlink() or not _generated_instructions(path.read_bytes()))):
+                preserved.append(relative)
+                continue
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(raw)
+            written.append(relative)
+    return {'written': written, 'preserved': sorted(set(preserved))}
 
 
 def _frontmatter_errors(path, name):
@@ -670,6 +736,8 @@ def main(argv=None):
     p.add_argument('--host', choices=('claude', 'codex', 'gemini', 'antigravity', 'opencode', 'governed-node', 'hookless'), required=True)
     r = commands.add_parser('render', help='regenerate canonical role surfaces in a checkout')
     r.add_argument('--project', type=Path, required=True)
+    r.add_argument('--replace-instructions', action='store_true',
+                   help="also replace the project's own AGENTS.md, CLAUDE.md and GEMINI.md (kept byte-identical by default)")
     s = commands.add_parser('skills', help='print or write software skills for installed tools')
     s.add_argument('--toolchain-manifest', type=Path)
     s.add_argument('--project', type=Path, help='project containing a local site-wms record')
@@ -689,6 +757,8 @@ def main(argv=None):
         if args.command == 'install':
             result = install(args.project, skills_from=args.skills_from, manifest=args.toolchain_manifest,
                              all_groups=args.all_groups, wms_guard=args.wms_guard, guard_approval=args.guard_approval)
+            for notice in result['notices']:
+                print(notice, file=sys.stderr)
         elif args.command == 'check':
             errors = check(args.project)
             from .provider_policy import project_policy, PolicyRefused
@@ -697,15 +767,22 @@ def main(argv=None):
                 provider = project_policy(Path(args.project).resolve())
             except PolicyRefused:
                 provider = None  # Failure is already reported by check().
+            from .host_governance import host_findings
+            # Detection on this host (disabled hooks, injected variables, a redirected runtime, a missing
+            # workflow-manager guard); any finding labels the host's results NOT GOVERNED.
+            found = host_findings(Path(args.project).absolute())
             print(json.dumps({'passed': not errors, 'errors': errors, 'provider_policy': provider,
-                              'enforcement': enforcement_levels()}, indent=2))
+                              'enforcement': enforcement_levels(), 'host_findings': found,
+                              'host_label': 'NOT GOVERNED' if found else None}, indent=2))
             return 1 if errors else 0
         elif args.command == 'profiles':
             from .role_registry import resolve_panel
             result = resolve_panel(args.project, args.host)
         elif args.command == 'render':
-            from .role_registry import main as render_main
-            return render_main(['--write', '--project', str(args.project)])
+            result = render_surfaces(args.project, replace_instructions=args.replace_instructions)
+            for rel in result['preserved']:
+                print(f"kept the project's own {rel} unchanged; pass --replace-instructions to replace it",
+                      file=sys.stderr)
         else:
             skills = software_skills(args.toolchain_manifest, project=args.project)
             if args.out:

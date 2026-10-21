@@ -1,0 +1,63 @@
+{
+  "id": "evidence:amber:1",
+  "document_id": "paper:amber",
+  "version": "v2",
+  "original": {
+    "path": "sources/amber.pdf",
+    "sha256": "f742d1a0875961c13291b16630aa17b2b43221805fdf4ee30563edd6bdd3f80a",
+    "size": 32,
+    "receipt_id": "acquisition:fixture"
+  },
+  "extraction": {
+    "path": "extractions/amber.json",
+    "sha256": "2cb17b2af8015e3282a2090a74cac1560958e85166490f77f6d6642dfbe33b57",
+    "size": 481,
+    "receipt_id": "extraction:fixture"
+  },
+  "extraction_reason": null,
+  "identifiers": {
+    "document": [
+      "paper:amber"
+    ]
+  },
+  "quantities": [
+    "rate"
+  ],
+  "classes": [
+    "text"
+  ],
+  "lineage": [],
+  "acquisition_status": "available",
+  "extraction_issues": [],
+  "physics_verified": false,
+  "execution_authorized": false,
+  "unit_id": "paragraph:1",
+  "text": "Amber rate 8.0 units.",
+  "excerpt_sha256": "36073ffec1754954aa4566e4827466edcf6829d0783876c7e226748898b74a72",
+  "location": {
+    "section_path": [
+      "Results"
+    ],
+    "section_status": "inferred",
+    "page_index": 0,
+    "page_number": 1,
+    "printed_page_label": "i",
+    "line_start": 2,
+    "line_end": 2,
+    "byte_start": 12,
+    "byte_end": 33,
+    "space": "pdf-page-text",
+    "null_reasons": {}
+  },
+  "scores": {
+    "dense_raw": 0.4,
+    "dense_diffused": null,
+    "bm25": 1.2,
+    "fusion": 0.03,
+    "reranker": 0.7,
+    "rank": 1,
+    "graph_paths": []
+  },
+  "group_id": null,
+  "measurement": null
+}

@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import venv
@@ -248,11 +249,40 @@ def _environment(root, logical):
     return python
 
 
+# Sealing the host environment's RAVEL: that environment's interpreter, isolated from PYTHONPATH and
+# the working directory, so the installed copy (not a checkout) is the one sealed.
+SEAL_ARGV = ('-I', '-m', 'ravel', 'governed-runtime', 'seal')
+
+
+def seal_host(python, root):
+    """Seal the host environment's installed RAVEL with that environment's interpreter.
+
+    Returns the governed runtime (``sealed`` true) or the failure with its fix (``sealed`` false);
+    a failure is reported to the caller, never ignored."""
+    argv = [str(python), *SEAL_ARGV]
+    fix = shlex.join(argv)
+    try:
+        done = subprocess.run(argv, cwd=root, capture_output=True, text=True, check=False)
+    except OSError as exc:
+        return {'sealed': False, 'error': f'{type(exc).__name__}: {exc}', 'fix': fix}
+    try:
+        result = json.loads(done.stdout) if done.returncode == 0 else None
+    except ValueError:
+        result = None
+    if type(result) is not dict or not all(isinstance(result.get(k), str) for k in ('runtime_dir', 'launcher')):
+        error = (done.stderr or done.stdout or '').strip()[-2000:] or f'exit status {done.returncode}'
+        return {'sealed': False, 'error': error, 'fix': fix}
+    return {'sealed': True, 'runtime_id': result.get('runtime_id'), 'runtime_dir': result['runtime_dir'],
+            'launcher': result['launcher'], 'reused': result.get('reused') is True}
+
+
 def install(source_root, *, host_only=False):
-    """Prepare the full Python environments without altering global Python.
+    """Prepare the full Python environments without altering global Python, then seal the host's RAVEL.
 
     No native programs or scientific study execute here. Source-bound engines,
-    licenses and provider access are still installed/admitted separately.
+    licenses and provider access are still installed/admitted separately. The
+    result's ``governed_runtime`` names the sealed runtime controller mode admits,
+    or the seal failure and its fix.
     """
     if sys.version_info[:2] != (3, 12):
         raise ValueError('use python3.12 scripts/setup/python_installation.py')
@@ -261,13 +291,16 @@ def install(source_root, *, host_only=False):
     targets = [('.venv', manifest['host_requirements'])]
     if not host_only:
         targets += [(p['directory'], p['requirements']) for p in manifest['isolated_required']]
+    host = None
     for logical, requirements in targets:
         python = _environment(root, logical)
+        host = python if logical == '.venv' else host
         declarations(root)
         subprocess.run([str(python), '-m', 'pip', 'install', '-r', str(root / requirements)],
                        cwd=root, check=True)
     return {'python_environments_prepared': [p for p, _ in targets],
             'complete_python_profile': not host_only, 'native_admitted': False,
+            'governed_runtime': seal_host(host, root),
             'compute_authorized': False, 'physics_validated': False}
 
 
@@ -281,7 +314,13 @@ def main(argv=None, *, source_root=None):
     elif source_root is None:
         parser.error('installed package: use --plan for assets; run setup from a source checkout')
     else:
-        print(json.dumps(install(source_root, host_only=args.host_only), indent=2))
+        result = install(source_root, host_only=args.host_only)
+        print(json.dumps(result, indent=2))
+        runtime = result['governed_runtime']
+        if runtime.get('sealed') is not True:
+            print('python_installation: the Python environments are prepared, but the governed runtime was not '
+                  f"sealed: {runtime.get('error')}; fix: {runtime.get('fix')}", file=sys.stderr)
+            return 1
     return 0
 
 

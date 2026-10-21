@@ -231,14 +231,16 @@ def test_authorization_replays_r3_and_human(spec, tmp_path, monkeypatch):
     from ravel.workflow import rdj_loop
     calls=[]
     accepted={'case':{'decision_point':{'tuning':{'class':'calibration'}}},
-              'receipt':{'attestation_summary':{'human_approver':{'approval_id':'synthetic'}}},
+              'receipt':{'attestation_summary':{'human_approver':True}},
+              'review_independence':{'human_approver':True},
               'receipt_sha256':'e'*64,'case_sha256':'d'*64}
     def authorize(root,gate,action):
         calls.append((gate,action));return deepcopy(accepted)
     monkeypatch.setattr(rdj_loop,'authorizing_receipt',authorize)
     dc.calibration_authorization(tmp_path,spec,floor='R3',human=True)
     assert calls[0][0]=='checkin2_accept' and calls[0][1]['floor']=='R3'
-    accepted['receipt']['attestation_summary']={}
+    # A historical receipt summary is not current human credit.
+    accepted['review_independence']={'human_approver':False}
     with pytest.raises(ValueError,match='R3 human'):dc.calibration_authorization(tmp_path,spec,floor='R3',human=True)
 
 

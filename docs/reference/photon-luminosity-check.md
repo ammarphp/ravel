@@ -61,8 +61,7 @@ same supplied charge-conjugate photon density. The supported cuts are the pair
 mass window, absolute pair rapidity and each lepton's minimum transverse
 momentum. Individual pseudorapidity, angular asymmetry, radiation, detector
 selection, elastic-only restrictions, survival factors, running coupling and
-additional amplitudes are outside this formula and must be refused. The check
-cannot validate charged-lepton-initiated channels or higher-order predictions.
+additional amplitudes are outside this formula and must be refused. The check uses the stated photon-initiated fixed-order formula.
 
 ## Supplied interfaces
 
@@ -108,7 +107,7 @@ the run's executed beam/card/PDF records, not from intended settings. The
 comparator validates set, member, energy, beams, process, mass, coupling, cuts
 and scale rule. Numerical integration settings and flavour-census ordering are
 not physical setup differences. Missing metadata or changed conditions require
-repairing the record or calculating a matching check; they cannot pass the
+repairing the record or calculating a matching check; they must not pass the
 comparison. The generator's integration statistical error belongs in
 `statistical_error_pb`.
 

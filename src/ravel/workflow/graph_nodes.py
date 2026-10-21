@@ -341,6 +341,21 @@ def check_gate(scope_root, gate_name, action, *, graph_id=None):
     """
     checker, providers = GATE_CHECK.get(), GATE_PROVIDERS.get()
     errors = []
+    if checker is not None or providers is not None:
+        # SW30: a controller run never takes its gate decisions from an in-process override.
+        from ..controller import store as controller_store
+        from ..controller.testing import SeamRefused, refuse_for_controller
+        try:
+            owned = controller_store.controller_owned(scope_root) is not None
+        except getattr(controller_store, "StoreError", ValueError):
+            owned = True  # a damaged controller marker: ownership unknown, so the override is refused
+        try:
+            refuse_for_controller("the GATE_CHECK/GATE_PROVIDERS gate override", owned=owned)
+        except SeamRefused as exc:
+            checker = providers = None
+            errors.append({"code": "seam_refused", "gate": gate_name, "provider": "controller",
+                           "message": str(exc), "fix": "decide the gate through the installed decision gate",
+                           "pins": []})
     if checker is None or providers is None:
         try:
             from . import decision_gate
@@ -829,6 +844,10 @@ def failure_record(state, node, error):
     stem = effect_ledger.digest(base)
     occurrence = sum(1 for v in existing.values() if v.get("stem") == stem)
     record = {**base, "schema_version": 1, "kind": "graph-failure", "stem": stem, "occurrence": occurrence}
+    if kind == "exception":
+        # A crash keeps its traceback (bounded) beside its class, so a FAIL names where it happened.
+        import traceback
+        record["traceback"] = "".join(traceback.format_exception(type(error), error, error.__traceback__))[-6000:]
     return effect_ledger.digest({"stem": stem, "occurrence": occurrence}), record
 
 

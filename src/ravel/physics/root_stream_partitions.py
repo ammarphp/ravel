@@ -270,7 +270,8 @@ def reserve_master(master):
         # consume one generic role/campaign revision per partition.
         row=reservation(master);cycle._check_pin(row['basis'],root)
         cycle._charge(state,row['id'],row['ceiling'],row['basis'])
-        c.require(state['revision']+2<cycle.MAX_REVISIONS,'original owner needs reservation and first-clock revision capacity')
+        from ravel.workflow import research_history
+        c.require(state['revision']+2<research_history.capacity(state),'original owner needs reservation and first-clock revision capacity')
         directory=Path(owner['attempt_journal']['directory']);cycle._ordinary(directory)
         c.require(not directory.exists(),'original attempt journal cannot be replaced or reset')
         directory.parent.mkdir(exist_ok=True);directory.mkdir();(directory/'history').mkdir()

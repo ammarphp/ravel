@@ -17,7 +17,6 @@ import time
 from . import agent_graph, candidate_experiments as ce, hypothesis_board
 from . import physics_review, science, scientific_context, state_io
 
-MAX_REVISIONS = 128
 PARENT_PREMISE = "original-parent-task"
 VECTORS = ("calls", "output_tokens", "wall_seconds", "native_attempts")
 
@@ -41,6 +40,16 @@ class ExecutionStatus(str, Enum):
 
 class OperationalBoundaryError(ValueError):
     """An admitted operation cannot fit its original campaign; no physics result."""
+
+
+class CampaignBudgetExhausted(OperationalBoundaryError):
+    """A real prospective reservation exceeds an original resource ceiling.
+
+    Every reservation is made before the work it guards, so the refused action was never sent: the effect
+    ledger records a definite failure (``not_dispatched``), which the research loop routes to its bounded
+    ending, never an ambiguous effect to reconcile.
+    """
+    not_dispatched = True
 
 
 def _clock(state, required_seconds):
@@ -158,22 +167,17 @@ def _seal(value):
     return result
 
 
-def _load(root, *, check_parent=True):
+def _load_history(root):
+    """Authenticate campaign bytes without recursively evaluating its children."""
     root = _ordinary(root)
     head = state_io.read_json(root / "head.json")
-    current = _read(head, root)
-    for revision in range(current["revision"] + 1):
-        path = root / "history" / f"{revision:04d}.json"
-        record = state_io.read_json(path)
-        content = deepcopy(record)
-        checksum = content.pop("sha256")
-        if checksum != ce.digest(content) or record["revision"] != revision:
-            raise ValueError("research history content differs")
-        if revision and record["parent_sha256"] != previous["sha256"]:
-            raise ValueError("research ancestry differs")
-        previous = record
-    if previous != current:
-        raise ValueError("research head differs from immutable history")
+    from . import research_history
+    current = research_history.replay(root, _read(head, root))
+    return root, current
+
+
+def _load(root, *, check_parent=True):
+    root, current = _load_history(root)
     if current['contract'].get('research_protocol_required') or current.get('methodology') is not None:
         from . import research_protocol
         methodology = research_protocol.methodology_status(root)['record']
@@ -197,6 +201,11 @@ def _load(root, *, check_parent=True):
         for dependency in record["dependencies"]: _check_pin(dependency, current["base_dir"])
     _check_knowledge(current)
     if check_parent: _parent_goal(current)
+    if current['contract'].get('goal_binding') is not None:
+        pin = current.get('intake_contract')
+        if pin is None:
+            raise ValueError('goal-bound campaign requires its original committed intake contract')
+        _experiment_contract(current, {'task_contract': pin}, root, _check_parent=check_parent)
     return root, current
 
 
@@ -207,8 +216,12 @@ def _pin_shape(row):
 
 def _commit(root, state, event, **payload):
     _parent_goal(state)
-    if state["revision"] + 1 >= MAX_REVISIONS:
-        raise ValueError("finite research revision budget exhausted")
+    from . import research_history
+    root, prior = _load_history(root)
+    if state['sha256'] != prior['sha256'] or state['revision'] != prior['revision']:
+        raise ValueError('research update belongs to a stale campaign state')
+    if state['revision'] + 1 >= research_history.capacity(prior):
+        raise ValueError('research journal exceeds its declared structural capacity')
     newer = deepcopy(state)
     newer["revision"] += 1
     newer["parent_sha256"] = newer.pop("sha256")
@@ -217,9 +230,21 @@ def _commit(root, state, event, **payload):
     path = root / "history" / f"{newer['revision']:04d}.json"
     if path.exists():
         raise ValueError("immutable research revision already exists")
-    state_io.atomic_json(path, newer)
+    previous_record = state_io.read_json(root / 'history' / f"{state['revision']:04d}.json")
+    delta = _seal({'kind': research_history.KIND, 'revision': newer['revision'],
+        'parent_sha256': prior['sha256'], 'parent_record_sha256': previous_record['sha256'],
+        'result_sha256': newer['sha256'], 'changes': research_history.changes(prior, newer)})
+    state_io.atomic_json(path, delta)
     state_io.atomic_json(root / "head.json", _pin(path))
     return newer
+
+
+def historical_state(root, revision):
+    """Read a previous campaign state while checking the complete current ancestry."""
+    from . import research_history
+    root = _ordinary(root)
+    head = _read(state_io.read_json(root / 'head.json'), root)
+    return research_history.replay(root, head, through=revision)
 
 
 def _fresh(state, bindings):
@@ -272,6 +297,8 @@ def _current_evidence(state, e, *, accepted=False, _session=None):
         if accepted:
             raise ValueError("failed-stage diagnostic evidence never grants scientific acceptance or reuse")
         return
+    if e.get('rundir') is not None:
+        _experiment_contract(state, e, e['rundir'])
     for pin in [e["study"], *e["input_pins"]]: _check_pin(pin, state["base_dir"])
     if e["plan"] is not None: _check_pin(e["plan"], state["base_dir"])
     if e["observation"] is None: raise ValueError("actual observation required")
@@ -290,7 +317,22 @@ def _current_evidence(state, e, *, accepted=False, _session=None):
         if e["adjudication"] is None: raise ValueError("actual scoped roles required")
         saved = _read(e["adjudication"]["snapshot"], state["base_dir"])
         actual = physics_review.snapshot(e["rundir"], action="reuse")
-        if actual != saved: raise ValueError("accepted ordinary review state changed")
+        if actual != saved:
+            old = physics_review._view(saved['registration'], saved['events'])
+            new = physics_review._view(actual['registration'], actual['events'])
+            final = new['cycle'].get('final_results') if new['cycle'] else None
+            suffix = actual['events'][len(saved['events']):]
+            if (physics_review.validate_snapshot(saved)
+                    or saved['registration'] != actual['registration']
+                    or saved['events'] != actual['events'][:len(saved['events'])]
+                    or old['state'] != 'accepted' or final is None
+                    or final['source_cycle_id'] != old['cycle']['cycle_id']
+                    or final['source_cycle_sha256'] != old['cycle']['sha256']
+                    or len([event for event in suffix if event['event'] == 'cycle']) != 1
+                    or any(event['event'] not in {'cycle', 'review'} for event in suffix)):
+                raise ValueError("accepted ordinary review state changed")
+            from . import final_results_review
+            final_results_review.gate(e['rundir'], final['manifest'])
         view = physics_review.status(e["rundir"])
         if view["state"] != "accepted" or view["live_errors"] or view["claim_scope"] != e["acceptance_scope"]:
             raise ValueError("actual accepted scientific scope no longer reusable")
@@ -584,7 +626,8 @@ def _charge(state, identity, amount, evidence):
         raise ValueError("resource reservation cannot be reset or repeated")
     usage = {key: sum(row["ceiling"][key] for row in state["resource_ledger"]) + amount[key] for key in VECTORS}
     if any(usage[key] > state["contract"]["budget"][key] for key in VECTORS):
-        raise ValueError("cumulative research resource ceiling exhausted")
+        dimensions = [key for key in VECTORS if usage[key] > state['contract']['budget'][key]]
+        raise CampaignBudgetExhausted('cumulative research resource ceiling exhausted: ' + ', '.join(dimensions))
     state["resource_ledger"].append({"id": identity, "ceiling": amount, "basis": deepcopy(evidence)})
 
 
@@ -628,7 +671,15 @@ def create(root, contract, *, base_dir, evaluation_harness=False):
                        "max_experiments", "exploration_every", "required_experiments",
                        *({"goal_binding"} if "goal_binding" in contract else set()),
                        *({'research_protocol_required'} if 'research_protocol_required' in contract else set()),
-                       *({'research_regime'} if 'research_regime' in contract else set())))
+                       *({'research_regime'} if 'research_regime' in contract else set()),
+                       *({'bounded_step'} if 'bounded_step' in contract else set())))
+    if 'bounded_step' in contract:
+        from .bounded_research import origin, bounds
+        source = origin(contract['bounded_step'])
+        _, bounded_campaign = bounds(source)
+        if (any(contract[key] != val for key, val in bounded_campaign.items())
+                or contract['question'] != source['question']):
+            raise ValueError('bounded campaign differs from its approved step')
     if 'research_protocol_required' in contract and contract['research_protocol_required'] is not True:
         raise ValueError('research protocol cannot be disabled')
     if type(contract["schema_version"]) is not int or contract["schema_version"] != 1:
@@ -637,7 +688,8 @@ def create(root, contract, *, base_dir, evaluation_harness=False):
     _text(contract["question"]); _text(contract["scope"])
     _vector(contract["budget"])
     for key, maximum in (("max_experiments", 32), ("exploration_every", 16)):
-        if type(contract[key]) is not int or not 1 <= contract[key] <= maximum:
+        minimum = 0 if key == 'max_experiments' and 'bounded_step' in contract else 1
+        if type(contract[key]) is not int or not minimum <= contract[key] <= maximum:
             raise ValueError("finite experiment and exploration bounds required")
     if type(contract["required_experiments"]) is not list or len(set(contract["required_experiments"])) != len(contract["required_experiments"]):
         raise ValueError("distinct complete required experiment census required")
@@ -682,6 +734,12 @@ def create(root, contract, *, base_dir, evaluation_harness=False):
         state = _seal({**{k: v for k, v in state.items() if k != "sha256"}, "parent_task": parent})
     if evaluation_harness and not contract.get('research_protocol_required'):
         state = _seal({**{k: v for k, v in state.items() if k != 'sha256'}, 'protocol_exemption': 'evaluation_harness'})
+    if parent is not None:
+        (root / 'inputs').mkdir(parents=True, exist_ok=True)
+        pin = _experiment_contract(state, {}, root, materialize=True)
+        from . import rdj_custody
+        rdj_custody.record_input_snapshot(root, 'run_init')
+        state = _seal({**{k: v for k, v in state.items() if k != 'sha256'}, 'intake_contract': pin})
     if contract.get('research_protocol_required'):
         from . import research_protocol
         state = _seal({**{k: v for k, v in state.items() if k != 'sha256'},
@@ -1027,8 +1085,29 @@ def revise_graph(root, graph_root, new_spec, *, expected_spec_sha256, predecesso
         return agent_graph.status(graph_root)
 
 
+def matches_campaign_graph(root, graph_root, actual, expected):
+    """Exact graph contract, including only the authenticated campaign's inherited goal.
+
+    A consumer without a campaign retains exact standalone comparison. With one, its current
+    reservation and checkpoint are revalidated before the parent binding can be inherited.
+    """
+    if root is None:
+        return actual == expected
+    _, state = _load(root)
+    validate_graph_reservation(state, _ordinary(graph_root), actual)
+    expected = deepcopy(expected)
+    if 'goal_binding' in state['contract']:
+        binding = state['contract']['goal_binding']
+        if 'goal_binding' in expected and expected['goal_binding'] != binding:
+            return False
+        expected['goal_binding'] = deepcopy(binding)
+    return actual == expected
+
+
 def execute_graph(root, graph_root, graph_spec, host, *, prepared=False, workers=1):
     """Use the existing graph/Host; preserve spent reservations if dispatch fails."""
+    from . import research_controller
+    host = research_controller.governed_host(host)
     graph_root = _ordinary(graph_root)
     if type(workers) is not int or not 1 <= workers <= 8:
         raise ValueError('finite Graph worker population required')
@@ -1695,6 +1774,121 @@ def _quantitative_selection_current(state,e):
     if ce.digest(value["selection_evidence"])!=ce.digest(e["quantitative_selection"]):raise ValueError("quantitative selection differs from actual evidence")
     return deepcopy(e["quantitative_selection"])
 
+CHILD_CONTRACT_ORIGIN = 'inputs/research-child-contract.json'
+
+
+def verify_experiment_contract(rundir):
+    """Authenticate an ordinary gate envelope through its immutable campaign.
+
+    The origin sidecar is only a locator. Neither it nor a newly snapshotted
+    contract can create authority absent the exact campaign's prepared record.
+    """
+    rd = _ordinary(rundir).resolve()
+    origin = state_io.read_json(rd / CHILD_CONTRACT_ORIGIN)
+    ce.keys(origin, ('root', 'experiment_id'))
+    root, state = _load_history(origin['root'])
+    if state['contract'].get('goal_binding') is not None:
+        pin = state.get('intake_contract')
+        if pin is None:
+            raise ValueError('goal-bound campaign requires its original committed intake contract')
+        _experiment_contract(state, {'task_contract': pin}, root)
+    e = next(row for row in state['experiments'] if row['id'] == origin['experiment_id'])
+    if (e.get('rundir') is None or _ordinary(e['rundir']).resolve() != rd
+            or e.get('task_contract') is None):
+        raise ValueError('child contract has no exact prepared campaign record')
+    if e.get('task_contract_origin') != _pin(rd / CHILD_CONTRACT_ORIGIN):
+        raise ValueError('child contract origin differs from prepared campaign')
+    _check_pin(e['plan'], state['base_dir'])
+    _experiment_contract(state, e, rd)
+    paths = [rd / 'inputs/task_contract.json', rd / CHILD_CONTRACT_ORIGIN]
+    contract = _read(e['task_contract'], state['base_dir'])
+    if contract.get('agent_layer_epoch', 1) == 2:
+        paths.append(rd / contract['request_plan']['path'])
+    if 'reading' in contract:
+        paths.append(rd / contract['reading']['path'])
+    return [str(path) for path in paths]
+
+
+def _experiment_contract(state, e, rd, *, materialize=False, _check_parent=True):
+    """Derive an ordinary child's gate inputs; planning conveys no approval.
+
+    Keep the original request and review epoch, including its conservative review
+    obligations. A child does not inherit a parent's run identity or delegation.
+    The campaign retains the exact derived bytes independently of run custody.
+    """
+    from . import review_points, rdj_custody
+    rd = Path(rd)
+    binding = state['contract'].get('goal_binding')
+    plan_raw = None
+    if binding is not None:
+        if _check_parent:
+            _parent_goal(state)
+        parent_pin = binding['contract']
+        parent = Path(parent_pin['path'])
+        if not parent.is_absolute(): parent = Path(state['base_dir']) / parent
+        original = _read(parent_pin, state['base_dir'])
+        # If intake custody exists, a newly pinned forgery still cannot replace it.
+        if parent.name == 'task_contract.json' and parent.parent.name == 'inputs':
+            review_points._facts(parent.parent.parent)
+        contract = deepcopy(original)
+        for key in ('run_id', 'autonomy', 'delegated', 'delegation'):
+            contract.pop(key, None)
+        contract['goal_binding'] = deepcopy(binding)
+        if contract.get('agent_layer_epoch', 1) == 2:
+            pin = original['request_plan']
+            source = (parent.parent.parent / pin['path']).resolve()
+            plan_raw = source.read_bytes()
+            if hashlib.sha256(plan_raw).hexdigest() != pin['sha256']:
+                raise ValueError('parent request-plan pin changed')
+            if e.get('study') is not None:
+                from .research_child_plan import compile_plan
+                from ravel.validation.validate_task_contract import load_pinned
+                parent_root = parent.parent.parent if parent.parent.name == 'inputs' else parent.parent
+                reading = load_pinned(parent_root, original, 'reading')
+                plan = compile_plan(state, e, rd, original, json.loads(plan_raw), reading, materialize=materialize)
+                from .request_plan import document_bytes
+                plan_raw = document_bytes(plan)
+            contract['request_plan'] = {'path': 'inputs/request_plan.json', 'sha256': pin['sha256']}
+            contract['request_plan']['sha256'] = hashlib.sha256(plan_raw).hexdigest()
+    else:
+        # An existing unbound synthetic library campaign has no epoch-two intake authority.
+        if state.get('protocol_exemption') != 'evaluation_harness':
+            if not materialize and e.get('task_contract') is None:
+                return None  # Existing records keep their own native/legacy contract.
+            raise ValueError('child task contract requires an original goal or an explicit unbound synthetic campaign')
+        contract = {'prompt': state['contract']['question'], 'agent_layer_epoch': 1}
+    path = rd / 'inputs/task_contract.json'
+    if materialize:
+        if path.exists():
+            raise ValueError('prepared child task contract already exists')
+        if plan_raw is not None:
+            (rd / 'inputs/request_plan.json').write_bytes(plan_raw)
+        if binding is not None and 'reading' in contract:
+            from ravel.validation.validate_task_contract import read_pinned
+            parent_root = parent.parent.parent if parent.parent.name == 'inputs' else parent.parent
+            raw = read_pinned(parent_root, original['reading'], 'reading')
+            destination = rd / contract['reading']['path']
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(raw)
+        state_io.atomic_json(path, contract)
+        return _pin(path)
+    pin = e.get('task_contract')
+    if pin is None:
+        # Pre-existing native/library records retain their original contract rules.
+        return None
+    actual = _read(pin, state['base_dir'])
+    if actual != contract or Path(pin['path']).resolve() != path.resolve():
+        raise ValueError('child task contract differs from original research goal')
+    review_points._facts(rd)
+    from ravel.validation.validate_task_contract import validate_pins
+    errors = validate_pins(rd, actual)
+    if errors:
+        raise ValueError('derived intake records changed: ' + '; '.join(errors))
+    if rdj_custody.snapshot_digest(rd, 'inputs/task_contract.json', event='run_init') != pin['sha256']:
+        raise ValueError('child task contract lacks original run_init custody')
+    return pin
+
+
 def prepare_experiment(root, identity, rundir):
     """Materialize ordinary CHECK-IN 1; never approve on a selection's behalf."""
     with state_io.file_lock(Path(root) / "operation.lock", blocking=False):
@@ -1718,11 +1912,21 @@ def prepare_experiment(root, identity, rundir):
         path = Path(e["study"]["path"]); path = path if path.is_absolute() else Path(state["base_dir"]) / path
         from . import research_protocol
         bound = research_protocol._bound(state)
+        if ('goal_binding' not in state['contract']
+                and state.get('protocol_exemption') != 'evaluation_harness'):
+            raise ValueError('child task contract requires an original goal or an explicit unbound synthetic campaign')
         needs_binding = state.get('methodology') or e.get('evaluation') or (
             bound and any(cell['exposure'] == 'withheld_confirmation' for cell in bound[0]['cells']))
-        options = {'research_binding': {'root': str(Path(root).resolve()), 'experiment_id': identity}} if needs_binding else {}
+        options = {'research_binding': {'root': str(Path(root).resolve()), 'experiment_id': identity}} if (
+            needs_binding or state_io.read_json(path).get('schema_version') == 2) else {}
         science.plan(rd, path, **options)
         rd = science.root(rd)
+        e['task_contract'] = _experiment_contract(state, e, rd, materialize=True)
+        state_io.atomic_json(rd / CHILD_CONTRACT_ORIGIN,
+                             {'root': str(Path(root).resolve()), 'experiment_id': identity})
+        e['task_contract_origin'] = _pin(rd / CHILD_CONTRACT_ORIGIN)
+        from . import rdj_custody
+        rdj_custody.record_input_snapshot(rd, 'run_init')
         from . import gate_wiring
         gate_wiring.bind_steering_child(root, rd, identity)
         e["rundir"] = str(rd); e["plan"] = _pin(rd / science.PLAN)
@@ -1733,6 +1937,8 @@ def prepare_experiment(root, identity, rundir):
 def _experiment_dispatch_admission(state, identity):
     """Existing current-parent, phase, premise, source and plan checks."""
     e = next(x for x in state["experiments"] if x["id"] == identity)
+    if e.get('rundir') is not None:
+        _experiment_contract(state, e, e['rundir'])
     if _failed_parent(e):
         raise ValueError("retained failure cannot be launched or retried as the old experiment")
     from . import research_protocol
@@ -1790,12 +1996,17 @@ def run_experiment(root, identity, *, resume=False):
         _commit(Path(root), state, "ordinary_study_dispatch_boundary", experiment_id=identity,
                 partition_master=None if reservation is None else reservation["master"],
                 plan=deepcopy(e["plan"]),study=deepcopy(e["study"]))
-        if reservation is None:
+        from . import research_controller
+        if research_controller.active() is not None:
+            governed = deepcopy(e)
+        elif reservation is None:
             return science.run(e["rundir"], resume=resume)
         # Parent does not wait holding the lock needed by its real worker.
         # Exact ordinary run/execution locks and original master claim journal
         # still own concurrency, failure/unknown spend and all current checks.
         rundir=e["rundir"]
+    if research_controller.active() is not None:
+        return research_controller.run_child(root, governed, resume=resume)
     return science.run(rundir, resume=resume)
 
 
@@ -2090,8 +2301,8 @@ def revise_premise(root, identity, statement, *, basis, reason, coordinator_orig
                 event=prior[0]
                 if event.get('coordinator_origin')!=actual or event.get('coordinator_arguments')!=args:
                     raise ValueError('retained premise effect differs from actual decision')
-                before=state_io.read_json(Path(root)/'history'/f"{event['revision']-1:04d}.json")
-                result=state_io.read_json(Path(root)/'history'/f"{event['revision']:04d}.json")
+                before=historical_state(root,event['revision']-1)
+                result=historical_state(root,event['revision'])
                 expected=_seal({'id':identity,'statement':statement,'basis':deepcopy(basis)})
                 if (event['before_state_sha256']!=before['sha256'] or result['parent_sha256']!=before['sha256']
                         or result['events'][-1]!=event or event['after']!=expected
@@ -2266,6 +2477,20 @@ def synthesize(root, report_request, *, base_dir):
         "execution_authorized": False,
         "timing": state["timing"], "operational_boundaries": state["operational_boundaries"],
         "physics_validated": False, "benefit_measured": False}
+
+
+def bounded_synthesis(root, reason, *, boundary=None):
+    """Retain every original obligation without requiring another journal revision.
+
+    This is a qualified research result, not a sink delivery receipt. Controller
+    callers must pass it to the sole sink before claiming delivery.
+    """
+    _text(reason)
+    result = progress_synthesis(root, render_text=False)
+    return {'kind': 'research_bounded_synthesis', 'phase': 'budget_exhausted',
+            'reason': reason, 'boundary': deepcopy(boundary), 'progress': result,
+            'parent_task_accepted': False, 'scientific_acceptance': False,
+            'execution_authorized': False, 'delivery_receipt': None}
 
 
 def progress_synthesis(root, *, base_dir=None, report_request=None, render_text=True):

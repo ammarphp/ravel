@@ -49,6 +49,39 @@ def _identity(role_id, document):
     return role_id
 
 
+def card_ids(*, document=None, roles_root=None) -> dict:
+    """The one mapping from role names to card ids, generated from the registry's card ids.
+
+    Every registered card answers to its id and to the id's underscore spelling (the form agent-role names
+    take, for example ``rdj_critic``). Nothing else is listed and no name is written by hand; spellings of
+    two cards that collide refuse the whole mapping.
+    """
+    document = registry_document(roles_root=roles_root) if document is None else document
+    found = {}
+    for identity in sorted(document['roles']):
+        for name in dict.fromkeys((identity, identity.replace('-', '_'))):
+            if found.setdefault(name, identity) != identity:
+                raise ValueError(f'role name {name!r} would name two cards: {found[name]} and {identity}')
+    return found
+
+
+def card_id(name, *, document=None, roles_root=None):
+    """The card id ``name`` resolves to through ``card_ids``, or None."""
+    return card_ids(document=document, roles_root=roles_root).get(name) if isinstance(name, str) else None
+
+
+def same_card(first, second, *, document=None, roles_root=None) -> bool:
+    """Whether two role names name the same card through ``card_ids``. A name the mapping does not list
+    matches only itself, and a value that is not a nonempty name matches nothing. Two spellings of one card
+    differ only in '-' against '_', so the mapping is read only for such a pair."""
+    if any(not isinstance(name, str) or not name for name in (first, second)):
+        return False
+    if first == second or first.replace('_', '-') != second.replace('_', '-'):
+        return first == second
+    ids = card_ids(document=document, roles_root=roles_root)
+    return ids.get(first, first) == ids.get(second, second)
+
+
 def _operation_signatures(roles_root, *, supplied_document):
     # Explicit documents without a data root are isolated fixtures. Selected roots
     # likewise never borrow operation ownership from the installed package.
@@ -505,7 +538,16 @@ def render(surface, *, document=None, roles_root=None) -> dict[str, str]:
     files = {}
     for card in cards:
         binding = native_binding(card, surface)
-        redirect = f"Do not perform this role here. Run `ravel work dispatch --role {card['id']}`."
+        redirect = (
+            'Do not perform this role here. Never perform it in the parent conversation. Resolve RUN, NODE, SPEC.json and '
+            'SUBJECT.json from the active work request; never guess a missing binding. '
+            'SUBJECT.json must contain the exact subject scope and sha256 pinned by SPEC.json. '
+            f'Run `python -m ravel.workflow.transports.host_subagent dispatch --rundir RUN '
+            f'--node NODE --role {card["id"]} --spec SPEC.json --subject SUBJECT.json`. '
+            'This is the common role dispatcher, including host adapters. If dispatch is refused, '
+            'report the missing requirements and hold the role. An explicitly advisory result '
+            'does not satisfy the required role; never substitute a parent persona.'
+        )
         body = (mark + '\n\n' + card['purpose'] + '\n\nContract:\n' + json.dumps(card, indent=2, sort_keys=True) + '\n'
                 if binding is not None else redirect + '\n')
         fields = binding if binding is not None else host_capabilities()['surfaces'].get(surface, {}).get('redirect_fields', {})
@@ -656,10 +698,29 @@ def resolve_panel(project, surface):
     return result
 
 
+# Instruction documents a render writes at a project's root. A project's own text (anything without
+# RAVEL's generated mark in its first lines) is kept unless the caller asks to replace it.
+INSTRUCTION_DOCUMENTS = ('AGENTS.md', 'CLAUDE.md', 'GEMINI.md')
+GENERATED_MARK = re.compile(r'^<!-- Generated from the RAVEL role registry [0-9a-f]{64}\. Do not hand edit\. -->$')
+
+
+def project_instructions(path):
+    """Whether ``path`` holds a project-authored instruction document (a link counts as one)."""
+    path = Path(path)
+    if path.is_symlink():
+        return True
+    if not path.is_file():
+        return False
+    lines = path.read_bytes().decode('utf-8', errors='replace').splitlines()[:3]
+    return not any(GENERATED_MARK.match(line) for line in lines)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--write', action='store_true')
     ap.add_argument('--project', type=Path)
+    ap.add_argument('--replace-instructions', action='store_true',
+                    help="also replace a project's own AGENTS.md, CLAUDE.md or GEMINI.md")
     args = ap.parse_args(argv)
     errors = validate_registry()
     if errors:
@@ -681,14 +742,21 @@ def main(argv=None):
         for path in (root / PROFILE_DIRS['claude']).glob('*.md'):
             if not path.name.startswith('ravel-') and path.stem in registered:
                 path.unlink()
+        preserved = []
         for surface in SURFACES:
             for relative, text in render(surface).items():
                 path = root / relative
                 if path.is_file() and not path.is_symlink() and path.read_bytes() == text.encode():
                     continue
+                if relative in INSTRUCTION_DOCUMENTS and not args.replace_instructions and project_instructions(path):
+                    preserved.append(relative)
+                    continue
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(text)
         print('Rendered role surfaces; protected .claude/hooks and active settings were not changed.')
+        if preserved:
+            print("Kept the project's own " + ', '.join(sorted(set(preserved)))
+                  + ' (pass --replace-instructions to replace them).')
     else:
         print(json.dumps([{'id': c['id'], 'card_sha256': card_sha256(c['id'])} for c in all_cards()], indent=2))
     return 0

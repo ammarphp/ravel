@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "accepted_allowed": {
+      "type": "boolean"
+    },
+    "broker": {
+      "type": "object"
+    },
+    "decision_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "escalation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "evidence_sha256": {
+      "type": "string"
+    },
+    "expected": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "failures": {
+      "type": "array"
+    },
+    "flags": {
+      "type": "array"
+    },
+    "floors": {
+      "type": "object"
+    },
+    "hold": {
+      "type": "boolean"
+    },
+    "labels": {
+      "type": "array"
+    },
+    "notify": {
+      "type": "boolean"
+    },
+    "observed": {
+      "type": "object"
+    },
+    "released": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": "envelope-check.v1"
+    },
+    "sessions": {
+      "type": "array"
+    },
+    "settlement_ids": {
+      "type": "array"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "stage": {
+      "enum": [
+        "wave",
+        "deliver"
+      ]
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "below_floor",
+        "far_below",
+        "above_ceiling",
+        "unknown"
+      ]
+    },
+    "tier": {
+      "enum": [
+        "lean",
+        "standard",
+        "full"
+      ]
+    },
+    "unknown": {
+      "type": "array"
+    },
+    "usage_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "sha256",
+    "stage",
+    "status",
+    "observed",
+    "expected",
+    "floors",
+    "failures",
+    "unknown",
+    "flags",
+    "broker",
+    "sessions",
+    "labels",
+    "hold",
+    "accepted_allowed",
+    "notify",
+    "tier",
+    "decision_id",
+    "evidence_sha256",
+    "settlement_ids",
+    "usage_sha256",
+    "escalation_sha256"
+  ],
+  "title": "envelope-check.v1",
+  "type": "object"
+}

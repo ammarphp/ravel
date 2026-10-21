@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "route-spec",
+  "id": "legacy",
+  "version": 1,
+  "title": "Inspection of epoch-one and 1.x runs",
+  "description": "Legacy runs are inspectable; new science is refused in a legacy layout (L01, SW26). Read-only steps; the answer labels the legacy run's results NOT GOVERNED. Legacy commands keep running such runs outside the controller.",
+  "match": {
+    "row": 9,
+    "order": 0,
+    "when": {"field": "supplied_kinds", "contains_any": ["legacy-run"]}
+  },
+  "admits_scientific_deliverables": false,
+  "parameters": [
+    {"name": "legacy_runs", "from": "supplied:legacy-run", "required": true, "description": "the supplied legacy run directories"}
+  ],
+  "steps": [
+    {
+      "id": "l01-inspect",
+      "kind": "synthesize",
+      "title": "Read-only description of the legacy run (results NOT GOVERNED)",
+      "role": "investigation-worker",
+      "rung": "none",
+      "outputs": [{"path": "outputs/legacy_inspection.md", "kind": "document", "required": true}],
+      "budget": {"wall_seconds": 1800, "broker_calls": 100, "tokens": 200000},
+      "obligations": ["L01", "SW26"]
+    }
+  ],
+  "obligations": ["L01", "SW26"],
+  "deliverables": [
+    {"match": {"any": true}, "step": "l01-inspect", "output": "outputs/legacy_inspection.md"}
+  ],
+  "instruction_sources": ["docs/workflow/run-directory.md"]
+}

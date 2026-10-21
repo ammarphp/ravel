@@ -14,6 +14,19 @@ from .state_io import read_json, atomic_json
 from .decision_case import ATTESTATION_RANK, independent, label_for, jdigest
 
 
+def matches_at(point, at):
+    """Select an exact review point or the complete CHECK-IN 2 population."""
+    actual = point['when']['at']
+    return actual == at or (at == 'checkin2' and (
+        actual.startswith('checkin2:') or point.get('gate') == 'checkin2_accept'))
+
+
+def population(facts):
+    """Core review points and conditional staffing, retaining each policy identity."""
+    from . import spawn_rows
+    return [*derive(facts), *spawn_rows.derive(facts)]
+
+
 def _catalogue():
     return json.loads(files('ravel').joinpath('data/review_points.json').read_text())
 
@@ -48,6 +61,8 @@ def _facts(rundir: Path) -> dict:
     contract = json.loads(raw)
     if not isinstance(contract, dict):
         raise ValueError('task contract must be an object')
+    from ravel.controller.routes.study import child_contract
+    child_contract.paths(root)
     epoch = contract.get('agent_layer_epoch', 1)
     if type(epoch) is not int or epoch not in {1, 2}:
         raise ValueError('agent_layer_epoch must be integer 1 or 2')
@@ -75,7 +90,18 @@ def _facts(rundir: Path) -> dict:
     pinned = project_instructions.for_run(root)
     if pinned is not None:
         value['project_instructions'] = pinned
+    value['machine_assumptions'] = machine_assumptions(root)
     return value
+
+
+def machine_assumptions(root):
+    """How many machine assumptions, alternative branches and machine-taken defaults the controller recorded."""
+    from .review_independence import controller_store
+    store = controller_store(root)
+    if store is None:
+        return 0
+    return sum(1 for row in store.scan('assumption') if row['record'].get('phase') in ('proposed', 'alternative', 'default_taken',
+                                                                                'conditional_approval'))
 
 
 def _safe_write(value):
@@ -153,6 +179,7 @@ def derive(facts: dict) -> list[dict]:
     if facts.get('agent_layer_epoch') != 2:
         return []
     from ravel.validation.validate_request_plan import computed_bases, certificate_relevant, signatures
+    from .normalization_policy import normalization_disposition
     data = _catalogue(); rows = {r['row']: r for r in data['rows']}
     plan = deepcopy(facts.get('plan', facts))
     for node in plan.get('nodes', []):
@@ -169,6 +196,7 @@ def derive(facts: dict) -> list[dict]:
     def add(row, scope, at, *, roles=None, suffix='', group=None, **extra):
         source = rows[row]
         names = source['roles'] if roles is None else roles
+        # ``distinct_family_from`` is retired and always empty; it stays so approved point digests do not change.
         entries = [{'role': role, 'count': 1, 'distinct_family_from': []} if isinstance(role, str) else role for role in names]
         point = {'id': f'RP{row}:{scope}' + (':' + suffix if suffix else ''), 'row': row,
                  'when': {'trigger': source['trigger'], 'at': at}, 'roles': entries,
@@ -203,7 +231,8 @@ def derive(facts: dict) -> list[dict]:
                 claim_id=cid)
         computed = bases.get(cid, [])
         elements = {r['element'] for r in computed} | set(claim.get('basis_declared', []))
-        if elements & {'simulated_acceptance', 'generated_prediction'} or claim.get('absolute_yield') or (claim.get('deliverable') or {}).get('artifact') == 'binned_values':
+        normalization = normalization_disposition(plan, claim, reg=signatures(), bases=bases)
+        if normalization['applicable']:
             add(5, cid, at, group=group, claim_id=cid, requires_certificate=certificate_relevant(computed))
         if (any(r['element'] == 'simulated_acceptance' and r.get('origin') in {'reimplemented', 'designed'} for r in computed)
                 or 'authored_code' in elements):
@@ -281,6 +310,46 @@ def subject_scope(point):
 def review_subject(facts, point):
     """The ``review_subject`` a version-2 worker receipt must carry to earn credit for ``point``."""
     return {'scope': subject_scope(point), 'sha256': subject_digest(facts, point)}
+
+
+def reviewed_by_seats(role, seats=()):
+    """The review seats a producer's card owes (``reviewed_by``), minus those already held.
+
+    Seat derivation adds one seat per named reviewer that ``seats`` (role ids or seat records)
+    does not hold; a caller-supplied seat list can add seats but never remove these. Each seat
+    is a specialist or voting seat of the reviewer card, blocking delivery until credited.
+    """
+    from . import role_registry
+    card = role_registry.load(role)
+    held = {s.get('role') if type(s) is dict else s for s in seats}
+    owed = []
+    for reviewer in card.get('reviewed_by') or []:
+        if reviewer in held:
+            continue
+        kind = role_registry.load(reviewer)['independence']['kind']
+        owed.append({'role': reviewer, 'count': 1, 'mode': kind if kind in REVIEWER_MODES else 'specialist',
+                     'blocking': True, 'gate': 'delivery', 'reason': 'reviewed_by:' + role})
+    return owed
+
+
+def must_check_missing(items, final_record):
+    """The ``must_check`` items a reviewer's output leaves without a verdict; empty when complete.
+
+    Each item needs one checklist row ``{unit: <item>, status, evidence, note}`` in the output: ``done``
+    with an evidence pointer, or ``not_applicable`` with a note. ``blocked``, a missing row or an empty
+    pointer leaves the item open, and the seat earns no credit while any item is open.
+    """
+    rows = (final_record or {}).get('checklist') if type(final_record) is dict else None
+    rows = [r for r in rows if type(r) is dict] if type(rows) is list else []
+    missing = []
+    for item in items:
+        mine = [r for r in rows if r.get('unit') == item]
+        status = mine[-1].get('status') if mine else None
+        evidence, note = (mine[-1].get('evidence'), mine[-1].get('note')) if mine else (None, None)
+        if not (status == 'done' and type(evidence) is str and evidence.strip()
+                or status == 'not_applicable' and type(note) is str and note.strip()):
+            missing.append(item)
+    return missing
 
 
 def credit_refusal(receipt, facts, point):
@@ -515,7 +584,7 @@ def _receipt_records(root, facts):
     from . import rdj_custody
     from . import review_rubric
     root = Path(root).resolve()
-    points = {p['id']: p for p in derive(facts)}
+    points = {p['id']: p for p in population(facts)}
     rubric = review_rubric.selected(root)
     approval = root / 'inputs/review_points_approval.json'
     approved = read_json(approval).get('executable_rubric_sha256') if approval.exists() else None
@@ -529,6 +598,8 @@ def _receipt_records(root, facts):
         value['_eligible'] = False
         value['_label'] = 'self_attested'
         value['_actor'] = None
+        from . import review_independence
+        value['_independence'] = review_independence.advisory('receipt_unregistered')
         reason = 'receipt_unregistered'
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         if path.resolve().is_relative_to(root) and rdj_custody.worker_registered(root, rel, digest):
@@ -559,6 +630,17 @@ def _receipt_records(root, facts):
                     if reason is None and point['mode'] in ACTOR_MODES and value['_actor'] is None:
                         # Still listed for its findings; it earns no credit at this point.
                         reason = 'actor_unassigned'
+                    if reason is None and point['mode'] in REVIEWER_MODES and not independent(value['_label']):
+                        # The label refusal is reported as itself; no dispatch can make it independent.
+                        value['_independence'] = review_independence.advisory('self_attested')
+                    elif reason is None and point['mode'] in REVIEWER_MODES:
+                        value['_independence'] = review_independence.decide(
+                            review_independence.worker_query(root, value, digest,
+                                subject_sha256=review_subject(facts, point)['sha256']))
+                        if not value['_independence']['independent']:
+                            reason = value['_independence']['advisory']
+                            # Ordinary receipt eligibility retains its findings.
+                            # Only the seat matcher grants independent credit.
         value['_advisory'] = reason
         yield value
 
@@ -705,6 +787,8 @@ def _candidates(point, role, receipts, excluded):
         label = rec['_label']
         if point['mode'] in ACTOR_MODES and not independent(label):
             continue
+        if point['mode'] in REVIEWER_MODES and not rec.get('_independence', {}).get('independent', False):
+            continue
         if ranks[label] < {'self': 0, 'host': 1, 'transport': 2}[point['attestation_min']]:
             continue
         if point['mode'] in ACTOR_MODES:
@@ -721,9 +805,9 @@ def _credit(members, receipts, producers):
     """Fill the role seats of the points of one scope with the largest consistent set of receipts.
 
     Constraints: a receipt fills one seat; the sessions credited at actor points of the scope
-    are pairwise distinct; a role that names ``distinct_family_from`` is credited only when
-    each named role is credited in the scope and every family involved is known and differs.
-    The choice is a search over points and receipts in a canonical order (point id, then
+    are pairwise distinct. Model families are never compared: two sessions of one family fill two
+    seats, and a role entry's retired ``distinct_family_from`` list changes nothing (the credited
+    receipt carries its family label). The choice is a search over points and receipts in a canonical order (point id, then
     receipt node and attempt), so it depends on neither the order the points were derived in
     nor the order the receipts were read in: a fresh retry is used when the first receipt of a
     role cannot satisfy every role, and equal inputs always credit the same seats.
@@ -735,24 +819,11 @@ def _credit(members, receipts, producers):
             found = _candidates(point, role, receipts, producers.get(point['id'], set()))
             groups.append({'point': point, 'index': index, 'role': role,
                            'candidates': sorted(found, key=lambda r: (str(r.get('node_id')), str(r.get('attempt'))))})
-    # Every point of a role another role names comes first, so a dependent role is judged
-    # against a settled choice. Roles that name each other are taken in the canonical order.
-    ordered, placed = [], set()
-    while len(ordered) < len(groups):
-        ready = [g for g in groups if id(g) not in placed
-                 and all(id(o) in placed for o in groups
-                         if o is not g and o['role']['role'] in g['role'].get('distinct_family_from', []))]
-        for group in ready or [g for g in groups if id(g) not in placed][:1]:
-            placed.add(id(group)); ordered.append(group)
-    capacity = [sum(min(g['role']['count'], len(g['candidates'])) for g in ordered[i:]) for i in range(len(ordered) + 1)]
+    capacity = [sum(min(g['role']['count'], len(g['candidates'])) for g in groups[i:]) for i in range(len(groups) + 1)]
     best = {'filled': -1, 'choice': None}
     budget = [20000]
 
-    def family(rec):
-        return (rec.get('_actor') or {}).get('family')
-
-    def admissible(group, picked, chosen, keys):
-        named = group['role'].get('distinct_family_from', [])
+    def admissible(group, picked, keys):
         used = set(keys)
         for rec in picked:
             if group['point']['mode'] in ACTOR_MODES:
@@ -760,26 +831,20 @@ def _credit(members, receipts, producers):
                 if own & used:
                     return None
                 used |= own
-            if named:
-                mine = family(rec)
-                for name in named:
-                    theirs = [family(r) for g, rows in chosen for r in rows if g['role']['role'] == name]
-                    if mine is None or not theirs or None in theirs or mine in theirs:
-                        return None
         return used
 
     def search(position, chosen, keys, filled):
         if filled + capacity[position] <= best['filled'] or budget[0] <= 0:
             return
-        if position == len(ordered):
+        if position == len(groups):
             best.update(filled=filled, choice=list(chosen))
             return
-        group = ordered[position]
+        group = groups[position]
         limit = min(group['role']['count'], len(group['candidates']))
         for size in range(limit, -1, -1):
             for picked in combinations(group['candidates'], size):
                 budget[0] -= 1
-                used = admissible(group, picked, chosen, keys)
+                used = admissible(group, picked, keys)
                 if used is None:
                     continue
                 chosen.append((group, picked))
@@ -801,9 +866,8 @@ def _missing(points, receipts, producers=()):
     At a specialist, voting or producer point a receipt is credited only for an actor the
     dispatcher assigned: one worker session, fresh and distinct from every other credited
     session in the same scope. A session is its observed session id on its transport. The
-    producer of an output earns no reviewer credit for that output. A role that names
-    ``distinct_family_from`` needs a registered transport family different from each named
-    role's. Families are the registered ones, never the receipt body's.
+    producer of an output earns no reviewer credit for that output. Any model family fills any
+    seat; a credited receipt reports its family label (``_receipt_report``).
     """
     producers = producers if isinstance(producers, dict) else {}
     scopes = {}
@@ -819,9 +883,16 @@ def _missing(points, receipts, producers=()):
 
 
 def _receipt_report(receipt):
+    decision = receipt.get('_independence') or {}
     report = {'path': receipt['_path'], 'attestation': receipt['_label'],
-            'independent': receipt['_eligible'] and receipt['_advisory'] is None and independent(receipt['_label']),
+            'independent': receipt['_eligible'] and receipt['_advisory'] is None
+                and decision.get('independent', False),
             'advisory': receipt['_advisory'] or ('self_attested' if not independent(receipt['_label']) else None)}
+    if report['independent']:
+        # A label, never a condition: "separate session, same model family" when that is what happened.
+        report['family_relation'] = decision.get('family_relation', 'unknown')
+        from .review_independence import family_label
+        report['label'] = family_label(report['family_relation'])
     if receipt.get('_executable_checks'):
         report['executable_checks'] = deepcopy(receipt['_executable_checks'])
     return report
@@ -850,13 +921,11 @@ def legacy_accept_refusal(rundir):
     receipts that credit the run's CHECK-IN 2 review points: dispatcher-assigned actors in
     fresh sessions and isolated workspaces. ``physics_review`` applies this when a reviewer
     submits ``accept`` and again wherever a recorded acceptance is consumed. A run without an
-    epoch-two contract keeps its legacy rule; its records stay readable either way.
+    epoch-two contract retains readable advice, never independent acceptance credit.
     """
     root = Path(rundir)
-    if not (root / 'inputs/task_contract.json').is_file():
-        return None
-    if _facts(root).get('agent_layer_epoch') != 2:
-        return None
+    if not (root / 'inputs/task_contract.json').is_file() or _facts(root).get('agent_layer_epoch') != 2:
+        return 'declared-name legacy reviews are advisory; trusted independent dispatch evidence required'
     lacking = [p['id'] for p in pending(root) if p['blocking'] and p['gate'] == 'checkin2_accept' and p['roles']]
     return 'accept requires the attested receipts: ' + ', '.join(lacking) if lacking else None
 
@@ -949,17 +1018,390 @@ def _rdj_errors(root, point, gate, action):
         receipt, case = accepted['receipt'], accepted['case']
         tuning_ok = (not point.get('decision_class') or
                      case.get('decision_point', {}).get('tuning', {}).get('class') == point['decision_class'])
-        human_ok = not point.get('human_approval') or receipt.get('attestation_summary', {}).get('human_approver')
+        human_ok = (not point.get('human_approval')
+                    or (accepted.get('review_independence') or {}).get('human_approver') is True)
         if tuning_ok and human_ok:
             return []
     return [_error(gate, 'rdj_receipt_missing', [rid], 'Required scoped RDJ authorization has not passed replay, class or human approval.')]
 
 
+# A controller run credits a review point only from the seats the controller dispatches and credits itself (its
+# ``step-credit`` records), never from a worker receipt: the review of the current plan by each of the point's roles at
+# the controller step that reviews what the point's gate decides. A CHECK-IN 1 point is reviewed at the plan review;
+# a CHECK-IN 2 point uses its waypoint seat at that gate and still uses final review at later gates. Other points
+# use final review, where the controller seats the CI3 triad and every other role a
+# final task or delivery owes (``controller_seats``). A point of any other mode has no controller seat.
+CONTROLLER_SEAT_MODES = ('specialist', 'voting', 'advisory')
+CONTROLLER_FINAL_GATES = ('final_task', 'delivery')
+
+
+def _weighs(point, gate, action):
+    """Whether the decision ``gate`` on ``action`` weighs ``point``."""
+    relevant = point['gate'] == gate
+    if gate in {'delivery', 'final_task', 'export'} and point['gate'] == 'checkin2_accept':
+        relevant = True
+    if point['row'] == 17 and gate == 'launch' and (action.get('node_id') in {None, point['node_id']}):
+        relevant = True
+    if gate in {'launch', 'failed_stage_feedback'} and action.get('node_id') and point.get('node_id') and action['node_id'] != point['node_id']:
+        relevant = False
+    if gate == 'checkin2_accept' and action.get('claim_id') and point.get('claim_id') not in {None, action['claim_id']}:
+        relevant = False
+    if gate == 'research_choice' and point.get('protocol_stage') and point['protocol_stage'] != action.get('scope'):
+        relevant = False
+    return relevant
+
+
+CERTIFICATE_CHECK = 'check:validation.certificates.validate_certificate'
+
+
+def certificate_classification(rundir):
+    """The policy's own certificate relevance for this run: ``{epoch, derived_points_sha256, checks}`` naming the
+    certificate check, which applies when a derived point ``requires_certificate`` (a certificate-relevant claim)
+    and does not apply, with that reason and evidence, when none does. ``check_classification`` never decides it."""
+    facts = _facts(Path(rundir))
+    points = derive(facts)
+    relevant = [p for p in points if p.get('requires_certificate')]
+    row = {'applies': bool(relevant), 'rows': sorted({p['row'] for p in relevant}),
+           'points': sorted(p['id'] for p in relevant)}
+    if not relevant:
+        row.update(reason='no_certificate_relevant_claim', evidence={
+            'policy': 'certificates_are_owed_for_certificate_relevant_claims',
+            'derived_points_sha256': jdigest(points)})
+    return {'epoch': facts.get('agent_layer_epoch'), 'derived_points_sha256': jdigest(points),
+            'checks': {CERTIFICATE_CHECK: row}}
+
+
+def check_classification(rundir, check_ids, *, step=None):
+    """The review policy's classification of reviewer checks for this run.
+
+    A check's applicability is the policy's own: the specialist rows whose specialist reviewer cards owe the check
+    (``must_check``) decide it. It applies when the policy derives a point of one of those rows for this run, and does
+    not apply when it derives none (for example, no claim rests on a generated prediction, so no normalization audit is
+    owed). A check no specialist reviewer owes is not classified: the policy never says it does not apply. Returns
+    ``{epoch, derived_points_sha256, checks: {check id: {applies, rows, points}}}``."""
+    from . import role_registry
+    facts = _facts(Path(rundir))
+    points = derive(facts)
+    owed = {}
+    for row in _catalogue()['rows']:
+        if row['mode'] != 'specialist':
+            continue
+        for role in row['roles']:
+            card = role_registry.load(role)
+            if card['independence']['kind'] != 'specialist':
+                continue  # a producer seated by a specialist row owes its checks as a producer, not as this review
+            for check in role_registry.resolve_self_checks(card['must_check']):
+                owed.setdefault(check, set()).add(row['row'])
+    checks = {}
+    for check in check_ids:
+        rows = sorted(owed.get(check, ()))
+        if rows:
+            derived = sorted(p['id'] for p in points if p['row'] in rows)
+            checks[check] = {'applies': bool(derived), 'rows': rows, 'points': derived}
+    normalization_check = 'check:physics.normalization_ledger.check'
+    if normalization_check in checks:
+        from .normalization_policy import normalization_disposition
+        plan = facts.get('plan', facts)
+        binned = [normalization_disposition(plan, claim) for claim in plan.get('claims', [])
+                  if (claim.get('deliverable') or {}).get('artifact') == 'binned_values']
+        if binned:
+            checks[normalization_check]['evidence'] = {'claim_dispositions': binned}
+            if not checks[normalization_check]['applies']:
+                checks[normalization_check]['reason'] = 'no_normalized_binned_claim'
+    if step is not None:
+        from .operation_check_policy import dispositions
+        for check, row in dispositions(step, check_ids).items():
+            # An operation's physical outputs can add obligations even when no claim
+            # has been assembled yet. A run-level obligation can never be removed.
+            existing = checks.get(check, {'applies': False, 'rows': [], 'points': []})
+            if existing['applies']:
+                continue
+            checks[check] = {**existing, **row}
+    return {'epoch': facts.get('agent_layer_epoch'), 'derived_points_sha256': jdigest(points), 'checks': checks}
+
+
+def _controller_step(point, gate=None, role=None):
+    """Keep default final staffing; resolve a role's waypoint seat only at its CHECK-IN 2 gate."""
+    from ravel.controller.graph import REVIEW_SEATS, canonical_role
+    if gate == point['gate'] == 'checkin2_accept' and role is not None:
+        return REVIEW_SEATS['waypoint'][0] + '.' + canonical_role(role)
+    return REVIEW_SEATS['plan' if point['gate'] == 'approve_plan' else 'final'][0]
+
+
+def controller_seats(rundir):
+    """The roles a controller run's final review seats for its review policy: every role of each blocking point a
+    final task or delivery weighs that a review seat fills (``CONTROLLER_SEAT_MODES``), in the policy's order, once
+    each. A run without an epoch-two contract owes none."""
+    root = Path(rundir)
+    if not (root / 'inputs/task_contract.json').is_file():
+        return []
+    roles = []
+    from . import spawn_rows
+    facts = _facts(root)
+    for point in population(facts):
+        if (point['blocking'] and point['mode'] in CONTROLLER_SEAT_MODES and _controller_step(point) == 'final_review'
+                and any(_weighs(point, gate, {}) for gate in CONTROLLER_FINAL_GATES)):
+            roles += [row['role'] for row in point['roles']]
+    return list(dict.fromkeys(roles))
+
+
+def _waypoint_review(store, plan, action, role, n=1):
+    """Credit only the pinned latest waypoint round on current accepted custody bytes."""
+    from ravel.controller import graph
+    from ravel.controller.step import custody
+    from . import rdj_approval, review_dispatch
+    try:
+        pins = action.get('view_pins')
+        if (type(pins) is not dict or action.get('digest') != jdigest(pins)
+                or pins.get('plan_sha256') != plan['sha256']):
+            raise ValueError('the waypoint action does not bind the current plan and exact view pins')
+        waypoints = plan.get('waypoints') or []
+        if not waypoints or len(waypoints) != len(set(waypoints)):
+            raise ValueError('the current plan has no distinct waypoint population')
+        outcomes, accepted = custody.outcomes(store), custody.custody_index(store)
+        for step in waypoints:
+            outcome = outcomes.get(step) or {}
+            outputs = outcome.get('outputs') or []
+            if outcome.get('status') != 'completed' or not outputs:
+                raise ValueError('a current waypoint has no completed output subject')
+            seen = set()
+            for output in outputs:
+                artifact = output.get('artifact')
+                current = accepted.get(artifact) or {}
+                if (not artifact or artifact in seen or current.get('status') != 'accepted'
+                        or current.get('step_id') != step
+                        or any(output.get(key) != current.get(key)
+                               for key in ('path', 'sha256', 'artifact_id', 'attempt'))
+                        or output.get('record_id') != current.get('_record_id')
+                        or not output.get('record_id')
+                        or custody._verify(accepted, artifact, store.run_dir, set(), 0, store)):
+                    raise ValueError('a waypoint output differs from its current accepted custody record')
+                seen.add(artifact)
+        subject = graph.waypoint_pins(waypoints, outcomes)
+        if {key: value for key, value in pins.items() if key.startswith('waypoint:')} != subject:
+            raise ValueError('the action waypoint pins differ from current accepted outputs')
+        rounds = [row for row in store.scan('review') if row['record'].get('purpose') == 'waypoint'
+                  and row['record'].get('plan_sha256') == plan['sha256']]
+        if not rounds or rounds[-1]['id'] != pins.get('checkin2_review'):
+            raise ValueError('the action does not name the latest waypoint review round')
+        row = rounds[-1]['record']
+        attempt = row.get('attempt')
+        if (type(attempt) is not int or attempt < 1 or row.get('subject') != subject
+                or row.get('subject_sha256') != jdigest(subject)):
+            raise ValueError('the waypoint review round covers another output subject')
+        role = graph.canonical_role(role)
+        step_id = graph.review_step_id('waypoint', role, n)
+        verdict = (row.get('seats') or {}).get(graph.review_seat_key(role, n)) or {}
+        if (verdict.get('status') != 'completed' or verdict.get('credited') is not True
+                or verdict.get('verdict') != 'accept' or verdict.get('step') != step_id):
+            raise ValueError('the current waypoint round has no completed accepting credit for this role')
+        found, reason = rdj_approval.seat_review(store, step_id, role, plan['sha256'], blind=False,
+                                                label='waypoint review')
+        if reason is not None:
+            return None, reason
+        credit = store.read('step-credit', found['credit'])['record']
+        observed = store.read('review-session', found['session_record'])['record']
+        if (credit.get('step_id') != step_id or credit.get('attempt') != attempt
+                or graph.canonical_role((credit.get('own') or {}).get('query', {}).get('role')) != role
+                or observed.get('session_id') != found.get('session')
+                or observed.get('step_id') != step_id or graph.canonical_role(observed.get('role')) != role):
+            raise ValueError('the credited observed seat does not belong to the current waypoint round')
+        workers = [entry['record'] for entry in store.scan('worker-session')
+                   if review_dispatch._session({'session_id': entry['record'].get('session_id'),
+                       'transport': {'id': observed.get('transport_id')}}) == found['session']]
+        if len(workers) != 1:
+            raise ValueError('the credited waypoint seat has no unique observed worker session')
+        worker = workers[0]
+        spec = worker.get('step_spec') or {}
+        parameters = spec.get('parameters') or {}
+        if (worker.get('run_id') != store.run_id or worker.get('step') != step_id
+                or worker.get('attempt') != attempt or not worker.get('receipt_sha256')
+                or spec.get('id') != step_id or graph.canonical_role(spec.get('role')) != role
+                or parameters.get('purpose') != 'waypoint'
+                or parameters.get('subject_sha256') != row['subject_sha256']
+                or parameters.get('subject_plan_sha256') != plan['sha256']):
+            raise ValueError('the observed waypoint seat did not review this round and exact current subject')
+        return found, None
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, StopIteration) as exc:
+        return None, str(exc)[:400]
+
+
+def _conditional_review(store, plan, point, role, n, gate, action, found):
+    """Authenticate an exact planned point against its own current root review occurrence."""
+    from ravel.controller import graph
+    from . import review_dispatch
+    purpose = 'waypoint' if gate == 'checkin2_accept' else ('plan' if gate == 'approve_plan' else 'final')
+    try:
+        bindings = graph.review_point_bindings(plan, purpose, role, n)
+        expected = {'point': point, 'n': n, 'sha256': jdigest(point)}
+        if expected not in bindings:
+            raise ValueError('point_policy_required: the installed plan does not bind this exact review point')
+        rounds = [row for row in store.scan('review') if row['record'].get('purpose') == purpose]
+        if not rounds:
+            raise ValueError('review_round_required: no current root review round')
+        row = rounds[-1]['record']
+        attempt = row.get('attempt')
+        step_id = graph.review_step_id(purpose, role, n)
+        verdict = (row.get('seats') or {}).get(graph.review_seat_key(role, n)) or {}
+        if (row.get('plan_sha256') != plan['sha256'] or type(attempt) is not int or attempt < 1
+                or verdict.get('step') != step_id or verdict.get('status') != 'completed'
+                or verdict.get('credited') is not True or verdict.get('verdict') != 'accept'):
+            raise ValueError('review_round_stale: no current accepting occurrence for this role')
+        if purpose == 'final':
+            pins = action.get('view_pins') or {}
+            if (action.get('digest') != jdigest(pins) or pins.get('plan_sha256') != plan['sha256']
+                    or not pins.get('steps_sha256') or row.get('subject') != {'steps_sha256': pins['steps_sha256']}
+                    or row.get('subject_sha256') != pins['steps_sha256']):
+                raise ValueError('review_subject_stale: final action does not bind the reviewed result')
+        credit = store.read('step-credit', found['credit'])['record']
+        observed = store.read('review-session', found['session_record'])['record']
+        if (credit.get('attempt') != attempt or credit.get('step_id') != step_id
+                or observed.get('step_id') != step_id or graph.canonical_role(observed.get('role')) != role):
+            raise ValueError('review_round_stale: credited session belongs to another round or role')
+        workers = [entry['record'] for entry in store.scan('worker-session')
+                   if review_dispatch._session({'session_id': entry['record'].get('session_id'),
+                       'transport': {'id': observed.get('transport_id')}}) == found['session']]
+        if len(workers) != 1:
+            raise ValueError('review_session_required: no unique observed worker session')
+        worker = workers[0]
+        spec = worker.get('step_spec') or {}
+        parameters = spec.get('parameters') or {}
+        if (worker.get('run_id') != store.run_id or worker.get('step') != step_id
+                or worker.get('attempt') != attempt or not worker.get('receipt_sha256')
+                or spec.get('id') != step_id or graph.canonical_role(spec.get('role')) != role
+                or parameters.get('purpose') != purpose
+                or parameters.get('subject_plan_sha256') != plan['sha256']
+                or parameters.get('review_points') != bindings
+                or (purpose != 'plan' and parameters.get('subject_sha256') != row.get('subject_sha256'))):
+            raise ValueError('point_policy_required: observed worker did not review this exact policy, occurrence and subject')
+        return None
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+        return str(exc)[:400]
+
+
+def _controller_missing(rundir, points, gate=None, action=None):
+    """``(missing, evidence)`` of a controller run: per point, the roles no credited controller seat fills (each with
+    its ``reason``) and the seat evidence of those one does (``rdj_approval.seat_review``: the latest credit of that
+    role's review of the current plan at the point's seat step, credited, approving, and from an observed session that
+    read the authenticated projection its card declares). CHECK-IN 2 additionally binds the current accepted
+    waypoint outputs and the action's latest review round."""
+    from . import rdj_approval
+    try:
+        store, plan = rdj_approval.controller_plan(rundir)
+    except Exception as exc:  # an unreadable controller store credits nothing
+        reason = f'the controller store binds no verifiable plan: {type(exc).__name__}: {exc}'[:300]
+        return {p['id']: [{**r, 'reason': reason} for r in p['roles']] for p in points}, {}
+    from ravel.controller import graph
+    missing, evidence = {}, {}
+    for point in points:
+        missing[point['id']], evidence[point['id']] = [], []
+        used_sessions, used_credits = set(), set()
+        for role in point['roles']:
+            canonical = graph.canonical_role(role['role'])
+            absent, reasons = 0, []
+            for n in range(1, role['count'] + 1):
+                purpose = 'waypoint' if gate == point['gate'] == 'checkin2_accept' else \
+                    ('plan' if point['gate'] == 'approve_plan' else 'final')
+                step_id = graph.review_step_id(purpose, canonical, n)
+                found, reason = None, None
+                conditional = isinstance(point['row'], str) or role['count'] > 1
+                if point['mode'] not in CONTROLLER_SEAT_MODES:
+                    reason = f"no controller seat fills a {point['mode']} point"
+                elif conditional and (point.get('comparison_required') or point.get('tolerance_required')):
+                    # The root findings contract has no authenticated numerical-result join.
+                    # Ordinary receipt consumers retain their separate comparison path.
+                    reason = 'comparison_evidence_required: root findings do not supply the required numerical comparison'
+                elif purpose == 'waypoint':
+                    found, reason = _waypoint_review(store, plan, action or {}, canonical, n)
+                else:
+                    found, reason = rdj_approval.seat_review(store, step_id, canonical, plan['sha256'], blind=False,
+                                                             label=step_id.replace('_', ' '))
+                if reason is None and conditional:
+                    reason = _conditional_review(store, plan, point, canonical, n, gate, action or {}, found)
+                if reason is None and (found['session'] in used_sessions or found['credit'] in used_credits):
+                    reason = 'review_session_reused: one observed review cannot fill two required seats'
+                if reason is not None:
+                    absent += 1
+                    reasons.append(reason)
+                else:
+                    used_sessions.add(found['session'])
+                    used_credits.add(found['credit'])
+                    evidence[point['id']].append({**found, 'step_id': step_id, **({'n': n} if conditional else {})})
+            if absent:
+                missing[point['id']].append({**role, 'count': absent, 'reason': '; '.join(dict.fromkeys(reasons)),
+                    **({'code': 'comparison_evidence_required'} if any(r.startswith('comparison_evidence_required')
+                                                                     for r in reasons) else {})})
+    return missing, evidence
+
+
+def controller_delivery(rundir):
+    """What a controller run delivers, from its own records: ``{plan_sha256, outputs, descoped}``.
+
+    Each mapped deliverable of the current plan delivers its accepted output (the latest custody record of
+    ``<step>:<output>``, status ``accepted``) with the requirement ids its reading deliverable binds
+    (``obligation_ids``: the request's obligations, each carrying its evidence spans). A deliverable the plan keeps
+    open with a stated reason descopes each requirement it binds that no delivered output answers: the approved plan
+    is that descope's record. A mapped deliverable without an accepted output delivers nothing and descopes nothing.
+    """
+    from . import rdj_approval
+    store, plan = rdj_approval.controller_plan(rundir)
+    reading = json.loads(store.get_blob(plan['reading_sha256']))
+    bound = {row['id']: [i for i in row.get('obligation_ids') or () if type(i) is str]
+             for row in reading.get('deliverables') or () if type(row) is dict and type(row.get('id')) is str}
+    custody = {}
+    for row in store.scan('custody'):
+        custody[row['record'].get('artifact')] = row['record']
+    outputs, kept_open = [], []
+    for deliverable in plan.get('deliverables') or ():
+        ids = bound.get(deliverable.get('id'), [])
+        if deliverable.get('status') != 'mapped':
+            kept_open.append((deliverable, ids))
+            continue
+        found = custody.get(f"{deliverable.get('step')}:{deliverable.get('output')}") or {}
+        if found.get('status') == 'accepted' and type(found.get('destination')) is str and type(found.get('sha256')) is str:
+            outputs.append({'artifact': {'path': found['destination'], 'sha256': found['sha256']},
+                            'requirement_ids': ids, 'deliverable': deliverable['id']})
+    answered = {i for row in outputs for i in row['requirement_ids']}
+    descoped = [{'requirement_id': i, 'deliverable': d['id'], 'reason': d['reason'], 'plan_sha256': plan['sha256']}
+                for d, ids in kept_open if type(d.get('reason')) is str and d['reason'].strip()
+                for i in ids if i not in answered]
+    return {'plan_sha256': plan['sha256'], 'outputs': outputs, 'descoped': descoped}
+
+
+def delivery_action(rundir):
+    """``{outputs, descoped}`` a controller decision on the final task or a delivery carries (``controller_delivery``);
+    both empty when the delivery cannot be derived, so request fidelity refuses it."""
+    try:
+        found = controller_delivery(rundir)
+    except Exception:
+        return {'outputs': [], 'descoped': []}
+    return {'outputs': found['outputs'], 'descoped': found['descoped']}
+
+
+def _key(value):
+    return json.dumps(value, sort_keys=True)
+
+
 def _fidelity(facts, action, gate, rundir=None):
+    """Request fidelity: every original requirement, its evidence spans intact, maps to an accepted output the action
+    carries (its bytes verified) or, in a controller run, to a descope the action carries. A controller run's outputs
+    and descopes count only as its own records derive them (``controller_delivery``)."""
     contract = facts.get('contract', {})
     obligations = contract.get('task_requirements', {}).get('obligations', [])
     outputs = action.get('outputs', [])
-    mapped = set()
+    mapped, derived = set(), None
+    from . import rdj_approval
+    if rundir is not None and rdj_approval.applies(rundir):
+        try:
+            derived = controller_delivery(rundir)
+        except Exception:  # an underivable delivery maps nothing
+            derived = {'outputs': [], 'descoped': []}
+        own = {_key({'artifact': row['artifact'], 'requirement_ids': row['requirement_ids']}) for row in derived['outputs']}
+        outputs = [o for o in outputs if type(o) is dict
+                   and _key({'artifact': o.get('artifact'), 'requirement_ids': o.get('requirement_ids')}) in own]
+        recorded = {_key(row) for row in derived['descoped']}
+        mapped.update(row['requirement_id'] for row in action.get('descoped') or () if type(row) is dict
+                      and _key(row) in recorded)
     for output in outputs:
         pin = output.get('artifact', output)
         if not pin.get('path') or not pin.get('sha256'):
@@ -983,7 +1425,8 @@ def _fidelity(facts, action, gate, rundir=None):
                     and 0 <= s['start'] < s['end'] <= len(prompt) and prompt[s['start']:s['end']] == s.get('text') for s in spans)
         if identity not in mapped or not valid:
             errors.append(_error(gate, 'request_fidelity', ['requirement:' + identity],
-                                 'No accepted output maps to the original requirement span: ' + identity))
+                                 'No accepted output maps to the original requirement span: ' + identity
+                                 + ('' if derived is None else ' (nor a descope the approved plan records)')))
     return errors
 
 
@@ -995,8 +1438,15 @@ def gate_errors(rundir: Path, gate: str, action: dict) -> list:
         points = derive(facts)
     except ValueError as exc:
         return [_error(gate, 'parallel_unsafe', ['plan:parallel_safety'], str(exc))]
-    records = list(_receipt_records(rundir, facts)); receipts = [r for r in records if r['_eligible']]
-    missing = _missing(points, receipts, producer_sessions(records, points, facts))
+    from . import rdj_approval
+    if rdj_approval.applies(rundir):
+        # A controller run: only the controller's own credited seats fill a point (D-R5b of the integration record).
+        receipts = []
+        missing, _ = _controller_missing(rundir, [p for p in points if p['blocking'] and _weighs(p, gate, action)],
+                                          gate=gate, action=action)
+    else:
+        records = list(_receipt_records(rundir, facts)); receipts = [r for r in records if r['_eligible']]
+        missing = _missing(points, receipts, producer_sessions(records, points, facts))
     errors = []
     approval = Path(rundir) / 'inputs/review_points_approval.json'
     if approval.exists() and read_json(approval).get('derived_points_sha256') != jdigest(points):
@@ -1015,22 +1465,13 @@ def gate_errors(rundir: Path, gate: str, action: dict) -> list:
                                        'human_approval': True, 'receipt_gate': 'unblind'}, gate, action)
     trusted_checks = []
     for point in points:
-        relevant = point['gate'] == gate
-        if gate in {'delivery', 'final_task', 'export'} and point['gate'] == 'checkin2_accept':
-            relevant = True
-        if point['row'] == 17 and gate == 'launch' and (action.get('node_id') in {None, point['node_id']}):
-            relevant = True
-        if gate in {'launch', 'failed_stage_feedback'} and action.get('node_id') and point.get('node_id') and action['node_id'] != point['node_id']:
-            relevant = False
-        if gate == 'checkin2_accept' and action.get('claim_id') and point.get('claim_id') not in {None, action['claim_id']}:
-            relevant = False
-        if gate == 'research_choice' and point.get('protocol_stage') and point['protocol_stage'] != action.get('scope'):
-            relevant = False
-        if not relevant or not point['blocking']:
+        if not _weighs(point, gate, action) or not point['blocking']:
             continue
         for role in missing[point['id']]:
             ids = [f'{point["id"]}:{role["role"]}:{i+1}' for i in range(role['count'])]
-            errors.append(_error(gate, 'review_point_pending', ids, 'Required review receipts are missing: ' + ', '.join(ids)))
+            message = ('Required review seats are not credited: ' + ', '.join(ids) + f" ({role['reason']})"
+                       if role.get('reason') else 'Required review receipts are missing: ' + ', '.join(ids))
+            errors.append(_error(gate, 'review_point_pending', ids, message))
         if point['mode'] == 'rdj':
             errors += _rdj_errors(rundir, point, gate, action)
         if point['row'] == 16:
@@ -1058,15 +1499,64 @@ def gate_errors(rundir: Path, gate: str, action: dict) -> list:
     return errors
 
 
+def gate_evidence(rundir, gate, action):
+    """What discharged this provider's requirement of a passed controller decision, for the ledger's decision record:
+    the controller seat credits that filled each blocking point the decision weighs, and the outputs and descopes that
+    answer each original requirement. None for any other run."""
+    from . import rdj_approval
+    if not rdj_approval.applies(rundir) or not (Path(rundir) / 'inputs/task_contract.json').is_file():
+        return None  # no epoch-two review policy: nothing to name
+    facts = _facts(Path(rundir))
+    if facts.get('agent_layer_epoch') != 2:
+        return None
+    points = [p for p in derive(facts) if p['blocking'] and _weighs(p, gate, action)]
+    _, seats = _controller_missing(rundir, points, gate=gate, action=action)
+    value = {'mechanism': 'review_points.controller_seats', 'points': {k: v for k, v in seats.items() if v}}
+    if gate in {'delivery', 'final_task', 'report_integrity', 'export'}:
+        delivery = controller_delivery(rundir)
+        value['delivery'] = {'plan_sha256': delivery['plan_sha256'], 'outputs': delivery['outputs'],
+                             'descoped': delivery['descoped']}
+    return value
+
+
+
+def _controller_preferences(store):
+    """The agent preferences the run's frozen operating mode holds (a controller run never reads a run-tree copy)."""
+    from ravel.controller.authority import mode
+    return deepcopy(mode.frozen(store).get('agent_preferences'))
+
+
+def _seat_preferences(frozen, card):
+    """Selection preferences for one seat of a controller run: the frozen order restricted to admitted transports."""
+    from ravel.controller.step import seats
+    from ravel.controller.step.services import StepHold
+    try:
+        return seats.preferences({'agent_preferences': frozen}, card)[0]
+    except StepHold as exc:
+        raise ValueError(f'{exc.reason}: {exc}') from None
+
 
 def dispatchability(rundir, points=None, *, advisories=None):
-    """Read stored probes and role cards; never probe a transport at a gate."""
+    """Read stored probes and role cards; never probe a transport at a gate.
+
+    A controller run's seats are judged as the governed step fills them: the frozen agent preferences of the
+    run's operating mode, admitted transports only, and the operator-run qualifications in the run's store.
+    """
     from . import transport_registry
     root = Path(rundir)
     points = derive(_facts(root)) if points is None else points
+    from .review_independence import controller_store
+    try:
+        store = controller_store(root)
+        selection_context = {} if store is None else {
+            'controller': True, 'qualifications': transport_registry.store_qualifications(store)}
+        frozen = None if store is None else _controller_preferences(store)
+    except Exception:
+        return [_error('approve_plan', 'review_transport_missing', ['controller:store'],
+                       'Controller review qualification evidence is unavailable.')]
     preferences_path = root / 'inputs/agent_preferences.json'
-    preferences = read_json(preferences_path) if preferences_path.exists() else {}
-    errors = []; assigned = {}; seen = set()
+    preferences = read_json(preferences_path) if store is None and preferences_path.exists() else {}
+    errors = []; seen = set()
     for point in points:
         if not point['blocking']:
             if advisories is not None:
@@ -1085,10 +1575,15 @@ def dispatchability(rundir, points=None, *, advisories=None):
                 continue
             card.setdefault('requires', {})['attestation_min'] = point['attestation_min']
             try:
-                assigned[name] = transport_registry.select(card, preferences, assigned=assigned)
+                # Any model family serves any seat: selection never compares families.
+                chosen = preferences if store is None else _seat_preferences(frozen, card)
+                transport_registry.select(card, chosen, **selection_context)
             except transport_registry.TransportRefusal as exc:
                 errors.append(_error('approve_plan', 'review_transport_missing',
                     ['capability:' + name + ':' + str(item) for item in exc.missing], str(exc)))
+            except ValueError as exc:
+                errors.append(_error('approve_plan', 'review_transport_missing', ['capability:' + name + ':preferences'],
+                                     str(exc)))
     return errors
 
 

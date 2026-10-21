@@ -227,6 +227,16 @@ def main():
     ap.add_argument("--backend", default="native")
     ap.add_argument("--pdf", choices=["cteq6l1", "nn23nlo", "nnpdf30"])
     args = ap.parse_args()
+    # A controller-owned scan runs its points as governed steps; no watcher heals, cleans or feeds it.
+    try:
+        from ravel.controller import command_policy
+    except ImportError:
+        command_policy = None
+    if command_policy is not None:
+        reason = command_policy.check(["scan_babysitter", "watch", os.path.abspath(args.scandir)])
+        if reason:
+            print(f"[babysit] refused: {reason}", file=sys.stderr)
+            return 2
     man = load_manifest(args.scandir)
     ntot = len(man["points"])
 

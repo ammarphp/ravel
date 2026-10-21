@@ -864,6 +864,9 @@ def prepare(args):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__); sub = parser.add_subparsers(dest='command',required=True)
     h = sub.add_parser('handoff');h.add_argument('--rundir',required=True);h.add_argument('--out',required=True)
+    w = sub.add_parser('width-receipt')
+    w.add_argument('--handoff', required=True); w.add_argument('--admission', required=True)
+    w.add_argument('--out', required=True)
     p = sub.add_parser('plan')
     for name in ('kernel','application-metadata','feynrules','model','lagrangian','provider-readiness-receipt','provider-readiness-run',
                  'source','rundir','review-policy'):
@@ -883,16 +886,27 @@ def main(argv=None):
     from ravel.physics import model_sarah
     model_sarah.cli_arguments(sub.add_parser('plan-sarah'),derivation=True)
     args = parser.parse_args(argv)
+    if args.command == 'width-receipt':
+        from ravel.physics import model_admission as admission
+        path = custody._regular(args.admission, Path.cwd())
+        record = custody._read(path)
+        binding = record.get('generation_binding')
+        if not isinstance(binding, dict):
+            raise admission.ModelEvidenceError('absent', 'card-bound process admission required')
+        files = []
+        admission.accepted_admission(record, binding, path.parent, files)
+        if record.get('kind') != admission.KIND:
+            raise admission.ModelEvidenceError('foreign', 'local derivation requires local admission')
+        receipt = generation_width_receipt(args.handoff, binding)
+        with Path(args.out).open('x') as handle:
+            json.dump(receipt, handle, indent=2, allow_nan=False); handle.write('\n')
+        return 0
     if args.command=='plan-sarah': return model_sarah.prepare_derivation(args)
     if args.command == 'handoff':
         qualified_handoff(args.rundir,args.out)
         print('Qualified unchanged actual accepted derivation output; a new model-tool approval/lease is still required.')
         return 0
     return prepare(args)
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())
 
 
 def read_qualified_handoff(path):
@@ -926,3 +940,44 @@ def read_qualified_handoff(path):
     if missing:
         raise ValueError('qualified UFO lacks ' + ', '.join(missing))
     return model, doc, {'path': str(p), 'sha256': custody._hash(p)}
+
+
+def generation_width_receipt(path, binding, *, input_files=None):
+    """Carry the selected literal widths and accepted derivation into generation."""
+    from ravel.physics import model_admission as admission, model_events
+    files = [] if input_files is None else input_files
+    model, handoff, pin = read_qualified_handoff(path)
+    base = Path(pin['path']).parent
+    files.append(Path(pin['path']))
+    result_path = admission._evidence_pin(handoff.get('derivation_result'), base, files)
+    result = custody._read(result_path)
+    if (result.get('status') != 'passed' or result.get('handoff_eligible') is not True
+            or result.get('checks', {}).get('passed') is not True):
+        raise admission.ModelEvidenceError('failed', 'accepted successful derivation required for widths')
+    checks = result['checks']
+    if (any(value is not True for value in checks.get('checks', {}).values())
+            or any(checks[key].get('passed') is not True for key in ('physical_checks', 'gauge_checks') if key in checks)):
+        raise admission.ModelEvidenceError('failed', 'declared native derivation checks must pass')
+    source = result.get('exported_source')
+    if not isinstance(source, dict) or any(source.get(k) != handoff.get(k)
+            for k in ('ufo', 'ufo_manifest', 'parameter_card')):
+        raise admission.ModelEvidenceError('foreign', 'width handoff differs from its derivation result')
+    card = admission._evidence_pin(handoff.get('parameter_card'), base, files)
+    admission._evidence_pin(handoff.get('ufo_manifest'), base, files)
+    attempt = handoff['successful_derivation_attempt']
+    admission._evidence_pin({k: attempt[k] for k in ('path', 'sha256')}, base, files)
+    expected = admission.generation_binding(model, '\n'.join(binding['process_commands']), card,
+                                             restriction=binding['restriction'])
+    admission._binding({'binding': binding}, expected)
+    rows = model_events.parameter_values(card.read_text())
+    widths = [{'pdg': codes[0], 'width': str(value)} for (block, codes), value in rows.items() if block == 'decay']
+    return {'schema_version': 1, 'kind': 'model-width-consistency', 'status': 'passed',
+            'binding': expected, 'parameter_card': {'path': str(card), 'sha256': custody._hash(card)},
+            'derivation_handoff': pin, 'widths': widths,
+            'scope': 'Selected literal card widths from accepted model source derivation; '
+                     'requested native partial-width checks retain their recorded channel scope.',
+            'physical_checks': result.get('checks', {}).get('physical_checks')}
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

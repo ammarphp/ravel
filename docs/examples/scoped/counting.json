@@ -3,7 +3,7 @@
   "mode": "likelihood",
   "source": "Example single-bin counting model; the numbers are invented for illustration",
   "assumptions": [
-    "Single-bin approximation with a gamma/Poisson background constraint; not a full experimental likelihood.",
+    "Single-bin approximation with a gamma/Poisson background constraint.",
     "Unit signal means the POI counts signal events. Divide by the luminosity only for a visible cross section.",
     "Asymptotic qtilde CLs; expected bands use the conditional background-only Asimov convention."
   ],

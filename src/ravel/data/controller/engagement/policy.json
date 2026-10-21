@@ -1,0 +1,1050 @@
+{
+  "claim_limits": {
+    "lean": 2,
+    "per_verifier": 6
+  },
+  "compute": {
+    "max_one_point_core_hours": 200,
+    "max_scan_core_hours": 2000,
+    "max_scan_points": 25,
+    "plan_rungs": [
+      "none",
+      "dry",
+      "pilot",
+      "smoke",
+      "full",
+      "scan",
+      "reuse",
+      "production"
+    ],
+    "rungs": {
+      "analytic_consistency": "C0",
+      "analytic_discriminator_or_reuse": "C0",
+      "analytic_estimate": "C0",
+      "analytic_or_bounded_fit": "C0",
+      "campaign_expansion": "C3",
+      "columnar_query": "C1",
+      "controlled_approximation": "C0",
+      "direct_explanation": "C0",
+      "existing_result": "C0",
+      "fast_calculator": "C1",
+      "fast_reinterpretation_or_reweighting": "C1",
+      "full_detector_simulation": "C2",
+      "full_stream": "C1",
+      "higher_order_calculation": "C2",
+      "justified_scan": "C2",
+      "large_simulated_population": "C3",
+      "literature_synthesis": "C0",
+      "native_likelihood": "C1",
+      "native_solver": "C1",
+      "new_generation": "C1",
+      "new_machinery_qualification": "C3",
+      "numerical_solver": "C1",
+      "replicated_experiment": "C2",
+      "reuse_accepted_artifacts": "C0",
+      "reuse_derived_quantities": "C0",
+      "reuse_model_output": "C0",
+      "single_point_chain": "C1",
+      "small_prospective_experiment": "C2",
+      "source_assessment": "C0",
+      "standard_value": "C0",
+      "subset_pass": "C1",
+      "supplied_result": "C0",
+      "targeted_missing_calculation": "C1",
+      "targeted_source_lookup": "C0",
+      "toys_or_resampling": "C2",
+      "transform_or_render": "C0",
+      "validated_map_or_table": "C0"
+    }
+  },
+  "correction_rounds": {
+    "full": 3,
+    "lean": 1,
+    "standard": 2
+  },
+  "dynamic_seat_roles": {
+    "judgment": {
+      "figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "higgs-combination-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "higgs-theory-uncertainty-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "normalization-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "physics-decider": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "trap-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    }
+  },
+  "escalations": {
+    "E1": "+1",
+    "E2": "+1",
+    "E3": "+1",
+    "E4": "+1",
+    "E5": "standard",
+    "E6": "full",
+    "E7": "second_retry_step_plus_one",
+    "E8": "notify"
+  },
+  "final_verification": {
+    "full": [
+      "physics-critic",
+      "skeptical-verifier",
+      "physics-decider"
+    ],
+    "lean": [
+      "skeptical-verifier"
+    ],
+    "standard": [
+      "skeptical-verifier"
+    ]
+  },
+  "floors": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12"
+  ],
+  "id": "proportional-engagement",
+  "no_review_routes": [
+    "inspect",
+    "legacy",
+    "resume"
+  ],
+  "packet_scope": {
+    "full": {
+      "deferred_reads": "logged",
+      "duty_units": "all",
+      "effective_card": "full",
+      "inline_context_tokens": 120000,
+      "must_read": "all"
+    },
+    "lean": {
+      "deferred_reads": "logged",
+      "duty_units": "all",
+      "effective_card": "full",
+      "inline_context_tokens": 0,
+      "must_read": "all"
+    },
+    "standard": {
+      "deferred_reads": "logged",
+      "duty_units": "all",
+      "effective_card": "full",
+      "inline_context_tokens": 120000,
+      "must_read": "all"
+    }
+  },
+  "scan_sample": {
+    "anomalies": "all",
+    "full": "ceil(2*sqrt(N))",
+    "seed": "scientific_plan_sha256",
+    "standard": "ceil(sqrt(N))"
+  },
+  "seat_plans": {
+    "analysis": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-decider": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "producer:verify.adversary:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "producer:verify.mechanical:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inputs.figures:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inputs.traps:trap-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:recast.smoke:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:recast.smoke:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:run.full:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:run.full:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.final:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.final:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.final:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.waypoint:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.waypoint:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.waypoint:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "analysis.scan": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-decider": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "producer:verify.adversary:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "producer:verify.mechanical:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inputs.figures:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inputs.traps:trap-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:recast.smoke:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:recast.smoke:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:scan.assemble:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:scan.point:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:scan.point:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.final:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.final:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.final:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.waypoint:figure-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.waypoint:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:visualize.waypoint:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "calculation": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:synthesizer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:synthesize:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "chain": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:synthesizer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:synthesize:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "inspect": {},
+    "legacy": {},
+    "manuscript": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:research-meta-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m01-author:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m02-build:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m02-sources:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m02-sources:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m02-sources:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m03-pdf:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m03-pdf:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:m03-pdf:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "ml.inference": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i01-spec:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i01-spec:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i03-apply:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i03-apply:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i03-apply:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i04-report:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i04-report:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:i04-report:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "ml.training": {
+      "checkin:checkin1:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t01-spec:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t02-admit:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t03-features:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t04-smoke:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t05-train:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t06-evaluate:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t07-card:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t08-review:ml-reviewer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t09-report:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:t09-report:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "research": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:physics-decider": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-decider": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "producer:integrity:integrity-auditor": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "scoped": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:synthesizer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:synthesize:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "study": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:synthesizer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:synthesize:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    },
+    "study.site": {
+      "checkin:checkin1:plan-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin2:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:skeptical-verifier": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "checkin:checkin3:synthesizer": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:inspect:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:operate:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:prepare-child:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:reconcile:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:reconcile:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:object-selection-mapper": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:specify:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      },
+      "step:synthesize:physics-critic": {
+        "full": "keep",
+        "lean": "fold:checkpoint",
+        "standard": "fold:checkpoint"
+      }
+    }
+  },
+  "sha256": "9a63f0b2124d446c4332272a2e9fc1bdcbe1557491b326e85185a0131c9adfbc",
+  "special": {
+    "judgment_child": 1,
+    "mixed_request": 1,
+    "ml_training": 1,
+    "research_child": 2,
+    "unblinding": 2
+  },
+  "thresholds": {
+    "above_ceiling": 1.5,
+    "broker_token_tolerance": 0.01,
+    "far_below": 0.5,
+    "max_call_share": 0.5,
+    "packet_fraction": 0.8
+  },
+  "tier_rules": {
+    "compute": {
+      "C0": 0,
+      "C1": 0,
+      "C2": 1,
+      "C3": 2
+    },
+    "consequence": {
+      "R0": 0,
+      "R1": 0,
+      "R2": 1,
+      "R3": 2
+    },
+    "novelty": {
+      "N0": 0,
+      "N1": 1,
+      "N2": 2
+    },
+    "route": {
+      "analysis": 0,
+      "analysis.scan": 1,
+      "calculation": 0,
+      "chain": 1,
+      "inspect": 0,
+      "judgment.fallback": 1,
+      "judgment.open": 2,
+      "legacy": 0,
+      "manuscript": 1,
+      "ml": 1,
+      "ml.inference": 1,
+      "ml.training": 1,
+      "research": 2,
+      "scoped": 0,
+      "study": 0,
+      "study.site": 1
+    }
+  },
+  "version": 1
+}

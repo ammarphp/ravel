@@ -58,7 +58,7 @@ scope.
 `ravel plan --rundir <new-run> --spec <spec.json>` copies the policy to
 `inputs/physics_review_policy.json`. `ravel approve` binds the exact bytes of
 `inputs/science-plan.json`, `inputs/science.json`, `inputs/checkin1.json` and that
-policy. The receipt is `inputs/science-approval.json`. Approval cannot be replaced
+policy. The receipt is `inputs/science-approval.json`. Approval must not be replaced
 or retrospectively attached to a version 1 study.
 
 ## Execution and review
@@ -93,14 +93,14 @@ The original registered critic or verifier owns the located finding; the origina
 registered decider binds its exact context digest and records the hold. This
 preserves the accepted outputs and votes while refusing future delivery, reuse,
 bulk and correction admission. Source or input-inventory drift can independently
-block those actions. The hold grants no attempt or redo, and this cycle cannot be
+block those actions. The hold grants no attempt or redo, and this cycle must not be
 reopened or lifted through it. A replacement scientific claim needs a separately
 approved study with explicit parent finding, fresh evidence and fresh acceptance;
 the original held run remains preserved.
 
 ## Numeric corrections
 
-The initial contract may prospectively identify existing finite numeric leaves.
+The initial contract can prospectively identify existing finite numeric leaves.
 `task_fields` contains unescaped JSON pointers into the task. For example,
 `/config/target_ctau/value` permits changing that value while retaining its unit,
 the operation and every other task field. Mode, backend, domain, executable,
@@ -118,7 +118,7 @@ An input slot can copy a supplied JSON document before approval:
 
 The slot must identify an actual regular file in the original scientific input
 inventory. The original file stays unchanged and bound. Only named numeric leaves
-in its run-local copy may change. Nested file references in a copied document must
+in its run-local copy can change. Nested file references in a copied document must
 remain resolvable from its copied location. New external files, changed units,
 new structures, string edits and undeclared numeric fields require a new study.
 
@@ -139,7 +139,7 @@ ravel run --rundir <run>
 `science-correct` materializes `inputs/science-correction-N.json` before asking the
 existing decider admission function to bind its exact settings and stage command.
 The command contains that derivative plan's byte digest. The original plan,
-specification and approval stay unchanged. Unadmitted drafts may be revised, with
+specification and approval stay unchanged. Unadmitted drafts can be revised, with
 prior drafts retained. Once admitted, changed plan bytes invalidate the command.
 
 Admission consumes the prospective redo even if execution fails. The same logical
@@ -147,5 +147,5 @@ Admission consumes the prospective redo even if execution fails. The same logica
 distinct worker log. Old output directories and receipt records remain available.
 Successful repaired execution does not close a finding. Open the successor cycle
 with the correction ID, fresh receipt and located rechecks, then collect fresh
-role decisions. Exhausted budgets, unsupported structural repairs and stopped
-reviews cannot be reset by deleting a current-state or attempt file.
+role decisions. Exhausted budgets, structural repairs outside the registered correction contract and stopped
+reviews must not be reset by deleting a current-state or attempt file.

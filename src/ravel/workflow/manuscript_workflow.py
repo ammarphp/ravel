@@ -829,11 +829,14 @@ def _history_state(campaign, current, *, revision=None, sha256=None):
     else:
         if type(sha256) is not str:raise ValueError('actual campaign history identity required')
         records=range(current['revision']+1)
+    from . import research_history
+    root=cycle._ordinary(campaign)
+    head=cycle._read(state_io.read_json(root/'head.json'),root)
+    snapshots=list(research_history.states(root,head))
+    if snapshots[-1]!=current:raise ValueError('campaign changed during historical selection')
     for index in records:
-        record=state_io.read_json(Path(campaign)/'history'/f'{index:04d}.json')
-        content=deepcopy(record);checksum=content.pop('sha256')
-        if checksum!=ce.digest(content) or record['revision']!=index:raise ValueError('campaign history commitment differs')
-        if revision is not None or checksum==sha256:return record
+        record=snapshots[index]
+        if revision is not None or record['sha256']==sha256:return record
     raise ValueError('revision preparation is absent from authenticated current campaign ancestry')
 
 

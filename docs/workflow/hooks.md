@@ -78,13 +78,14 @@ is therefore found from its directory and from the session.
 
 A development session that runs `ravel initiate` becomes a physics session for that run, and its
 enforcement surface turns read-only. End the registration with
-`python3 -m ravel.workflow.active_run release --session <id>`.
+`python3 -m ravel.workflow.active_run release --session <id>`; the release is recorded and the
+run's later deliveries list `registration_released`.
 
 ## The hooks (Claude Code)
 
 | Hook | Event | What it does |
 |---|---|---|
-| `userpromptsubmit-router.sh` | UserPromptSubmit | Runs the intake router on every prompt that is not a development request or a short reply, including calculation, research and method-study prompts. Injects the intake reminder; leaves a route-pending marker only when the routed contract admits compute (`compute_plan` other than `none`). Unsupported and research questions without compute leave no marker. A development prompt (a brief naming a worktree, branch, owned files or acceptance tests; a code task) leaves no marker. |
+| `userpromptsubmit-router.sh` | UserPromptSubmit | Runs the intake router on every prompt that is not a development request or a short reply, including calculation, research and method-study prompts. Injects the intake reminder; leaves a route-pending marker only when the routed contract admits compute (`compute_plan` other than `none`). `unsupported` and `research` contracts without compute leave no marker. A development prompt (a brief naming a worktree, branch, owned files or acceptance tests; a code task) leaves no marker. |
 | `pretooluse-skill.sh` | PreToolUse · Skill, Agent, Task | Blocks contract-dependent skills, and subagent fan-out while the route is pending, until the session's run has a task contract; then consumes the marker. |
 | `pretooluse-bash.sh` | PreToolUse · Bash | Shim over `host_gate.verdict(tool_call)`: blocks on deny and reports its first error message. |
 | `protect-enforcement.sh` | PreToolUse · Edit, Write | The enforcement surface is read-only in a physics session (a pending route, or a run tied to the session). |
@@ -94,11 +95,51 @@ enforcement surface turns read-only. End the registration with
 | `stop-dispatcher.sh` | Stop | Shim over `stop_dispatch`; the pending action comes from the status packet (`current_state.build_packet`), for every run kind. |
 | `sessionstart-orient.sh` | SessionStart | Re-orients the session on its own run; silent when the session has none. |
 
-The installer records its import-capable interpreter in `.claude/settings.json` as
-`env.RAVEL_PYTHON`. Hooks use `${RAVEL_PYTHON:-python3}` and their checkout import path.
-The enforcement write guard blocks when `ravel` cannot import during a physics session
-(a pending marker or a resolvable run); observers allow and log failures in
-`logs/hook-failures.log`.
+The installer records its import-capable interpreter in the ignored local runtime
+`.ravel/hook-runtime.sh` (and `.ravel/agent-surface.local.json`); a reinstall moves an older
+`env.RAVEL_PYTHON` there from `.claude/settings.json`, where it now counts as an injected
+variable. Checkout hooks use `${RAVEL_PYTHON:-python3}` and their own checkout's package,
+never a project copy: the hook scripts put only their checkout's `src` first on the path and
+set `PYTHONSAFEPATH`, so the working directory is never searched. Generated hooks for other
+hosts clear inherited package variables and take the interpreter and package path from the
+installer's `.ravel/hook-runtime.sh`; without one, only a RAVEL source checkout at its own
+repository top level supplies `src`.
+
+A hook whose guard fails to execute fails closed where the host allows it: pre-tool hooks block the
+call, the prompt router blocks the prompt, and the Stop dispatcher holds the first stop (a
+repeated stop is allowed, so a turn must not loop). Observers and session orientation must not
+block. Every such failure appends a `hook_failure` event to the host ledger
+(`$RAVEL_STATE_DIR/host-integrity/events.jsonl`) and a line to `logs/hook-failures.log`.
+
+## Unrestricted hosts are detection, not the boundary
+
+The hooks detect; the controller's sandboxed workers are the boundary. A same-user process can
+change a host's settings after any check, so RAVEL notices changes at its next call
+(`ravel gate`, the prompt hook, every delivery) and labels the results:
+
+- **Detected now** (`host_governance.host_findings`): `disableAllHooks` in project or user
+  settings (`.claude/settings.local.json` included), a settings `env` table that injects
+  interpreter, package, state, tripwire or transport variables, a hook runtime that differs
+  from what the installer wrote or loads another package copy, and a project whose workflow
+  policy requires the workflow manager but whose hook table has no execution guard
+  (`agent-surface install --no-wms-guard`). `ravel agent-surface check` prints them as
+  `host_findings`. With hooks disabled, `pre_execution_guards` is `none`.
+- **Recorded** in the host ledger: hook failures, a changed set of findings, registration
+  releases (`active_run release`, which refuses a run the controller owns) and turns that end
+  without a resolvable run.
+- **Write-protected** in a physics session: project and user settings (local overrides
+  included), Codex configuration, hook runtimes, guard and controller code, the installed RAVEL
+  package, the run registry and the host ledger.
+- **Labelled:** every delivery's `enforcement.governance` is `NOT GOVERNED` for a run the
+  controller does not own, with `reasons` (`unrestricted_host`, then each finding and recorded
+  event tied to the run or its session). A Stop turn whose message delivers results, or whose
+  session routed a physics request, without a resolvable run shows a `NOT GOVERNED` notice.
+- **Tripwire:** a controller process (`agent_tripwire.declare_controller_process` or
+  `controller_scope`) always blocks at the lowest layers, whatever `RAVEL_AGENT_TRIPWIRE` says.
+
+`ravel agent-surface render` keeps a project's own `AGENTS.md`, `CLAUDE.md` and `GEMINI.md`
+byte-identical and reports them as `preserved`; it refreshes only RAVEL's generated text.
+Pass `--replace-instructions` to replace a project's own documents.
 
 ## Records at CHECK-IN 1 and delivery
 
@@ -112,8 +153,8 @@ The enforcement write guard blocks when `ravel` cannot import during a physics s
   (for example the role registry's owned paths). Codex/Gemini pseudo tables are not host registrations.
 - `ravel result-pack` requires the `raw_launch` provider; a missing provider fails closed.
   That provider owns output coverage and retained-approval validation. It writes
-  `"enforcement": {"pre_execution_guards", "enforcement_surface_sha256", "host", "raw_launch",
-  "declared_pre_execution_guards", "declared_host"}`
+  `"enforcement": {"governance", "pre_execution_guards", "enforcement_surface_sha256", "host",
+  "raw_launch", "declared_pre_execution_guards", "declared_host"}`
   into `result.json` and into every delivered claim under `outputs/claims/`. When the delivery-check
   helper is installed it also refuses a severity-A failure or a missing input for a delivered
   absolute yield, and keeps the findings in `outputs/delivery-checks.json`.

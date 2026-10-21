@@ -1,9 +1,9 @@
 # Recursive Decision Justification
 
-Recursive Decision Justification (RDJ) is the procedure by which RAVEL decides whether a consequential action
-proceeds. An agent that proposes an action must answer a chain of "why" questions. Each answer
-must itself be justified, recursively, until every branch ends in evidence that RAVEL can verify from bytes it
-holds. Independent reviewers judge each step of the chain, and code, never an agent, issues the authorization.
+Recursive Decision Justification (RDJ) records the support for a consequential action. Its case engine asks a
+chain of "why" questions, retains claim-and-evidence dependencies and verifies the anchors that close them.
+Independent reviews and coded rules determine a case's outcome. The controller also binds the action to its
+current governed review and operator authority; a model's favorable verdict must not grant that authority.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../figures/svg/dark/methodology-decision-justification.svg">
@@ -24,6 +24,17 @@ holds. Independent reviewers judge each step of the chain, and code, never an ag
   the revisions and the verification.
 - **Anchor.** A piece of evidence that RAVEL checks against bytes it holds, independently of the agent that cites it.
 - **Custody.** Append-only, hash-chained ledgers that RAVEL keeps outside the run directory.
+
+## Current controller binding
+
+`controller.judgment.steps.rdj_step` builds a governed review by the `rdj-critic` card on an exact subject digest.
+The seat receives the method ladder and triggered judgment protocols, and credit comes from its observed fresh
+session. `controller.authority.rdj` checks the current action, view pins and review; higher-consequence effects
+also require independently authenticated operator authority. Review does not replace that authority.
+
+The recursive case machinery below remains an explicit case interface. A controller critic-seat receipt does
+not by itself establish execution of every recursive edge-review/revision phase. The [controller appendix](../architecture/controller.md)
+and [safety appendix](../architecture/safety.md) identify the current scheduler and receipt boundary.
 
 ## Risk classes
 
@@ -56,7 +67,7 @@ A case is a directed acyclic graph rooted at the action.
 | Anchor | tool output, measurement, input artifact, user requirement, invariant, retrieved document, external fact |
 
 Each node carries an assertion, a short rationale, a confidence (low, medium or high), its anchors, its
-assumptions and any open questions. A node that is material to the decision cannot be supported by a
+assumptions and any open questions. A node that is material to the decision must not be supported by a
 non-material one.
 
 **Recursion.** Code generates every question; the proposing agent answers. The first question is *Why should
@@ -69,7 +80,7 @@ A branch can close at any depth when externally verified evidence of each kind s
 Low confidence or weak support requires additional distinct evidence sources. Identical content counts once
 even under different paths, receipts or retrieval routes; distinct bytes alone do not prove scientific
 independence. A conflict stays held until resolved. The class maximum depth remains an upper bound. Without typed obligations, a leaf closes when it
-holds a verified external anchor at the required depth, with three exceptions. At R0 and R1 an invariant alone cannot ground a leaf. A path with a hop the edge reviewer
+holds a verified external anchor at the required depth, with three exceptions. At R0 and R1 a leaf requires a verified external anchor. A path with a hop the edge reviewer
 judged *generated_only* stays open. At R3 the path needs a tool-output or measurement anchor. The
 required depth is the class minimum plus one for each sign of weakness on the path: a low-confidence node, two
 anchors that report different values for the same quantity, a partial *entailment* (the child establishes part
@@ -95,10 +106,10 @@ as a common-mode dependence.
 **Authoritative-practice grounding.** At R2 and above, a claim that recommends an analysis choice (a cut, a
 method, a tolerance) needs an *authoritative-practice anchor* in its support: your recorded words, a registry
 invariant marked as practice, or acquired content whose source type is joined to an independently supplied,
-pinned scientific-reference descriptor. An arbitrary citation cannot establish this authority.
+pinned scientific-reference descriptor. This authority requires that exact scientific-reference binding.
 Without one the claim stays *exploratory*. An explicit bounded exploration contract for broker operations can authorize
 selection of that research choice with the same class reviews, while denying scientific acceptance and
-execution. It cannot authorize launch, promotion or delivery; those retain their own gates.
+execution. It must not authorize launch, promotion or delivery; those retain their own gates.
 
 ## The review loop
 
@@ -108,7 +119,7 @@ they share a session.
 1. **Edge reviewer** (`rdj-edge-reviewer`) judges one hop at a time: *entailment* (holds, partial, fails),
    *relevance* (relevant, weak, irrelevant) and *grounding* (anchored, needs depth, generated). A hop that
    fails or is irrelevant blocks the case until a revision changes it.
-2. **Critic** (`rdj-critic`) reads the whole tree and files findings from a closed list: unsupported claim,
+2. **Critic** (`rdj-critic`) reads the whole tree and files findings from a closed list: unsubstantiated claim,
    missing evidence, alternative not considered, contradiction, risk underestimated, chain stopped early, decision
    does not follow, self-grounding, unmarked choice, circular justification, irrelevant support, post-hoc
    rationalisation. Each finding has a *materiality*: A or B marks a finding material to the decision, C a
@@ -117,7 +128,7 @@ they share a session.
    a new receipt or a code check or requests evidence or an experiment; any other finding is recorded as advisory.
 3. The proposer **revises**, naming the findings it addresses. Each revision records the content before and after.
 4. **Verifier** (`rdj-verifier`) marks each finding resolved, unresolved or a new issue, and returns an outcome.
-   It cannot add findings, and it cannot resolve a blocking finding that no revision addressed.
+   It must not add findings, and it must not resolve a blocking finding that no revision addressed.
 
 Every node and edge carries a *Merkle digest*, a hash that covers its own content and the digests of everything
 below it, so a change anywhere underneath changes it: a node hashes its content, its anchors and its outgoing
@@ -153,7 +164,7 @@ about itself. Each actor is labelled *transport-attested*, *host-attested*, *sel
   policy can also require a different *model family* (the vendor family of the model, read from its
   identifier), and the shipped policy leaves that off. Below R3 a verifier in the critic's session needs a recorded
   human approval of the case and is labelled self-attested.
-- The critic and verifier receive a digest-bound projection of the case with reviewer reasons withheld.
+- The critic and verifier receive a digest-bound projection of the case with reviewer reasons protected.
 
 A human approval enters as a custody record that quotes the physicist's CHECK-IN 1 response or steering text,
 recorded after the case was opened, naming the case or the first 12 characters of its action digest.
@@ -233,7 +244,7 @@ the [research loop](research-loop.md).
 Same-gate reuse checks the current action and evidence again without another model call.
 Supplied pins must match the accepted subjects, including their paths; identical bytes
 at a different path do not transfer acceptance. An explicitly changed route requires
-review even when its risk class cannot increase further.
+review at the maximum risk class as well.
 Cross-gate reuse requires a supplied scope that every original reviewer saw, identical effective
 review obligations and unchanged evidence, regime, input, policy and card digests. It creates a
 new gate-specific receipt with source lineage and preserves current execution and human checks.
@@ -249,5 +260,4 @@ without changing the default or removing a scientific refusal. See the
 qualified endings, notification configuration and the executable contracts.
 Reaching the two-unchanged-redo bound produces the same qualified report as numerical
 budget exhaustion without changing the decider route. Executable review credit uses
-the latest exact-subject check; a failed later attempt or broken worker custody cannot
-retain credit from an earlier successful check.
+the latest exact-subject check; a later failure or broken worker custody invalidates earlier credit.

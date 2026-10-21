@@ -43,11 +43,9 @@ captured tables. A changed source requires a new provider instance and binding.
 
 Supported histogram objects are `TH2F` and `TH2D`. Each coordinate follows the
 source operation `min(max(value, xmin), xmax * .999)`, then the ROOT upper-edge
-bin convention. There is no interpolation. A clamp that reaches an unsupported
-flow bin is refused. Supported `TF1` objects have one dimension, no parameters
+bin convention. There is no interpolation. The clamped coordinate must select an admitted regular bin. Supported `TF1` objects have one dimension, no parameters
 and a bounded arithmetic/comparison expression; their routed coordinate is
-evaluated without the histogram or saved-domain clamp. Arbitrary ROOT formulas,
-TH1/TH3 objects and object/MET migrations are unsupported.
+evaluated without the histogram or saved-domain clamp. The response contract selects the declared TH2 lookup or bounded TF1 expression and its explicit coordinates.
 
 The event supplies the fields required by the literal source routing. These can
 include final calibrated pT in GeV, signed or absolute eta, lead-track eta,
@@ -60,7 +58,7 @@ uses the inspected source unity branch.
 Relative nuisance magnitudes combine coherently in quadrature and multiply the
 nominal correction with a declared direction. Missing nuisance mappings never
 fall back to nominal. Duplicate JSON fields, nonfinite values, ambiguous cycles,
-changed source bytes, mismatched contexts and unsupported source modes are
+changed source bytes, mismatched contexts and source modes outside the declared contract are
 refused. A negative or nonfinite resulting correction is also refused.
 
 The source implementation is
@@ -104,8 +102,7 @@ Every probability is finite and in [0,1]; each table sums to one within absolute
 tolerance `1e-12`, with zero relative tolerance. Data support absent from MC,
 missing cells, duplicate outcomes, zero selected MC mass and overflowing ratios
 are refused. There is no inferred independence or interpolation across cells.
-Evidence hashes establish custody; they cannot establish that a supplied table
-is a measured or applicable calibration.
+Evidence hashes establish custody. Measurement origin and calibration applicability require their own scientific evidence.
 
 `exclusive_probabilities(loose, medium, tight)` computes the four exclusive
 outcomes of nested absolute efficiencies. `exclusive_scale_factors(mc, data)`
@@ -117,7 +114,7 @@ efficiencies. An ID scale factor alone is insufficient.
 Portable unit tests use explicitly synthetic tables and container-byte tokens.
 They exercise scalar arithmetic, bin edges, formula routing, source bindings,
 joint support, signed weights and refusal behavior. These controls require no
-ROOT runtime or experimental payload download.
+ROOT runtime or measurement payload download.
 
 A detector-level stau calculation additionally needs a complete matched
 reconstructed-event population, the actual analysis release/configuration,

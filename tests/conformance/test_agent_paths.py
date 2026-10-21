@@ -244,10 +244,14 @@ def test_every_tripwire_layer_names_a_real_callable():
         assert callable(target) and layer["acting_kinds"]
 
 
-@pytest.mark.xfail(reason="awaits the owners of provider_transport, cli_agent_host, agent_worker, broker, "
-                          "effect_ledger and launch_authorization adding agent_tripwire.check (handoff)", strict=True)
-def test_lowest_layers_assert_substrate_context(census):
+def test_lowest_layers_assert_substrate_context(census, tmp_path, monkeypatch):
+    import runpy
     assert cap.tripwire_coverage(census)["missing"] == []
+    controls = runpy.run_path(str(Path(__file__).parents[1] / "unit" / "test_agent_tripwire.py"))
+    for index, layer in enumerate(controls["LAYERS"]):
+        root = tmp_path / str(index)
+        root.mkdir()
+        controls["test_lowest_layers_assert_substrate_context"](root, monkeypatch, layer)
 
 
 @pytest.mark.xfail(reason="awaits workload chains and their fixtures", strict=True)

@@ -34,14 +34,12 @@ native range and declared POI domain. Nuisances retain their observed native
 ranges. Infinite native bounds are recorded as explicitly unbounded (`null`),
 while all assignments, weights and NLL values must remain finite. Every axis and
 anchor override must be a floating continuous native POI/nuisance; observables,
-globals, fixed/unrelated coordinates and discrete categories cannot become axes.
+globals, fixed/unrelated coordinates and discrete categories must not become axes.
 
 The consumer receives the SAME NLL constructed by the original worker's
 `createNLL(data_obs, RooLinkedList)` call with `Constrain(nuisances)` and
 `GlobalObservables(globals)`. Other ROOT/custom-PDF options retain their pinned
-native defaults. A nonempty conditional-observable or external-constraint set is
-explicitly unsupported in this branch, since that command list does not implement
-it. There is no silent loss of those sets and no change to the existing fit NLL.
+native defaults. This branch requires empty conditional-observable and external-constraint sets, preserving the existing fit NLL.
 The result binds the native workspace blob, complete observed dataset rows,
 weights/covariates and typed dataset-attached auxiliary snapshots, all ModelConfig sets, PDF component names/classes and actual
 native coordinate order. Category labels/indices use `getOrdinal`, preserving
@@ -49,10 +47,10 @@ sparse indices. These are actual recorded states, not a declaration that a sourc
 file has a particular ordering or an exhaustive internal-table/loaded-ABI proof.
 
 All workspace values, constant flags and category states reset before each
-point and on success or exception. Observable values/categories may change during
-dataset evaluation; global/POI/nuisance/unrelated values, bounds and flags may not.
+point and on success or exception. Observable values/categories can change during
+dataset evaluation; global/POI/nuisance/unrelated values, bounds and flags must not.
 The attached dataset global snapshot is kept distinct from workspace globals:
-null, an empty set, and an unavailable accessor are separate states. Complete real
+null, an empty set, and an missing accessor are separate states. Complete real
 values/classes/constant flags/bounds and category values/domains are retained.
 Their initial, pre-call, post-call and final states must agree. A change fails
 without replacing the observation or forcing a new NLL global-source option.
@@ -66,8 +64,7 @@ global set from the data. This default selection is recorded with each selected
 coordinate. ROOT6.30 requires its actual external-constraint getter; older reviewed source
 has none. The PDF DefaultGlobalObservablesTag is observed separately. When no
 explicit ModelConfig global set is supplied, this tag can take precedence over
-the dataset automatic set; that tag-selected branch is explicitly unsupported
-and refuses before an NLL value call. Actual option truthiness is retained separately from member count, including
+the dataset automatic set; admission requires an explicit ModelConfig global option for that case, before any NLL value call. Actual option truthiness is retained separately from member count, including
 a truthy empty set. With an explicit ModelConfig global option, ROOT
 uses that existing option and the tag is retained but does not select globals.
 No tag or model observation is silently cleared/replaced. Unknown versions or an accessor contradicting its source policy
@@ -86,7 +83,7 @@ hex tokens with a null numeric value; they remain failures. Each event is flushe
 and fsynced before acknowledgment; a recorder failure permits no subsequent call.
 The ordinary failure path retains partial JSONL as failed evidence. Pure callers without a durable recorder receive partial events and actual attempted/returned counts on the exception; those memory facts are explicitly not a successful or durable scientific delivery. A successful
 host delivery must reconcile that durable file and every journal event with the
-complete planned rows and reduction. No second supervisor or process is added. A failed reset remains a failure. Native evaluator bias/error logging
+complete declared rows and reduction. No second supervisor or process is added. A failed reset remains a failure. Native evaluator bias/error logging
 beyond the retained raw logs still needs empirical qualification.
 
 The host replays the deterministic plan and exact-rational reduction from returned

@@ -67,11 +67,11 @@ a dead one — and it refuses unless the single primary already has a composed `
 | Thought | Reality |
 |---|---|
 | "The caption tells me what this figure looks like" | A caption does not fix a figure's form; a counterpart drawn from caption text can take the wrong form entirely. Extract and LOOK before declaring. |
-| "Log axes are obviously right for this quantity" | Axis scales cannot be inferred from the quantity; axes are read OFF the extracted figure — `axes.source="assumed"` only when nothing is extractable. |
+| "Log axes are obviously right for this quantity" | Axis scales must not be inferred from the quantity; axes are read OFF the extracted figure — `axes.source="assumed"` only when nothing is extractable. |
 | "One target can stand in for the whole panel grid" | The tooling binds one image per target; each panel is its own target (the interim rule above). |
 
 ## Stop conditions
-- No declared target by the end of step 2 → CHECK-IN 1 cannot go out (the gallery/waypoint
+- No declared target by the end of step 2 → CHECK-IN 1 must not go out (the gallery/waypoint
   sections depend on it).
 - A counterpart without its extracted-or-textual published sibling never ships (A1 guard);
   `verify_pack.py` (step 9) asserts contract fulfilment — fulfil or WARN, never silently drop.

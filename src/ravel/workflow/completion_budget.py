@@ -1,4 +1,8 @@
-"""Conservative aggregate delegation reservations; failed attempts stay charged."""
+"""Conservative aggregate delegation reservations; failed attempts stay charged.
+
+A controller-owned run keeps its reservations in its run store (``ravel.controller.step.budget``);
+this run-tree ledger refuses it.
+"""
 from pathlib import Path
 from . import state_io
 
@@ -21,6 +25,9 @@ def reserve(root, child, requested, limits):
     root = Path(root)
     if any(p.is_symlink() for p in (root, *root.parents)):
         raise ValueError('ordinary aggregate authority root required')
+    from .agent_worker import controller_run
+    if controller_run(root):
+        raise ValueError('a controller-owned run reserves its budget in the run store, through its governed step')
     path = root / 'inputs/delegation_reservations.json'
     with state_io.file_lock(root / 'logs/completion-budget.lock'):
         record = state_io.read_json(path) if path.exists() else {'schema_version': 1, 'limits': limits, 'children': []}

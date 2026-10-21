@@ -270,12 +270,14 @@ def test_delivery_profile_uses_recorded_cores(tmp_path, cores):
 
 
 def campaign(root):
-    import hashlib
-    root.mkdir()
+    """A real campaign journal (genesis plus an authenticated delta) whose state names two runs."""
+    from ravel.workflow import research_cycle as cycle
+    from test_research_cycle import contract
+    cycle.create(root, contract(root.parent), base_dir=root.parent, evaluation_harness=True)
     children = [run(root / 'experiments' / name) for name in ('arm-a', 'arm-b')]
-    state = {'experiments': [{'id': p.name, 'rundir': str(p)} for p in children], 'base_dir': str(root)}
-    pin = put(root / 'history/0000.json', state)
-    put(root / 'head.json', pin)
+    _, state = cycle._load(root)
+    state['experiments'] += [{'id': p.name, 'rundir': str(p)} for p in children]
+    cycle._commit(root, state, 'fixture_experiments')
     return children
 
 

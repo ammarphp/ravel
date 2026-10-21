@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "knowledge-atlas",
+  "entries": [
+    {
+      "id": "doc:amber",
+      "kind": "doc",
+      "title": "Amber",
+      "summary": "Amber rate guide",
+      "source": {
+        "path": "sources/amber.txt",
+        "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a"
+      },
+      "links": {}
+    },
+    {
+      "id": "doc:violet",
+      "kind": "doc",
+      "title": "Violet",
+      "summary": "Violet width guide",
+      "source": {
+        "path": "sources/violet.txt",
+        "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      "links": {}
+    }
+  ]
+}

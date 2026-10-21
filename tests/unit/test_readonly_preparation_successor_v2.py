@@ -19,7 +19,7 @@ from ravel.workflow import research_cycle as cycle
 from ravel.workflow.state_io import atomic_json, read_json
 from ravel.physics import research_comparison as comparison
 from test_readonly_preparation import session, owner_at, tiny_module, prepare
-from test_fresh_replication import seed, prepare as fresh_prepare, fresh_run
+from test_fresh_replication import seed, seed_domain, seed_dispatch_domain, prepare as fresh_prepare, fresh_run  # noqa: F401
 
 
 def test_initial_injected_unchanged_return_reader_keeps_complete_fallback(tmp_path, monkeypatch):
@@ -77,6 +77,7 @@ def engineering_worker(tmp_path, monkeypatch):
     ('inputs/native_execution_plan.json', False),
     ('inputs/checkin1_approval.json', False), ('inputs/task_contract.json', False),
     ('inputs/task_contract.json', True),
+    ('inputs/research-child-contract.json', False), ('inputs/research-child-contract.json', True),
     ('logs/physics_review/registration.json', False), ('logs/physics_review/head.json', True),
     ('logs/physics_review/events/00000001.json', True)])
 def test_actual_worker_boundary_closes_missing_authority_observations(tmp_path, monkeypatch, change, late):
@@ -94,7 +95,8 @@ def test_actual_worker_boundary_closes_missing_authority_observations(tmp_path, 
         assert admitted['attempt'] == 1 and owner.descriptor is module.READONLY_WORKER_V1
         assert set(owner.session.exists_states) == {root / p for p in
             ('inputs/native_execution_plan.json', 'inputs/checkin1_approval.json',
-             'inputs/task_contract.json', physics_review.REGISTRATION, physics_review.HEAD)}
+             'inputs/task_contract.json', 'inputs/research-child-contract.json',
+             physics_review.REGISTRATION, physics_review.HEAD)}
         if late:
             # Comes after the actual current-launch semantic callback. Only the
             # complete terminal observation can catch the newly created state.

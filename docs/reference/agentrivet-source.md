@@ -1,9 +1,8 @@
 # AgentRivet ordinary construction bridge
 
 This continuation composes the independently cleared file importer with existing
-RAVEL APIs. It does not copy AgentRivet classes, prompts or provider backends into
-the public implementation. AgentRivet is a required external GPL-3.0-or-later
-generator. The proposed RAVEL API additions are original file/schema/workflow
+RAVEL APIs. AgentRivet is a required external GPL-3.0-or-later
+generator. The RAVEL API additions are original file/schema/workflow
 interfaces; redistribution or packaging of upstream code needs its own license
 decision.
 
@@ -35,7 +34,7 @@ sealed configuration. It requires:
 - A separately supplied complete dependency/assets/source capsule. No helper
   guesses header, ONNX, reference or metadata closure from a code-approval flag.
 - A closed source-closure declaration containing the proposal/capsule pins,
-  reviewer label, nonempty limitations and exactly one disposition for every
+  reviewer label, nonempty scope conditions and exactly one disposition for every
   imported obligation. Dispositions are represented, requires_event_test or
   unserved. They are supplier assertions, not an independently authenticated
   scientific verdict. Unserved IDs remain explicit in the build binding.

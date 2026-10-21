@@ -8,6 +8,9 @@ its workspace receives only the packet this module projects, never the run tree.
   ``blind``: the card's read paths inside ``inputs/`` only (the spec and pinned inputs);
   ``spec-denied``: the plan and its pinned contract only (``SPEC_DENIED_FILES``);
   ``workspace`` is a producer profile and is refused here.
+  Governed steps name step-scoped controller context folders (``exclude_read_prefixes``,
+  the judgment contexts): a file there enters only as a declared subject, so a later
+  planning round never receives an earlier round's context.
 - ``sees.forbidden_inputs`` names classes (``CLASSES``) that are omitted whole or
   field-redacted. An unknown class refuses the projection (fail closed).
 - The graph state, framework events, other packets and live worker calls are never
@@ -82,6 +85,18 @@ CLASSES = {
     'held_out_artifacts': (lambda rel, name, parts: bool({'held_out', 'held-out', 'heldout'} & set(parts)), ()),
     'claim_quantity': (lambda rel, name, parts: rel.startswith('claims/'), ()),
     'withheld_sources': (None, ()),  # contract forbidden_sources path rows
+    # A second method's deriver sees no product of the first: the run's computed products and logs,
+    # wherever its lineage nodes wrote them, and any file named as a derivation. Field names stay,
+    # so the deriver still knows which method it must not repeat.
+    'first_method': (lambda rel, name, parts: rel.startswith(('outputs/', 'claims/', 'stages/', 'work/', 'logs/'))
+                     or 'derivation' in name or 'first_method' in name or 'first-method' in name, ()),
+    # ML study inputs only the evaluator may read: the confirmation (final) partitions and the
+    # truth columns. Matched by name wherever a study placed them; truth fields are redacted from JSON.
+    'final_partitions': (lambda rel, name, parts: bool({'confirm', 'confirmation', 'test_split', 'final_partitions'}
+                                                       & set(parts)) or name.startswith(('confirm', 'test_split'))
+                         or 'final_partition' in name, ()),
+    'evaluator_truth_columns': (lambda rel, name, parts: 'truth' in name or 'truth' in parts,
+                                ('truth', 'truth_columns', 'evaluator_truth')),
 }
 LIMITATION = ('The packet holds only what the card permits. Blinding also requires the worker sandbox to deny '
               'the run tree, the state store and peer workspaces; the transport receipt records that evidence.')
@@ -117,6 +132,17 @@ def _card(role):
     if unknown:
         raise ProjectionRefused('forbidden_class_unknown', 'unknown forbidden input classes: ' + ', '.join(unknown))
     return card
+
+
+def headline(rel):
+    """Whether run file ``rel`` is a producer headline (the class ``producer_headline`` names), by its path alone."""
+    return _headline(rel, Path(rel).name.lower(), Path(rel).parts)
+
+
+def blind_card(card):
+    """Whether ``card`` reviews blind: a blind or spec-denied profile, or a card that requires blindness. A blind
+    card's review subjects pass the same screen as every other file it is shown (``build``)."""
+    return card['sees']['profile'] in ('blind', 'spec-denied') or (card.get('requires') or {}).get('blind') is True
 
 
 def _withheld(rundir):
@@ -186,6 +212,37 @@ def _classify(rel, forbidden, withheld, blind):
     return None
 
 
+def subject_class(rundir, role, rel):
+    """The class that refuses run file ``rel`` as a review subject of ``role``'s card: the screen ``build`` applies to a
+    blind card's subjects (it raises ``subject_forbidden`` for such a file). None when the card may review it; a card
+    that does not review blind has no subject screen."""
+    run = broker.ordinary(rundir)
+    card = _card(role)
+    if not blind_card(card):
+        return None
+    return _classify(rel, sorted(card['sees'].get('forbidden_inputs', [])), _withheld(run), True)
+
+
+def screen_inputs(rundir, role, rels):
+    """Forbidden-input screening for a card of any profile, workspace included.
+
+    Returns ``(kept, removed)``: run-relative paths the card may receive, and ``{"path", "class"}``
+    rows for every path one of its ``sees.forbidden_inputs`` classes keeps out. A workspace-profile
+    card is screened as strictly as a blind one on the classes it names.
+    """
+    run = broker.ordinary(rundir)
+    card = _card(role)
+    forbidden = sorted(card['sees'].get('forbidden_inputs', []))
+    withheld = _withheld(run) if 'withheld_sources' in forbidden else (lambda rel: False)
+    kept, removed = [], []
+    for rel in rels:
+        if type(rel) is not str or '..' in Path(rel).parts or Path(rel).is_absolute():
+            raise ProjectionRefused('read_path_invalid', 'screened inputs are run-relative paths')
+        cls = _classify(rel, forbidden, withheld, card['sees']['profile'] == 'blind')
+        (removed.append({'path': rel, 'class': cls}) if cls is not None else kept.append(rel))
+    return kept, removed
+
+
 def raw_input_class(rundir, role, rel):
     """The class that keeps run file ``rel`` out of a blind role's workspace as a raw worker input.
 
@@ -231,11 +288,12 @@ def _withhold(rel, raw, redact):
 def _item_document(item):
     if item is None:
         return None
-    keep = ('point_id', 'role', 'n', 'round', 'at', 'subject_sha256', 'claim_id', 'node_id', 'gate', 'findings')
+    keep = ('point_id', 'role', 'n', 'round', 'at', 'subject_sha256', 'claim_id', 'node_id', 'gate', 'findings', 'policy')
     return {'schema_version': 1, 'kind': 'review-item-packet', **{k: deepcopy(item[k]) for k in keep if k in item}}
 
 
-def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_FILE_BYTES):
+def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_FILE_BYTES,
+          exclude_read_prefixes=()):
     """The manifest and the (relative path, bytes) pairs of one projection; nothing is written."""
     if arm not in ARMS:
         raise ProjectionRefused('arm_unknown', 'unknown projection arm')
@@ -247,8 +305,8 @@ def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_
                                 'it works in its own workspace, not a review projection')
     forbidden = sorted(card['sees'].get('forbidden_inputs', []))
     withheld = _withheld(run)
-    blind = profile in ('blind', 'spec-denied') or (card.get('requires') or {}).get('blind') is True
-    redact = tuple(sorted({k for cls in forbidden for k in CLASSES[cls][1]}))
+    blind = blind_card(card)
+    redact =tuple(sorted({k for cls in forbidden for k in CLASSES[cls][1]}))
     subjects = list(dict.fromkeys(subjects))
     manifest = {'schema_version': SCHEMA_VERSION, 'kind': KIND, 'role': card['id'],
                 'card_sha256': broker.digest(card), 'profile': profile, 'arm': arm,
@@ -280,9 +338,25 @@ def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_
         raw = source.read_bytes()
         add('checklist', 'ravel:data/' + CHECKLIST, raw, source_sha256=hashlib.sha256(raw).hexdigest(),
             projection='exact bytes (package data)', suffix='.json')
-    candidates = [(rel, 'subject') for rel in subjects] + [(rel, 'read_path') for rel in _candidates(run, card, arm, subjects)]
+    candidates = [(rel, 'subject') for rel in subjects]
+    candidates += [(rel, 'read_path') for rel in _candidates(run, card, arm, subjects)
+                   if not any(rel.startswith(prefix) for prefix in exclude_read_prefixes)]
     if len(candidates) > MAX_FILES:
         raise ProjectionRefused('projection_too_large', 'review projection exceeds its file bound')
+    # Declared subjects and the packet material added below (rubric, capability shards) are mandatory; room is kept
+    # for the packet material, and a read-path file that would pass the total bound is an indexed size omission
+    # (readable as a bounded witness) instead of refusing the whole projection.
+    reserved = 0
+    if arm is None:
+        from .capability_catalogue import for_seat, shards, encode
+        reserved = sum(len(encode(part)) for part in shards(for_seat(card['id'])))
+        from . import review_rubric
+        try:
+            selected_rubric = review_rubric.selected(run)
+        except (OSError, ValueError):
+            selected_rubric = None
+        if selected_rubric is not None:
+            reserved += 2 * len(review_rubric.document_bytes(selected_rubric))
     for index, (rel, why) in enumerate(candidates):
         try:
             path = broker.confined(run, rel)
@@ -319,6 +393,10 @@ def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_
             manifest['omissions'].append({'source_path': rel, 'source_sha256': source_sha, 'class': 'size',
                                           'reason': 'exceeds the per-file bound; request a bounded witness'})
             continue
+        if total + len(raw) + reserved > MAX_TOTAL_BYTES:
+            manifest['omissions'].append({'source_path': rel, 'source_sha256': source_sha, 'class': 'size',
+                                          'reason': 'exceeds the projection total bound; request a bounded witness'})
+            continue
         raw, removed = _withhold(rel, raw, redact)
         projection = 'fields withheld: ' + ', '.join(removed) if removed else 'exact bytes'
         add(f'a{index:04d}', rel, raw, source_sha256=source_sha, projection=projection,
@@ -348,11 +426,24 @@ def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_
                     add('rubric-check-' + entry['id'], 'ravel:review-rubric-check/' + entry['source_path'], raw,
                         source_sha256=hashlib.sha256(raw).hexdigest(),
                         projection='check input: the selected rubric with this review subject', suffix='.json')
+    if arm is None:
+        # Static source-derived capability facts are code-computed packet material,
+        # like the installed checklist, never a second raw producer input. The sole
+        # authenticated controller-instruction exception remains unchanged.
+        from .capability_catalogue import for_seat, shards, encode
+        capabilities = for_seat(card['id'])
+        manifest['capability_catalogue_sha256'] = capabilities['catalogue_sha256']
+        for part in shards(capabilities):
+            raw = encode(part)
+            add(f"capabilities-{part['part']:03d}",
+                f"ravel:capability-catalogue/{capabilities['catalogue_sha256']}/{part['part']}",
+                raw, source_sha256=hashlib.sha256(raw).hexdigest(),
+                projection='code-generated capability metadata; no run results or producer interpretation', suffix='.json')
     manifest['sha256'] = digest(manifest)
     return manifest, files
 
 
-def project(rundir, role, *, key, item=None, subjects=(), arm=None, out_root=None):
+def project(rundir, role, *, key, item=None, subjects=(), arm=None, out_root=None, exclude_read_prefixes=()):
     """Write (once) and return ``{'path', 'manifest_sha256'}`` for the current run bytes.
 
     The folder is addressed by ``key`` and the manifest digest, so a changed run never
@@ -361,7 +452,8 @@ def project(rundir, role, *, key, item=None, subjects=(), arm=None, out_root=Non
     from .review_context import verify_packet
     if type(key) is not str or not key:
         raise ProjectionRefused('key_required', 'a projection key is required')
-    manifest, files = build(rundir, role, item=item, subjects=subjects, arm=arm)
+    manifest, files = build(rundir, role, item=item, subjects=subjects, arm=arm,
+                            exclude_read_prefixes=tuple(exclude_read_prefixes))
     base = Path(out_root) if out_root is not None else projection_root(rundir)
     folder = base / broker.digest([key, manifest['role'], arm, manifest['sha256']])[:32]
     binding = {'path': str(folder), 'manifest_sha256': manifest['sha256']}
@@ -504,7 +596,8 @@ def compare_divergence(rundir, at):
     from . import review_points
     root = Path(rundir)
     facts = review_points._facts(root)
-    points = [p for p in review_points.derive(facts) if p['when']['at'] == at and p['id'].endswith(':divergence')]
+    points = [p for p in review_points.derive(facts)
+              if review_points.matches_at(p, at) and p['id'].endswith(':divergence')]
     records = list(review_points._receipt_records(root, facts)) if points else []
     out = {}
     for point in points:

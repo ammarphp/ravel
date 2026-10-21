@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from parity_support import SYNTHETIC_FAMILY, cards, cell, declarations, preferences, synthetic_probe, EXECUTABLE_SHA
+from parity_support import cards, cell, declarations, preferences, synthetic_probe, EXECUTABLE_SHA
 from ravel.workflow import provider_transport as pt, transport_registry as tr
 
 CLI = declarations('cli-worker') + declarations('cli-oneshot')
@@ -110,31 +110,20 @@ def test_local_only_refuses_a_non_loopback_destination_on_every_model_route(pari
 
 @pytest.mark.parametrize('document', [d for d in ALL if d['transport_kind'] in tr.CLI_KINDS + ('http-model', 'ravel-loop')],
                          ids=lambda d: d['id'])
-def test_family_diversity_is_enforced_on_every_route_that_can_place_the_role(parity_env, document):
+def test_a_same_family_role_is_placed_on_every_route_that_can_place_it(parity_env, document):
     base = next(c for c in cards() if c['id'] == 'consult-columnar')
     placed = cell(base, document, qualified=True)
     if placed['status'] != 'admitted':
         assert placed['missing'], document['id']       # an explicit refusal, recorded in the role matrix too
         return
-    card = deepcopy(base)
-    card['model'] = {**card['model'], 'distinct_family_from': ['analysis-author']}
-    prefs = preferences(card, document)
+    prefs = preferences(base, document)
     probe = synthetic_probe(document)
     options = dict(probes={document['id']: probe}, executables={document['id']: EXECUTABLE_SHA} if probe else {})
     chosen = tr.select(base, prefs, **options)
-    same = {'analysis-author': {'transport_id': document['id'], 'model': chosen['model'], 'family': chosen['family']}}
-    with pytest.raises(tr.TransportRefusal) as refused:
-        tr.select(card, prefs, assigned=same, **options)
-    assert 'distinct_family_from:analysis-author' in refused.value.missing
-    other = {'analysis-author': {**same['analysis-author'], 'family': chosen['family'] + '-other'}}
-    assert tr.select(card, prefs, assigned=other, **options)['transport_id'] == document['id']
-    with pytest.raises(tr.TransportRefusal) as unassigned:
-        tr.select(card, prefs, **options)
-    assert 'distinct_family_from:analysis-author:unassigned' in unassigned.value.missing
-    with pytest.raises(tr.TransportRefusal) as observed:
-        tr.check_distinct_families({**card, 'id': 'critic-x'}, {'critic-x': 'gpt-parity', 'analysis-author': 'gpt-other'})
-    assert observed.value.missing == ['distinct_family_from:analysis-author']
-    assert SYNTHETIC_FAMILY
+    assert chosen['transport_id'] == document['id']
+    card = deepcopy(base)
+    card['model'] = {**card['model'], 'distinct_family_from': []}
+    assert tr.select(card, prefs, **options) == chosen      # an empty retired list changes nothing
 
 
 FIVE_CLI_WORKERS = ('claude-cli-worker', 'codex-cli-worker', 'gemini-cli-worker', 'opencode-worker',

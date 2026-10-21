@@ -1,0 +1,42 @@
+--- a/src/ravel/controller/step/graph.py
++++ b/src/ravel/controller/step/graph.py
+@@ -722,26 +722,37 @@
+ def review_items(state):
+     if state.get('branch') != 'worker' and not (state.get('card')):
+         return []
+     validation = state.get('validation') or {}
+     if validation.get('halts'):
+         return []
++    from ravel.workflow import review_projection_checks
+     store = _store(state)
+     card = _card(state)
+     roles = _seat_roles(store, state['step'], card, _ctx(state))
+     adopted = (state.get('checks') or {}).get('accepted') or []
+     if not roles or not adopted:
+         return []
+     instructions = module('instructions')
+     manifest = (state.get('packet') or {}).get('manifest') or {'units': []}
++    required = (set(card.get('must_check') or ()) & review_projection_checks.reviewer_items()) | set(
++        (state.get('checks') or {}).get('reviewer_items') or ())
+     items = []
+     for index, role in enumerate(roles):
+         reviewer, _, _ = cards.resolve(role, {'registry_sha256': state['card']['registry_sha256']})
+         try:
+             owed = instructions.reviewer_items(manifest, reviewer)
+-        except (KeyError, ValueError):
+-            owed = []
++        except (KeyError, ValueError) as exc:
++            raise StepHold('reviewer_items_unavailable', str(exc)) from None
++        owed = deepcopy(owed)
++        present = {item['id'] for item in owed}
++        for check in sorted(required):
++            identity = 'must_check:' + check
++            if identity not in present:
++                owed.append({'id': identity, 'kind': 'must_check', 'check': check,
++                             'source': 'producer reviewer obligation'})
++                present.add(identity)
+         items.append({'key': f'seat:{role}:1', 'purpose': 'review', 'role': role, 'n': 1,
+                       'subject': _subject(adopted), 'items': deepcopy(owed),
+                       'producer': {'session_id': (state.get('observation') or {}).get('session_id'),
+                                    'role': card['id']}})
+     return items

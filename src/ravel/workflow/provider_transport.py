@@ -18,6 +18,8 @@ import re
 import subprocess
 from urllib.parse import quote
 
+from . import agent_tripwire
+
 HTTP_ADAPTERS = frozenset({'responses', 'anthropic', 'gemini', 'chat_completions'})
 DEFAULTS = {'responses': 'https://api.openai.com/v1/responses',
             'anthropic': 'https://api.anthropic.com/v1/messages',
@@ -91,6 +93,7 @@ def policy(adapter, endpoint, privacy, local_models, capabilities):
 
 
 def request(adapter, parameters, context_text, wire_schema, capabilities, endpoint, privacy, local_models):
+    agent_tripwire.check('provider_transport.request')
     model = parameters['model']
     if privacy == 'local_only' and model not in local_models:
         raise ProviderFailure('requested model is outside the exact local-only model allowlist')

@@ -10,6 +10,7 @@ from hashlib import sha256
 from importlib.resources import files
 import json
 from pathlib import Path
+import re
 
 STATUS_TABLE = 'docs/reference/tool-status.md'
 STATUSES = ('qualified', 'built_but_unqualified', 'not_installed', 'excluded')
@@ -52,6 +53,16 @@ def _decode(raw, catalog='local'):
         raise ValueError('duplicate census tool')
     by_id = {r['id']: r for r in tools}
     for row in tools:
+        if 'request_names' in row:
+            names = row['request_names']
+            if not isinstance(names, list) or any(not isinstance(n, str) or not n.strip() for n in names):
+                raise ValueError('census request_names must be a list of nonblank strings')
+            for name in names:
+                if name.startswith('re:'):
+                    try:
+                        re.compile(name[3:])
+                    except re.error as exc:
+                        raise ValueError('invalid census request_names expression') from exc
         if row['status'] not in STATUSES or not row['doctor_checks']:
             raise ValueError('census tool needs one status and doctor checks: ' + row['id'])
         if row['requirement'] not in ('required_for_profile', 'excluded'):
@@ -202,17 +213,15 @@ def _withheld_backend(manifest, row, tools):
 
 def render_status(data, manifest=None):
     """Stable, complete projection; CI checks bytes against the packaged source."""
-    lines = ['# Tool status', '',
+    lines = ['# Tool checks', '',
              'Generated from `src/ravel/data/backends/census.json`; do not edit this table.', '',
-             'These statuses report the pinned historical census. They do not inspect this machine or certify a new result. '
-             'Tools are required for their selected operation/profile; excluded tools have no execution route. '
-             'Doctor readiness is reported separately by `ravel doctor --census`.', '',
-             '| Tool | Status | Requirement | Doctor check | Evidence scope |',
-             '|---|---|---|---|---|']
+             'Tools are required by their selected operation/profile. Run `ravel doctor --census`',
+             'for readiness checks on the selected machine.', '',
+             '| Tool | Requirement | Doctor check |', '|---|---|---|']
     from ravel.setup import manifest as mf
     manifest = manifest if manifest is not None else mf.load()[0]
     for row in sorted(data['tools'], key=lambda r: r['id']):
-        if mf.withheld_tool(manifest, row):
+        if mf.withheld_tool(manifest, row) or row['status'] == 'excluded':
             continue
         checks = []
         for check in row['doctor_checks']:
@@ -220,19 +229,13 @@ def render_status(data, manifest=None):
             if check['kind'] == 'manifest': checks.append(check['group'] + '/' + check['check'])
             elif check['kind'] == 'executable': checks.append('presence: ' + ', '.join(check['names']))
             elif check['kind'] == 'resource': checks.append('source: ' + check['path'])
-            else: checks.append(check['kind'] + ': ' + check['reason'])
-        lines.append('| ' + ' | '.join(map(_cell, [row['title'], row['status'].replace('_', ' '),
-                     row['requirement'].replace('_', ' '), '; '.join(checks), row['evidence_scope']])) + ' |')
-    lines += ['', '## Analysis coverage', '',
-              '| Engine | Metadata/source mapping entries | Executed scientific entries |', '|---|---|---|']
-    tools = {row['id']: row for row in data['tools']}
-    for row in sorted(data['backends'], key=lambda r: r['id']):
-        if _withheld_backend(manifest, row, tools):
-            continue
-        lines.append(f"| {row['id']} | {row['mapping_count'] if row['mapping_count'] is not None else 'unmeasured'} | "
-                     f"{row['execution_count'] if row['execution_count'] is not None else 'unmeasured'} |")
-    lines += ['', 'Mapping denotes catalogued metadata/source entries, not complete recasting implementations. '
-              'Execution coverage is unmeasured; no percentage is inferred from historical tool status.', '']
+            else: continue
+        if not checks:
+            checks.append('no doctor check declared')
+        title = re.sub(r'\b[A-Z]+ (?=(?:SimpleAnalysis|Combine|GitLab)\b)', '', row['title'])
+        lines.append('| ' + ' | '.join(map(_cell, [title,
+                     row['requirement'].replace('_', ' '), '; '.join(checks)])) + ' |')
+    lines.append('')
     return '\n'.join(lines)
 
 

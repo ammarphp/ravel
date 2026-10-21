@@ -1,12 +1,13 @@
 # Install RAVEL
 
-One command installs RAVEL and every tool it uses. A second command checks that everything works.
+The installer prepares the complete toolchain. The doctor reports installed components,
+configuration requirements and runtime admission. Scientific qualification belongs to each study.
 
 ## Before you start
 
 - **macOS** (Apple silicon or Intel, macOS 11 or newer): install the Xcode Command Line Tools with
   `xcode-select --install`. On Apple silicon, also install Rosetta 2 with
-  `softwareupdate --install-rosetta`; the CMS Combine and ATLAS SimpleAnalysis images need it.
+  `softwareupdate --install-rosetta`; the Combine and SimpleAnalysis images need it.
 - **Linux** (x86-64 or aarch64): `curl`, `git` 2.19 or newer and `tar`. For the container tools, rootless
   `podman`, `docker` or `apptainer`.
 - **Git on every platform**: git 2.19 or newer. The installer checks the first git on PATH.
@@ -54,7 +55,7 @@ Useful options:
 | `default` | Every released tool and its dependencies | Printed by `--dry-run` |
 | `site` | Python host, isolated hash-locked Snakemake and cluster-generic, facility checks, PDF/graph tools; pyhf statistics | Printed by `--profile site --dry-run`; caches and both site environments sit under the chosen work prefix |
 
-`site` is the only named profile. On a Linux analysis facility such as lxplus, install it in a
+`site` is the only named profile. On a Linux analysis site, install it in a
 work area with enough space:
 
 ```bash
@@ -69,10 +70,36 @@ installation. RAVEL calls separately licensed GPL programs across process and fi
 boundaries; their sources and attribution remain separate from the Apache Python package.
 
 Some tools run on Linux. On a Mac the installer uses a Podman virtual machine inside
-the prefix for the CMS Combine and SimpleAnalysis images and the MCFM amplitude program;
+the prefix for the Combine and SimpleAnalysis images and the MCFM amplitude program;
 on Linux x86_64 the MCFM program is compiled on the host.
 Facility environments run on the facility itself. Use `--prefix /path/to/volume/ravel`
 for a larger volume or `--adopt --prefix /path/to/existing/toolchain` to retain installed tools.
+
+## The governed runtime
+
+The controller (`ravel ask` and `ravel drive --request-file`) runs only RAVEL code that your user
+has read-only access to: a read-only installation or a sealed copy. A user-writable installation such as `.venv`
+is neither, so the installer ends by sealing the installed package with
+`.venv/bin/python -I -m ravel governed-runtime seal`. The seal copies the package into a read-only
+runtime in the controller home, `~/.local/state/ravel-controller/runtime/<id>/`, named by the first
+16 hex digits of the package's tree digest. It byte-compiles the copy and records its digests,
+version, source, distribution and interpreter in `SEAL.json`. It writes the launcher `bin/ravel`
+beside the copy, removes every write bit and names the runtime in `runtime/CURRENT`. When
+`.venv/bin/ravel ask` or `.venv/bin/ravel drive` finds that the current runtime holds the same bytes,
+it re-executes itself through that launcher with the same arguments. Otherwise it refuses before it
+creates a run and names the fix.
+
+After upgrading or reinstalling the package (for example with
+`python -m pip install -r requirements-full.txt`), run `.venv/bin/ravel governed-runtime seal` again.
+Sealing the same bytes again reuses their runtime. `ravel governed-runtime status` shows the current
+runtime, whether it holds the installed package and what controller admission decides; `ravel doctor`
+reports the same decision as `controller_admission`.
+
+What the seal protects against: the controller home lies outside every worker's sandbox, so worker
+writes stay outside the sealed copy, its seal record and the pointer to it. Every controller admission
+recomputes the copy's source and bytecode digests and compares them with the seal before a run starts
+or resumes. The removed write bits guard against accidental edits only: a process that runs
+unconfined as your user can restore them, and the next admission then refuses the changed copy.
 
 ## Check the installation
 
@@ -83,11 +110,14 @@ for a larger volume or `--adopt --prefix /path/to/existing/toolchain` to retain 
 The doctor checks every tool in the default toolchain (use `--profile site` on a facility or `--group madgraph` for one group)
 and prints one line per problem with the exact command that fixes it. `--json` gives a
 machine-readable report and a failed requirement exits with status 1. `--strict` is accepted for existing scripts.
+Every report also runs the controller's identity check on the code `ravel ask` would run (the
+[governed runtime](#the-governed-runtime) when it holds the installed bytes) and reports it as
+`controller_admission`: `ready`, or `not-ready` with its fix. A refusal makes the report not ready.
 
 | Status | Meaning |
 |---|---|
 | `ready` | Installed and the right version |
-| `missing` | Not installed; run the fix command |
+| `missing` | Run the fix command to install the component |
 | `version_mismatch` | Installed, but a different version from the pin |
 | `unconfigured` | Needs your configuration or credentials (for example an API key) |
 | `manual_required` | Needs something you install yourself (see below) |
@@ -111,12 +141,9 @@ Missing inputs have reason `missing_qualification_input`; mismatched versions,
 conditions or evidence bytes are refused. A `matched` result preserves this scope
 and grants neither launch nor scientific acceptance authority. Scientific qualification
 still requires executed reference comparisons and the ordinary review lifecycle.
-Groups that cannot serve a request carry a `holds` entry with the
-reason. The report also lists the refusal classes: loop decays of generated spectra, and the EasyScan cells
-that need micrOMEGAs, SUSY-HIT, FeynHiggs, HiggsBounds or MultiNest, each with what would make it possible.
 
-The doctor never changes anything, and the installer never runs Wolfram's AgentTools deploy command (it once
-rewrote an agent host's configuration). The installer records a digest of `~/.codex/config.toml` and
+Ordinary doctor checks are read-only. The installer preserves agent-host configuration and
+leaves Wolfram AgentTools deployment to the operator. The installer records a digest of `~/.codex/config.toml` and
 `~/.claude/settings.json` at the first install; the doctor warns when one changes, and
 `ravel doctor --record-host-config` accepts the new state. It reads the Wolfram version without activating it, checks
 that an API key variable is set without reading it, and does not start virtual machines.
@@ -129,7 +156,7 @@ when one of these is missing:
 - **Wolfram**: FeynRules, SARAH, FeynCalc, FeynArts and FlexibleSUSY need a licensed Wolfram
   kernel (Mathematica or the free [Wolfram Engine](https://www.wolfram.com/engine/)). Activate it
   with `wolframscript -activate`, then rerun the installer to finish the symbolic tools. The doctor
-  proves the activation and loads FeynRules, SARAH, FeynCalc and FeynArts, each in a fresh kernel. Without a
+  checks the activation and loads FeynRules, SARAH, FeynCalc and FeynArts, each in a fresh kernel. Without a
   kernel, Wolfram-backed operations are held with a message naming it, and each lists its fallback (a supplied
   model, a pregenerated spectrum or a Python evaluator).
 - **TeX** for manuscripts: install TeX Live with the full scheme (it includes REVTeX), or use an
@@ -146,7 +173,44 @@ when one of these is missing:
   that names no endpoint is refused ([the supplied contract](reference/dataset-query-quantities.md)).
 - **Model access** for research and review roles (next section).
 
-## Choose a provider and capability profile
+## Choose models and providers
+
+Run setup from an operator terminal after installing a model CLI and logging in,
+or configuring the environment variable named by an HTTP transport declaration:
+
+```bash
+source .venv/bin/activate
+ravel operator init --mode physicist-in-the-loop
+ravel setup-models
+ravel models list
+ravel models estimate --preset balanced
+```
+
+Use `ravel operator show` if an operator ledger already exists. Guided setup
+checks installed CLIs and credential presence, shows candidate models, validates
+role coverage and records preferences. It offers `premium`, `balanced` and
+`economy`; `--yes` chooses balanced defaults. `--cost-cap-usd` sets the proposed
+per-run spending ceiling. The estimate uses catalogue prices and a declared
+workload; measured usage is reported separately.
+
+Discovery and preference setup establish candidates. Probes inspect CLI versions
+and flags. Qualification exercises the governed route and records the evidence
+needed for seat selection. `ravel setup-models --verify` opts into paid
+qualification, with `--verification-cost-cap-usd` bounding that verification.
+Review the setup output and use its exact qualification command for each route
+and model. The [transport reference](reference/transports.md) records current
+executor and adoption boundaries.
+
+Models can be maintained in `.ravel/models/catalogue.json`, or a file selected by
+`RAVEL_MODEL_CATALOGUE`. Transport declarations name credential variables and
+allowed model families. See [configuration](reference/configuration.md) and the
+[provider appendix](architecture/providers.md).
+
+### Host adapter configuration
+
+The following host-adapter settings serve standalone model calls and legacy
+Graph entry points. Controller workers use governed seats and their transport
+qualification.
 
 Research and review roles call a language model. Copy the template the installer writes and name
 the environment variable that holds your key:
@@ -249,3 +313,7 @@ bash scripts/setup/install.sh --prefix /path/to/existing/build --adopt
 Existing conda environments and Git checkouts are kept instead of created. The pip and build
 steps still run, so they install missing packages into those environments and build missing tools.
 The doctor then reports any versions that differ from the pins.
+
+See the [component inventory](reference/component-inventory.md) for package and
+native declarations and the [documentation inventory](reference/documentation-inventory.md)
+for installer groups and readiness checks.

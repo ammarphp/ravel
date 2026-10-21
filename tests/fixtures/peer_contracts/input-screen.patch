@@ -1,0 +1,58 @@
+--- a/src/ravel/controller/step/graph.py
++++ b/src/ravel/controller/step/graph.py
+@@ -408,19 +408,33 @@
+-def _copy_inputs(run_dir, folder, rows):
+-    """Controller copies of the worker's inputs under ``inputs/`` of the run, pinned by digest."""
+-    pins = []
++def _copy_inputs(run_dir, folder, rows, *, role):
++    """Screen the complete batch before copying exact, digest-pinned input bytes."""
++    from ravel.workflow import review_projection
++    planned, rels = [], []
+     for index, row in enumerate(rows):
+-        if row['kind'] == 'run-input':
+-            source = run_dir / row['artifact']
+-        else:
+-            record = row['custody']
+-            source = run_dir / record['destination']
+-        raw = source.read_bytes()
++        original_rel = row['artifact'].rsplit(':', 1)[-1]
++        source_rel = row['artifact'] if row['kind'] == 'run-input' else row['custody']['destination']
++        name = Path(original_rel).name
++        target = folder / 'artifacts' / f'{index:03d}' / name
++        planned.append((row, original_rel, source_rel, target, name))
++        # Custody may rename an artifact; neither its original identity nor its
++        # source/copy destination may erase a forbidden input class.
++        rels.extend([original_rel, source_rel, target.as_posix()])
++    _, removed = review_projection.screen_inputs(run_dir, role, rels)
++    if removed:
++        raise StepHold('forbidden_input', 'the role forbids one or more input paths',
++                       evidence={'removed': removed})
++    pending = []
++    for row, original_rel, source_rel, target, name in planned:
++        raw = (run_dir / source_rel).read_bytes()
+         if hashlib.sha256(raw).hexdigest() != row['sha256']:
+             raise StepHold('input_changed', f"{row['artifact']} changed after it was verified")
+-        # The file keeps its own name (screening classes read names); its index keeps copies apart.
+-        name = Path(row['artifact'].rsplit(':', 1)[-1]).name
+-        target = folder / 'artifacts' / f'{index:03d}' / name
++        _, removed = review_projection.withheld_fields(role, original_rel, raw)
++        if removed:
++            raise StepHold('forbidden_input', 'the role forbids fields in the pinned input',
++                           evidence={'path': original_rel, 'removed': removed})
++        pending.append((target, raw, row['sha256'], name))
++    pins = []
++    for index, (target, raw, sha256, name) in enumerate(pending):
+         _write_once(run_dir / target, raw)
+-        pins.append({'pin': {'path': target.as_posix(), 'sha256': row['sha256']},
++        pins.append({'pin': {'path': target.as_posix(), 'sha256': sha256},
+                      'as': f'inputs/artifacts/{index:03d}/{name}'})
+     return pins
+@@ -602,7 +616,7 @@
+             + [{'artifact': r['artifact'], 'sha256': r['sha256'], 'kind': 'run-input'}
+                for r in (packet_info.get('inputs') or ()) if r.get('kind') == 'consult-record'])
+     pins = [{'pin': {'path': packet_info['path'], 'sha256': packet_info['file_sha256']},
+-             'as': 'inputs/' + cli_worker.CONTROLLER_PACKET}] + _copy_inputs(run_dir, folder, rows)
++             'as': 'inputs/' + cli_worker.CONTROLLER_PACKET}] + _copy_inputs(run_dir, folder, rows, role=card['id'])
+     review = None
+     if seat is not None and seat['purpose'] == 'review':
+         review = {'point_id': f"controller:{state['step']['id']}:{seat['role']}:{seat['n']}",

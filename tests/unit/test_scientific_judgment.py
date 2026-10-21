@@ -257,9 +257,14 @@ def test_all_actual_critique_content_reaches_improver(cycle,tmp_path, observed_r
     assert doc[0]['recorded_review']['findings'][0]['id']=='F1'
 
 def test_legacy_and_extended_review_events_remain_blinded(cycle,tmp_path):
-    e=review.submit_review(cycle,role='physics_critic',actor_id='critic',verdict='accept',summary='Manual synthetic review',claim_scope='reproduction')
-    assert context._review_event_identity(e) is not None
-    extended=deepcopy(e);extended['supporting_artifacts']=[];extended['sha256']=execution.digest({k:v for k,v in extended.items() if k!='sha256'})
+    from bound_review import bound_review
+    # A recorded vote is a bound role response; its journal event carries the dispatch binding.
+    e=bound_review(cycle,role='physics_critic',verdict='accept',summary='Manual synthetic review',claim_scope='reproduction')
+    assert 'independence_evidence' in e and context._review_event_identity(e) is not None
+    legacy={k:v for k,v in e.items() if k not in {'supporting_artifacts','independence_evidence','sha256'}}
+    legacy['sha256']=execution.digest(legacy)
+    assert context._review_event_identity(legacy) is not None
+    extended=deepcopy(legacy);extended['supporting_artifacts']=[];extended['sha256']=execution.digest({k:v for k,v in extended.items() if k!='sha256'})
     assert context._review_event_identity(extended) is not None
 
 def test_host_tool_refuses_reviewers_self_orchestration(cycle,tmp_path):
@@ -355,7 +360,7 @@ def test_refused_failed_role_output_preserves_all_history_members(failed_case, t
 
 
 
-def campaign_for(root, tmp_path, monkeypatch, *, calls=8):
+def campaign_for(root, tmp_path, monkeypatch, *, calls=8, goal_binding=None):
     # Ordinary immutable cycle history; only its context compiler is a pure stub.
     from ravel.workflow import research_cycle as rc
     monkeypatch.setattr(rc.scientific_context,'compile_context',lambda request,base:{'request_sha256':execution.digest(request),'steps':[]})
@@ -364,7 +369,8 @@ def campaign_for(root, tmp_path, monkeypatch, *, calls=8):
     state=rc.create(campaign,{'schema_version':1,'id':'review-budget','question':'Bound actual judgment calls','scope':'software control',
         'context_request':rc._pin(request),'premises':[],
         'budget':{'calls':calls,'output_tokens':8192,'wall_seconds':300,'native_attempts':0},
-        'max_experiments':1,'exploration_every':1,'required_experiments':[]},base_dir=tmp_path, evaluation_harness=True)
+        'max_experiments':1,'exploration_every':1,'required_experiments':[],
+        **({'goal_binding':goal_binding} if goal_binding is not None else {})},base_dir=tmp_path, evaluation_harness=True)
     state['experiments'].append({'id':'observed','rundir':str(root),'observation':{'kind':'synthetic terminal record'}})
     rc._commit(campaign,state,'fixture_observed_run')
     return campaign
@@ -475,8 +481,8 @@ def test_host_prepare_tool_binds_campaign_without_nested_dispatch(cycle,tmp_path
 
 
 
-def campaign_parent(campaign,tmp_path):
-    from ravel.workflow import task_completion as tc, route_prompt, research_cycle as rc
+def campaign_parent(tmp_path):
+    from ravel.workflow import task_completion as tc, route_prompt, research_cycle as rc, rdj_custody
     prompt='Prepare a bounded interpretation study while retaining the whole original question.'
     contract=route_prompt.route(prompt);req=tc.initial_requirements(prompt)
     req['assignments']=[{'id':'judgment-child','purpose':'Review the bounded observed study without completing the whole parent.',
@@ -484,15 +490,13 @@ def campaign_parent(campaign,tmp_path):
     contract['task_requirements']=req
     path=tmp_path/'parent'/'inputs'/'task_contract.json';path.parent.mkdir(parents=True);atomic_json(path,contract)
     binding={'contract':rc._pin(path),'assignment_id':'judgment-child'}
+    rdj_custody.record_input_snapshot(path.parent.parent,'run_init')
     tc.binding_projection(binding,base_dir=tmp_path)  # actual ordinary contract validation, no parent acceptance
-    _,state=rc._load(campaign);state['contract']['goal_binding']=binding
-    state['parent_task']=tc.binding_projection(binding,base_dir=tmp_path)
-    rc._commit(campaign,state,'fixture_parent_assignment')
     return binding
 
 
 def test_campaign_role_prepared_graph_inherits_real_parent_assignment(cycle,tmp_path,monkeypatch, observed_role_boundary):
-    campaign=campaign_for(cycle,tmp_path,monkeypatch);goal=campaign_parent(campaign,tmp_path)
+    goal=campaign_parent(tmp_path);campaign=campaign_for(cycle,tmp_path,monkeypatch,goal_binding=goal)
     binding=prepare(cycle,tmp_path/'role','critic',campaign=campaign,experiment='observed')
     spec,_=graph._load(Path(binding['graph_root']))
     assert spec['goal_binding']==goal
@@ -504,7 +508,7 @@ def test_campaign_role_prepared_graph_inherits_real_parent_assignment(cycle,tmp_
 def test_failed_diagnostic_prepared_graph_inherits_parent_without_mutating_failure(failed_case,tmp_path,monkeypatch):
     from ravel.workflow import failed_stage_review as failed
     root,record,request=failed_case
-    campaign=campaign_for(root,tmp_path,monkeypatch);goal=campaign_parent(campaign,tmp_path)
+    goal=campaign_parent(tmp_path);campaign=campaign_for(root,tmp_path,monkeypatch,goal_binding=goal)
     intake=j._new(tmp_path/'intake.json',failed.intake(request,base_dir=root))
     before={str(p.relative_to(root)):execution.file_hash(p) if p.is_file() else None for p in root.rglob('*')}
     binding=j.prepare_failed_role(root,intake,tmp_path/'role',role='critic',model='control',reasoning_effort='high',
@@ -517,7 +521,7 @@ def test_failed_diagnostic_prepared_graph_inherits_parent_without_mutating_failu
 
 def test_parent_contract_drift_refused_before_any_campaign_model_call(cycle,tmp_path,monkeypatch):
     from ravel.workflow import research_cycle as rc
-    campaign=campaign_for(cycle,tmp_path,monkeypatch);goal=campaign_parent(campaign,tmp_path)
+    goal=campaign_parent(tmp_path);campaign=campaign_for(cycle,tmp_path,monkeypatch,goal_binding=goal)
     binding=prepare(cycle,tmp_path/'role','critic',campaign=campaign,experiment='observed')
     path=Path(goal['contract']['path']);path.write_text(path.read_text()+' ')
     with pytest.raises(ValueError):j.execute_role(binding,FakeHost())
@@ -568,17 +572,25 @@ def test_partial_failed_feedback_campaign_arguments_refuse_before_intake(tmp_pat
 
 @pytest.fixture
 def observed_role_boundary(monkeypatch):
-    """Explicit unit stand-in for authenticated transport, not a control-mode vote.
+    """The inert transport reports a fresh observed request without tools, as an HTTP adapter records it.
 
-    Tests requesting this fixture cover downstream journal/schema semantics.
-    The unmodified FakeHost path is covered by the control-refusal tests.
+    Unchanged, the loopback inert transport is a control transport and its votes are refused.
+    Tests requesting this fixture cover downstream journal/schema semantics through the ordinary
+    evidence path: the graph accounts the inert response, its runner records the dispatch and the
+    default resolver reads that record. Nonvoting context and evidence requests keep the control
+    report. The unmodified FakeHost path is covered by the control-refusal tests.
     """
-    original = graph.role_receipt
-    def observed(*args, **kwargs):
-        result = original(*args, **kwargs)
-        if (result['execution_observation'] != 'control_only' or
-                result['public_value']['kind'] in {'scientific_context_request', 'scientific_evidence_request'}):
-            return result
-        return {**result, 'execution_observation': 'remote_transport_observed',
-                'attestation': 'transport_attested'}
-    monkeypatch.setattr(graph, 'role_receipt', observed)
+    original = graph.Control.call
+    def call(self, label, kind, request, function, output_tokens=0, downstream=None):
+        def observed():
+            result = function()
+            transport = result.get('transport') if type(result) is dict else None
+            value = result.get('value') if type(result) is dict else None
+            if (kind != 'model' or type(transport) is not dict
+                    or transport.get('execution_mode') != 'responses_http_loopback_control'
+                    or type(value) is dict and value.get('kind') in {'scientific_context_request', 'scientific_evidence_request'}):
+                return result
+            return {**result, 'transport': {**transport, 'execution_mode': 'responses_http'},
+                    'isolation': {**result.get('isolation', {}), 'model_tools_supplied': False}}
+        return original(self, label, kind, request, observed, output_tokens=output_tokens, downstream=downstream)
+    monkeypatch.setattr(graph.Control, 'call', call)

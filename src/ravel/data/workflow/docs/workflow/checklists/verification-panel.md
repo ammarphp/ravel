@@ -43,7 +43,7 @@ Typed plans resolve their machine checks through `ravel.validation.claim_checks.
 reading=reading, artifacts=artifacts)`. The packaged `src/ravel/data/claim_checks.json` registry
 resolves every operation signature; signature conformance rejects an unresolved check or route.
 Checks follow inherited lineage, delivered artifact kinds, effects and comparison targets.
-Changing a display label cannot discharge these obligations.
+Changing a display label must not discharge these obligations.
 
 For delivery, call `ravel.validation.claim_checks.evaluate(plan, reading=reading,
 artifacts=artifacts, root=rundir)` and retain every returned row, including failures. `artifacts`
@@ -97,7 +97,7 @@ Then, by hand:
 - [ ] **Verification ladder present + consistent** — `VERIFICATION-LADDER.md` exists
       (`docs/workflow/checklists/verification-ladder.md`), every rung has exactly one status, every RESULT.md
       gap labeled CONFIRMED actually has its bracket in the table, and `not-checked` rungs
-      reappear in the RESULT.md limitations. Missing ladder ⇒ FAIL (the run is unattributed).
+      reappear in the RESULT.md qualifications. Missing ladder ⇒ FAIL (the run is unattributed).
 - [ ] **Every number traces.** Each number in the final check-in and `RESULT.md` (limits µ₉₅ obs/exp,
       yields, σ, k-factors, A×ε, coverage counts, masses, lumi) is found in — or derived with the
       derivation shown from — `scan.json` / `result.json` / `sensitivity.json` / `figures.json`.
@@ -155,3 +155,29 @@ substitutes: verify each, then go beyond them.
 Findings format (append to the check-in): `[tier/severity] claim attacked — evidence (artifact:field) —
 disposition`. A silent fix — changing the deliverable without the finding appearing in the check-in —
 violates this checklist by itself.
+
+Report the architecture receipt and its plain-language notices before the numerical summary. `ravel result-pack` defaults to diagnostic delivery. `--delivery-label governed` requires current supervisor custody and a matching approval-bound launch for every numerical source and figure; `--delivery-label accepted` additionally requires credited required roles and current review of those exact artifacts. `python -m ravel.validation.verify_pack` recomputes these decisions. Mechanical verification does not establish scientific acceptance. A saved receipt or successful number is not authority. Diagnostic artifacts stay diagnostic. Missing role coverage prints INDEPENDENT REVIEW INCOMPLETE; missing launch coverage prints NOT GOVERNED.
+
+### Non-compliance integration controls
+
+Run the complete non-compliance suite and mutation campaign against the same source snapshot.
+Check the production case-binding builder with `scripts/maintenance/build_case_bindings.py --check`.
+Every registered real guard variant needs a passing unmodified control and an oracle failure
+when disabled; an unrelated exception or an missing input is not detection. Retain actual
+outcome counts and distinguish declared cases, component-entry probes and missing runtime joins.
+
+Direct ledger probes must invoke the installed controller composition initializer before
+using composed gate providers. Mode fixtures must retain current plan approval, mapped
+deliverables, prerequisite stage custody and completed predecessors. An atomic training
+operation remains refused; a valid staged operation provides its runtime positive control.
+
+A route-guard fragment can record an already installed guard reversibly: record the current
+source digest, reconstruct the preimage by removing only that guard, and verify the guardless
+bypass, refusal cases and retained-pin positive control. Never install a duplicate guard.
+Installed projection controls validate current source pins and every installed route and tier;
+obsolete missing-projection negatives must be retired explicitly. Candidate input bindings
+and policy-only scan tests do not establish execution recording or runtime scan review.
+
+The mutation runner verifies all named unmodified controls before testing any disabled variant.
+An early detection must not hide a later failing control. Harness-order regressions are separate
+support checks and do not increase the number of mechanisms proven.

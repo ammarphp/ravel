@@ -1,0 +1,59 @@
+--- a/src/ravel/controller/routes/ml/__init__.py
++++ b/src/ravel/controller/routes/ml/__init__.py
+@@ -9,10 +9,55 @@
+ """
+ from __future__ import annotations
+ 
+-from .modes import GOVERNED, INFERENCE, MANUSCRIPT, TRAINING, admit, governed
++from . import modes as _modes
++from .modes import GOVERNED, INFERENCE, MANUSCRIPT, TRAINING, governed
+ from .training import PREREQUISITE_HOLD, STAGED_INTERFACE, prerequisites
+ 
+ ROUTE_IDS = ("ml.inference", "ml.training")
+ 
+ __all__ = ["GOVERNED", "INFERENCE", "MANUSCRIPT", "PREREQUISITE_HOLD", "ROUTE_IDS", "STAGED_INTERFACE", "TRAINING",
+            "admit", "governed", "prerequisites"]
++
++
++def admit(step, context=None, **kwargs):
++    """Graph adapter entry; retain the modes.admit keyword interface for direct callers.
++
++    Context is controller-owned. Authority always resolves the full supplied scope:
++    current(store, kind, pins) verifies a retained record and never creates one.
++    """
++    if context is None:
++        return _modes.admit(step, **kwargs)
++    if governed(step) is None:
++        return []
++    if type(context) is not dict or kwargs:
++        return [_modes._error('mode_context_invalid', step)]
++    plan = context.get('plan')
++    if type(plan) is not dict or type(plan.get('sha256')) is not str or not plan['sha256']:
++        return [_modes._error('mode_plan_digest_missing', step)]
++    scope = {}
++    for name in ('pins', 'scope_pins'):
++        supplied = context.get(name, {})
++        if type(supplied) is not dict:
++            return [_modes._error('mode_authority_unavailable', step, detail=name + ' must be an object')]
++        if any(key in scope and scope[key] != value for key, value in supplied.items()):
++            return [_modes._error('mode_authority_unavailable', step, detail='conflicting scope pins')]
++        scope.update(supplied)
++    resolver = context.get('authority')
++    if resolver is not None and not callable(resolver):
++        return [_modes._error('mode_authority_unavailable', step, detail='authority must be callable')]
++    if resolver is None:
++        store = context.get('store')
++        if store is None:
++            return [_modes._error('mode_authority_unavailable', step, detail='controller store absent')]
++        try:
++            from ... import authority as authority_service
++        except ImportError as exc:
++            return [_modes._error('mode_authority_unavailable', step, detail=str(exc)[:300])]
++        resolver = lambda kind, pins: authority_service.current(store, kind, pins)
++
++    def scoped_authority(kind, pins):
++        if any(key in scope and scope[key] != value for key, value in pins.items()):
++            raise ValueError('mode authority conflicts with context scope pins')
++        return resolver(kind, {**scope, **pins})
++
++    return _modes.admit(step, plan=plan, authority=scoped_authority)

@@ -37,8 +37,12 @@ class LoopState(nodes.BaseState, total=False):
 
 class RavelLoop:
     def __init__(self, scope_root, *, model, broker, budgets, final_schema, tools, instance,
-                 parent_path=None, version=1, tool_actions=None):
+                 parent_path=None, version=1, tool_actions=None, instruction_owner=None):
         self.scope_root = Path(scope_root).absolute()
+        # The run that owns this scope for the instruction-document check (``project_instructions.for_path``'s
+        # ``named``). A sandboxed worker names its own workspace: the adapter that launched it checked the
+        # run's pin before the start, and directories above the workspace are not visible inside the sandbox.
+        self.instruction_owner = None if instruction_owner is None else Path(instruction_owner).absolute()
         self.model, self.broker = model, broker
         self.budgets, self.final_schema = deepcopy(budgets), deepcopy(final_schema)
         self.instance, self.parent_path, self.version = deepcopy(instance), parent_path, version
@@ -77,11 +81,14 @@ class RavelLoop:
 
     @property
     def identity(self):
-        return {'model': self.model.identity, 'budgets': self.budgets, 'final_schema': self.final_schema,
-                'implementation_sha256': file_hash(__file__),
-                'tools': self.tools, 'tool_actions': self.tool_actions, 'instance': self.instance,
-                'broker': {'node_id': self.broker.node_id, 'attempt': self.broker.attempt,
-                    'allowed_actions': sorted(self.broker.allowed_actions)}}
+        value = {'model': self.model.identity, 'budgets': self.budgets, 'final_schema': self.final_schema,
+                 'implementation_sha256': file_hash(__file__),
+                 'tools': self.tools, 'tool_actions': self.tool_actions, 'instance': self.instance,
+                 'broker': {'node_id': self.broker.node_id, 'attempt': self.broker.attempt,
+                     'allowed_actions': sorted(self.broker.allowed_actions)}}
+        if self.instruction_owner is not None:
+            value['instruction_owner'] = str(self.instruction_owner)
+        return value
 
     def _current(self):
         self.model.current()
@@ -97,7 +104,7 @@ class RavelLoop:
         """
         from ravel.workflow import project_instructions
         try:
-            pinned = project_instructions.for_path(self.scope_root)
+            pinned = project_instructions.for_path(self.scope_root, self.instruction_owner)
         except project_instructions.ProjectInstructionsError as exc:
             if not project_instructions.unsettled(exc):
                 raise GuardError(str(exc)) from None
@@ -179,7 +186,8 @@ class RavelLoop:
         from ravel.workflow.provider_tools import render
         wire_body = render(self.model.adapter, envelope, model=self.model.model,
             max_output_tokens=self.model.max_output_tokens, text_protocol=self.model.text_protocol,
-            token_limit_field=self.model.token_limit_field)
+            token_limit_field=self.model.token_limit_field,
+            reasoning_effort=getattr(self.model, 'reasoning_effort', None))
         remaining = self.budgets['max_wall_seconds'] - (time.time() - state['started_epoch'])
         # Deadline is provisioning: checkpoint replay must not change turn equality.
         cap = self.budgets['max_cost_usd']
@@ -282,9 +290,15 @@ class RavelLoop:
             self._current()
             self._revalidate_state(state)
             status = state.get('loop_status', 'running')
+            failure = None
             if state.get('failures'):
-                latest = next(reversed(state['failures'].values()))
-                status = 'ambiguous' if latest['failure_kind'] == 'ambiguous_effect' else 'refused'
+                key, latest = next(reversed(state['failures'].items()))
+                status = _failure_status(latest)
+                if status == 'failed':
+                    # A crash is a typed failure with its class and the failure record's reference, never a refusal.
+                    failure = {'class': latest.get('error_type'), 'node': latest.get('node'),
+                               'message': latest.get('message'), 'failure_record': key,
+                               'traceback_ref': f'failures/{key}'}
                 # The terminal error channel never grants a new turn or replay.
                 if any(r['status'] in ledger.OPEN for r in ledger.receipts(self.scope_root)): status = 'ambiguous'
             turns = deepcopy(state.get('turn_receipts', []))
@@ -297,7 +311,25 @@ class RavelLoop:
             return {'final': deepcopy(state.get('final')), 'status': status, 'steps': state.get('steps', 0),
                     'action_receipts': deepcopy(state.get('action_receipts', [])),
                     'turn_receipts': turns,
-                    'stop_receipt': deepcopy(state.get('stop_receipt')), 'framework_values_are_scientific_authority': False}
+                    'stop_receipt': deepcopy(state.get('stop_receipt')), 'failure': failure,
+                    'framework_values_are_scientific_authority': False}
+
+
+# Failure kinds the substrate records for a check that declined to act: each is a refusal. An ``exception`` of
+# any other class is a crash (``failed``); a guard's own error class is a refusal whatever its kind.
+REFUSAL_KINDS = ('gate_refused', 'control_flow_refused', 'transport_refusal', 'ceiling_exceeded', 'stop_requested',
+                 'recovery_hold', 'response_invalid', 'nondeterministic_request')
+REFUSAL_CLASSES = ('GuardError', 'PolicyRefused', 'LaunchRefused', 'AuthorityRefused', 'TransportRefusal')
+
+
+def _failure_status(record):
+    """``ambiguous``, ``refused`` or ``failed`` for the loop's latest graph-failure record."""
+    kind = record.get('failure_kind')
+    if kind in ('ambiguous', 'ambiguous_effect'):
+        return 'ambiguous'
+    if kind in REFUSAL_KINDS or record.get('error_type') in REFUSAL_CLASSES:
+        return 'refused'
+    return 'failed'
 
 
 def build(ctx):

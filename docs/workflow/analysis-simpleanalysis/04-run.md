@@ -4,7 +4,7 @@ Run the six stages in order: `madgraph → delphes → analysis → simpleanalys
 (`mapyde run all` omits simpleanalysis/sa2json, so run stage-by-stage.) Use the provided driver,
 which auto-cleans stale containers and logs each stage.
 
-**Do (one command; wrap in `caffeinate` so the VM can't idle-sleep):**
+**Do (one command; wrap in `caffeinate` to keep the VM awake):**
 ```bash
 RUN="$PWD/trial-runs/<your-run-folder>"
 caffeinate -i -s bash native/scripts/run-pipeline.sh "$RUN" "config/run.toml" &

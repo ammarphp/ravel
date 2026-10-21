@@ -5,14 +5,14 @@ one byte at a time, while Python Unicode case conversion can change both charact
 and length. Any non-ASCII original name therefore refuses this new naming protocol
 without rewriting its bytes; the legacy route without explicit selection is unchanged.
 
-An ordinary version2 `analyze` task with backend `rivet` or `rivet-built` may add
+An ordinary version2 `analyze` task with backend `rivet` or `rivet-built` can add
 `"nominal_weight": "Weight"`. The name must match one original serialized weight
 name exactly, including case. Metadata keeps its complete original `weight_names`
 list and the HepMC file stays byte-identical. Do not put `Weight` first in metadata
 unless that is the actual input order.
 
 Omitting the field preserves the previous first-name default and result schema.
-The explicit option currently binds the examined Rivet4.1.4 naming protocol; other
+The explicit option binds the examined Rivet4.1.4 naming protocol; other
 versions retain the legacy route until their naming behavior is source-qualified.
 Empty/unknown names, ambiguous bracket/control suffixes and original streams that
 native default `IRREG` filtering would drop are refused before execution.
@@ -48,7 +48,7 @@ in the order `MEWeight,NTrials,Weight,WeightNormalisation`. It is a source examp
 not an eligible complete event cohort or generator validation. See the official
 [Sherpa event-output documentation](https://sherpa.hepforge.org/doc/SHERPA-MC-2.2.8.html#Event-output).
 
-A source-qualified native-group acquisition contract may carry the exact census
+A source-qualified native-group acquisition contract can carry the exact census
 `nominal_weight_selection` object. Its `weight_mapping` must keep every original
 stream in order and agree with all projected native names and RAW suffixes. The
 unchanged acquired schema2 vectors, basis and moments keep the original logical
@@ -57,7 +57,7 @@ record. This does not authenticate native execution, relabel auxiliary weights a
 physical variations, or change downstream logical-nominal-first normalization
 schemas. Those operations need their own explicitly source-bound transformation.
 
-Required future qualification remains a complete input cohort, actual bound
+Required subsequent qualification remains a complete input cohort, actual bound
 Rivet/plugin execution, native labels/weights/YODA observations, current custody,
 and own-role scientific review. The pure controls here provide implementation
 evidence only.

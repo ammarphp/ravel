@@ -26,7 +26,7 @@ from test_research_default_protocol import STAGES, governed_cycle, register, syn
 
 EXTERNAL = {'model': 'host-agent', 'reasoning_effort': 'high', 'adapter': 'external'}
 STAGE_SETTINGS = {**EXTERNAL, 'max_output_tokens': 1024, 'max_wall_seconds': 900}
-SCREEN = STAGES.index('screen')  # the first R2 stage; R2+ stages wait for per-role models
+SCREEN = STAGES.index('screen')  # first R2 stage; distinct sessions remain mandatory
 STAGE_ROLES = sorted({r for row in protocol.default_protocol()['stages'] for r in row['roles']})
 
 
@@ -49,7 +49,8 @@ def deliver(graph_root):
         public = {k: fields[k]['const'] for k in ('stage', 'role_id', 'subject_sha256')}
         public.update(verdict='accept', findings=['Synthetic transport control only.'], attributed_claim_ids=[])
         response = external_response(pending, Path(graph_root).parent / (role + '-response.json'), value=public,
-                                     actor_id='synthetic-' + role, observed_model='host-agent')
+                                     actor_id='synthetic-' + role, invocation_id='synthetic-' + pending['request_id'],
+                                     observed_model='host-agent')
         agent_graph.deliver_external(graph_root, role, response)
 
 
@@ -103,14 +104,15 @@ def goal_bound_stage_specs():
 
 # ---- the synthetic open question -----------------------------------------------------------------
 
-def open_question(base, *, stages=4, failing_turn=None, roles=None, gate=None):
+def open_question(base, *, stages=4, failing_turn=None, roles=None, gate=None, judges=None):
     """A synthetic open question: declare, assess, two idea streams, then the decider runs the next
-    ``stages`` protocol stages (a failing action at ``failing_turn``) and reports progress."""
+    ``stages`` protocol stages (a failing action at ``failing_turn``) and reports progress. The judgment
+    tier lists every role model unless ``judges`` names the rows it lists."""
     contract, cp = parent(base)
     source, declared = context(base)
     roles = roles or {r: dict(EXTERNAL) for r in STAGE_ROLES}
     judges = list({row['model']: {k: row[k] for k in ('model', 'reasoning_effort')} for row in
-                   [EXTERNAL, *roles.values()]}.values())
+                   (judges or [EXTERNAL, *roles.values()])}.values())
     campaign = {'id': 'synthetic-open-question', 'budget': {'calls': 48, 'output_tokens': 400000,
                 'wall_seconds': 86400, 'native_attempts': 2}, 'max_experiments': 4, 'exploration_every': 2,
                 'required_experiments': [], 'premises': []}
@@ -172,6 +174,9 @@ def open_question(base, *, stages=4, failing_turn=None, roles=None, gate=None):
     orch.run_protocol_stage(root, artifacts['limitation_census'], census, host=host, settings=settings)
     deliver(census / 'graph')
     assert orch.run_protocol_stage(root, artifacts['limitation_census'], census, host=host, settings=settings)['complete']
+    from test_research_full_cycle_ideas import actual_ideas
+    synthetic['ideas'] = actual_ideas(root, synthetic['ideas'], root/'idea-dispatches')
+    artifacts['ideas'] = write(root, 'artifacts/ideas.json', synthetic['ideas'])
     register(root)
     return rp, host, root, out
 
@@ -202,14 +207,18 @@ def run_graph(root, rp, out, host):
 
 def dual(tmp_path, build, legacy, graph):
     """Run one fixture on each engine at the same paths, one after the other; return both snapshots."""
+    from unittest.mock import patch
+    from ravel.workflow import rdj_custody
     base = (tmp_path / 'run').resolve()
     base.mkdir()
-    old_outcome = legacy(*build(base))
-    old = orch.parity_snapshot(base / 'campaign' if (base / 'campaign').exists() else base / 'cycle')
+    with patch.object(rdj_custody, '_state', lambda: tmp_path/'legacy-custody'):
+        old_outcome = legacy(*build(base))
+        old = orch.parity_snapshot(base / 'campaign' if (base / 'campaign').exists() else base / 'cycle')
     base.rename(tmp_path / 'legacy')
     base.mkdir()
-    new_outcome = graph(*build(base))
-    new = orch.parity_snapshot(base / 'campaign' if (base / 'campaign').exists() else base / 'cycle')
+    with patch.object(rdj_custody, '_state', lambda: tmp_path/'graph-custody'):
+        new_outcome = graph(*build(base))
+        new = orch.parity_snapshot(base / 'campaign' if (base / 'campaign').exists() else base / 'cycle')
     return old, new, old_outcome, new_outcome
 
 
@@ -240,7 +249,18 @@ def test_open_question_runs_equal_on_both_engines(tmp_path):
     assert keep_parity_result('synthetic-open-question', 'test_open_question_runs_equal_on_both_engines',
                               old, new, tmp_path)['equal']
     assert old == new and old['sha256'] == new['sha256']
-    assert old_outcome['kind'] == new_outcome['kind'] == 'research_progress_synthesis'
+    assert old_outcome['kind'] == new_outcome['kind']
+    if new_outcome['kind'] == 'research_bounded_synthesis':
+        for outcome in (old_outcome, new_outcome):
+            assert outcome['phase'] == 'budget_exhausted'
+            assert outcome['reason'] == 'Original declared decision population exhausted.'
+            assert outcome['parent_task_accepted'] is False
+            assert outcome['scientific_acceptance'] is False
+            assert outcome['delivery_receipt'] is None
+        original = json.loads((tmp_path / 'run/request/request.json').read_text())
+        assert original['max_decisions'] == 3  # Original two stages plus final decision; no increase.
+    else:
+        assert new_outcome['kind'] == 'research_progress_synthesis'
     assert [s['status'] for s in new['stages']][:3] == ['done'] * 3
     assert [e['action'] for e in new['coordinator_effects']] == ['protocol-stage'] * 2
     # The graph engine took every role through the substrate's ledger: no open effect remains.
@@ -251,37 +271,38 @@ def test_open_question_runs_equal_on_both_engines(tmp_path):
 
 
 def test_stage_graph_matches_the_legacy_stage_runner_through_the_first_r2_stage(tmp_path):
-    """Every R0 stage completes, and the first R2 stage is refused at dispatch, identically on both engines."""
+    """Every stage through the first R2 stage completes on one host model, identically on both engines:
+    one model family serves the proposer and its critic in separate observed sessions."""
     def build(base):
-        root = governed_cycle(base)
+        root = governed_cycle(base, extra_wall_seconds=60)  # the two 30 s idea streams beside four 900 s stages
         register(root)
         return root, synthetic_artifacts(root)
 
     def legacy(root, artifacts):
         host = __import__('ravel.workflow.agent_host', fromlist=['AgentHost']).AgentHost()
-        for name in STAGES[:SCREEN]:
+        for name in STAGES[:SCREEN + 1]:
+            if name == 'ideas':
+                from test_research_full_cycle_ideas import actual_ideas
+                artifacts[name] = actual_ideas(root, artifacts[name], root/'idea-dispatches')
             artifact, out = write(root, name + '.json', artifacts[name]), root / 'coordinator/stages' / name
             if not orch.run_protocol_stage(root, artifact, out, host=host, settings=STAGE_SETTINGS)['complete']:
                 deliver(out / 'graph')
                 assert orch.run_protocol_stage(root, artifact, out, host=host, settings=STAGE_SETTINGS)['complete']
-        artifact, out = write(root, 'screen.json', artifacts['screen']), root / 'coordinator/stages/screen'
-        with pytest.raises(transport_registry.TransportRefusal, match='unknown-family'):
-            orch.run_protocol_stage(root, artifact, out, host=host, settings=STAGE_SETTINGS)
 
     def graph(root, artifacts):
         host = __import__('ravel.workflow.agent_host', fromlist=['AgentHost']).AgentHost()
         gates = lambda scope, gate, action: protocol.gate_errors(root, gate, action)
         with hosts(host) as key:
             for name in STAGES[:SCREEN + 1]:
+                if name == 'ideas':
+                    from test_research_full_cycle_ideas import actual_ideas
+                    artifacts[name] = actual_ideas(root, artifacts[name], root/'idea-dispatches')
                 artifact, out = write(root, name + '.json', artifacts[name]), root / 'coordinator/stages' / name
                 instance = {'campaign': 'parity', 'request': hashlib.sha256(name.encode()).hexdigest()}
                 request = stage_graph.request(artifact=artifact, out=out, settings=STAGE_SETTINGS, host_key=key,
                                               operation_sha256='0' * 64)
                 seen = graph_substrate.run(root, stage_graph.GRAPH_ID, instance, input={'stage_request': request},
                                            gate_check=gates)
-                if name == 'screen':
-                    assert seen['terminal']['status'] == 'decision_required' and not seen['interrupts']
-                    continue
                 assert [i['kind'] for i in seen['interrupts']] == ['external_delivery']
                 deliver(out / 'graph')
                 seen = graph_substrate.respond(root, stage_graph.GRAPH_ID, instance,
@@ -291,9 +312,10 @@ def test_stage_graph_matches_the_legacy_stage_runner_through_the_first_r2_stage(
     assert keep_parity_result('synthetic-protocol-stages',
                               'test_stage_graph_matches_the_legacy_stage_runner_through_the_first_r2_stage', old, new, tmp_path)['equal']
     assert old == new and new['methodology_complete'] is False
-    assert [s['status'] for s in new['stages']][:SCREEN + 1] == ['done'] * SCREEN + ['pending']
-    # An R2 stage on one host model whose family RAVEL cannot read is refused before any review is prepared.
-    assert not (tmp_path / 'run/cycle/coordinator/stages/screen/review').exists()
+    assert [s['status'] for s in new['stages']][:SCREEN + 2] == ['done'] * (SCREEN + 1) + ['pending']
+    # The R2 stage was prepared, delivered and completed: its critic's receipt is kept with the stage.
+    for engine in ('legacy', 'run'):  # dual() keeps the legacy run under legacy/ and the graph run under run/
+        assert list((tmp_path / engine / 'cycle/coordinator/stages/screen/review').glob('**/plan-critic-receipt.json'))
 
 
 def test_open_question_engines_agree_where_both_stop_on_the_baseline_failure(tmp_path):
@@ -409,10 +431,12 @@ def test_kept_parity_record_is_current_for_the_registered_loop_and_these_fixture
     assert status['passed'], status['reason']
     record = status['record']
     assert {f['id'] for f in record['fixtures']} == set(orch.PARITY_FIXTURES)
-    source = Path(__file__).read_text()
-    assert all(('def ' + f['test'].split('::')[-1] + '(') in source for f in record['fixtures'])
-    assert record['fixture_sources'] == {'tests/unit/test_research_loop_graph.py':
-                                         hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+    repository = Path(orch.__file__).resolve().parents[3]
+    for fixture in record['fixtures']:
+        source_file, test_name = fixture['test'].split('::')
+        assert ('def ' + test_name + '(') in (repository/source_file).read_text()
+    assert record['fixture_sources'] == {rel: hashlib.sha256((repository/rel).read_bytes()).hexdigest()
+                                         for rel in orch.PARITY_FIXTURE_SOURCES}
 
 
 # ---- 2. failures become decision turns --------------------------------------------------------------
@@ -428,7 +452,9 @@ def test_failed_action_is_an_observation_for_the_next_decision_turn(tmp_path):
         base.mkdir()
         rp, host, root, out = open_question(base, stages=1, failing_turn=1)
         result = run_graph(root, rp, out, host)
-    assert result['kind'] == 'research_progress_synthesis'
+    # The final turn used the original declared decision population: a qualified ending.
+    assert result['kind'] == 'research_bounded_synthesis' and result['phase'] == 'budget_exhausted'
+    assert result['reason'] == 'Original declared decision population exhausted.'
     effects = orch.parity_snapshot(root)['coordinator_effects']
     assert [e['action'] for e in effects] == ['protocol-stage', 'synthesize']
     failed = effects[1]['actual_effect']
@@ -436,10 +462,34 @@ def test_failed_action_is_an_observation_for_the_next_decision_turn(tmp_path):
     assert failed['scientific_acceptance'] is False and failed['observation_not_falsification'] is True
     # The next decision turn was presented the failure, then reported progress.
     last = json.loads((out / 'turns/2/context/scientific-core.json').read_text())
-    assert last['prior_operation_effects'][1]['actual_effect']['status'] == 'action_failed'
+    from test_langgraph_research_orchestration import presented_effects
+    assert presented_effects(last, host.actual_contexts[-1])[1]['actual_effect']['status'] == 'action_failed'
 
 
 def test_refused_stage_dispatch_is_observed_by_the_next_decision_turn(tmp_path):
+    # The screen critic's model serves no judgment tier: its judgment card refuses it before dispatch.
+    roles = {r: dict(EXTERNAL) for r in STAGE_ROLES}
+    roles['plan-critic'] = {**EXTERNAL, 'model': 'unlisted-model'}
+    base = tmp_path.resolve()
+    with goal_bound_stage_specs():
+        rp, host, root, out = open_question(base, stages=3, roles=roles, judges=[EXTERNAL])
+        result = run_graph(root, rp, out, host)
+    # The final turn used the original declared decision population: a qualified ending.
+    assert result['kind'] == 'research_bounded_synthesis' and result['phase'] == 'budget_exhausted'
+    assert result['reason'] == 'Original declared decision population exhausted.'
+    assert result['parent_task_accepted'] is False and result['scientific_acceptance'] is False
+    effects = orch.parity_snapshot(root)['coordinator_effects']
+    refused = effects[2]['actual_effect']
+    assert refused['status'] == 'action_failed' and refused['failure']['node'] == 'stage'
+    assert 'tier:plan-critic:judgment' in refused['failure']['message']
+    # Refused at dispatch: no screen review was prepared and no screen role was asked.
+    assert not (out / 'turns/2/effect/protocol/review').exists()
+    assert protocol.methodology_status(root)['next_stage'] == 'screen'
+
+
+
+def test_same_family_stage_completion_retains_the_original_decision_bound(tmp_path):
+    """A proposer and critic of one model family complete the R2 stage in separate observed sessions."""
     same = {'model': 'gpt-5', 'reasoning_effort': 'high', 'adapter': 'external'}
     roles = {r: dict(EXTERNAL) for r in STAGE_ROLES}
     roles.update({'screen-producer': dict(same), 'plan-critic': dict(same)})
@@ -447,14 +497,17 @@ def test_refused_stage_dispatch_is_observed_by_the_next_decision_turn(tmp_path):
     with goal_bound_stage_specs():
         rp, host, root, out = open_question(base, stages=3, roles=roles)
         result = run_graph(root, rp, out, host)
-    assert result['kind'] == 'research_progress_synthesis'
+    assert result['kind'] == 'research_bounded_synthesis'
+    assert result['phase'] == 'budget_exhausted'
+    assert result['reason'] == 'Original declared decision population exhausted.'
+    assert result['parent_task_accepted'] is False and result['scientific_acceptance'] is False
+    assert result['delivery_receipt'] is None
     effects = orch.parity_snapshot(root)['coordinator_effects']
-    refused = effects[2]['actual_effect']
-    assert refused['status'] == 'action_failed' and refused['failure']['node'] == 'stage'
-    assert 'distinct_family_from:plan-critic:screen-producer' in refused['failure']['message']
-    # Refused at dispatch: no screen review was prepared and no screen role was asked.
-    assert not (out / 'turns/2/effect/protocol/review').exists()
-    assert protocol.methodology_status(root)['next_stage'] == 'screen'
+    completed = effects[2]['actual_effect']
+    assert completed['complete'] is True and completed['scientific_acceptance'] is False
+    assert (out / 'turns/2/effect/protocol/review').exists()
+    assert next(row for row in protocol.methodology_status(root)['record']['stages']
+                if row['id'] == 'screen')['status'] == 'done'
 
 
 # ---- 3. drain through ravel graph stop -------------------------------------------------------------
@@ -488,7 +541,9 @@ def test_drain_through_graph_stop_then_continue_without_repeating_an_effect(tmp_
             deliver_all(out)
             resumed = orch.respond_graph(root, rp, out, {
                 i['id']: answer(root) for i in resumed['checkpoint']['interrupts']}, host=host, experimental=True)
-    assert resumed['kind'] == 'research_progress_synthesis'
+    # The resumed loop used the original declared decision population: a qualified ending.
+    assert resumed['kind'] == 'research_bounded_synthesis' and resumed['phase'] == 'budget_exhausted'
+    assert resumed['reason'] == 'Original declared decision population exhausted.'
     calls = [c for c in host.actual_contexts]
     assert len(calls) > drained
     # The call that was running when the stop arrived finished once and was never repeated.
@@ -593,85 +648,77 @@ def test_a_research_run_records_judgment_models_for_every_stage_role(tmp_path):
 
 
 @pytest.mark.parametrize('stage,level', [('screen', 'R2'), ('validate', 'R2'), ('acceptance', 'R3')])
-def test_same_family_critic_is_refused_at_r2_and_above(stage, level):
+def test_a_same_family_critic_is_admitted_at_r2_and_above_with_its_label(stage, level):
     roles = next(r for r in protocol.default_protocol()['stages'] if r['id'] == stage)['roles']
     proposers = decisions.stage_proposers(stage)
     assert decisions.stage_level(stage) == level and proposers
     same = {'model': 'gpt-5', 'reasoning_effort': 'high', 'adapter': 'responses'}
     settings = {**BASE, 'tiers': JUDGES, 'roles': {r: dict(same) for r in set(roles) | set(proposers)}}
-    with pytest.raises(transport_registry.TransportRefusal) as refused:
-        decisions.dispatch_check(stage, decisions.role_assignments(settings, sorted(set(roles) | set(proposers))))
-    assert any(m.startswith('distinct_family_from:') for m in refused.value.missing)
+    checked = decisions.dispatch_check(stage, decisions.role_assignments(settings, sorted(set(roles) | set(proposers))))
+    assert set(checked) == set(roles) | set(proposers)
+    critic = next(r for r in roles if r not in proposers)
+    card = {'id': critic, 'model': {'distinct_family_from': proposers}}
+    assert transport_registry.check_distinct_families(card, {r: 'gpt-5' for r in [critic, *proposers]}) == 'same'
 
 
-def test_r3_stage_checks_its_critics_against_the_earlier_stage_proposer():
+def test_r3_stage_admits_critics_of_the_earlier_stage_proposers_family():
     same = {'model': 'gpt-5', 'reasoning_effort': 'high', 'adapter': 'responses'}
     settings = {**BASE, 'tiers': JUDGES,
                 'roles': {r: dict(same) for r in ('research-evolver', 'ablation-critic', 'skeptical-verifier')}}
-    with pytest.raises(transport_registry.TransportRefusal, match='ablation-critic:research-evolver'):
-        stage_graph.model_options('acceptance', settings)
-    settings['roles']['research-evolver'] = {**same, 'model': 'claude-x'}
     options, assigned = stage_graph.model_options('acceptance', settings)
     assert set(assigned) == {'ablation-critic', 'skeptical-verifier'} and options['model'] == 'gpt-5'
-    assert {row['family_check'] for row in assigned.values()} == {'distinct'}
+    assert {row['family'] for row in assigned.values()} == {'openai'}
 
 
-def test_same_family_is_allowed_below_r2_and_unreadable_families_are_refused_at_dispatch():
+def test_unreadable_and_same_families_are_admitted_at_dispatch():
     same = {'model': 'gpt-5', 'reasoning_effort': 'high', 'adapter': 'responses'}
     roles = ['limitation-census', 'sufficiency-verifier']
     checked = decisions.dispatch_check('limitation_census', decisions.role_assignments(
         {**BASE, 'tiers': JUDGES, 'roles': {r: dict(same) for r in roles}}, roles))
-    assert {c['family_check'] for c in checked.values()} == {'not_required'}
+    # Every stage's seats are labelled against each other; the label is descriptive at every level.
+    assert {c['family_check'] for c in checked.values()} == {'same'}
+    assert {c['session_check'] for c in checked.values()} == {'pending'}
     roles = ['screen-producer', 'plan-critic']
-    # F8: a host-delivered (external) critic whose family RAVEL cannot read is refused at dispatch.
-    with pytest.raises(transport_registry.TransportRefusal, match='plan-critic:screen-producer:unknown-family'):
-        decisions.dispatch_check('screen', decisions.role_assignments({**BASE, **EXTERNAL}, roles))
-    with pytest.raises(transport_registry.TransportRefusal, match='unknown-family'):
-        decisions.dispatch_check('screen', decisions.role_assignments({**BASE, 'model': 'opaque-model'}, roles))
+    # A host-delivered (external) critic whose family RAVEL cannot read is not refused at dispatch.
+    for settings in ({**BASE, **EXTERNAL}, {**BASE, 'model': 'opaque-model'}):
+        checked = decisions.dispatch_check('screen', decisions.role_assignments(settings, roles))
+        assert set(checked) == set(roles)
+        assert {c['family_check'] for c in checked.values()} == {'unknown'}
+        assert {c['session_check'] for c in checked.values()} == {'pending'}
 
 
-def test_external_same_family_critic_is_refused_at_dispatch_through_check_distinct_families(monkeypatch):
-    """F8: the R2+ family check runs through transport_registry.check_distinct_families at dispatch,
-    and a same-family critic on an external adapter is refused."""
+def test_the_r2_family_check_is_a_label_through_check_distinct_families(monkeypatch):
     calls = []
     real = transport_registry.check_distinct_families
 
     def spy(card, observed):
-        calls.append((card['id'], dict(observed)))
-        return real(card, observed)
+        calls.append((card['id'], dict(observed), real(card, observed)))
+        return calls[-1][2]
     monkeypatch.setattr(transport_registry, 'check_distinct_families', spy)
     settings = {**STAGE_SETTINGS, 'tiers': JUDGES,
                 'roles': {'screen-producer': {**EXTERNAL, 'model': 'claude-x'},
-                          'plan-critic': {**EXTERNAL, 'model': 'claude-y'}}}
-    with pytest.raises(transport_registry.TransportRefusal, match='plan-critic:screen-producer'):
-        stage_graph.assignments_for('screen', settings)
-    assert ('plan-critic', {'plan-critic': 'claude-y', 'screen-producer': 'claude-x'}) in calls
+                          'plan-critic': {**EXTERNAL, 'model': 'claude-x'}}}
+    assigned = stage_graph.assignments_for('screen', settings)
+    assert set(assigned) == {'screen-producer', 'plan-critic'}
+    assert ('plan-critic', {'plan-critic': 'claude-x', 'screen-producer': 'claude-x'}, 'same') in calls
+    assert assigned['plan-critic']['family_check'] == 'same'
+    assert assigned['plan-critic']['session_check'] == 'pending'
 
 
-def test_observed_same_family_critic_is_refused_before_stage_completion(monkeypatch):
-    """F8 at receipt: a host may deliver a model other than the one assigned. The observed models of
-    the stage's own roles are checked again before complete_stage, on both engines."""
-    settings = {**STAGE_SETTINGS, 'tiers': JUDGES,
-                'roles': {'screen-producer': {**EXTERNAL, 'model': 'claude-x'},
-                          'plan-critic': {**EXTERNAL, 'model': 'gpt-5'}}}
-    assigned = {r: row for r, row in decisions.role_assignments(settings, ['screen-producer', 'plan-critic']).items()}
-    monkeypatch.setattr(decisions, 'observed_models', lambda graph_root: {'screen-producer': 'claude-x',
-                                                                          'plan-critic': 'claude-y'})
-    with pytest.raises(transport_registry.TransportRefusal, match='plan-critic:screen-producer'):
-        decisions.receipt_family_check('screen', 'graph', settings)
-    monkeypatch.setattr(decisions, 'observed_models', lambda graph_root: {'screen-producer': 'claude-x',
-                                                                          'plan-critic': 'gpt-5'})
-    assert decisions.receipt_family_check('screen', 'graph', settings)['plan-critic']['family_check'] == 'distinct'
-    monkeypatch.setattr(decisions, 'observed_models', lambda graph_root: {'screen-producer': 'claude-x'})
-    with pytest.raises(transport_registry.TransportRefusal, match='unobserved'):
-        decisions.receipt_family_check('screen', 'graph', settings)
-    assert assigned['plan-critic']['family'] == 'openai'
+def test_stage_completion_requires_current_campaign_bound_receipts(monkeypatch):
+    """The receipt-time check runs before complete_stage on both engines and reads the campaign's
+    own role receipts; an unbound observed-model map is not worker custody. The same-family and
+    unobserved-delivery cases run on a real campaign in tests/unit/controller/test_p13_peer_research.py."""
+    monkeypatch.setattr(decisions, 'observed_models', lambda graph_root: {
+        'screen-producer': 'claude-x', 'plan-critic': 'claude-x'})
+    with pytest.raises(ValueError, match='current campaign required'):
+        decisions.receipt_family_check('screen', 'graph', STAGE_SETTINGS)
     import inspect
     for source in (inspect.getsource(stage_graph._complete), inspect.getsource(orch.run_protocol_stage)):
         assert source.index('receipt_family_check') < source.index('complete_stage')
 
 
-def test_card_distinct_family_rows_always_apply(monkeypatch):
+def test_a_card_naming_distinct_family_rows_gets_a_label_not_a_refusal(monkeypatch):
     from ravel.workflow import role_registry
     real = role_registry.load
 
@@ -683,27 +730,25 @@ def test_card_distinct_family_rows_always_apply(monkeypatch):
     monkeypatch.setattr(role_registry, 'load', load)
     same = {'model': 'claude-x', 'reasoning_effort': 'high', 'adapter': 'responses'}
     roles = ['limitation-census', 'sufficiency-verifier']
-    with pytest.raises(transport_registry.TransportRefusal, match='sufficiency-verifier:limitation-census'):
-        decisions.dispatch_check('limitation_census', decisions.role_assignments(
-            {**BASE, 'tiers': JUDGES, 'roles': {r: dict(same) for r in roles}}, roles))
+    checked = decisions.dispatch_check('limitation_census', decisions.role_assignments(
+        {**BASE, 'tiers': JUDGES, 'roles': {r: dict(same) for r in roles}}, roles))
+    assert set(checked) == set(roles)
 
 
-@pytest.mark.xfail(strict=True, reason='awaits per-role stage models: research_protocol.prepare_stage(role_models=...)')
 def test_distinct_family_critic_prepares_its_r2_stage():
     settings = {**STAGE_SETTINGS, 'tiers': JUDGES, 'roles': {'screen-producer': {**EXTERNAL, 'model': 'claude-x'},
                                             'plan-critic': {**EXTERNAL, 'model': 'gpt-5'}}}
     options, assigned = stage_graph.model_options('screen', settings)
-    assert assigned['plan-critic']['family_check'] == 'distinct'
+    assert assigned['plan-critic']['family_check'] == 'different'
     assert options['role_models']['plan-critic']['model'] == 'gpt-5'
 
 
-def test_distinct_family_r2_stage_holds_until_stage_roles_take_their_own_models():
-    from ravel.workflow import graph_nodes
+def test_distinct_family_r2_stage_returns_each_roles_own_model():
     settings = {**STAGE_SETTINGS, 'tiers': JUDGES, 'roles': {'screen-producer': {**EXTERNAL, 'model': 'claude-x'},
                                             'plan-critic': {**EXTERNAL, 'model': 'gpt-5'}}}
-    with pytest.raises(graph_nodes.RecoveryHold) as held:
-        stage_graph.model_options('screen', settings)
-    assert held.value.reason == 'awaits_prepare_stage_role_models'
+    options, assigned = stage_graph.model_options('screen', settings)
+    assert options['role_models'] == settings['roles']
+    assert assigned['plan-critic']['family_check'] == 'different'
 
 
 # ---- registry, structure and recorded gaps ---------------------------------------------------------

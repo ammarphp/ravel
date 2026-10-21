@@ -64,8 +64,9 @@ def test_a_hookless_fixture_records_pre_execution_guards_on_every_host(tmp_path,
     rd = _run(tmp_path / 'project', compute_plan='smoke', task_mode='reproduce', agent_layer_epoch=2)
     record = host_governance.enforcement_record(rd, project=tmp_path / 'project')
     assert record['pre_execution_guards'] == 'none' and record['raw_launch'] == 'pass'
-    assert set(record) == {'pre_execution_guards', 'enforcement_surface_sha256', 'host', 'raw_launch', 'declared_host',
-                           'declared_pre_execution_guards'}
+    assert set(record) == {'governance', 'pre_execution_guards', 'enforcement_surface_sha256', 'host', 'raw_launch',
+                           'declared_host', 'declared_pre_execution_guards'}
+    assert record['governance']['label'] == 'NOT GOVERNED'  # no controller owns this run
     code, verdict = run_gate(tmp_path, rd, 'final_task')
     assert verdict['pre_execution_guards'] == 'none' and verdict['kind'] == 'gate-verdict'
     assert host_governance.pre_execution_guards(tmp_path / 'project', environ={'RAVEL_HOST': host}) == 'none'

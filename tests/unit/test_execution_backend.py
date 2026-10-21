@@ -306,3 +306,26 @@ def test_a_leaderless_group_is_signalled_only_when_a_member_proves_it_is_the_job
     monkeypatch.setattr(machine_lease, 'token_census', lambda: {})
     monkeypatch.setattr(native, '_log_holders', lambda path, pids: [4243])
     assert native.NativeBackend()._owned(handle) is True
+
+
+def test_coordination_locks_retain_identity_and_preserve_output_validation(tmp_path):
+    from ravel.workflow import execution
+    output = tmp_path / 'outputs'
+    output.mkdir()
+    artifact = output / 'result.txt'
+    artifact.write_text('measured artifact')
+    lock = output / 'dispatch.lock'
+    with eb._flock(lock, 'dispatch already active'):
+        record = json.loads(lock.read_text())
+        assert record == {'schema_version': 1, 'kind': 'backend-coordination-lock',
+                          'path': str(lock.resolve()), 'purpose': 'dispatch already active', 'locking': 'flock'}
+        inode, contents = lock.stat().st_ino, lock.read_bytes()
+        with pytest.raises(ValueError, match='dispatch already active'):
+            with eb._flock(lock, 'dispatch already active'):
+                pytest.fail('concurrent coordination lock admitted')
+    with eb._flock(lock, 'dispatch already active'):
+        assert lock.stat().st_ino == inode and lock.read_bytes() == contents
+    assert execution.snapshot(tmp_path, ['outputs'], outputs=True)
+    artifact.write_bytes(b'')
+    with pytest.raises(ValueError, match='empty output'):
+        execution.snapshot(tmp_path, ['outputs'], outputs=True)

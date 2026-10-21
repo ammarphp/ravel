@@ -50,9 +50,9 @@ def check_packet(root, record, *, agreement="pass", integrity="pass"):
          "attempt_ids": [record["attempt_id"]]} for cid, status in (("integrity", integrity), ("agreement", agreement))]})
 
 def accept(root, *, scope="reproduction", closes=()):
-    for role, actor in (("physics_critic", "critic"), ("skeptical_verifier", "skeptic"), ("physics_decider", "physicist")):
-        review.submit_review(root, role=role, actor_id=actor, verdict="accept", summary="Evidence supports the stated scope",
-            claim_scope=scope, closes=list(closes))
+    """Critic, skeptic and decider accept through bound responses; declared names are advice."""
+    from bound_review import bound_accept
+    return bound_accept(root, scope=scope, closes=list(closes))
 
 def review_run(root, extra_inputs, monkeypatch, *, scope="diagnostic"):
     p = policy(); p["claim_scopes"]["original_task_completion"] = {"checks": ["integrity", "agreement"], "actions": ["delivery", "reuse"]}

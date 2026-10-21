@@ -321,22 +321,36 @@ def test_child_configuration_cannot_shadow_pinned_run(tmp_path):
 
 def test_worker_allowed_admission_survives_descriptor_and_observation(tmp_path, monkeypatch):
     from ravel.workflow import agent_worker as worker, broker, sandbox
+    # This receipt-propagation fixture stands in a qualified endpoint boundary.
+    # Actual unqualified profiles are refused in test_private_inputs.py.
+    monkeypatch.setattr(sandbox, 'require_provider_egress', lambda admission: {
+        'class': 'synthetic-endpoint-confined', 'endpoint_confinement': True})
     run = run_at(tmp_path / 'run', 'claude-cli-worker')
     ws = tmp_path / 'workspace'
     for name in ('inputs', 'outputs', 'scratch'):
         (ws / name).mkdir(parents=True)
     custody = tmp_path / 'custody'; custody.mkdir()
     home = tmp_path / 'home'; home.mkdir()
+    # The owner's dedicated, file-backed worker login and a CLI that reports it without a prompt: the
+    # login preflight runs for real against them.
+    login = tmp_path / 'claude-login'; login.mkdir(mode=0o700)
+    (login / '.credentials.json').write_text('opaque-owner-fixture')
+    (login / '.credentials.json').chmod(0o600)
+    monkeypatch.setenv('CLAUDE_CONFIG_DIR', str(login))
+    executable = tmp_path / 'bin/claude'; executable.parent.mkdir()
+    executable.write_text('#!/bin/sh\necho \'{"loggedIn": true, "authMethod": "claude.ai"}\'\n')
+    executable.chmod(0o755)
     monkeypatch.setattr(worker, '_validate', lambda spec: spec)
     monkeypatch.setattr(worker, 'workspace', lambda *a: ws)
     monkeypatch.setattr(worker, 'blind_roles', lambda: [])
     monkeypatch.setattr(cli_worker, '_card', lambda *a: {})
     monkeypatch.setattr(tr, 'executor_problem', lambda *a: None)
     monkeypatch.setattr(cli_worker, 'current_probe', lambda *a: (
-        {'cli_version': 'synthetic'}, '/synthetic/cli', 'a' * 64))
+        {'cli_version': 'synthetic'}, str(executable), 'a' * 64))
     monkeypatch.setattr(cli_worker, '_no_instruction_files', lambda *a: None)
     monkeypatch.setattr(cli_worker, 'toolbelt_for', lambda *a, **k: {'tools': [], 'manifest_sha256': 'b' * 64})
-    monkeypatch.setattr(cli_worker, '_cli_home', lambda *a: (home, False, {}, [], ws / 'inputs' / 'mcp'))
+    monkeypatch.setattr(cli_worker, '_cli_home', lambda *a: (
+        home, False, {'CLAUDE_CONFIG_DIR': str(login)}, [], ws / 'inputs' / 'mcp'))
     monkeypatch.setattr(cli_worker, '_socket_path', lambda *a: '/synthetic/broker.sock')
     monkeypatch.setattr(cli_worker, 'build_prompt', lambda *a, **k: 'Synthetic evidence')
     monkeypatch.setattr(sandbox, 'available', lambda: None)

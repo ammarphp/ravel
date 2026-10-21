@@ -137,6 +137,19 @@
           "minItems": 1,
           "type": "array",
           "uniqueItems": true
+        },
+        "literature_operations": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 4,
+          "items": {
+            "enum": [
+              "search",
+              "get_paper",
+              "list_papers",
+              "compare_measurements"
+            ]
+          }
         }
       },
       "required": [
@@ -152,6 +165,9 @@
     "model": {
       "additionalProperties": false,
       "properties": {
+        "cheap_ok": {
+          "type": "boolean"
+        },
         "distinct_family_from": {
           "items": {
             "minLength": 1,

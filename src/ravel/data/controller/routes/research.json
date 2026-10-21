@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "kind": "route-spec",
+  "id": "research",
+  "version": 1,
+  "adapter": "research",
+  "match": {
+    "row": 5,
+    "when": {
+      "field": "task_mode",
+      "in": [
+        "research",
+        "method_study",
+        "anomaly_search"
+      ]
+    }
+  },
+  "parameters": [
+    {
+      "name": "research_children",
+      "from": "contract:research_children",
+      "default": []
+    }
+  ],
+  "steps": [
+    {
+      "id": "prepare",
+      "kind": "author",
+      "inputs": [],
+      "outputs": [
+        {
+          "path": "outputs/campaign-request.json",
+          "kind": "document",
+          "required": true
+        },
+        {
+          "path": "outputs/child-requests.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "depends_on": [],
+      "waypoint": false,
+      "rung": "dry",
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [
+        "plan-critic"
+      ],
+      "instruction_sources": [
+        "docs/workflow/reference/research-orchestration.md",
+        "docs/workflow/reference/research-protocols.md"
+      ],
+      "obligations": [
+        "R06",
+        "P01",
+        "P02",
+        "P03"
+      ],
+      "role": "research-explorer",
+      "parameters": {
+        "phase": "prepare"
+      }
+    },
+    {
+      "id": "campaign",
+      "kind": "subgraph",
+      "inputs": [
+        {
+          "artifact": "prepare:outputs/campaign-request.json"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/progress.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "prepare"
+      ],
+      "waypoint": false,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/research-orchestration.md",
+        "docs/workflow/reference/research-protocols.md"
+      ],
+      "obligations": [
+        "GATE-research_choice",
+        "V05",
+        "V08",
+        "XF04",
+        "STAGE-limitation_census",
+        "STAGE-ideas",
+        "STAGE-baseline",
+        "STAGE-screen",
+        "STAGE-validate",
+        "STAGE-critique_to_experiments",
+        "STAGE-acceptance",
+        "STAGE-meta_review",
+        "STAGE-integrity"
+      ],
+      "graph": {
+        "id": "research.loop",
+        "instance": {}
+      }
+    },
+    {
+      "id": "children",
+      "kind": "route",
+      "inputs": [],
+      "outputs": [],
+      "depends_on": [
+        "campaign"
+      ],
+      "waypoint": false,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/research-orchestration.md",
+        "docs/workflow/reference/research-protocols.md"
+      ],
+      "obligations": [
+        "C34",
+        "MODE-research-comparison"
+      ],
+      "route": "study",
+      "foreach": "research_children",
+      "parameters": {
+        "inherit_authority": true,
+        "inherit_budget": true,
+        "own_checkin1": true
+      }
+    },
+    {
+      "id": "meta-review",
+      "kind": "review",
+      "inputs": [
+        {
+          "artifact": "campaign:outputs/progress.json"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/meta-review.json",
+          "kind": "review-findings",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "campaign",
+        "children"
+      ],
+      "waypoint": false,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/research-orchestration.md",
+        "docs/workflow/reference/research-protocols.md"
+      ],
+      "obligations": [],
+      "role": "research-meta-reviewer",
+      "parameters": {
+        "validator_exports": {
+          "outputs/meta-review.json": {
+            "/validator_inputs/check:validation.certificates.validate_certificate/path": "path",
+            "/validator_inputs/check:validation.certificates.validate_certificate/kind": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "integrity",
+      "kind": "review",
+      "inputs": [
+        {
+          "artifact": "meta-review:outputs/meta-review.json"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/integrity.json",
+          "kind": "review-findings",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "meta-review"
+      ],
+      "waypoint": false,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/research-orchestration.md",
+        "docs/workflow/reference/research-protocols.md"
+      ],
+      "obligations": [],
+      "role": "integrity-auditor",
+      "parameters": {
+        "check_inputs": {
+          "check:validation.certificates.validate_certificate": {
+            "path": {
+              "source": "output",
+              "step": "meta-review",
+              "path": "outputs/meta-review.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/path",
+              "type": "path"
+            },
+            "kind": {
+              "source": "output",
+              "step": "meta-review",
+              "path": "outputs/meta-review.json",
+              "field": "/validator_inputs/check:validation.certificates.validate_certificate/kind",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "parent-completion",
+      "kind": "synthesize",
+      "inputs": [
+        {
+          "artifact": "campaign:outputs/progress.json"
+        },
+        {
+          "artifact": "integrity:outputs/integrity.json"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "outputs/research-report.json",
+          "kind": "document",
+          "required": true
+        }
+      ],
+      "depends_on": [
+        "campaign",
+        "integrity"
+      ],
+      "waypoint": false,
+      "rung": null,
+      "budget": {},
+      "protocols": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "review": [],
+      "instruction_sources": [
+        "docs/workflow/reference/research-orchestration.md",
+        "docs/workflow/reference/research-protocols.md"
+      ],
+      "obligations": [
+        "R06",
+        "ROUTE-research",
+        "ROUTE-anomaly_search"
+      ],
+      "role": "research-explorer"
+    }
+  ],
+  "checkins": [
+    {
+      "id": "checkin1",
+      "sections": [
+        "original obligations",
+        "campaign stages",
+        "prospective experiments",
+        "bounds and stop rule"
+      ],
+      "seats": [
+        "plan-critic"
+      ]
+    },
+    {
+      "id": "checkin2",
+      "sections": [
+        "actual evidence",
+        "negative results",
+        "remaining obligations"
+      ],
+      "seats": [
+        "physics-critic",
+        "skeptical-verifier",
+        "physics-decider"
+      ]
+    },
+    {
+      "id": "checkin3",
+      "sections": [
+        "claim scope",
+        "unresolved obligations",
+        "qualification"
+      ],
+      "seats": [
+        "physics-critic",
+        "skeptical-verifier",
+        "physics-decider"
+      ]
+    }
+  ],
+  "obligations": [
+    "R06",
+    "ROUTE-research",
+    "ROUTE-anomaly_search",
+    "MODE-research-comparison",
+    "GATE-research_choice"
+  ],
+  "deliverables": [
+    {
+      "match": {
+        "artifact": [
+          "document",
+          "note",
+          "report",
+          "text"
+        ]
+      },
+      "step": "parent-completion",
+      "output": "outputs/research-report.json"
+    }
+  ],
+  "instruction_sources": [
+    "docs/workflow/reference/research-orchestration.md",
+    "docs/workflow/reference/research-protocols.md"
+  ]
+}

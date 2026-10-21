@@ -32,7 +32,7 @@ The script observes a simple arithmetic control, native versions, parallel-kerne
 state, and evaluated definitions for `LoadModel`, `FeynmanRules`, `WriteUFO` and
 `CheckKineticTermNormalisation`. It distinguishes a real definition from an
 unevaluated function name. In the qualified source version, the legacy spelling
-`CheckKineticTerms` has no definition and cannot serve as a passing physics check.
+`CheckKineticTerms` has no definition and must not serve as a passing physics check.
 
 A successful readiness receipt establishes that the declared local tool and
 source worked for this attempt. It does not establish license rights or future

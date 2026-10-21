@@ -46,14 +46,13 @@ output unit and coefficient source (`input` or a target ID). The native
 Observable `prediction_par` receives the complete default central parameter map
 plus declared overrides. The zero-new-physics SM and NP calls are separately
 retained before a difference is reported. Unknown parameter overrides or
-argument sets refuse. Parametric/theory uncertainty is not computed here. Units
-are source declarations; registry lookup alone does not validate their meaning.
+argument sets refuse. Parametric and theory uncertainties require an explicit propagation study. Units retain their source declarations and require review against the observable definition.
 
 The optional smelli branch selects built-in named likelihoods explicitly, with
 one source coefficient point and an explicit CKM extraction/fixing choice. It
 uses native `GlobalLikelihood.parameter_point(w).log_likelihood_dict()`, which
 returns logL(NP)-logL(SM), including the upstream sum over selected groups.
-This is not CLs, a profiled confidence interval, a p-value or an optimizer result.
+The output quantity is the native fixed-point log-likelihood difference over the selected groups.
 The actual component, observable and measurement populations and full SM/NP
 parameter maps are retained. NP-dependent CKM extraction can change the Wilson
 parameter options; that observed change is retained rather than hidden. A fixed
@@ -65,18 +64,17 @@ Smelli can otherwise sample missing covariances during construction. This route
 requires an explicitly pinned **JSON** cache with fields `schema_version`,
 `source`, `parameters` (complete default-plus-override central map), `fix_ckm`,
 `ckm_scheme`, and `groups`. Each selected fast-likelihood group contains the
-complete observable list, experimental central vector, experimental covariance
+complete observable list, measurement central vector, measurement covariance
 matrix and SM covariance matrix. String observables and `[name, argument, ...]`
 identities follow native flavio ordering. The cache must match the selected
 fast population exactly; no unused group is silently added or dropped.
 
 Finite, square, exactly symmetric matrices and nonnegative native eigenvalues
-are checked before loading. These checks do not validate the covariance's
-scientific provenance or numerical conditioning. RAVEL constructs fresh local
+are checked before loading. Covariance provenance and numerical conditioning require their own scientific evidence. RAVEL constructs fresh local
 pickle files from these checked plain arrays because that is the native loader
 format; it never deserializes a supplied pickle. Both native covariance compute
 methods are temporarily replaced with a refusal throughout this branch, so a
-cache miss cannot silently sample. Original methods are restored on all exits.
+cache miss must return its explicit missing-value status. Original methods are restored on all exits.
 Actual permuted covariance arrays are retained after initialization. For an
 ordinary-only likelihood selection, use an explicit empty groups object.
 The native fixed SM covariance is an upstream approximation at the supplied
@@ -115,7 +113,7 @@ there is no second job scheduler or runtime. The request declares seconds,
 aggregate sampled RAM and maximum JSON export bytes. Each journal write is
 bounded; the adapter also checks a whole native-directory postcondition of eight
 times that export ceiling. That final disk check is not a continuously enforced
-hard disk quota. Future actual admission must account for the chosen runtime,
+hard disk quota. Subsequent actual admission must account for the chosen runtime,
 cache dimensions, logs and generated intermediates.
 
 `<attempt-output>/eft-native/progress.json` journals each started/completed transformation,
@@ -127,7 +125,7 @@ written before semantic adjudication. This is transport consistency, not an
 independent numerical oracle. Internal integrator/evaluator counts are not
 instrumented; the reported wrapper return count is explicitly narrower.
 
-## Useful next qualifications and combinations
+## Numerical qualification requirements
 
 A root-admitted qualification can test zero coefficients, a same-scale identity,
 a supported basis round trip at fixed scale, pure real/imaginary flavour
@@ -136,13 +134,11 @@ an independent analytic limit. Run high/low scale comparisons with all options
 fixed and retain all generated coefficients. For observables use the SM zero
 limit and a published one-operator limit with separately justified parameters.
 For smelli compare the exact selected native components and their SM reference,
-with fixed source/cache/CKM populations. Round-trip agreement alone does not
-prove physical matching, truncation validity or numerical error bounds.
+with fixed source/cache/CKM populations. Physical matching, truncation validity and numerical error bounds require independent evidence in addition to round-trip agreement.
 
 Collider/SFitter and flavour constraints become combinable only after the
 coefficient conventions and statistical overlap are independently grounded.
-This route does not invent that map or add likelihoods across experiments.
-It supplies the complete coefficient and precision evidence needed to build it.
+The route supplies complete coefficient and precision evidence. A joint likelihood requires the grounded convention map and overlap model.
 
 Primary implementations: [Wilson](https://github.com/wilson-eft/wilson),
 [WCxf bases](https://github.com/wcxf/wcxf-bases),

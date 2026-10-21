@@ -1,0 +1,32 @@
+{
+  "args": {
+    "id": "doc:amber"
+  },
+  "atlas_sha256": "db25c1747ade9ccf7b99a7968577f2aaeebe98a7bff903ac9ad3400a884e187c",
+  "kind": "knowledge-result",
+  "missing": [],
+  "omitted": {
+    "count": 0,
+    "reasons": {}
+  },
+  "op": "show",
+  "result_sha256": "545a8f4ea5effe6fe60fa41e52261d3ed76cc2f56a84104f29241e77250f3216",
+  "results": [
+    {
+      "id": "doc:amber",
+      "kind": "doc",
+      "links": {},
+      "source": {
+        "path": "sources/amber.txt",
+        "sha256": "f64d680d5f434c5cf501fdf824247b697755900167820d0db9db6323a5ea7b6a"
+      },
+      "summary": "Amber rate guide",
+      "title": "Amber",
+      "why": "exact identity"
+    }
+  ],
+  "schema_version": 1,
+  "served_ids": [
+    "doc:amber"
+  ]
+}

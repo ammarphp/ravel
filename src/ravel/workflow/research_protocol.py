@@ -24,6 +24,19 @@ def instruction(key):
     return value['texts'][key]
 
 
+# Role deliveries a research stage, method assessment or idea dispatch may credit: an HTTP transport this host
+# observed, a relay whose freshness its host attests, or a controller-launched CLI session whose session receipt
+# verified (``agent_graph._receipt_attestation``). An unestablished or control-only observation earns nothing.
+OBSERVED_DELIVERIES = frozenset({'remote_transport_observed', 'local_transport_observed', 'host_attested_external',
+                                 'transport_attested_cli'})
+
+
+def fresh_delivery(receipt, *, extra=()):
+    """Whether a role receipt is an observed, transport-separated fresh delivery."""
+    return (bool(receipt.get('context_transport_separated'))
+            and receipt.get('execution_observation') in OBSERVED_DELIVERIES | set(extra))
+
+
 def default_protocol():
     """Load the packaged methodology; stage roles and instructions are data."""
     import json
@@ -223,7 +236,13 @@ def _rdj(row, minimum, base_dir):
             or levels.index(receipt['class']) < levels.index(minimum)
             or receipt.get('open_a_findings') != 0 or receipt.get('unresolved_branches') != 0):
         raise ValueError('current ' + minimum + ' RDJ research_choice authorization required')
-    case = _method_json(receipt.get('case'), base_dir)
+    receipt_path = Path(row['rdj_receipt']['path'])
+    if not receipt_path.is_absolute():
+        receipt_path = Path(base_dir) / receipt_path
+    # Case pins are relative to the run that issued the receipt, which may be
+    # an approved child study rather than the parent methodology campaign.
+    issuer = receipt_path.parent.parent.parent if receipt_path.parent.name == 'receipts' else Path(base_dir)
+    case = _method_json(receipt.get('case'), issuer)
     if receipt.get('case_sha256') != receipt['case']['sha256'] or case.get('schema_version') != 2:
         raise ValueError('RDJ receipt requires its pinned v2 case')
     return receipt
@@ -599,16 +618,32 @@ def register_concerns(root, request_pin):
                          for row in request['concerns']], 'execution_authorized': False}
 
 
+def stage_action(stage_id, artifact):
+    """Exact stage proposal decided by the ordinary research-choice aggregator."""
+    return {'kind': 'screening_choice', 'scope': stage_id, 'digest': artifact['sha256'],
+            'pins': [{k: artifact[k] for k in ('path', 'sha256')}],
+            'summary': 'Review the bound research stage proposal: ' + stage_id}
+
+
+def selection_action(request_pin):
+    return {'kind': 'promotion', 'scope': 'validate', 'operation': 'commit_selection',
+            'request': request_pin, 'digest': request_pin['sha256'],
+            'pins': [{k: request_pin[k] for k in ('path', 'sha256')}],
+            'summary': 'Freeze the prospective research selection before confirmation', 'floor': 'R2'}
+
+
 def prepare_stage(root, stage_id, artifact, output_dir, *, model, reasoning_effort='high',
-                  adapter='external', max_output_tokens=2048, max_wall_seconds=120):
+                  adapter='external', role_models=None, max_output_tokens=2048, max_wall_seconds=120):
     """Create the existing charged Graph/Host handoff for a proposed stage report.
 
     The host drafts the artifact from actual sources and results. Every declared
     role then reviews that exact proposal. This bridge uses existing Graph roles;
-    A dedicated role worker can consume the named stage roles directly.
+    A dedicated role worker can consume the named stage roles directly. ``role_models``
+    overrides model, effort and adapter per declared role; unlisted roles retain the
+    single-runtime defaults. Validate the whole roster before creating any packets.
     """
     from . import agent_graph as graph, research_presentation as material
-    errors = decision_errors(root, {'scope': stage_id, 'artifact': artifact})
+    errors = decision_errors(root, stage_action(stage_id, artifact))
     if errors: raise ValueError('; '.join(e.code + ': ' + e.message for e in errors))
     status = methodology_status(root)
     if status['next_stage'] != stage_id:
@@ -624,19 +659,38 @@ def prepare_stage(root, stage_id, artifact, output_dir, *, model, reasoning_effo
         declared_stop = _method_json(record['preregistration'], root).get('stop_rule')
         if declared_stop != {k: v for k, v in proposed.get('stop', {}).items() if k != 'reason'}:
             raise ValueError('computed stop must retain prospectively registered bounds and coverage floor')
-    if stage_id in {'validate', 'acceptance'}:
+    if stage_id in {'ideas', 'validate', 'acceptance'}:
         _methodology_journal_guard(_cycle()._load(root)[1], stage_id, proposed, base_dir=root, regime=record['regime'])
     validate_stage_artifact(stage_id, proposed, base_dir=root, regime=record['regime'])
-    if adapter not in {'external', *provider_transport.HTTP_MODEL_ACTIONS}:
-        raise ValueError('research stage requires external delivery or an isolated model transport')
+    if role_models is not None and (type(role_models) is not dict or set(role_models) - set(row['roles'])):
+        raise ValueError('role_models must map declared stage roles to model settings')
+    assigned = {}
+    for role_id in row['roles']:
+        override = (role_models or {}).get(role_id, {})
+        if type(override) is not dict or set(override) - {'model', 'reasoning_effort', 'adapter'}:
+            raise ValueError('role_models rows permit only model, reasoning_effort and adapter')
+        settings = {'model': model, 'reasoning_effort': reasoning_effort, 'adapter': adapter, **override}
+        for key in ('model', 'reasoning_effort'):
+            _required_text(settings[key], 'stage role ' + key)
+        if (type(settings['adapter']) is not str
+                or settings['adapter'] not in {'external', *provider_transport.HTTP_MODEL_ACTIONS}):
+            raise ValueError('research stage requires external delivery or an isolated model transport')
+        assigned[role_id] = settings
+    from . import research_controller
+    if research_controller.active() is not None:
+        # A controller-owned seat is dispatched through the governed host; an
+        # external relay remains ordinary legacy data and cannot fill this seat.
+        for settings in assigned.values():
+            settings['adapter'] = 'model'
+    from .research_coordinator_decisions import stage_family_check
+    stage_family_check(root, stage_id, {role: settings['model'] for role, settings in assigned.items()})
     out = Path(output_dir)
     if out.exists():
         raise ValueError('fresh research stage review directory required')
-    out.mkdir(parents=True)
-    subject = material.write_json_new(out / 'subject.json', {
+    subject_document = {
         'schema_version': 1, 'kind': 'research-stage-subject', 'stage': stage_id,
         'proposal': artifact, 'artifact': proposed, 'protocol': record['protocol'],
-        'world_digest': world_digest(root), 'regime': record['regime']})
+        'world_digest': world_digest(root), 'regime': record['regime']}
     source_pins = []
     def collect(value):
         if isinstance(value, dict):
@@ -652,7 +706,13 @@ def prepare_stage(root, stage_id, artifact, output_dir, *, model, reasoning_effo
     collect(record['preregistration'])
     collect(record['evaluator_pins'])
     sources = {}
-    total = subject['size']
+    # Retain every source under the absolute byte bound. The Host may defer source content beyond its
+    # inline budget; complete_stage requires each role to receive every artifact either inline or through
+    # complete governed page reads whose returned bytes hash to the digest-bound artifact.
+    import json
+    subject_text = json.dumps(subject_document, indent=2, allow_nan=False) + '\n'
+    subject_size = len(subject_text.encode('utf-8'))
+    total = subject_size
     for pin in source_pins:
         raw = _method_pin(pin, root)
         identity = (pin['path'], pin['sha256'])
@@ -661,15 +721,22 @@ def prepare_stage(root, stage_id, artifact, output_dir, *, model, reasoning_effo
         total += len(raw)
         if total > ce.MAX_BYTES:
             raise ValueError('complete research stage source packet exceeds bound; no truncation')
-        sources[identity] = (pin, raw.decode('utf-8'))
+        text = raw.decode('utf-8')
+        sources[identity] = (pin, text)
+    out.mkdir(parents=True)
+    subject = material.write_json_new(out / 'subject.json', subject_document)
+    if subject['size'] != subject_size:
+        raise ValueError('research stage subject bytes differ from their bounded presentation')
     nodes = []
     for number, role_id in enumerate(row['roles']):
+        settings = assigned[role_id]
         role = 'critic' if number % 2 == 0 else 'verifier'
         packet = out / role_id / 'packet'
         (packet / 'artifacts').mkdir(parents=True)
         content = material.write_json_new(packet / 'artifacts/public_case.json', _method_json(subject, root))
         manifest = {'schema_version': 1, 'role': role, 'run_id': str(root),
-                    'cycle_id': subject['sha256'], 'source_event_sha256': subject['sha256'],
+                    'cycle_id': ce.digest({'subject': subject['sha256'], 'role': role_id}),
+                    'source_event_sha256': subject['sha256'],
                     'artifacts': [{'id': 'public_case', 'path': 'artifacts/public_case.json',
                                    'sha256': content['sha256'], 'source_sha256': subject['sha256'],
                                    'source_path': subject['path'], 'projection': 'complete_research_stage_subject'}],
@@ -691,8 +758,8 @@ def prepare_stage(root, stage_id, artifact, output_dir, *, model, reasoning_effo
                   'attributed_claim_ids': {'type': 'array', 'items': {'type': 'string'}}}
         nodes.append({'id': role_id, 'kind': 'model', 'role': role, 'depends_on': [],
                       'inputs': [], 'packet': {'path': str(packet), 'manifest_sha256': manifest['sha256']},
-                      'action': adapter, 'max_attempts': 1,
-                      'parameters': {'model': model, 'reasoning_effort': reasoning_effort,
+                      'action': settings['adapter'], 'max_attempts': 1,
+                      'parameters': {'model': settings['model'], 'reasoning_effort': settings['reasoning_effort'],
                                      'max_output_tokens': max_output_tokens,
                                      'instructions': ' '.join(row['protocol']),
                                      'output_schema': {'type': 'object', 'properties': fields,
@@ -748,7 +815,7 @@ def complete_stage(root, prepared, graph_root):
         row = next(r for r in record['stages'] if r['id'] == prepared['stage'])
         if row.get('active_preparation') != prepared:
             raise ValueError('research stage review belongs to a superseded proposal')
-        errors = decision_errors(root, {'scope': row['id'], 'artifact': prepared['artifact']})
+        errors = decision_errors(root, stage_action(row['id'], prepared['artifact']))
         if errors: raise ValueError('; '.join(e.code for e in errors))
         _methodology_journal_guard(state, row['id'], artifact, base_dir=root, regime=record['regime'])
         validate_stage_artifact(row['id'], artifact, base_dir=root, regime=record['regime'])
@@ -768,25 +835,30 @@ def complete_stage(root, prepared, graph_root):
                     or value.get('role_id') != node['id']
                     or value.get('subject_sha256') != prepared['subject']['sha256']):
                 raise ValueError('research stage review requires revision')
-            receipt = graph.role_receipt(graph_root, node['id'],
+            from . import research_controller
+            receipt = research_controller.role_receipt(graph_root, node['id'],
                 expected_subject_sha256=prepared['subject']['sha256'],
                 expected_packet_sha256=node['packet']['manifest_sha256'],
                 allowed_roles={node['role']}, require_exact_subject=True)
-            if (not receipt['context_transport_separated'] or receipt['execution_observation'] not in
-                    {'remote_transport_observed', 'local_transport_observed', 'host_attested_external'}):
+            if not fresh_delivery(receipt):
                 raise ValueError('actual fresh stage-role delivery required')
             from . import review_context
             manifest = review_context.verify_packet(node['packet']['path'],
                 expected_manifest_sha256=node['packet']['manifest_sha256'])
             required = {item['sha256'] for item in manifest['artifacts']}
-            if not required <= set(receipt.get('presented_subject_sha256s', [])):
+            read = receipt.get('deferred_content_read', False)
+            read_subjects = ({item['sha256'] for item in read['artifacts']}
+                if type(read) is dict and read.get('manifest_sha256') == node['packet']['manifest_sha256'] else set())
+            if not required <= set(receipt.get('presented_subject_sha256s', [])) | read_subjects:
                 raise ValueError('complete stage evidence must actually be presented to every role')
             if node['id'] == 'ablation-critic':
                 attributed = set(value.get('attributed_claim_ids', []))
-            receipts[node['id']] = material.write_json_new(
-                Path(prepared['subject']['path']).parent / (node['id'] + '-receipt.json'), receipt)
+            receipts[node['id']] = receipt
         if set(receipts) != set(row['roles']):
             raise ValueError('every declared stage role must complete')
+        from .research_coordinator_decisions import stage_family_check
+        stage_family_check(root, row['id'], {
+            role: receipt['transport'].get('observed_model') for role, receipt in receipts.items()}, receipts=receipts)
         if row['id'] == 'acceptance' and artifact.get('status') != 'not_applicable':
             required = {c['id'] for c in artifact['claims'] if c['kind'] == 'mechanism' and c['verdict'] == 'accepted'}
             if not required <= attributed:
@@ -806,6 +878,9 @@ def complete_stage(root, prepared, graph_root):
                 cycle._current_evidence(state, experiment, accepted=True)
                 if concern['result']['sha256'] != experiment['observation']['result']['sha256']:
                     raise ValueError('critique result differs from its actual reviewed experiment')
+        receipts = {role: material.write_json_new(
+            Path(prepared['subject']['path']).parent / (role + '-receipt.json'), receipt)
+            for role, receipt in receipts.items()}
         row.update(status='not_applicable' if artifact.get('status') == 'not_applicable' else 'done',
                    reason=artifact.get('reason'), artifact=prepared['artifact'], worker_receipts=receipts)
         state['methodology'] = deepcopy(record)
@@ -858,9 +933,22 @@ def gate_errors(rundir, gate, action):
                           'Install the ravel.workflow.decision_gate module.')]
     GateError = provider.GateError
     try:
-        status = methodology_status(rundir)
-        if action.get('purpose') == 'confirm' or action.get('exposure') == 'withheld_confirmation' or _action_reads_withheld(rundir, action):
-            _, state = _cycle()._load(rundir)
+        # Only this methodology provider follows a child's original campaign.
+        # The aggregator still evaluates intake, review and RDJ on rundir.
+        cycle = _cycle()
+        method_root = Path(rundir)
+        origin_path = method_root / cycle.CHILD_CONTRACT_ORIGIN
+        plan_path = method_root / cycle.science.PLAN
+        plan = state_io.read_json(plan_path) if plan_path.exists() else {}
+        if not isinstance(plan, dict):
+            raise ValueError('research science plan requires an object')
+        claimed = plan.get('research_binding')
+        if origin_path.exists() or claimed is not None:
+            cycle.verify_experiment_contract(method_root)
+            method_root = Path(state_io.read_json(origin_path)['root'])
+        status = methodology_status(method_root)
+        if action.get('purpose') == 'confirm' or action.get('exposure') == 'withheld_confirmation' or _action_reads_withheld(method_root, action):
+            _, state = cycle._load(method_root)
             receipt, reads = _selection_state(state)
             codes = confirmation_errors(receipt, reads, action)
             return [GateError(code=code, gate=gate, provider='research_protocol', message=code,
@@ -1482,15 +1570,18 @@ def admit_design(state, experiment):
 
 
 def _active_holds(state, claim_id):
-    resolved = {r for e in state["events"] if e["kind"] == "protocol_meta_review_applied" and e["action"] == "resolve_objections" for r in e["resolves_meta_revisions"]}
+    from .review_independence import meta_decision
+    resolved = {r for e in state["events"] if e["kind"] == "protocol_meta_review_applied" and e["action"] == "resolve_objections" and meta_decision(e)["independent"] for r in e["resolves_meta_revisions"]}
     return [e for e in state["events"] if e["kind"] == "protocol_meta_review_applied" and
             claim_id in e["affected_claim_ids"] and e["action"] not in {"report_only", "resolve_objections"} and e["revision"] not in resolved]
 
 
 def _replacement(state, rows, identity, complete, field):
     """Fresh resolution discharges an old obligation, without restoring old evidence."""
+    from .review_independence import meta_decision
     for resolution in reversed(state["events"]):
         if resolution["kind"] != "protocol_meta_review_applied" or resolution["action"] != "resolve_objections": continue
+        if not meta_decision(resolution)['independent']: continue
         for new_id in resolution[field]:
             row = rows[new_id]; seen = set()
             while row["replaces"] is not None and row["id"] not in seen:
@@ -1631,6 +1722,10 @@ def status_state(state):
             "complete_exposures":[{"id":c["id"],"exposure":c["exposure"],"regime":c["regime"],"fidelity":c["fidelity"]} for c in protocol["cells"]],
             "quantitative_checks":[{"experiment_id":e["id"],"evidence":deepcopy(e["observation"].get("quantitative_evidence")),"diagnostic_not_stage_acceptance":True} for e in state["experiments"] if e.get("observation") is not None and "quantitative_evidence" in e["observation"]],
             "not_applicable":protocol["not_applicable"],"execution_authorized":False,"physics_validated":False,"benefit_measured":False}
+    from .review_independence import meta_decision
+    result['meta_review_independence'] = [
+        {'revision': e['revision'], **meta_decision(e)} for e in state['events']
+        if e['kind'] == 'protocol_meta_review_applied']
     if protocol.get('objectives'):
         result['objective_conclusions'] = conclusions
         from .experiment_allocator import objective_advice
@@ -1639,6 +1734,16 @@ def status_state(state):
 
 
 def status(root):return status_state(_cycle()._load(root)[1])
+
+
+def context_status(state):
+    """The protocol status a meta-review context presents: protocol state only.
+
+    Live independent-credit decisions are reported by ``status_state`` but are not protocol
+    state; keeping them out keeps a prepared context comparable with the current one.
+    """
+    value = status_state(state)
+    return value if value is None else {k: v for k, v in value.items() if k != 'meta_review_independence'}
 
 
 def prepare_comparison(root, comparison_id, study_template, output_dir, *, predictions):
@@ -1692,7 +1797,7 @@ def context(root, *, presentation="inline", evidence_pages=None, role="critic", 
             _, content, _, roles, _ = _feedback_content(root, e["id"])
             feedback.append({"experiment_id": e["id"], "feedback": content, "actual_role_content": roles})
     value = {"kind":"staged_protocol_review_context","state_sha256":state["sha256"],"question":state["contract"]["question"],
-        "scope":state["contract"]["scope"],"protocol_status":status_state(state),
+        "scope":state["contract"]["scope"],"protocol_status":context_status(state),
         "actual_feedback":feedback,
         "current_goal":state.get('parent_task'),"resource_ledger":state["resource_ledger"],"timing":state["timing"],
         "source_inputs":input_pins(root),
@@ -1828,6 +1933,14 @@ def apply_meta_review(root, *, graph_root, node_id, context_pin, allow_control=F
                    *(["evidence_citations"] if indexed else [])))
     if value["kind"]!="research_meta_review" or value["subject_sha256"]!=context_pin["sha256"] or value["actor_id"]!=protocol["meta_actors"][receipt["role"]]:raise ValueError("actual meta actor/subject differs")
     if value["action"] not in presented["actions"]:raise ValueError("typed meta action required")
+    from . import review_independence
+    independence = review_independence.graph_decision(root, receipt)
+    if not independence['independent']:
+        # Keep the complete proposed action as advice. It cannot revise premises,
+        # invalidate stages or resolve any objection, including in control mode.
+        return review_independence.retain_advice(root, {
+            'response': value, 'graph': graph['receipt'], 'context': context_pin,
+            'role_receipt': receipt}, independence)
     presentation_receipt = None
     if indexed:
         from . import research_presentation as material, review_context
@@ -1917,7 +2030,8 @@ def apply_meta_review(root, *, graph_root, node_id, context_pin, allow_control=F
         evidence={i:None if i not in by_id else {'observation':by_id[i]['observation'],'adjudication':by_id[i]['adjudication']} for i in value['required_experiment_ids']}
         result=cycle._commit(Path(root),state,'protocol_meta_review_applied',action=value['action'],affected_claim_ids=value['affected_claim_ids'],
             affected_stage_ids=value['affected_stage_ids'],invalidated_stage_ids=sorted(invalid),required_experiment_ids=value['required_experiment_ids'],objections=value['objections'],graph=graph['receipt'],
-            context=context_pin,role_receipt=receipt,graph_binding=application,control_only=receipt['execution_observation']=='control_only',old_votes_carried=False,
+            context=context_pin,role_receipt=receipt,graph_binding=application,independence=independence,
+            independence_query=review_independence.graph_query(root, receipt),control_only=receipt['execution_observation']=='control_only',old_votes_carried=False,
             required_evidence_at_objection=evidence,
             **({'manuscript_action_plan':manuscript_pin} if manuscript_pin is not None else {}),
             **({"presentation_receipt":presentation_receipt} if indexed else {}),
@@ -2099,7 +2213,7 @@ def main(argv=None):
             value=register_concerns(args.cycle, **request)
         elif args.operation=='stage-prepare':
             ce.keys(request, ('stage_id','artifact','output_dir','model',
-                *[k for k in ('reasoning_effort','adapter','max_output_tokens','max_wall_seconds') if k in request]))
+                *[k for k in ('reasoning_effort','adapter','role_models','max_output_tokens','max_wall_seconds') if k in request]))
             value=prepare_stage(args.cycle, **request)
         elif args.operation=='stage-complete':
             ce.keys(request, ('prepared','graph_root'))
@@ -2379,8 +2493,7 @@ def commit_selection(root, request_pin):
                         if experiment is None or experiment.get('observation') is None:
                             raise ValueError('failed/unresolved trial needs its retained attempt')
                         cycle._current_evidence(state, experiment, accepted=False)
-        errors = decision_errors(root, {'scope': 'validate', 'operation': 'commit_selection',
-                                        'request': request_pin, 'selection_sha256': receipt['sha256']})
+        errors = decision_errors(root, selection_action(request_pin))
         if errors: raise ValueError('; '.join(e.code for e in errors))
         cycle._commit(Path(root), state, 'research_selection', receipt=receipt, request=request_pin)
         state_io.atomic_json(Path(root)/'research/selection.json', receipt)
@@ -2510,8 +2623,67 @@ def computed_stop(value, *, base_dir, state=None):
             'cost': cost, 'covered_families': sorted(covered), 'coverage_floor': stop['coverage_floor']}
 
 
+def _idea_dispatch_document(state, stream, rows, origin, *, base_dir):
+    """Derive stream evidence from its current, charged ordinary model call."""
+    from . import agent_graph
+    cycle = _cycle()
+    if stream not in {'a', 'b'} or not rows or any(row.get('stream') != stream for row in rows):
+        raise ValueError('idea dispatch requires one nonempty declared stream')
+    if not isinstance(origin, dict) or not {'root', 'node_id'} <= origin.keys():
+        raise ValueError('idea dispatch requires its actual model origin')
+    actual = cycle._graph_result(origin['root'], origin['node_id'])
+    if (actual != origin or actual['node_kind'] != 'model'
+            or actual['value'].get('kind') != 'model_result'
+            or actual['value'].get('value') != {'ideas': rows}):
+        raise ValueError('idea predictions must equal the unchanged actual model response')
+    graph_root = Path(origin['root'])
+    spec, _ = agent_graph._load(graph_root)
+    cycle.validate_graph_reservation(state, graph_root, spec)
+    node = next(row for row in spec['nodes'] if row['id'] == origin['node_id'])
+    if not node['inputs'] or node['inputs'] != origin['inputs']:
+        raise ValueError('idea dispatch requires its original presented inputs')
+    from . import research_controller
+    receipt = research_controller.role_receipt(graph_root, origin['node_id'],
+        expected_subject_sha256=node['inputs'][0]['sha256'], require_exact_subject=True)
+    if receipt['execution_observation'] not in OBSERVED_DELIVERIES:
+        raise ValueError('idea dispatch lacks an observed model transport')
+    observations = [event for event in state['events']
+        if event['kind'] == 'ordinary_graph_observed' and event['graph_root'] == str(graph_root)]
+    if not observations:
+        raise ValueError('idea dispatch lacks its original campaign observation')
+    return {'kind': 'research-idea-dispatch', 'stream': stream,
+        'campaign': str(Path(base_dir).resolve()), 'goal_binding': state['contract'].get('goal_binding'),
+        'ideas_sha256': ce.digest(rows), 'committed_sequence': observations[-1]['revision'],
+        'execution_observation': receipt['execution_observation'], 'origin': deepcopy(origin),
+        'worker_receipt': receipt}
+
+
+def idea_dispatch_receipt(root, stream, rows, origin, out):
+    """Write a reproducible observation; authors cannot supply transport attestations."""
+    root, state = _cycle()._load(root)
+    document = _idea_dispatch_document(state, stream, rows, origin, base_dir=root)
+    state_io.atomic_json(Path(out), document)
+    return _cycle()._pin(out)
+
+
+def verify_idea_dispatches(state, value, *, base_dir):
+    """Authority requires both current model origins, not shaped dispatch labels."""
+    seed_to_test(value, base_dir=base_dir)
+    receipts = []
+    for stream in ('a', 'b'):
+        document = _method_json(value['dispatch_receipts'][stream], base_dir)
+        rows = [row for row in value['ideas'] if row['stream'] == stream]
+        expected = _idea_dispatch_document(state, stream, rows, document.get('origin'), base_dir=base_dir)
+        if document != expected:
+            raise ValueError('idea dispatch receipt differs from current campaign/model custody')
+        receipts.append(expected['worker_receipt'])
+    if len({row['request_id'] for row in receipts}) != 2:
+        raise ValueError('both idea streams require separate actual model requests')
+    return receipts
+
+
 def seed_to_test(value, *, base_dir):
-    """Check two actual dispatches, prospective predictions and operator yield."""
+    """Validate the record shape and yield; stage authority also verifies model custody."""
     ideas = _ids(value['ideas'], 128, 'idea census')
     streams = value.get('dispatch_receipts', {})
     if set(streams) != {'a', 'b'} or {r.get('stream') for r in ideas.values()} != {'a', 'b'}:
@@ -2523,8 +2695,7 @@ def seed_to_test(value, *, base_dir):
         if (receipt.get('kind') != 'research-idea-dispatch' or receipt.get('stream') != stream
                 or receipt.get('ideas_sha256') != ce.digest(rows)
                 or type(receipt.get('committed_sequence')) is not int or receipt['committed_sequence'] < 0
-                or receipt.get('execution_observation') not in {'remote_transport_observed',
-                    'local_transport_observed', 'host_attested_external'}):
+                or receipt.get('execution_observation') not in OBSERVED_DELIVERIES):
             raise ValueError('stream dispatch receipt must commit exact prospective predictions')
         receipts[stream] = receipt
     report = {}
@@ -2945,7 +3116,9 @@ def _methodology_journal_guard(state, stage_id, artifact, *, base_dir, regime):
     """Default-stage adoption uses the same immutable boundary as staged dispatch."""
     if artifact.get('status') == 'not_applicable':
         return
-    if stage_id == 'validate':
+    if stage_id == 'ideas':
+        verify_idea_dispatches(state, artifact, base_dir=base_dir)
+    elif stage_id == 'validate':
         withheld = set(artifact.get('withheld_cells', []))
         for event in state.get('events', []):
             if event['kind'] == 'research_adaptive_read' and withheld & set(event['read']['cells']):
@@ -3114,7 +3287,7 @@ def _route(root):
     plan = _method_json(contract['request_plan'], root) if contract.get('request_plan') else {}
     search = _search_declared(contract, plan if isinstance(plan, dict) else {})
     if (Path(root)/'head.json').exists():
-        state = _cycle()._read(state_io.read_json(Path(root)/'head.json'), root)
+        state = _cycle()._load_history(root)[1]
         search |= _selection_state(state)[0] is not None or any(
             (e.get('evaluation') or {}).get('purpose') in {'screen', 'full', 'confirm'} for e in state['experiments'])
         bound = _bound(state)
@@ -3355,4 +3528,4 @@ def validation_trace(root):
 
 def _observed_state(root):
     head = Path(root)/'head.json'
-    return _cycle()._read(state_io.read_json(head), root) if head.exists() else None
+    return _cycle()._load_history(root)[1] if head.exists() else None

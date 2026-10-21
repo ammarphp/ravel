@@ -1,0 +1,25 @@
+{
+  "title": "P8 kill-the-result: three attacks",
+  "type": "object",
+  "required": ["attacks"],
+  "additionalProperties": false,
+  "properties": {
+    "attacks": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["axis", "attack", "test", "outcome", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "axis": {"type": "string", "enum": ["basis", "acceptance", "statistics"]},
+          "attack": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "test": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "outcome": {"type": "string", "enum": ["survives", "fails", "inconclusive"]},
+          "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}
+        }
+      }
+    }
+  }
+}

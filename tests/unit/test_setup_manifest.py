@@ -110,7 +110,7 @@ def test_required_profiles_exist_and_close_over_dependencies():
         ordered = mf.profile_groups(MANIFEST, name)
         for index, gid in enumerate(ordered):
             assert set(BYID[gid]['depends_on']) <= set(ordered[:index]), (name, gid)
-    assert {'python-host', 'site-root-wms', 'site-access', 'publication'} <= set(mf.profile_groups(MANIFEST, 'site'))
+    assert {'python-host', 'site-root-wms', 'site-access', 'publication', 'ml'} <= set(mf.profile_groups(MANIFEST, 'site'))
     assert not {'root-combine','tex'} & set(mf.profile_groups(MANIFEST, 'site'))
 
 

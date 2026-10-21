@@ -36,6 +36,8 @@ Alarms (``TRIGGERS``):
   the evaluated points, or a limit censored at the scan ceiling or floor, fails
   and carries a proposed extension (level lines of declared formulas warn);
 - ``validity-status``: a fit or region result without a validity status fails.
+- ``statistics-validity``: audited statistics records pass, qualify with warnings,
+  or fail when held or inconsistent with their facts and evidence.
 
 Defaults may be changed only with a recorded basis (``review.thresholds``); the
 record states the value, its origin and the basis used.
@@ -50,7 +52,7 @@ import numpy as np
 
 TRIGGERS = ('closure', 'fit-triviality', 'parameter-at-bound', 'nuisance-pulls', 'systematic-dominance',
             'systematic-selfcheck', 'reference-deviation', 'goodness-of-fit', 'excluded-bins', 'open-at-edge',
-            'validity-status', 'mc-adequacy')
+            'validity-status', 'mc-adequacy', 'statistics-validity')
 STATUSES = ('pass', 'warn', 'fail')
 GENERAL = 'general fit-review default'
 DEFAULTS = {
@@ -146,6 +148,8 @@ def evaluate(doc, *, review=None):
         elif q == 'cls-limit':
             checks += _flags(row, where)
             checks += _validity(row, where)
+        elif q == 'statistics':
+            checks += _statistics_validity(row, where)
         elif q == 'mc-adequacy':
             for k, flag in enumerate(row.get('flags') or []):
                 reasons = flag.get('flags') or [flag.get('code', 'mc_adequacy')]
@@ -161,6 +165,24 @@ def evaluate(doc, *, review=None):
     for k, ref in enumerate(review.get('references') or []):
         checks.append(_reference(doc, ref, f'review.references[{k}]', limits))
     return checks
+
+
+def _statistics_validity(row, where):
+    from ravel.physics.inference import situations
+    block = row.get('record')
+    try:
+        errors = situations.audit(block)
+    except (ValueError, TypeError, KeyError, AttributeError) as exc:
+        errors = [f'the statistics record cannot be audited: {type(exc).__name__}: {exc}']
+    if errors:
+        return [_check('statistics-validity', 'fail', where, '; '.join(errors[:3]), errors=errors[:3])]
+    outcome, labels = block['validity']['outcome'], situations.labels(block)
+    if row.get('outcome') != outcome or row.get('labels') != labels:
+        return [_check('statistics-validity', 'fail', where,
+                       'statistics outcome or labels disagree with the audited record')]
+    status = {'held': 'fail', 'qualified': 'warn', 'valid': 'pass'}[outcome]
+    return [_check('statistics-validity', status, where, '; '.join(labels) or 'every statistics validity check passed',
+                   outcome=outcome, labels=labels)]
 
 
 def _chi2_rows(row, where, limits, pseudo):

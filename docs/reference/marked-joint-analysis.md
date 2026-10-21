@@ -12,7 +12,7 @@ Each case has an explicit request population:
 - `profile`: a free-strength fit and every supplied fixed-strength point use the existing complete analytic profiler. It accepts an optional complete fixed-latent reference and explicit conditional source mask. Every returned normalized NLL and fit record is retained. The raw signed twice-NLL difference is stored even when nesting fails. Only an additional diagnostic field uses the existing 1e-5 nesting tolerance; original fit results are not rewritten.
 - `finite_mc_comparison`: run the same profile grid with the supplied complete latent reference fixed and with the full finite-MC probabilities free. Both use the same original normalized auxiliary experiment. Each lane has its own free-strength baseline. No ordering of recentered curves, interval, CLs or global-minimum conclusion is inferred.
 
-All categories, including zero-count and unselected support, stay in the density. Probabilities are checked and never renormalized. No nuisance prior is sampled. Each source auxiliary and the complete multinomial factor occurs once. Model compilation, fits, shape evaluations, covariance requests and all declared fit work are counted prospectively. Fit wall ceilings may be explicitly admitted up to 300 seconds via an optional WorkBudget ceiling; all old callers retain the 30-second default. The consumer requires the stage to contain the sum of declared per-fit ceilings, with the caller responsible for appropriate setup/verification margin. The ordinary supervisor remains necessary for blocking callbacks.
+All categories, including zero-count and unselected support, stay in the density. Probabilities are checked and never renormalized. No nuisance prior is sampled. Each source auxiliary and the complete multinomial factor occurs once. Model compilation, fits, shape evaluations, covariance requests and all declared fit work are counted prospectively. Fit wall ceilings can be explicitly admitted up to 300 seconds via an optional WorkBudget ceiling; all old callers retain the 30-second default. The consumer requires the stage to contain the sum of declared per-fit ceilings, with the caller responsible for appropriate setup/verification margin. The ordinary supervisor remains necessary for blocking callbacks.
 
 ## Corrected numerical search/domain interface
 
@@ -22,13 +22,13 @@ The old multiplicative branch imposed reference-template `W_reference p >= 0`. T
 
 ## Derivatives and external native interfaces
 
-The consumer requires the exact byte-bound MarkedResponseProvider and its complete-domain C1 mark-law binding. It cannot substitute HS3/Combine finite-difference diagnostic estimates. The native derivative stream's `profiler_derivative_qualified: false` and `agreement_has_accuracy_authority: false` remain meaningful: h/h2 agreement, even with contracting actual nodes, does not certify smoothness, absence of common bias, Hessian inversion, or covariance.
+The consumer requires the exact byte-bound MarkedResponseProvider and its complete-domain C1 mark-law binding. It must not substitute HS3/Combine finite-difference diagnostic estimates. The native derivative stream's `profiler_derivative_qualified: false` and `agreement_has_accuracy_authority: false` remain meaningful: h/h2 agreement, even with contracting actual nodes, does not certify smoothness, absence of common bias, Hessian inversion, or covariance.
 
 ## Source controls and empirical limits
 
 Seventeen one-worker controls passed in 0.071 seconds. They include actual extracted linear-constraint assembly, exact signed-transport and common-scale algebra, genuine tiny source/ledger capture (including an opaque source pin), source-mask/bound refusal, the ordinary route discriminator, and the real adapter's serialization and failure paths with injected fake numerical objects. The numerical engines/compiler/LP/fit entry points were barred. The initial four mock-transport errors came from macOS's symlinked default temporary path; the fixtures now resolve their own temporary root. The original failure log and test draft remain.
 
-This is implementation evidence. There has been no new likelihood evaluation, compilation, fit, native backend call, optimizer qualification, interval/coverage study, detector calibration, or physical sampling-law validation. Previous continuous-fit/finite-MC holds and the old failed four-fit study remain unchanged. The later accepted principal-face diagnostic has its original scope and is not a qualification of this new general consumer. Intensive empirical work is deliberately deferred per the current implementation-first instruction.
+The software controls exercise the supplied mark-law and derivative contracts. Native runtime, numerical, sampling-law and detector qualification each require source-bound scientific evidence.
 
 ## Composition
 

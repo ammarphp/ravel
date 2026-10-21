@@ -3,8 +3,8 @@
 `dataset-query-quantities` connects supplied dataset, query, observable and presentation
 contracts to the ordinary scientific-study lifecycle. It uses the ServiceX
 FileList/Query interfaces or supplied native ROOT/Parquet returns, then checks
-the complete returned population and grouped quantities. Inspection does not
-import scientific readers, resolve credentials or submit requests.
+the complete returned population and grouped quantities. Inspection records the supplied
+contracts; execution uses the scientific readers and credentials declared for the study.
 
 Use the scientific-study intake in `docs/workflow/start.md`. The task is exactly
 `{"config":{"path":"...","sha256":"...","size":123}}`. The configuration
@@ -21,13 +21,13 @@ The supplied schema-1 analysis has `task_id` (an arbitrary label),
 its own quantity axes, bins, representation and normalization. There is no
 installed study roster, identity admission rule or observable-count expectation.
 The query and analysis sources remain independently pinned; changing a label
-cannot change their selection or provenance checks.
+must not change their selection or provenance checks.
 
 `event_domain` has the complete `datasets` identifier list and an explicit
 `prefix`, either null or `{"events": N, "source": PIN}`. It must equal the
 supplied dataset contract's population and prefix. Applying a prefix requires
 complete known source exposure and unique source entries, ordered by declared
-member then source entry. Filtered or unknown exposure cannot stand for the
+member then source entry. The complete source exposure is required for the
 full prefix. Rejected selections and zero-object events retain their proper
 prefix denominator; incomplete native returns refuse.
 
@@ -78,13 +78,12 @@ checks actual Parquet/ROOT row counts and connected source/return components.
 JSON masquerading as native data, absent members and inconsistent counts refuse.
 Native row counts establish returned exposure, not source identity, source order
 or query correctness. Complete member/entry correspondence remains a reviewed
-source premise; completion order and reduced row ranks cannot establish it.
+source premise; it requires the declared original source ordering and population.
 
 A remote submission exception retains ambiguous state and prohibits automatic
 duplicate submission. Existing-request observation requires the previous intent
 and query identity and never submits a query. Cancellation acknowledgement and
-independently observed terminal status are distinct; unresolved remote state
-cannot acquire a containment claim from local process supervision. Public
+independently observed terminal status are distinct; remote containment requires an independently observed terminal remote state. Public
 contexts export only whitelisted request/status/count observations. Credentials
 are referenced and resolved at the isolated native boundary. Complete runtime
 membership and byte checks happen before and after consumption; they are finite
@@ -106,7 +105,7 @@ both from the `service` block of the configuration you supply:
 The worker writes a private, non-secret client configuration from these fields for each run.
 A configuration whose `service` is absent or names no endpoint is refused before anything is
 dispatched with `MissingServiceEndpoint`, which says what to supply. A named variable that is
-unset in the worker's environment refuses the run with the same reference unavailable.
+unset in the worker's environment refuses the run with the same reference missing.
 `analyze_returned_native_files` needs no endpoint or credential: it checks native files you
 already hold and has no `service` block (`"service": null`).
 

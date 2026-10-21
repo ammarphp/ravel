@@ -6,19 +6,18 @@ source construction and transport operation. A returned native spectrum still
 requires numerical and physical review.
 
 The provider accepts Mu as an input and solves the Higgs soft masses through
-EWSB. It therefore does not replace the requested Mu–M2 plane with CMSSM
-universality or an NMSSM limit. The released model uses real DRbar soft and
+EWSB. This retains the requested Mu–M2 plane. The released model uses real DRbar soft and
 trilinear inputs at its iterated SUSY boundary; TanBeta is imposed at the MZ
-boundary. It does not accept an arbitrary Qin or complex-soft prescription.
+boundary.
 `GAUGE 1` is the source's non-GUT-normalized gY. Signed pole masses and all
 imaginary mixing rows remain in the complete original SLHA return.
 
-**This release has no generated decay calculation.** Use
+Use
 `calculate_decays: false` and `loop_library: null`. Missing widths and lifetimes
 remain unknown. A displaced-track or LLP result additionally needs an actual,
 source-bound decay return, production, response and likelihood inputs. Native
-spectrum success does not supply those inputs or close the original research
-request.
+spectrum results retain their spectrum scope; the complete research request
+requires every declared scientific input and quantity.
 
 ## Complete selected input
 
@@ -94,10 +93,10 @@ partial returns remain failed artifacts.
 An existing `model-spectrum point` identity map can select this profile after
 actual accepted spectrum and UFO-source transport reviews. It must cover
 all external UFO addresses with explicit matching units/scales. A missing
-DECAY width cannot be replaced by zero. Existing downstream model-tool/event
+DECAY width must not be replaced by zero. Existing downstream model-tool/event
 preparation then uses that accepted card and source tree unchanged.
 
-The MSSM observable-map point origin may be
+The MSSM observable-map point origin can be
 `{"kind":"accepted_lowmssm_spectrum","run":"..."}`. It verifies the actual
 accepted ordinary generated-spectrum run, profile, operation, exact config,
 selected input, full raw return and no-decay disposition. Axis bindings use

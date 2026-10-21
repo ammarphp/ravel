@@ -9,12 +9,12 @@ statistics modes read directly.
 
 Use it when an analysis has no public Rivet or SimpleAnalysis routine and the selection can be
 stated from the paper (step 4, Option C), or for any supplied-event study that needs a cutflow
-and histograms. When a step cannot be stated as a recipe, use the governed authored step
+and histograms. For steps requiring authored Python, use the governed authored step
 (`docs/reference/authored-analysis.md`).
 
 ## Running a study
 
-The study is planned, approved and run like any other science mode. The task is:
+The study is declared, approved and run like any other science mode. The task is:
 
 ```json
 {"recipe": "recipe.json",
@@ -63,7 +63,7 @@ descriptors select particles by PDG id and status, and the missing momentum is t
 the declared invisible particles.
 
 `ravel root-schema --input FILE --draft` inspects a ROOT file without writing anything and
-drafts a descriptor and a weight contract. It lists every choice it cannot read from the file,
+drafts a descriptor and a weight contract. It lists every choice requiring caller-supplied metadata,
 such as a missing mass branch, an energy unit or which of several weight branches is the
 generator weight. Review the draft before using it.
 
@@ -74,7 +74,7 @@ A recipe has `schema_version: 1` and `kind: columnar-analysis-recipe`, and these
 - `weights`: the generator weight field (or `null`) and further weight factors.
 - `objects`: ordered steps. A step defines an object from a collection (`from`, `select`), a
   subset of an object (`from_object`), or a union; or it is `overlap_removal` (remove objects
-  within ΔR of another collection, the cone may depend on the object), `isolation` (a new field
+  within ΔR of another collection, the cone can depend on the object), `isolation` (a new field
   with the scalar pT sum in a cone, absolute or relative), `efficiency` (see below) or
   `pair_split` (an on-Z or other pair and the remaining objects). Objects are sorted by pT.
 - `observables`: ordered per-event quantities. The library has counts and fields; missing
@@ -83,10 +83,10 @@ A recipe has `schema_version: 1` and `kind: columnar-analysis-recipe`, and these
   opposite-charge pair masses with a declared target mass; the minimum lepton–b-jet mass M_lb;
   sums of masses over assignments; MT2 over declared assignments (MT2(ll), MT2(lb,lb)); MT2W;
   modified topness; the neutrino longitudinal momentum; aplanarity; and expressions over earlier
-  observables. A quantity that cannot be formed in an event has no value; a cut on it fails and a
+  observables. A quantity missing its required event constituents has no value; a cut on it fails and a
   histogram counts it separately as undefined. `only_if` skips expensive observables in events
-  that cannot pass.
-- `regions`: named regions with ordered, named cuts; a region may start from a `base` region.
+  with a failed comparison.
+- `regions`: named regions with ordered, named cuts; a region can start from a `base` region.
 - `histograms`: an observable (or two or three) in a region with declared edges, units,
   natural-language labels and a normalisation (`yield`, `raw`, `fraction`, `density`,
   `yield-per-width`). Under- and overflow are kept separately or placed in the edge bins by
@@ -127,7 +127,7 @@ independent object trigger responses for the declared OR; use it only where that
 describes the supplied efficiencies. A zero MC denominator, including an empty collection,
 refuses with the original file entry index. A one-object collection gives the efficiency ratio.
 
-Any typed factor may add `applies_when: {"field": "period", "in": [1, 2]}`. The field is
+Any typed factor can add `applies_when: {"field": "period", "in": [1, 2]}`. The field is
 required and must contain finite numeric values. The factor contributes one outside the listed
 periods; its values are checked only where it applies. Periods have no built-in meaning.
 
@@ -137,14 +137,14 @@ is still required. A present branch with an invalid shape or value refuses. Obje
 generator weights, period fields, trigger fields and systematic replacement/multiply fields
 remain required. `optional_weights_missing` lists absent optional event fields in each input
 read record and in the final result's input provenance. Planning and execution use the same
-policy. Optional object fields and optional LHE weights are not supported.
+policy.
 
 Weight-factor systematics can replace a typed event factor's `field`; they retain its period
 condition and optional declaration. A declared replacement field is required, including in a
 file without the nominal optional field. Branch variations apply the ordinary descriptor rules
 to present fields; an absent nominal optional field is omitted in every branch variation.
 
-A region cut may select boolean event fields by period instead of using an expression:
+A region cut can select boolean event fields by period instead of using an expression:
 
 ```json
 {"name": "trigger selection", "any_of_by_period": {
@@ -175,7 +175,7 @@ the base MET vector, treating these objects as invisible:
 
 `base` is `met` or an earlier override. `mt`, `met`, `met_phi` and `min_delta_phi_met` accept
 the optional `met` key; `delta_phi` accepts the vector name as either operand. References to
-future overrides or scalar observables refuse during compilation. The original `met` vector
+subsequent overrides or scalar observables refuse during compilation. The original `met` vector
 is preserved. An empty selected collection adds zero; `only_if` leaves both magnitude and
 vector undefined outside its selection. Declare disjoint collections in `add_invisible` to
 avoid counting the same object twice; duplicate collection names are refused.
@@ -189,7 +189,7 @@ objects are counted. A map must come from a citable public source.
 
 Each map declares its `semantics`: `absolute` (probability to reconstruct and identify the
 object), `conditional_on_reco` (given that the detector simulation already reconstructed it) or
-`scale_factor` (a ratio that multiplies an applied efficiency; only this kind may exceed 1). A
+`scale_factor` (a ratio that multiplies an applied efficiency; only this kind can exceed 1). A
 map in percent is refused. `card_modules` names the Delphes card modules the map corresponds to.
 When the study supplies `detector_card`, planning refuses an absolute map on objects the card
 already makes inefficient, and refuses a conditional map whose card module is missing. The
@@ -252,7 +252,7 @@ each histogram realises its normalisation basis.
 ## Worked recipe
 
 A generic selection with three leptons, an on-Z pair, missing momentum and an isolated-track
-veto, on Delphes output. The Z mass value and its source are declared, not built in.
+veto, on Delphes output. Declare the Z mass value and its source.
 
 ```json
 {
@@ -375,7 +375,7 @@ Both pinned normalization documents must contain the same sample identity:
 The original population lists member `guid`, `entries`, and `did` when declared.
 The normalization source binds `original_population_sha256` and explicitly declares
 `sum_weights`, `luminosity_fb_inverse`, `cross_section_pb`, `filter_efficiency` and
-`k_factor`. A record authority does not supply or inherit any of those quantities.
+`k_factor`. Supply each quantity with its own scientific source and normalization basis.
 Use the existing `inputs: {dataset: <pin>}` and `normalization: {mode: "dataset"}`
 interface; local members retain their `file://` URIs. ROOT-stream context, worker,
 partition and final receipts carry the record identity and verify the same source

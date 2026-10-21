@@ -212,6 +212,8 @@ def generation(base,d,point_index=1):
     point=d['points'][point_index];component=point['components'][0]
     cfg=config(base/'generator','unmerged_lo')
     cfg['cards']['parameter']=write(base/'generator/param.dat','BLOCK MASS\n 1000024 '+str(point['coordinate'][0])+'\nDECAY 1000024 0\n')
+    from model_validation_fixture import record_model_events_validation
+    record_model_events_validation(cfg,base/'generator/validation')
     cp=emit(base/'generator/config.json',cfg)
     prep={'schema_version':1,'config':{k:cp[k] for k in ('path','sha256')},'review_policy':{k:d['generation_policy'][k] for k in ('path','sha256')},'supervisor_seconds':90,'goal_binding':d['goal_binding']}
     component['generation']=emit(base/'generation-request.json',prep)
