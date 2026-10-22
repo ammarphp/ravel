@@ -1,5 +1,6 @@
 """The public CI test matrix runs every test file exactly once, split into deterministic shards."""
 import importlib.util
+import json
 from pathlib import Path
 import re
 import shlex
@@ -35,7 +36,7 @@ def long_job():
 def test_the_shards_partition_the_full_test_file_list():
     job, count, indices = matrix_shards()
     files = ci_shards.test_files(ROOT)
-    assert count == 8 and indices == list(range(count))
+    assert count == ci_shards.SHARDS and indices == list(range(count))
     shards = [ci_shards.shard(ci_shards.sharded(files), i, count) for i in indices]
     assert all(shards)
     combined = [f for s in shards for f in s] + list(ci_shards.LONG)
@@ -58,8 +59,8 @@ def test_each_long_file_runs_in_its_own_job_with_a_bounded_file_time():
     assert 'python -m pip install --require-hashes -r requirements-replay.lock' in job
     assert_complete_profile_install(job)
     assert 'bash scripts/maintenance/install-git-hooks.sh' in job
-    for index in range(8):
-        assert not set(ci_shards.LONG) & set(ci_shards.selected(index=index, count=8))
+    for index in range(ci_shards.SHARDS):
+        assert not set(ci_shards.LONG) & set(ci_shards.selected(index=index, count=ci_shards.SHARDS))
 
 
 def test_a_long_selection_must_name_a_declared_long_file():
@@ -81,8 +82,9 @@ def test_each_shard_job_runs_isolated_files_with_a_time_limit_and_the_install_st
     job, count, _ = matrix_shards()
     assert re.search(r'timeout-minutes: 150\b', job)
     assert 'fail-fast: false' in job
-    assert re.search(r'ci_shards.py --index \$\{\{ matrix.shard \}\} --count 8 --run --file-timeout \d+', job)
-    file_seconds = int(re.search(r'--count 8 --run --file-timeout (\d+)', job).group(1))
+    assert count == ci_shards.SHARDS and f'(shard ${{{{ matrix.shard }}}} of {count})' in job
+    assert re.search(rf'ci_shards.py --index \$\{{\{{ matrix.shard \}}\}} --count {count} --run --file-timeout \d+', job)
+    file_seconds = int(re.search(rf'--count {count} --run --file-timeout (\d+)', job).group(1))
     assert file_seconds + 20 * 60 <= 150 * 60
     assert 'python -m pip install --require-hashes -r requirements-replay.lock' in job
     assert_complete_profile_install(job)
@@ -110,6 +112,43 @@ def assert_complete_profile_install(job):
     installs = [line.strip() for line in job.splitlines() if 'python -m pip install ' in line]
     assert len(installs) == 2  # locked statistics layer, then complete profile and editable package
     assert 'python -m pip check' in job
+
+
+# Seconds of a job before its pytest step starts: checkout, installs and the sandbox probe took about
+# three to five minutes on the hosted runners.
+SETUP_SECONDS = 300
+
+
+def test_each_shard_is_expected_to_finish_at_least_thirty_percent_under_its_limits():
+    """Hosted-runner seconds per file (``ci_seconds``) bound each shard, each ordinary file and each long file."""
+    job, count, indices = matrix_shards()
+    job_limit = int(re.search(r'timeout-minutes: (\d+)', job).group(1)) * 60
+    file_limit = int(re.search(r'--count \d+ --run --file-timeout (\d+)', job).group(1))
+    long_job_text = long_job()
+    long_job_limit = int(re.search(r'timeout-minutes: (\d+)', long_job_text).group(1)) * 60
+    long_file_limit = int(re.search(r'--run --file-timeout (\d+)', long_job_text).group(1))
+    durations = ci_shards.ci_seconds()
+    files = [f for f in ci_shards.sharded(ci_shards.test_files(ROOT)) if f in durations]
+    assert len(files) > 1000
+    loads = [sum(durations[f] for f in ci_shards.shard(files, i, count, durations)) for i in indices]
+    assert max(loads) + SETUP_SECONDS <= 0.7 * job_limit, [round(load) for load in loads]
+    assert max(durations[f] for f in files) <= 0.7 * file_limit
+    for file in ci_shards.LONG:
+        assert durations.get(file, 0) + SETUP_SECONDS <= 0.7 * min(long_job_limit, long_file_limit), file
+
+
+def test_hosted_durations_come_from_ci_seconds_then_scaled_cluster_seconds(tmp_path):
+    record = tmp_path / 'file_timings.json'
+    record.write_text(json.dumps({'schema_version': 1, 'seconds': {'tests/a.py': 10, 'tests/b.py': 20},
+                                  'ci_seconds': {'tests/b.py': 300.5, 'tests/c.py': 7}}))
+    assert ci_shards.ci_seconds(record) == {'tests/a.py': 10 * ci_shards.CI_SCALE, 'tests/b.py': 300.5, 'tests/c.py': 7}
+    assert ci_shards.measured_seconds(record) == {'tests/a.py': 10, 'tests/b.py': 20}
+    record.write_text(json.dumps({'schema_version': 1, 'seconds': {'tests/a.py': 10}, 'ci_seconds': {'tests/../x.py': 5}}))
+    with pytest.raises(ValueError):
+        ci_shards.ci_seconds(record)
+    record.write_text(json.dumps({'schema_version': 1, 'seconds': {'tests/a.py': 10}, 'ci_seconds': []}))
+    with pytest.raises(ValueError):
+        ci_shards.ci_seconds(record)
 
 
 @pytest.mark.parametrize('index,count', [(-1, 8), (8, 8), (0, 0), (1, 1)])

@@ -136,14 +136,14 @@ Refresh with `python scripts/maintenance/render_documentation_inventory.py --wri
 
 | Command or argument | Description | Constraints | Source |
 |---|---|---|---|
-| <a id="parser-8898352b4d7dd66d"></a>`python -m scripts.maintenance.ci_shards` | Parser declaration in main; admission follows its handler. | parser | [223](../../scripts/maintenance/ci_shards.py#L223) |
-| <a id="option-b41b5cf1ec49931e"></a>`python -m scripts.maintenance.ci_shards --count` | Declared option; source help at scripts/maintenance/ci_shards.py:225. | type=source: int | [225](../../scripts/maintenance/ci_shards.py#L225) |
-| <a id="option-675c0d10e2b3b6bd"></a>`python -m scripts.maintenance.ci_shards --file-timeout` | Declared option; source help at scripts/maintenance/ci_shards.py:230. | type=source: int | [230](../../scripts/maintenance/ci_shards.py#L230) |
-| <a id="option-907ebaac6f58e3a9"></a>`python -m scripts.maintenance.ci_shards --index` | Declared option; source help at scripts/maintenance/ci_shards.py:224. | type=source: int | [224](../../scripts/maintenance/ci_shards.py#L224) |
-| <a id="option-652b4860801949fe"></a>`python -m scripts.maintenance.ci_shards --long` | Declared option; source help at scripts/maintenance/ci_shards.py:226. | option | [226](../../scripts/maintenance/ci_shards.py#L226) |
-| <a id="option-10fa23765350d88f"></a>`python -m scripts.maintenance.ci_shards --prune-timings` | Declared option; source help at scripts/maintenance/ci_shards.py:229. | action=store_true | [229](../../scripts/maintenance/ci_shards.py#L229) |
-| <a id="option-44987c2f47dd94db"></a>`python -m scripts.maintenance.ci_shards --run` | Declared option; source help at scripts/maintenance/ci_shards.py:228. | action=store_true | [228](../../scripts/maintenance/ci_shards.py#L228) |
-| <a id="option-e3741644d63b186c"></a>`python -m scripts.maintenance.ci_shards --tier` | Declared option; source help at scripts/maintenance/ci_shards.py:227. | choices=source declaration at scripts/maintenance/ci_shards.py:227 | [227](../../scripts/maintenance/ci_shards.py#L227) |
+| <a id="parser-b0c3a8dab5ed3ef7"></a>`python -m scripts.maintenance.ci_shards` | Parser declaration in main; admission follows its handler. | parser | [251](../../scripts/maintenance/ci_shards.py#L251) |
+| <a id="option-4b87137bde2c5b86"></a>`python -m scripts.maintenance.ci_shards --count` | Declared option; source help at scripts/maintenance/ci_shards.py:253. | type=source: int | [253](../../scripts/maintenance/ci_shards.py#L253) |
+| <a id="option-4cbff4cb07f22abd"></a>`python -m scripts.maintenance.ci_shards --file-timeout` | Declared option; source help at scripts/maintenance/ci_shards.py:258. | type=source: int | [258](../../scripts/maintenance/ci_shards.py#L258) |
+| <a id="option-3b31b0cd41b94d2c"></a>`python -m scripts.maintenance.ci_shards --index` | Declared option; source help at scripts/maintenance/ci_shards.py:252. | type=source: int | [252](../../scripts/maintenance/ci_shards.py#L252) |
+| <a id="option-7cbf34c2d1e33d6b"></a>`python -m scripts.maintenance.ci_shards --long` | Declared option; source help at scripts/maintenance/ci_shards.py:254. | option | [254](../../scripts/maintenance/ci_shards.py#L254) |
+| <a id="option-5204dd534bca152a"></a>`python -m scripts.maintenance.ci_shards --prune-timings` | Declared option; source help at scripts/maintenance/ci_shards.py:257. | action=store_true | [257](../../scripts/maintenance/ci_shards.py#L257) |
+| <a id="option-bc6d3b3379b241ec"></a>`python -m scripts.maintenance.ci_shards --run` | Declared option; source help at scripts/maintenance/ci_shards.py:256. | action=store_true | [256](../../scripts/maintenance/ci_shards.py#L256) |
+| <a id="option-fec54bc54bf9ee1c"></a>`python -m scripts.maintenance.ci_shards --tier` | Declared option; source help at scripts/maintenance/ci_shards.py:255. | choices=source declaration at scripts/maintenance/ci_shards.py:255 | [255](../../scripts/maintenance/ci_shards.py#L255) |
 
 ## scripts/maintenance/expand_generality_citations.py
 
@@ -4138,15 +4138,15 @@ Refresh with `python scripts/maintenance/render_documentation_inventory.py --wri
 
 | Command or argument | Description | Constraints | Source |
 |---|---|---|---|
-| <a id="parser-cf796ccaa52e6ae7"></a>`ravel lease` | Parser declaration in main; admission follows its handler. | parser | [1445](../../src/ravel/workflow/machine_lease.py#L1445) |
-| <a id="command-23bf2ebb08d6fa86"></a>`ravel lease clear-fence` | Command declaration in main; admission follows its handler. | command | [1447](../../src/ravel/workflow/machine_lease.py#L1447) |
-| <a id="option-f37a6e400cd3ab28"></a>`ravel lease clear-fence --malformed` | Declared option; source help at src/ravel/workflow/machine_lease.py:1452. | action=store_true | [1452](../../src/ravel/workflow/machine_lease.py#L1452) |
-| <a id="option-a14bfcb5a17a0eab"></a>`ravel lease clear-fence --operator` | Required option; source help at src/ravel/workflow/machine_lease.py:1454. | required=True | [1454](../../src/ravel/workflow/machine_lease.py#L1454) |
-| <a id="option-e35bf8395f22ef79"></a>`ravel lease clear-fence --pgid` | Declared option; source help at src/ravel/workflow/machine_lease.py:1449. | type=source: int | [1449](../../src/ravel/workflow/machine_lease.py#L1449) |
-| <a id="option-075cedd814c8b3fc"></a>`ravel lease clear-fence --reason` | Required option; source help at src/ravel/workflow/machine_lease.py:1453. | required=True | [1453](../../src/ravel/workflow/machine_lease.py#L1453) |
-| <a id="option-210f53637250d77e"></a>`ravel lease clear-fence --token` | Declared option; source help at src/ravel/workflow/machine_lease.py:1450. | option | [1450](../../src/ravel/workflow/machine_lease.py#L1450) |
-| <a id="option-8658fd6c271c14af"></a>`ravel lease clear-fence --unreadable` | Declared option; source help at src/ravel/workflow/machine_lease.py:1451. | action=store_true | [1451](../../src/ravel/workflow/machine_lease.py#L1451) |
-| <a id="command-620518d0ba8d3c4c"></a>`ravel lease preflight` | Command declaration in main; admission follows its handler. | command | [1455](../../src/ravel/workflow/machine_lease.py#L1455) |
+| <a id="parser-a8bc93befef0c0e7"></a>`ravel lease` | Parser declaration in main; admission follows its handler. | parser | [1464](../../src/ravel/workflow/machine_lease.py#L1464) |
+| <a id="command-9cb6e86b9d803834"></a>`ravel lease clear-fence` | Command declaration in main; admission follows its handler. | command | [1466](../../src/ravel/workflow/machine_lease.py#L1466) |
+| <a id="option-d5ea9fb2f59f6d64"></a>`ravel lease clear-fence --malformed` | Declared option; source help at src/ravel/workflow/machine_lease.py:1471. | action=store_true | [1471](../../src/ravel/workflow/machine_lease.py#L1471) |
+| <a id="option-f8da4598c9f3854e"></a>`ravel lease clear-fence --operator` | Required option; source help at src/ravel/workflow/machine_lease.py:1473. | required=True | [1473](../../src/ravel/workflow/machine_lease.py#L1473) |
+| <a id="option-9bd03d325aee246c"></a>`ravel lease clear-fence --pgid` | Declared option; source help at src/ravel/workflow/machine_lease.py:1468. | type=source: int | [1468](../../src/ravel/workflow/machine_lease.py#L1468) |
+| <a id="option-b409188e570c3b56"></a>`ravel lease clear-fence --reason` | Required option; source help at src/ravel/workflow/machine_lease.py:1472. | required=True | [1472](../../src/ravel/workflow/machine_lease.py#L1472) |
+| <a id="option-fd151f6bd2382538"></a>`ravel lease clear-fence --token` | Declared option; source help at src/ravel/workflow/machine_lease.py:1469. | option | [1469](../../src/ravel/workflow/machine_lease.py#L1469) |
+| <a id="option-08afd5c7c8264935"></a>`ravel lease clear-fence --unreadable` | Declared option; source help at src/ravel/workflow/machine_lease.py:1470. | action=store_true | [1470](../../src/ravel/workflow/machine_lease.py#L1470) |
+| <a id="command-7cdb56013a84d309"></a>`ravel lease preflight` | Command declaration in main; admission follows its handler. | command | [1474](../../src/ravel/workflow/machine_lease.py#L1474) |
 
 ## src/ravel/workflow/method_selection.py
 

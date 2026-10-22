@@ -1,7 +1,7 @@
 """Deterministic test-file shards for the public CI test matrix.
 
 The CI "test suite" job runs ``python -m pytest`` once per file. Shards greedily
-balance committed measured file durations from the test files pytest collects
+balance committed file durations on the hosted runners (``ci_seconds``) from the test files pytest collects
 (``test_*.py`` and ``*_test.py`` below ``tests/``, skipping the directories pytest
 does not enter by default), leaving out the ``LONG`` files.
 Each ``LONG`` file runs in a CI job of its own. Together the shards and the long
@@ -11,7 +11,7 @@ Every file has a time limit (``--file-timeout``). A file that reaches it is stop
 with its whole process group, reported as ``exit=timeout`` and counted as failed, so
 a hung test cannot hold its job until the job limit.
 
-    python scripts/maintenance/ci_shards.py --index 3 --count 8
+    python scripts/maintenance/ci_shards.py --index 3 --count 12
     python scripts/maintenance/ci_shards.py --long tests/unit/test_wms_retry.py --run
 """
 import argparse
@@ -30,17 +30,27 @@ ROOT = Path(__file__).resolve().parents[2]
 TIMINGS = ROOT / 'tests/file_timings.json'
 # pytest's default norecursedirs; a directory starting with "." is skipped as well.
 SKIPPED = ('*.egg', '.*', '_darcs', 'build', 'CVS', 'dist', 'node_modules', 'venv', '{arch}')
-# Files that alone take a large part of a shard's time limit (about 27 to 71 minutes
-# each on the project cluster). Each runs in its own CI job; the shards leave them out.
+# Files that alone take a large part of a shard's time limit: each took more than 70% of the
+# 40-minute file limit on the hosted runners (about 28 to 71 minutes on the project cluster).
+# Each runs in its own CI job; the shards leave them out.
 LONG = ('tests/unit/test_fresh_replication.py', 'tests/unit/test_wms_retry.py',
         'tests/unit/test_research_full_cycle.py', 'tests/unit/test_research_full_cycle_outer.py',
-        'tests/unit/test_research_full_cycle_receipt.py')
+        'tests/unit/test_research_full_cycle_receipt.py',
+        'tests/unit/controller/test_composition_operation_tasks.py',
+        'tests/unit/controller/test_composition_wave_a.py', 'tests/unit/controller/test_composition_wave_b.py',
+        'tests/unit/controller/test_p11_composition.py', 'tests/unit/test_langgraph_research_orchestration.py',
+        'tests/unit/test_native_correction_adoption.py', 'tests/unit/test_readonly_preparation_successor_v2.py',
+        'tests/unit/test_science_packet_observation.py', 'tests/unit/test_science_resume_observation.py')
+# Number of ordinary shards (``--count`` of the CI test job).
+SHARDS = 12
 # A test still running this many seconds before its file's time limit dumps every
 # thread's traceback once, so a stopped file names the test and the line where it waited.
 # The dump comes only near the limit: an asynchronous dump reads the frames of a running
 # thread, which CPython does not make safe, and repeated dumps in a legitimately long
 # test have crashed the test process (SIGSEGV).
 TRACEBACK_MARGIN = 120
+# Hosted-runner seconds per cluster second (aggregate over the files recorded on both).
+CI_SCALE = 2.35
 
 
 def traceback_seconds(file_timeout):
@@ -62,18 +72,34 @@ def test_files(root=ROOT):
     return sorted(found)
 
 
-def measured_seconds(path=TIMINGS):
-    """Read measured wall seconds; absent files keep the conservative unknown cost."""
+def _read_timings(path):
     record = json.loads(Path(path).read_text())
     if (not isinstance(record, dict) or record.get('schema_version') != 1
-            or not isinstance(record.get('seconds'), dict)):
+            or not isinstance(record.get('seconds'), dict)
+            or not isinstance(record.get('ci_seconds', {}), dict)):
         raise ValueError('invalid measured timing census')
-    for file, seconds in record['seconds'].items():
-        if (not isinstance(file, str) or not file.startswith('tests/')
-                or '..' in Path(file).parts or not file.endswith('.py')
-                or type(seconds) not in (int, float) or not math.isfinite(seconds) or seconds <= 0):
-            raise ValueError(f'invalid measured file duration: {file}')
-    return record['seconds']
+    for table in ('seconds', 'ci_seconds'):
+        for file, seconds in record.get(table, {}).items():
+            if (not isinstance(file, str) or not file.startswith('tests/')
+                    or '..' in Path(file).parts or not file.endswith('.py')
+                    or type(seconds) not in (int, float) or not math.isfinite(seconds) or seconds <= 0):
+                raise ValueError(f'invalid measured file duration: {file}')
+    return record
+
+
+def measured_seconds(path=TIMINGS):
+    """Read measured wall seconds; absent files keep the conservative unknown cost."""
+    return _read_timings(path)['seconds']
+
+
+def ci_seconds(path=TIMINGS):
+    """Wall seconds on the hosted CI runners, which the shards balance.
+
+    A file without a hosted measurement takes its measured seconds times ``CI_SCALE``.
+    """
+    record = _read_timings(path)
+    return {**{file: seconds * CI_SCALE for file, seconds in record['seconds'].items()},
+            **record.get('ci_seconds', {})}
 
 
 def prune_timings(root=ROOT):
@@ -81,7 +107,7 @@ def prune_timings(root=ROOT):
     import importlib.util
     root = Path(root)
     path = root / 'tests/file_timings.json'
-    measured_seconds(path)
+    _read_timings(path)
     specification = importlib.util.spec_from_file_location('public_timing_layout', ROOT / 'src/ravel/evidence_layout.py')
     layout = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(layout)
@@ -89,7 +115,9 @@ def prune_timings(root=ROOT):
     allowed = public & set(test_files(root))
     record = json.loads(path.read_text())
     before = len(record['seconds'])
-    record['seconds'] = {file: seconds for file, seconds in sorted(record['seconds'].items()) if file in allowed}
+    for table in ('seconds', 'ci_seconds'):
+        if table in record:
+            record[table] = {file: seconds for file, seconds in sorted(record[table].items()) if file in allowed}
     path.write_text(json.dumps(record, indent=2) + '\n')
     return {'retained': len(record['seconds']), 'removed': before - len(record['seconds'])}
 
@@ -102,7 +130,7 @@ def shard(files, index, count, durations=None):
     """
     if type(count) is not int or count < 1 or type(index) is not int or not 0 <= index < count:
         raise ValueError('shard index must satisfy 0 <= index < count')
-    durations = measured_seconds() if durations is None else durations
+    durations = ci_seconds() if durations is None else durations
     files = list(files)
     if len(files) != len(set(files)):
         raise ValueError('duplicate test file')
@@ -142,7 +170,7 @@ def tier_files(root=ROOT, durations=None, manifest=None):
 
 
 def sharded(files):
-    """The files the eight shards divide: every file except the ``LONG`` ones."""
+    """The files the ordinary shards divide: every file except the ``LONG`` ones."""
     return [f for f in files if f not in LONG]
 
 

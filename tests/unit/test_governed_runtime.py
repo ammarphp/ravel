@@ -214,6 +214,53 @@ def test_identity_of_installed_sealed_checkout_and_writable_copies(tmp_path, mon
     assert redirected.value.fix == "unset RAVEL_ROOT"
 
 
+class _Distribution:
+    """Installed-distribution metadata with one ``direct_url.json`` body."""
+    version = "0"
+
+    def __init__(self, direct_url):
+        self.direct_url = direct_url
+
+    def read_text(self, name):
+        return self.direct_url if name == "direct_url.json" else None
+
+
+def test_an_editable_install_identifies_only_the_project_it_points_at(tmp_path, monkeypatch):
+    """The kind comes from the package at hand: an editable install elsewhere in the environment, as the
+    CI runner makes, does not turn another checkout into 'editable'."""
+    monkeypatch.setattr(identity, "_site_directories", lambda: [Path(os.path.realpath(tmp_path / "site-packages"))])
+    project = tmp_path / "project with space"
+    other = tmp_path / "other"
+    for root in (project, other):
+        (root / ".git").mkdir(parents=True)
+    source = tiny_package(project / "src")
+    elsewhere = tiny_package(other / "src")
+
+    def installed_as(directory, editable=True):
+        body = json.dumps({"url": directory.as_uri(), "dir_info": {"editable": editable}})
+        monkeypatch.setattr(identity, "_distribution", lambda: _Distribution(body))
+
+    installed_as(other)
+    assert identity.package_identity(source)["kind"] == "checkout"
+    assert identity.package_identity(elsewhere)["kind"] == "editable"
+    installed_as(project)
+    found = identity.package_identity(source)
+    assert found["kind"] == "editable" and found["checkout"] == str(Path(os.path.realpath(project)))
+    with pytest.raises(identity.UngovernedInstall, match="editable code"):
+        identity.require_governed_install(identity=found)
+    assert identity.package_identity(elsewhere)["kind"] == "checkout"
+    installed_as(project, editable=False)
+    assert identity.package_identity(source)["kind"] == "checkout"
+    # Metadata that cannot be read to the end keeps the cautious answer; no metadata is no editable install.
+    for body, kind in (("{not json", "editable"), (json.dumps({"dir_info": {"editable": True}}), "editable"),
+                       (json.dumps({"url": "https://example.invalid/p", "dir_info": {"editable": True}}), "editable"),
+                       ("", "checkout"), (None, "checkout")):
+        monkeypatch.setattr(identity, "_distribution", lambda body=body: _Distribution(body))
+        assert identity.package_identity(source)["kind"] == kind, body
+    monkeypatch.setattr(identity, "_distribution", lambda: None)
+    assert identity.package_identity(source)["kind"] == "checkout"
+
+
 @pytest.mark.parametrize("change", ["source", "bytecode", "seal-record", "link"])
 def test_a_changed_runtime_is_not_sealed_and_admission_refuses(tmp_path, monkeypatch, change):
     package = tiny_package(tmp_path / "copy")

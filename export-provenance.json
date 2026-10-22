@@ -1669,7 +1669,7 @@
     },
     {
       "public_path": ".github/workflows/ci.yml",
-      "export_sha256": "894442f0cee26b6912743787164d6d3a04149c3296a6792d844d6ea1f61ae8ad"
+      "export_sha256": "8b622b8ee80028d6da2596c43a4dcda738355beefbe2e7815dbf5bee8e7b24c6"
     },
     {
       "public_path": ".gitignore",
@@ -2465,7 +2465,7 @@
     },
     {
       "public_path": "CONTRIBUTING.md",
-      "export_sha256": "2a94ce0cc2997ab0e1daa51862dc3fd4de1a8f02aab176aa50d85d7101f48b8f"
+      "export_sha256": "b753b1b4e08b6021a28b7f2bfb282d50f439b53c074331dc698ae3365334e111"
     },
     {
       "public_path": "DIRECTORY.md",
@@ -2637,7 +2637,7 @@
     },
     {
       "public_path": "docs/cli/commands.md",
-      "export_sha256": "6769ab48860af8b2245234bc738ee9999b7747ddc5aa015dbb02684c9d4ea60a"
+      "export_sha256": "75cbaced5765fd4164ac3b631b653672b9605427fdb26939637984585e2e205a"
     },
     {
       "public_path": "docs/examples/eft-toolchain/point.json",
@@ -3477,19 +3477,19 @@
     },
     {
       "public_path": "docs/reference/documentation-command-inventory.json",
-      "export_sha256": "9cea7c747364c71ca49a17f4772819eb64cc787ed21b7567865b31e4f82c8ee5"
+      "export_sha256": "17e0c477315e5b0611b51701e3d0d982fb1fbf83c7642f97bb1d1182d39ba88b"
     },
     {
       "public_path": "docs/reference/documentation-configuration-inventory.json",
-      "export_sha256": "cbb89457d4aef239765d1c403cd48c32366c0651ab84860b1f632a7b274ae9f1"
+      "export_sha256": "a6dca2e8710a74c049a1294c23586b5e171afff465d037d67bca3b0590e19617"
     },
     {
       "public_path": "docs/reference/documentation-inventory.json",
-      "export_sha256": "7cfb1d27857ff965865499562b178863c95d0c2f2c14cffad60fa1f42ddfa523"
+      "export_sha256": "ff8d53c0fcc1e44d9875b4d094134413eaee8ca46bb021060a16396b0f1f8cf5"
     },
     {
       "public_path": "docs/reference/documentation-inventory.md",
-      "export_sha256": "dbfbf40a2d924f512d1695d027069701b8bfd5f14b7bcba2e544c42ba8f188ca"
+      "export_sha256": "24adde8a98adc7846d7450151980d492af4116568ec1490a6ec87fdbdb6c0be3"
     },
     {
       "public_path": "docs/reference/domain-adapters.md",
@@ -4709,7 +4709,7 @@
     },
     {
       "public_path": "scripts/maintenance/ci_shards.py",
-      "export_sha256": "2c55ab6f3aeb6a3636a0b02d5aed76e6f7fddbca88d69bd1bfda4a4459460514"
+      "export_sha256": "7a3ee3cb194bee1ebd16829f5a862e0a585d3dd287d529ad8770b94e0e68be78"
     },
     {
       "public_path": "scripts/maintenance/documentation_environment.py",
@@ -4989,7 +4989,7 @@
     },
     {
       "public_path": "src/ravel/controller/confine/identity.py",
-      "export_sha256": "4a44f869b79b95ec41da4131ae1560210538b07a66ff29e0461b03d7475d39f2"
+      "export_sha256": "12257504f5438d3842a3c03fca3e58dc65ac6a7f7969b4a622e1f29ac29d9b56"
     },
     {
       "public_path": "src/ravel/controller/confine/inputs.py",
@@ -5873,7 +5873,7 @@
     },
     {
       "public_path": "src/ravel/data/controller/engagement/envelopes.json",
-      "export_sha256": "23a7caaad05b09050d1476298b94f455d9ef23b0d9e030ad1e80fe65aa2922df"
+      "export_sha256": "c04494e0ca97282090bd813d3627b44d3c466c810659717899ae3296e19a1c25"
     },
     {
       "public_path": "src/ravel/data/controller/engagement/policy.json",
@@ -6629,7 +6629,7 @@
     },
     {
       "public_path": "src/ravel/data/knowledge/atlas.json",
-      "export_sha256": "333d2361042f812b23e0dd545fc0b88f4f8c585e162a9bcc13c7c5399b71881e"
+      "export_sha256": "3a22eb096233312336e71d74a7c5b1ef87c42322dcea8b59faa282b8cc8c2db9"
     },
     {
       "public_path": "src/ravel/data/knowledge/consult_bindings.json",
@@ -11529,7 +11529,7 @@
     },
     {
       "public_path": "src/ravel/workflow/machine_lease.py",
-      "export_sha256": "d1bde0b82285edb636afb3bf6d966d8fb087315b619aa8f4fba90f37a01491d9"
+      "export_sha256": "f98738c88011ecc9922a3b45a1d29158c441d28c54c9a0f8f8417b070d85b44a"
     },
     {
       "public_path": "src/ravel/workflow/manuscript_claim_disposition.py",
@@ -12505,7 +12505,7 @@
     },
     {
       "public_path": "tests/file_timings.json",
-      "export_sha256": "6f99439dd4fe5f24d32d848a2333179bd5a1fd095ae42a24c82b1f018bde809a"
+      "export_sha256": "1c50a0e3840e3b75e4697a6b3c2170e74bff84d3592c4630233fb09a26e53e7f"
     },
     {
       "public_path": "tests/fixtures/canaries/artifact.txt",
@@ -15765,7 +15765,7 @@
     },
     {
       "public_path": "tests/unit/test_ci_shards.py",
-      "export_sha256": "d2ae918bb08eaffedd0bd2b2bb88d38d02ac5ce53ab263443df462565d20a9bf"
+      "export_sha256": "94b30f7cdfe90917e9b46f5d944b80ab9105ce5b246c763fda57f1e80bc4b7ed"
     },
     {
       "public_path": "tests/unit/test_claim_checks.py",
@@ -16485,7 +16485,7 @@
     },
     {
       "public_path": "tests/unit/test_governed_runtime.py",
-      "export_sha256": "70e987db5fc54d2ffa25a4b385436ac74be5a37d5c7725bf866d13e2965eb8ce"
+      "export_sha256": "9cdd3f032d4ea5a63de99245a8e53e1120417c15f0fa567c404c4a9771daec07"
     },
     {
       "public_path": "tests/unit/test_graph_contract_builder.py",
@@ -17089,7 +17089,7 @@
     },
     {
       "public_path": "tests/unit/test_machine_lease_scope.py",
-      "export_sha256": "a783d037556b695336c50c6c6485a1c23fcb5f7f5a5a9e6c6a0b8bbb7eab996e"
+      "export_sha256": "8bd5857aff833764854e09e99a0c2c2f98f5482c22cecf31f6a896a307225a78"
     },
     {
       "public_path": "tests/unit/test_machine_state_isolation.py",

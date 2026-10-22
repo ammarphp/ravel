@@ -21,6 +21,8 @@ import os
 from pathlib import Path
 import stat
 import sysconfig
+from urllib.parse import unquote, urlparse
+from urllib.request import url2pathname
 
 NOT_GOVERNED = 'NOT GOVERNED'
 SELECTORS = ('RAVEL_ROOT', 'RAVEL_ADDON_PATH', 'RAVEL_NATIVE_BIN', 'RAVEL_NATIVE_BUILD', 'BUILD_DIR')
@@ -55,7 +57,11 @@ def _distribution():
     return None
 
 
-def _editable(distribution):
+def _editable(distribution, package):
+    """True when ``distribution`` is an editable install of the project that holds ``package``.
+
+    An editable install records the project directory it points at (``direct_url.json``). A package
+    elsewhere is a checkout of its own, whatever else is installed in the environment."""
     if distribution is None:
         return False
     try:
@@ -65,9 +71,15 @@ def _editable(distribution):
     if not text:
         return False
     try:
-        return json.loads(text).get('dir_info', {}).get('editable') is True
-    except ValueError:
+        record = json.loads(text)
+        if record.get('dir_info', {}).get('editable') is not True:
+            return False
+        url = urlparse(record.get('url') or '')
+    except (ValueError, AttributeError):
         return True
+    if url.scheme != 'file':
+        return True
+    return package.is_relative_to(Path(os.path.realpath(url2pathname(unquote(url.path)))))
 
 
 def _site_directories():
@@ -189,7 +201,7 @@ def package_identity(package, *, digest=True):
     distribution = None if seal is not None else _distribution()
     installed = seal is None and any(package.is_relative_to(root) for root in _site_directories())
     # The distribution's metadata describes the imported package only when it is the one installed there.
-    editable = _editable(distribution) and not installed
+    editable = _editable(distribution, package) and not installed
     checkout = None if installed or seal is not None else _checkout(package)
     if seal is not None:
         kind = 'sealed'

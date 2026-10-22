@@ -11018,7 +11018,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/machine_lease.py",
-        "sha256": "d1bde0b82285edb636afb3bf6d966d8fb087315b619aa8f4fba90f37a01491d9"
+        "sha256": "f98738c88011ecc9922a3b45a1d29158c441d28c54c9a0f8f8417b070d85b44a"
       },
       "status": "registered",
       "summary": "the machine lease: holder, read-only preflight of earlier jobs' live processes, operator fence clearing",
@@ -11030,7 +11030,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/machine_lease.py",
-        "sha256": "d1bde0b82285edb636afb3bf6d966d8fb087315b619aa8f4fba90f37a01491d9"
+        "sha256": "f98738c88011ecc9922a3b45a1d29158c441d28c54c9a0f8f8417b070d85b44a"
       },
       "status": "registered",
       "summary": "the machine lease: holder, read-only preflight of earlier jobs' live processes, operator fence clearing",
@@ -13814,7 +13814,7 @@
       "links": {},
       "source": {
         "path": "docs/cli/commands.md",
-        "sha256": "6769ab48860af8b2245234bc738ee9999b7747ddc5aa015dbb02684c9d4ea60a"
+        "sha256": "75cbaced5765fd4164ac3b631b653672b9605427fdb26939637984585e2e205a"
       },
       "status": "registered",
       "summary": "Source reference document",
@@ -14450,7 +14450,7 @@
       "links": {},
       "source": {
         "path": "docs/reference/documentation-inventory.md",
-        "sha256": "dbfbf40a2d924f512d1695d027069701b8bfd5f14b7bcba2e544c42ba8f188ca"
+        "sha256": "24adde8a98adc7846d7450151980d492af4116568ec1490a6ec87fdbdb6c0be3"
       },
       "status": "registered",
       "summary": "Source reference document",
@@ -55393,7 +55393,7 @@
       },
       {
         "path": "docs/cli/commands.md",
-        "sha256": "6769ab48860af8b2245234bc738ee9999b7747ddc5aa015dbb02684c9d4ea60a"
+        "sha256": "75cbaced5765fd4164ac3b631b653672b9605427fdb26939637984585e2e205a"
       },
       {
         "path": "docs/figures/README.md",
@@ -55605,7 +55605,7 @@
       },
       {
         "path": "docs/reference/documentation-inventory.md",
-        "sha256": "dbfbf40a2d924f512d1695d027069701b8bfd5f14b7bcba2e544c42ba8f188ca"
+        "sha256": "24adde8a98adc7846d7450151980d492af4116568ec1490a6ec87fdbdb6c0be3"
       },
       {
         "path": "docs/reference/domain-adapters.md",
@@ -58653,7 +58653,7 @@
       },
       {
         "path": "src/ravel/workflow/machine_lease.py",
-        "sha256": "d1bde0b82285edb636afb3bf6d966d8fb087315b619aa8f4fba90f37a01491d9"
+        "sha256": "f98738c88011ecc9922a3b45a1d29158c441d28c54c9a0f8f8417b070d85b44a"
       },
       {
         "path": "src/ravel/workflow/method_selection.py",

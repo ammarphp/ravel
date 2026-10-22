@@ -69,16 +69,17 @@ jobs:
         run: python3 -B -m ravel.validation.check_protected_paths --check-manifest src/ravel/data/knowledge
 
   tests:
-    # Eight greedy duration-balanced shards, with one fresh pytest process per file and a 40-minute
-    # limit per file; the long files (ci_shards.LONG) run in the long-tests job below.
-    # tests/unit/test_ci_shards.py checks the complete partition and runner contract.
-    name: test suite (shard ${{ matrix.shard }} of 8)
+    # Twelve greedy duration-balanced shards (ci_shards.SHARDS), with one fresh pytest process per file
+    # and a 40-minute limit per file; the long files (ci_shards.LONG) run in the long-tests job below.
+    # tests/unit/test_ci_shards.py checks the complete partition, the runner contract and that each
+    # shard's expected time stays at least 30% under the job limit.
+    name: test suite (shard ${{ matrix.shard }} of 12)
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)
@@ -119,7 +120,7 @@ jobs:
           OPENBLAS_NUM_THREADS: "1"
           OMP_NUM_THREADS: "1"
           MKL_NUM_THREADS: "1"
-        run: python scripts/maintenance/ci_shards.py --index ${{ matrix.shard }} --count 8 --run --file-timeout 2400
+        run: python scripts/maintenance/ci_shards.py --index ${{ matrix.shard }} --count 12 --run --file-timeout 2400
 
   long-tests:
     # Each long test file (ci_shards.LONG) on a runner of its own. The file stops and reports
@@ -132,7 +133,12 @@ jobs:
       matrix:
         file: [tests/unit/test_fresh_replication.py, tests/unit/test_wms_retry.py,
                tests/unit/test_research_full_cycle.py, tests/unit/test_research_full_cycle_outer.py,
-               tests/unit/test_research_full_cycle_receipt.py]
+               tests/unit/test_research_full_cycle_receipt.py,
+               tests/unit/controller/test_composition_operation_tasks.py,
+               tests/unit/controller/test_composition_wave_a.py, tests/unit/controller/test_composition_wave_b.py,
+               tests/unit/controller/test_p11_composition.py, tests/unit/test_langgraph_research_orchestration.py,
+               tests/unit/test_native_correction_adoption.py, tests/unit/test_readonly_preparation_successor_v2.py,
+               tests/unit/test_science_packet_observation.py, tests/unit/test_science_resume_observation.py]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)

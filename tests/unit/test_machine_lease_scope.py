@@ -184,3 +184,60 @@ def test_batch_slot_scope_requires_the_starter_job_ad_in_worker_scratch(machine_
         monkeypatch.setenv('_CONDOR_JOB_AD', str(ad))
     with pytest.raises(ValueError, match='_CONDOR_JOB_AD'):
         ml.machine_dir()
+
+
+WHOLE = '         0          0 4294967295\n'
+SANDBOX = '      1000       1000          1\n'
+
+
+@pytest.mark.parametrize('text,confined', [(WHOLE, False), (SANDBOX, True), ('0 100000 65536\n', True), ('', False)])
+def test_a_partial_uid_map_marks_a_user_namespace_sandbox(monkeypatch, tmp_path, text, confined):
+    uid_map = tmp_path / 'uid_map'
+    uid_map.write_text(text)
+    monkeypatch.setattr(ml, '_PROC_UID_MAP', str(uid_map))
+    assert ml._in_user_namespace() is confined
+    monkeypatch.setattr(ml, '_PROC_UID_MAP', str(tmp_path / 'absent'))
+    assert ml._in_user_namespace() is False
+
+
+@pytest.mark.parametrize('uid_map,passwd,declared,home,expected', [
+    # The host: the account's home, whatever the environment says.
+    (WHOLE, '/srv/account', '/declared', '/scratch/private', '/srv/account/.local/state/ravel/machine'),
+    # A sandbox that keeps the host's password file: the declared launch state, else the private HOME.
+    (SANDBOX, '/srv/account', '/declared', '/scratch/private', '/declared/machine'),
+    (SANDBOX, '/srv/account', None, '/scratch/private', '/scratch/private/.local/state/ravel/machine'),
+    (SANDBOX, '/srv/account', None, None, '/srv/account/.local/state/ravel/machine'),
+    (SANDBOX, '/srv/account', None, 'relative', '/srv/account/.local/state/ravel/machine'),
+    # A sandbox with no entry for the uid.
+    (SANDBOX, None, '/declared', '/scratch/private', '/declared/machine'),
+    (SANDBOX, None, None, '/scratch/private', '/scratch/private/.local/state/ravel/machine'),
+    (WHOLE, None, None, '/scratch/private', '/scratch/private/.local/state/ravel/machine'),
+])
+def test_a_confined_launch_keeps_its_state_in_its_declared_or_private_location(
+        monkeypatch, tmp_path, uid_map, passwd, declared, home, expected):
+    import types
+    mapping = tmp_path / 'uid_map'
+    mapping.write_text(uid_map)
+    monkeypatch.setattr(ml, '_PROC_UID_MAP', str(mapping))
+
+    def entry(uid):
+        if passwd is None:
+            raise KeyError(uid)
+        return types.SimpleNamespace(pw_dir=passwd)
+    monkeypatch.setattr(ml.pwd, 'getpwuid', entry)
+    for name, value in (('RAVEL_LAUNCH_STATE', declared), ('HOME', home)):
+        if value is None:
+            monkeypatch.delenv(name, raising=False)
+        else:
+            monkeypatch.setenv(name, value)
+    assert ml._state_root_path() == Path(expected)
+
+
+def test_a_launch_with_no_password_entry_and_no_home_has_no_state_root(monkeypatch, tmp_path):
+    def entry(uid):
+        raise KeyError(uid)
+    monkeypatch.setattr(ml.pwd, 'getpwuid', entry)
+    monkeypatch.delenv('HOME', raising=False)
+    monkeypatch.delenv('RAVEL_LAUNCH_STATE', raising=False)
+    with pytest.raises(ValueError, match='no state root'):
+        ml._state_root_path()

@@ -313,21 +313,40 @@ def allocation_identity():
     return identity
 
 
+_PROC_UID_MAP = '/proc/self/uid_map'
+_WHOLE_UID_RANGE = [['0', '0', '4294967295']]
+
+
+def _in_user_namespace():
+    """True when the kernel maps less than the whole uid range into this process: a user-namespace sandbox."""
+    try:
+        with open(_PROC_UID_MAP) as handle:
+            rows = [line.split() for line in handle.read().splitlines() if line.strip()]
+    except OSError:
+        return False
+    return bool(rows) and rows != _WHOLE_UID_RANGE
+
+
 def _state_root_path():
     try:
-        home = pwd.getpwuid(os.getuid()).pw_dir
+        account_home = pwd.getpwuid(os.getuid()).pw_dir
     except KeyError:
-        # A confined launch: its uid has no entry in the sandbox's password database. Its state root is
-        # the persistent directory its controller declared for this child (RAVEL_LAUNCH_STATE: the
-        # child's lease, custody and steering records across the run's launches), else the launch's
-        # private HOME. The governing lease is its controller's.
+        account_home = None
+    # A confined launch: either its uid has no entry in the sandbox's password database, or the sandbox
+    # keeps the host's password file but runs in its own user namespace, where the account's home is
+    # not writable. Its state root is the persistent directory its controller declared for this child
+    # (RAVEL_LAUNCH_STATE: the child's lease, custody and steering records across the run's launches),
+    # else the launch's private HOME. The governing lease is its controller's.
+    if account_home is None or _in_user_namespace():
         declared = os.environ.get('RAVEL_LAUNCH_STATE')
         if declared and os.path.isabs(declared):
             return Path(declared) / 'machine'
         home = os.environ.get('HOME')
-        if not home or not os.path.isabs(home):
+        if home and os.path.isabs(home):
+            return Path(home) / '.local/state/ravel/machine'
+        if account_home is None:
             raise ValueError('no state root: the password database names no home for this uid and HOME is unset')
-    return Path(home) / '.local/state/ravel/machine'
+    return Path(account_home) / '.local/state/ravel/machine'
 
 
 def _resolve():

@@ -108,18 +108,18 @@ file, changing only the package entry to `-e .`, and installs it once under the
 same constraints. Isolated workers retain an editable source installation, and
 the test harness also selects checkout source for tests and their subprocesses.
 CI greedily packs test files
-into eight shards, longest measured duration first, using
-`tests/file_timings.json`, and runs a fresh pytest process for every file. Paths
-and shard indices break ties deterministically. Unknown durations cost at least
-60 seconds and at least the longest measured ordinary file. The committed
-timings record their measured source and digest; historical timings guide
-scheduling and do not certify the current source. The census retains only
-public-selected test paths; remaining source files use the unknown
-duration fallback. The long
-files listed in `ci_shards.LONG` each run in a job of their own:
+into twelve shards (`ci_shards.SHARDS`), longest duration first, using the hosted-runner
+seconds (`ci_seconds`) in `tests/file_timings.json`, and runs a fresh pytest process for
+every file. Paths and shard indices break ties deterministically. Unknown durations cost
+at least 60 seconds and at least the longest ordinary file. The committed timings record
+their measured source; historical timings guide scheduling and do not certify the current
+source. The census retains only public-selected test paths; remaining source files use the
+unknown duration fallback. Each shard's expected time stays at least 30% under its job
+limit, and a file that alone takes more than 70% of the file limit is listed in
+`ci_shards.LONG`. The long files each run in a job of their own:
 
 ```bash
-python scripts/maintenance/ci_shards.py --index 0 --count 8 --run --file-timeout 2400
+python scripts/maintenance/ci_shards.py --index 0 --count 12 --run --file-timeout 2400
 python scripts/maintenance/ci_shards.py --long tests/unit/test_fresh_replication.py --run --file-timeout 16200
 python scripts/maintenance/ci_shards.py --long tests/unit/test_wms_retry.py --run --file-timeout 16200
 ```
