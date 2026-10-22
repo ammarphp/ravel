@@ -29,7 +29,12 @@ from test_report_integrity import fixture as manuscript_fixture, located, span
 # runs out during this file's own run time, and the comparison worker (two complete producer
 # reconstructions over a source closure of several hundred files) does not finish inside the
 # 30 s ceiling of the original study; it needed about 270 s on the cluster node.
-CAMPAIGN_SECONDS=3600;COMPARISON_SECONDS=900
+# The module-scoped seed starts its campaign clock at its first dispatch and later tests dispatch
+# against that clock. The file takes 73 minutes on the cluster node and over two hours on a hosted
+# runner, so a one-hour clock expired for the tests that run late ("experiment not currently
+# admissible for preparation"). The clock outlasts the longest file limit of the hosted jobs
+# (16200 s, .github/workflows/ci.yml) with margin: no host is slow enough to expire it.
+CAMPAIGN_SECONDS=21600;COMPARISON_SECONDS=900
 
 
 def campaign(base):

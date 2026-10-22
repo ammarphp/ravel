@@ -2637,7 +2637,7 @@
     },
     {
       "public_path": "docs/cli/commands.md",
-      "export_sha256": "75cbaced5765fd4164ac3b631b653672b9605427fdb26939637984585e2e205a"
+      "export_sha256": "b0e18281e2e0bd7aa1f26fb7116fc0fa65f1c74e1e69fb96a73298c8c682dcd5"
     },
     {
       "public_path": "docs/examples/eft-toolchain/point.json",
@@ -3477,19 +3477,19 @@
     },
     {
       "public_path": "docs/reference/documentation-command-inventory.json",
-      "export_sha256": "17e0c477315e5b0611b51701e3d0d982fb1fbf83c7642f97bb1d1182d39ba88b"
+      "export_sha256": "7b09e9ad828afbb9371eedc274d30c69340416c0e083bf650ad600d93a1c167b"
     },
     {
       "public_path": "docs/reference/documentation-configuration-inventory.json",
-      "export_sha256": "a6dca2e8710a74c049a1294c23586b5e171afff465d037d67bca3b0590e19617"
+      "export_sha256": "855f56a43c882e0b913643596605456e8099e7b128072fc5a083b2ff41a4fc68"
     },
     {
       "public_path": "docs/reference/documentation-inventory.json",
-      "export_sha256": "ff8d53c0fcc1e44d9875b4d094134413eaee8ca46bb021060a16396b0f1f8cf5"
+      "export_sha256": "a52d1734807bf81375b43ccc0db2749122cceb53561e5133ae2227bda2a275a2"
     },
     {
       "public_path": "docs/reference/documentation-inventory.md",
-      "export_sha256": "24adde8a98adc7846d7450151980d492af4116568ec1490a6ec87fdbdb6c0be3"
+      "export_sha256": "08965e3c40fbc2a431be1ac9a2c236dd46097e54cd0da8bc67767b3ca643c423"
     },
     {
       "public_path": "docs/reference/domain-adapters.md",
@@ -5437,7 +5437,7 @@
     },
     {
       "public_path": "src/ravel/controller/run_bundle.py",
-      "export_sha256": "9f69b60dca9ebfc1de82ae9a2d90c90d8544c8c0acdd58c7dd89f6b3d00219aa"
+      "export_sha256": "76a43c0dcb8a76a5e6b81a6d2ac7f6bc69724952e5a8c73a4b76e81f55743940"
     },
     {
       "public_path": "src/ravel/controller/sharing.py",
@@ -5581,7 +5581,7 @@
     },
     {
       "public_path": "src/ravel/controller/store.py",
-      "export_sha256": "1b724460f1d1625e97a02001cc8b9a77fe68e3b931a77d80b896fff852f086b6"
+      "export_sha256": "33fa4e6e5e23682651f5ad8f53f0f7fc2ef4c28c6e162c4909f347928f46a181"
     },
     {
       "public_path": "src/ravel/controller/testing.py",
@@ -5625,7 +5625,7 @@
     },
     {
       "public_path": "src/ravel/data/agents/call_sites.json",
-      "export_sha256": "641875851c78272d49b55deaf94a26cf48aacb317250671ddea2220223b15672"
+      "export_sha256": "81b9dc1e46dd12d36d440bc079c920d2a8237bd9ede8c9a5b983292171f4e565"
     },
     {
       "public_path": "src/ravel/data/agents/role-dispatch.json",
@@ -5873,7 +5873,7 @@
     },
     {
       "public_path": "src/ravel/data/controller/engagement/envelopes.json",
-      "export_sha256": "c04494e0ca97282090bd813d3627b44d3c466c810659717899ae3296e19a1c25"
+      "export_sha256": "b1762dfb5927806585f42c572e1d44d5abd23b9a9fc0cf841a1367fc0d5a8373"
     },
     {
       "public_path": "src/ravel/data/controller/engagement/policy.json",
@@ -6629,7 +6629,7 @@
     },
     {
       "public_path": "src/ravel/data/knowledge/atlas.json",
-      "export_sha256": "3a22eb096233312336e71d74a7c5b1ef87c42322dcea8b59faa282b8cc8c2db9"
+      "export_sha256": "9af7396635c7e59b714b2634b533a83ffb0f477b77b6e7b134ea7a8966169753"
     },
     {
       "public_path": "src/ravel/data/knowledge/consult_bindings.json",
@@ -11273,7 +11273,7 @@
     },
     {
       "public_path": "src/ravel/workflow/graph_environment.py",
-      "export_sha256": "5313cdd36a7182ca9272ca190baac8e4bf552ac03d2eaab9bb4568a3d87f8807"
+      "export_sha256": "adf429b0715616985e802bdeb3441aea67086fc31ed944f51ab9d7da40eefa45"
     },
     {
       "public_path": "src/ravel/workflow/graph_nodes.py",
@@ -11285,7 +11285,7 @@
     },
     {
       "public_path": "src/ravel/workflow/graph_substrate.py",
-      "export_sha256": "5d2bd7408eb1ad64698597e1f5036dedc6964a19f465f7d3e207f9d129111e34"
+      "export_sha256": "ecc7281079be2a9a75141216df5ef5f02a9d5f4de3418f28138e0982d8eb695d"
     },
     {
       "public_path": "src/ravel/workflow/graphs/__init__.py",
@@ -11421,7 +11421,7 @@
     },
     {
       "public_path": "src/ravel/workflow/langgraph_runtime.py",
-      "export_sha256": "7555ac5a84b0fc8f08549d80eb759341a815311af1b2e371c698ebc07423bc73"
+      "export_sha256": "cd591994350cd726b47d834299d8668333b0e2aeb75bd2edcb37917641bdf87d"
     },
     {
       "public_path": "src/ravel/workflow/launch_authorization.py",
@@ -12485,7 +12485,7 @@
     },
     {
       "public_path": "tests/conformance/test_langgraph_semantics.py",
-      "export_sha256": "9a5ba417dc0b468324964b288afd5e36fdff5fea02ec0233df25152a89f254e7"
+      "export_sha256": "a8646f999ef30b38fca90d68fbeea7dc420e6634b3a59eb57a78f0e8e7dac527"
     },
     {
       "public_path": "tests/conftest.py",
@@ -13925,7 +13925,7 @@
     },
     {
       "public_path": "tests/unit/controller/test_p01_store.py",
-      "export_sha256": "1571e0cf58ca548adda30c4e423b57a6df820d40d5acfca585803b916bc366d0"
+      "export_sha256": "cec332c964ec78d7227c2843aa2dea2767a37daa3e6aad460db7437fd2332cb6"
     },
     {
       "public_path": "tests/unit/controller/test_p02_catalogue.py",
@@ -16417,7 +16417,7 @@
     },
     {
       "public_path": "tests/unit/test_fresh_replication.py",
-      "export_sha256": "821aaa13d343459481cb6303fb19050f7951e38c4c98f8b1b88ad35e85938d0c"
+      "export_sha256": "e8e106869f0509777cc95edd88155def41d8284e37a0967680982de633f787d1"
     },
     {
       "public_path": "tests/unit/test_full_auxiliary_calibration.py",

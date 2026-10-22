@@ -17,7 +17,7 @@ import sqlite3
 import stat
 
 from .store import (RunStore, StoreError, RUN_MARKER, INDEX,
-                    _path_key, _private_dir, _write_private, _fsync_directory)
+                    _path_key, _private_dir, _write_private, _fsync_directory, directory_identity)
 
 SCHEMA = 'controller-run-bundle.v1'
 CONTEXT = ['controller-run-bundle', 1]
@@ -277,7 +277,7 @@ def restore_run(bundle):
         _write_private(run_dir / RUN_MARKER, (json.dumps(marker, sort_keys=True) + '\n').encode())
         index = _private_dir(base / INDEX)
         _write_private(index / f'path-{_path_key(run_dir)}.json', json.dumps({
-            'run_id': store.run_id, 'run_dir': str(run_dir), 'dev': info.st_dev, 'ino': info.st_ino}).encode())
+            'run_id': store.run_id, 'run_dir': str(run_dir), **directory_identity(run_dir)}).encode())
         # No old live handle may be targeted on this machine. Keep the bytes
         # as evidence, remove the active registry, and fence capabilities.
         scope = store.graph_scope()

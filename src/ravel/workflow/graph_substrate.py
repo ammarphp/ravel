@@ -21,7 +21,6 @@ import json
 import os
 from pathlib import Path
 import signal
-import sqlite3
 import stat
 import subprocess
 import sys
@@ -177,9 +176,8 @@ def saver(scope_root):
     root = _scope_root(scope_root)
     (root / "framework").mkdir(exist_ok=True)
     db = _regular(root / DB)
-    connection = sqlite3.connect(str(db), check_same_thread=False)
+    connection = graph_environment.open_checkpoint_connection(db)
     try:
-        connection.execute("PRAGMA journal_mode=WAL")
         yield SqliteSaver(connection, serde=strict_serializer())
     finally:
         connection.close()

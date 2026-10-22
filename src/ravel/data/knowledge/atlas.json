@@ -10790,7 +10790,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "5d2bd7408eb1ad64698597e1f5036dedc6964a19f465f7d3e207f9d129111e34"
+        "sha256": "ecc7281079be2a9a75141216df5ef5f02a9d5f4de3418f28138e0982d8eb695d"
       },
       "status": "registered",
       "summary": "run, observe, answer and drain registered agent graphs (graph run|status|stop|respond|events|list)",
@@ -10802,7 +10802,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "5d2bd7408eb1ad64698597e1f5036dedc6964a19f465f7d3e207f9d129111e34"
+        "sha256": "ecc7281079be2a9a75141216df5ef5f02a9d5f4de3418f28138e0982d8eb695d"
       },
       "status": "registered",
       "summary": "run, observe, answer and drain registered agent graphs (graph run|status|stop|respond|events|list)",
@@ -10814,7 +10814,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "5d2bd7408eb1ad64698597e1f5036dedc6964a19f465f7d3e207f9d129111e34"
+        "sha256": "ecc7281079be2a9a75141216df5ef5f02a9d5f4de3418f28138e0982d8eb695d"
       },
       "status": "registered",
       "summary": "run, observe, answer and drain registered agent graphs (graph run|status|stop|respond|events|list)",
@@ -13814,7 +13814,7 @@
       "links": {},
       "source": {
         "path": "docs/cli/commands.md",
-        "sha256": "75cbaced5765fd4164ac3b631b653672b9605427fdb26939637984585e2e205a"
+        "sha256": "b0e18281e2e0bd7aa1f26fb7116fc0fa65f1c74e1e69fb96a73298c8c682dcd5"
       },
       "status": "registered",
       "summary": "Source reference document",
@@ -14450,7 +14450,7 @@
       "links": {},
       "source": {
         "path": "docs/reference/documentation-inventory.md",
-        "sha256": "24adde8a98adc7846d7450151980d492af4116568ec1490a6ec87fdbdb6c0be3"
+        "sha256": "08965e3c40fbc2a431be1ac9a2c236dd46097e54cd0da8bc67767b3ca643c423"
       },
       "status": "registered",
       "summary": "Source reference document",
@@ -55393,7 +55393,7 @@
       },
       {
         "path": "docs/cli/commands.md",
-        "sha256": "75cbaced5765fd4164ac3b631b653672b9605427fdb26939637984585e2e205a"
+        "sha256": "b0e18281e2e0bd7aa1f26fb7116fc0fa65f1c74e1e69fb96a73298c8c682dcd5"
       },
       {
         "path": "docs/figures/README.md",
@@ -55605,7 +55605,7 @@
       },
       {
         "path": "docs/reference/documentation-inventory.md",
-        "sha256": "24adde8a98adc7846d7450151980d492af4116568ec1490a6ec87fdbdb6c0be3"
+        "sha256": "08965e3c40fbc2a431be1ac9a2c236dd46097e54cd0da8bc67767b3ca643c423"
       },
       {
         "path": "docs/reference/domain-adapters.md",
@@ -58593,7 +58593,7 @@
       },
       {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "5d2bd7408eb1ad64698597e1f5036dedc6964a19f465f7d3e207f9d129111e34"
+        "sha256": "ecc7281079be2a9a75141216df5ef5f02a9d5f4de3418f28138e0982d8eb695d"
       },
       {
         "path": "src/ravel/workflow/graphs/lifecycle.py",

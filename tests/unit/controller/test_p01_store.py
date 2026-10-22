@@ -172,6 +172,25 @@ def test_C25_ownership_resolves_paths_inside_the_run_aliases_and_the_store(tmp_p
     assert st.controller_owned(run_dir) is None
 
 
+def test_C25_a_recreated_directory_is_not_the_run_when_the_filesystem_reuses_its_inode(tmp_path, monkeypatch):
+    store = _create(tmp_path)
+    run_dir = store.run_dir
+    monkeypatch.setattr(st, "store_root", lambda: Path(os.path.realpath(tmp_path / "store")))
+    entry_path = store.store_root / st.INDEX / f"path-{st._path_key(run_dir)}.json"
+    recorded = json.loads(entry_path.read_text())
+    assert "birth" in recorded  # the index binds the directory's creation time as well as device and inode
+    (run_dir / st.RUN_MARKER).unlink()
+    assert st.controller_owned(run_dir) == store.run_id
+    shutil.rmtree(run_dir)
+    time.sleep(0.05)  # coarse filesystem clocks
+    run_dir.mkdir()
+    # Some filesystems give a removed directory's inode number to the next directory created. Put the
+    # old device and inode on the new directory's record: only the creation time tells them apart.
+    current = st.directory_identity(run_dir)
+    entry_path.write_text(json.dumps({**recorded, "dev": current["dev"], "ino": current["ino"]}))
+    assert st.controller_owned(run_dir) is None
+
+
 def test_C41_a_copied_run_keeps_its_owner_and_never_binds(tmp_path):
     store = _create(tmp_path)
     store.append("budget", {"spent": {"wall_seconds": 120}})

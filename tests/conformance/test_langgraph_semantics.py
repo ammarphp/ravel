@@ -470,8 +470,9 @@ def test_p12_response_format_validates_with_tool_choice_any():
 # ---- P9: no exclusion between processes ------------------------------------------------------
 
 P9 = """
-import os, sys, sqlite3, time
+import os, sys, time
 from typing import TypedDict
+from ravel.workflow.graph_environment import open_checkpoint_connection
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 class S(TypedDict, total=False):
@@ -481,7 +482,7 @@ def effect(state):
     time.sleep(1.0)
     return {'n': 1}
 b = StateGraph(S); b.add_node('e', effect); b.add_edge(START, 'e'); b.add_edge('e', END)
-conn = sqlite3.connect(sys.argv[1], check_same_thread=False, timeout=30)
+conn = open_checkpoint_connection(sys.argv[1])  # both processes open the same FRESH file at once
 app = b.compile(checkpointer=SqliteSaver(conn))
 app.invoke({'n': 0}, {'configurable': {'thread_id': 'shared'}})
 """
@@ -493,6 +494,38 @@ def test_p9_two_processes_on_one_thread_both_execute(tmp_path):
     first, second = subprocess.Popen(args, env=env), subprocess.Popen(args, env=env)
     assert first.wait(timeout=120) == 0 and second.wait(timeout=120) == 0
     assert _count(tmp_path / "effect") == 2
+
+
+def test_p9_first_open_retries_a_lock_and_gives_up_at_its_deadline(tmp_path):
+    import time
+    from ravel.workflow import graph_environment as environment
+    attempts = []
+
+    def locked_twice():
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise sqlite3.OperationalError("database is locked")
+        return "ready"
+
+    assert environment._retry_locked(locked_twice, time.monotonic() + 30) == "ready" and len(attempts) == 3
+
+    def always_locked():
+        raise sqlite3.OperationalError("database is locked")
+
+    with pytest.raises(sqlite3.OperationalError, match="locked"):
+        environment._retry_locked(always_locked, time.monotonic() + 0.2)
+
+    def other_failure():
+        raise sqlite3.OperationalError("no such table: checkpoints")
+
+    with pytest.raises(sqlite3.OperationalError, match="no such table"):
+        environment._retry_locked(other_failure, time.monotonic() + 30)
+    connection = environment.open_checkpoint_connection(tmp_path / "fresh.sqlite")
+    try:
+        assert connection.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
+        assert {row[0] for row in connection.execute("select name from sqlite_master where type='table'")} >= {"checkpoints", "writes"}
+    finally:
+        connection.close()
 
 
 # ---- P10: v2 streaming -----------------------------------------------------------------------

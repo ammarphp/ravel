@@ -13,7 +13,6 @@ from importlib import metadata
 import json
 import os
 from pathlib import Path
-import sqlite3
 import stat
 from typing import Annotated, TypedDict
 
@@ -87,9 +86,8 @@ def persistent(root):
     from langgraph.checkpoint.sqlite import SqliteSaver
     root = _checkpoint_root(root)
     db = _regular_database(root / 'checkpoints.sqlite')
-    connection = sqlite3.connect(str(db), check_same_thread=False)
+    connection = graph_environment.open_checkpoint_connection(db)
     try:
-        connection.execute('PRAGMA journal_mode=WAL')
         try:
             from . import graph_substrate
         except ImportError:

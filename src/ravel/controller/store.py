@@ -32,7 +32,6 @@ from pathlib import Path
 import pwd
 import re
 import secrets
-import sqlite3
 import stat
 import threading
 import time
@@ -351,16 +350,16 @@ class RunStore:
             raise StoreError(f"run {run_id} already has a store")
         store = cls(run_id, root=base)
         os.mkdir(directory, 0o700)
-        info = os.stat(directory)
+        identity = directory_identity(directory)
         record = {"schema_version": SCHEMA_VERSION, "kind": "controller-run", "run_id": run_id,
-                  "run_dir": str(directory), "dev": info.st_dev, "ino": info.st_ino,
+                  "run_dir": str(directory), "dev": identity["dev"], "ino": identity["ino"],
                   "store_root": str(store.store_root), "origin": deepcopy(origin) if origin is not None else None}
         identifier = store.append("run", record)
         envelope = store.read("run", identifier)
         _write_private(store.root / RUN, (json.dumps(envelope, indent=2, sort_keys=True) + "\n").encode(),
                        exclusive=True)
         index = _private_dir(store.store_root / INDEX)
-        entry = {"run_id": run_id, "run_dir": str(directory), "dev": info.st_dev, "ino": info.st_ino}
+        entry = {"run_id": run_id, "run_dir": str(directory), **identity}
         _write_private(index / f"path-{_path_key(directory)}.json", (json.dumps(entry, sort_keys=True) + "\n").encode())
         marker = {"schema_version": SCHEMA_VERSION, "kind": "controller-run-marker", "run_id": run_id,
                   "store_root": str(store.store_root), "run_record_sha256": envelope["digest"],
@@ -790,7 +789,7 @@ class RunStore:
 
     def checkpointer(self):
         """A ``SqliteSaver`` over the run's checkpoint database in the store (closed by ``close``)."""
-        from ..workflow import graph_environment  # noqa: F401  (strict msgpack before LangGraph)
+        from ..workflow import graph_environment  # strict msgpack before LangGraph
         from langgraph.checkpoint.sqlite import SqliteSaver
         from ..workflow.graph_substrate import strict_serializer
         scope = self.graph_scope()
@@ -800,8 +799,7 @@ class RunStore:
             raise StoreError("the checkpoint database must be a regular file")
         if not database.exists():
             os.close(os.open(database, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600))
-        connection = sqlite3.connect(str(database), check_same_thread=False)
-        connection.execute("PRAGMA journal_mode=WAL")
+        connection = graph_environment.open_checkpoint_connection(database)
         self._connections.append(connection)
         return SqliteSaver(connection, serde=strict_serializer())
 
@@ -819,6 +817,51 @@ class RunStore:
 
 def _path_key(directory):
     return hashlib.sha256(str(directory).encode()).hexdigest()
+
+
+def directory_identity(directory):
+    """``{"dev", "ino", "birth"}`` of a directory; ``birth`` (creation time, ns) is absent when none is reported.
+
+    A filesystem may hand a removed directory's inode number to the next directory created, so
+    device and inode alone cannot tell a recreated directory from the original. The creation
+    time separates them wherever the filesystem reports one.
+    """
+    info = os.stat(directory)
+    identity = {"dev": info.st_dev, "ino": info.st_ino}
+    birth = _birth_ns(directory, info)
+    if birth is not None:
+        identity["birth"] = birth
+    return identity
+
+
+def _birth_ns(directory, info):
+    birth = getattr(info, "st_birthtime", None)  # macOS, BSD
+    if birth is not None:
+        return int(birth * 1_000_000_000)
+    if not hasattr(os, "sched_getaffinity"):  # not Linux
+        return None
+    try:  # Linux: statx(2) with STATX_BTIME
+        import ctypes
+        import struct
+        libc = ctypes.CDLL(None, use_errno=True)
+        buffer = ctypes.create_string_buffer(256)
+        at_fdcwd, at_symlink_nofollow, statx_btime = -100, 0x100, 0x800
+        if libc.statx(at_fdcwd, os.fsencode(directory), at_symlink_nofollow, statx_btime, buffer) != 0:
+            return None
+        if not struct.unpack_from("=I", buffer, 0)[0] & statx_btime:
+            return None
+        seconds, nanoseconds = struct.unpack_from("=qI", buffer, 80)
+        return seconds * 1_000_000_000 + nanoseconds
+    except (AttributeError, OSError, ValueError, ImportError):
+        return None
+
+
+def _same_directory(entry, identity):
+    """Whether a recorded ``{"dev", "ino"[, "birth"]}`` names the directory whose identity is given."""
+    if (identity["dev"], identity["ino"]) != (entry.get("dev"), entry.get("ino")):
+        return False
+    recorded, current = entry.get("birth"), identity.get("birth")
+    return recorded is None or current is None or recorded == current
 
 
 # ---- ownership --------------------------------------------------------------------------
@@ -847,13 +890,14 @@ def _index_claim(directory, root):
         if not entry_path.is_file():
             return None
         entry = json.loads(entry_path.read_text(encoding="utf-8"))
-        info = os.stat(directory)
+        identity = directory_identity(directory)
     except (OSError, ValueError):
         return None
     if type(entry) is not dict or not RUN_ID.fullmatch(str(entry.get("run_id"))):
         return None
-    # A directory recreated at a run's old path, without the run's marker, is not that run.
-    return entry["run_id"] if (info.st_dev, info.st_ino) == (entry.get("dev"), entry.get("ino")) else None
+    # A directory recreated at a run's old path, without the run's marker, is not that run, even
+    # when the filesystem hands the removed directory's inode number to the new one.
+    return entry["run_id"] if _same_directory(entry, identity) else None
 
 
 def previous_claim(directory, root=None):
